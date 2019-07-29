@@ -8,6 +8,7 @@ namespace Database
         {
             modelBuilder.Entity<MetData>(entity =>
             {
+                // Define the primary key
                 entity.HasKey(e => new {
                         e.MetStationId,
                         e.TraitId,
@@ -15,32 +16,33 @@ namespace Database
                     })
                     .HasName("PrimaryKey");
 
+                // Define the table indices
                 entity.HasIndex(e => e.MetStationId)
-                    .HasName("MetStationsMetData");
+                    .HasName("MetDataMetStationId");
 
                 entity.HasIndex(e => e.TraitId)
-                    .HasName("TraitMetData");
+                    .HasName("MetDataTraitId");
 
+                // Define the table properties
                 entity.Property(e => e.MetStationId)
-                    .HasColumnName("MetStationID")
-                    .HasDefaultValueSql("0");
+                    .HasColumnName("MetStationId");
 
                 entity.Property(e => e.TraitId)
-                    .HasColumnName("TraitID")
-                    .HasDefaultValueSql("0");
+                    .HasColumnName("TraitId");
 
                 entity.Property(e => e.Value)
                     .HasDefaultValueSql("0");
 
+                // Define foregin key constraints
                 entity.HasOne(d => d.MetStation)
                     .WithMany(p => p.MetData)
                     .HasForeignKey(d => d.MetStationId)
-                    .HasConstraintName("MetStationsMetData");
+                    .HasConstraintName("MetDataMetStationId");
 
                 entity.HasOne(d => d.Trait)
                     .WithMany(p => p.MetData)
                     .HasForeignKey(d => d.TraitId)
-                    .HasConstraintName("TraitMetData");
+                    .HasConstraintName("MetDataTraitId");
             });
 
         }

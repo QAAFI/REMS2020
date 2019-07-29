@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Trait
+    [Relation("Trait")]
+    public class Trait
     {
         public Trait()
         {
@@ -12,10 +13,10 @@ namespace Database
             SoilData = new HashSet<SoilData>();
             SoilLayerData = new HashSet<SoilLayerData>();
             SoilLayerTraits = new HashSet<SoilLayerTrait>();
-            SoilTraits = new HashSet<SoilTraits>();
+            SoilTraits = new HashSet<SoilTrait>();
             Stats = new HashSet<Stats>();
         }
-
+        
         public int TraitId { get; set; }
         public string TraitName { get; set; }
         public string TraitType { get; set; }
@@ -29,7 +30,7 @@ namespace Database
         public virtual ICollection<SoilData> SoilData { get; set; }
         public virtual ICollection<SoilLayerData> SoilLayerData { get; set; }
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }
-        public virtual ICollection<SoilTraits> SoilTraits { get; set; }
+        public virtual ICollection<SoilTrait> SoilTraits { get; set; }
         public virtual ICollection<Stats> Stats { get; set; }
     }
 }

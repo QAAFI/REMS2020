@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class SoilLayer
+    [Relation("SoilLayer")]
+    public class SoilLayer
     {
         public SoilLayer()
         {

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Region
+    [Relation("Region")]
+    public class Region
     {
         public Region()
         {

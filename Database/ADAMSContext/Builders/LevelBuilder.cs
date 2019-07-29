@@ -8,29 +8,34 @@ namespace Database
         {
             modelBuilder.Entity<Level>(entity =>
             {
+                // Define the primary key
                 entity.HasKey(e => e.LevelId)
                     .HasName("PrimaryKey");
 
+                // Define the table indices
                 entity.HasIndex(e => e.FactorId)
-                    .HasName("FactorsLevels");
+                    .HasName("LevelFactorId");
 
                 entity.HasIndex(e => e.LevelId)                
-                    .HasName("LevelID");
+                    .HasName("LevelId");
 
+                // Define the table properties
                 entity.Property(e => e.LevelId)
-                    .HasColumnName("LevelID");
+                    .HasColumnName("LevelId");
 
                 entity.Property(e => e.FactorId)
-                    .HasColumnName("FactorID")
-                    .HasDefaultValueSql("0");
+                    .HasColumnName("FactorId");
 
-                entity.Property(e => e.LevelName).HasMaxLength(40);
+                entity.Property(e => e.LevelName)
+                    .HasColumnName("Name")
+                    .HasMaxLength(40);
 
+                // Define foreign key constraints
                 entity.HasOne(d => d.Factor)
                     .WithMany(p => p.Level)
                     .HasForeignKey(d => d.FactorId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FactorsLevels");
+                    .HasConstraintName("LevelFactorId");
             });
 
         }

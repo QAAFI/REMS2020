@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class ResearcherList
+    [Relation("ResearcherList")]
+    public class ResearcherList
     {
         public int ResearcherListId { get; set; }
         public int? ExperimentId { get; set; }

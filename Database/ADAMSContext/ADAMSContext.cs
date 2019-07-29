@@ -1,12 +1,28 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace Database
 {
     public partial class ADAMSContext : DbContext
     {
         public string Connection { get; }
+
+        public static List<string> TableNames
+        {
+            get
+            {
+                return typeof(ADAMSContext)                    
+                    .GetProperties()                    
+                    .Where(p => Attribute.IsDefined(p, typeof(Table)))
+                    .Select(p => p.Name)
+                    .ToList();
+            }
+        }
 
         public ADAMSContext(string connection)
         {
@@ -65,8 +81,19 @@ namespace Database
             BuildTillageInfo(modelBuilder);
             BuildTrait(modelBuilder);
             BuildTreatment(modelBuilder);
-            BuildUnit(modelBuilder);
-            
+            BuildUnit(modelBuilder);            
+        }
+
+        public DbSet<dynamic> GetTable(string name)
+        {
+            var table = typeof(ADAMSContext)
+                .GetProperties()
+                .Where(p => Attribute.IsDefined(p, typeof(Table)))
+                .Where(p => (p.GetCustomAttribute(typeof(Table)) as Table).Name == name)
+                .First()
+                .GetValue(this) as DbSet<dynamic>;
+
+            return table;
         }
     }
 }

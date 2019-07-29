@@ -8,30 +8,42 @@ namespace Database
         {
             modelBuilder.Entity<IrrigationInfo>(entity =>
             {
-                entity.HasIndex(e => e.IrrigationId)
-                    .HasName("OperationID");
-
+                // Define the primary key
                 entity.HasIndex(e => e.IrrigationInfoId)
-                    .HasName("FactorLevelID12");
+                    .HasName("PrimaryKey");
 
+                // Define the table indices
+                entity.HasIndex(e => e.IrrigationInfoId)
+                    .HasName("IrrigationInfoId")
+                    .IsUnique();                    
+
+                entity.HasIndex(e => e.IrrigationId)
+                    .HasName("IrrigationInfoIrrigationId");
+                               
                 entity.HasIndex(e => e.Variable)
-                    .HasName("LevelID94");
+                    .HasName("IrrigationVariable");
 
-                entity.Property(e => e.IrrigationInfoId).HasColumnName("IrrigInfoID");
+                // Define the table properties
+                entity.Property(e => e.IrrigationInfoId)
+                    .HasColumnName("IrrigInfoID");
 
                 entity.Property(e => e.IrrigationId)
                     .HasColumnName("IrrigID")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.Value).HasMaxLength(20);
+                entity.Property(e => e.Value)
+                    .HasColumnName("Value")
+                    .HasMaxLength(20);
 
-                entity.Property(e => e.Variable).HasMaxLength(20);
+                entity.Property(e => e.Variable)
+                    .HasMaxLength(20);
 
+                // Define foreign key constraints
                 entity.HasOne(d => d.Irrigation)
                     .WithMany(p => p.IrrigationInfo)
                     .HasForeignKey(d => d.IrrigationId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("IrrigationIrrigInfo");
+                    .HasConstraintName("IrrigationInfoIrrigationId");
             });
 
         }

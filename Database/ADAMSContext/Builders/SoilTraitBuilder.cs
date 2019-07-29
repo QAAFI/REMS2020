@@ -6,7 +6,7 @@ namespace Database
     {
         private void BuildSoilTrait(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SoilTraits>(entity =>
+            modelBuilder.Entity<SoilTrait>(entity =>
             {
                 entity.HasKey(e => e.SoilTraitId)
                     .HasName("PrimaryKey");

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Fertilizer
+    [Relation("Fertilizer")]
+    public class Fertilizer
     {
         public Fertilizer()
         {

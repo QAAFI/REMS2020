@@ -18,29 +18,13 @@ namespace WindowsForm
         [STAThread]
         static void Main()
         {
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new ADAMSClient());
 
-            LoadDatabase();
-        }
-
-        static void LoadDatabase()
-        {
-            var local = Environment.SpecialFolder.LocalApplicationData;
-            string path = Environment.GetFolderPath(local) + "\\ADAMS\\ADAMS.db";
-
-            string connection = $"Data Source={path};";
-
-            //if (!File.Exists(path)) connection += "New=True;";
-
-            ADAMSContext ADAMS = new ADAMSContext(connection);
-
-            var fields = typeof(ADAMSContext).GetFields();
-
-            ADAMS.Database.EnsureCreated();
-            ADAMS.Database.CloseConnection();
             
         }
+
+        
     }
 }

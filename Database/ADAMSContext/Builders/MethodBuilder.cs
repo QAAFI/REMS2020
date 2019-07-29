@@ -8,18 +8,24 @@ namespace Database
         {
             modelBuilder.Entity<Method>(entity =>
             {
+                // Define the primary key
                 entity.HasKey(e => e.MethodId)
                     .HasName("PrimaryKey");
 
-                entity.HasIndex(e => e.MethodName)
-                    .HasName("Method");
-
+                // Define the table indices
                 entity.HasIndex(e => e.MethodId)
-                    .HasName("MethodID");
+                    .HasName("MethodId")
+                    .IsUnique();
 
-                entity.Property(e => e.MethodId).HasColumnName("MethodID");
+                entity.HasIndex(e => e.MethodName)
+                    .HasName("MethodName");
+                               
+                // Define the table properties
+                entity.Property(e => e.MethodId)
+                    .HasColumnName("MethodId");
 
                 entity.Property(e => e.MethodName)
+                    .HasColumnName("Name")
                     .IsRequired()
                     .HasMaxLength(30);
 

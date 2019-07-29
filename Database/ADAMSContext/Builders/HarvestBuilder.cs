@@ -8,38 +8,49 @@ namespace Database
         {
             modelBuilder.Entity<Harvest>(entity =>
             {
-                entity.HasIndex(e => e.HarvestId)
-                    .HasName("HarvestID");
+                // Define primary key
+                entity.HasKey(e => e.HarvestId)
+                    .HasName("PrimaryKey");
 
-                entity.HasIndex(e => e.HarvestMethodId)
-                    .HasName("MethodHarvest");
+                // Define table indices
+                entity.HasIndex(e => e.HarvestId)
+                    .HasName("HarvestId")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.MethodId)
+                    .HasName("HarvestMethodId");
 
                 entity.HasIndex(e => e.TreatmentId)
-                    .HasName("TreatmentsHarvest");
+                    .HasName("HarvestTreatmentId");
 
-                entity.Property(e => e.HarvestId).HasColumnName("HarvestID");
+                // Define table properties
+                entity.Property(e => e.HarvestId)
+                    .HasColumnName("HarvestId");
 
-                entity.Property(e => e.HarvestMethodId)
-                    .HasColumnName("HarvestMethodID")
-                    .HasDefaultValueSql("0");
+                entity.Property(e => e.HarvestDate)
+                    .HasColumnName("Date");
 
-                entity.Property(e => e.Notes).HasMaxLength(50);
+                entity.Property(e => e.MethodId)
+                    .HasColumnName("MethodId");
 
                 entity.Property(e => e.TreatmentId)
-                    .HasColumnName("TreatmentID")
-                    .HasDefaultValueSql("0");
+                    .HasColumnName("TreatmentId");
 
+                entity.Property(e => e.Notes)
+                    .HasMaxLength(50);
+                                
+                // Define foreign key constraints
                 entity.HasOne(d => d.HarvestMethod)
                     .WithMany(p => p.Harvests)
-                    .HasForeignKey(d => d.HarvestMethodId)
+                    .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("MethodHarvest");
+                    .HasConstraintName("HarvestMethodId");
 
                 entity.HasOne(d => d.Treatment)
                     .WithMany(p => p.Harvests)
                     .HasForeignKey(d => d.TreatmentId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("TreatmentsHarvest");
+                    .HasConstraintName("HarvestTreatmentId");
             });
 
         }

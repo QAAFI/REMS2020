@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Plot
+    [Relation("Plot")]
+    public class Plot
     {
         public Plot()
         {

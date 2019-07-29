@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Level
+    [Relation("Level")]
+    public class Level
     {
         public Level()
         {

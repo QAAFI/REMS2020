@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class SoilLayerData
+    [Relation("SoilLayerData")]
+    public class SoilLayerData
     {
         public int SoilLayerId { get; set; }
         public int? PlotId { get; set; }

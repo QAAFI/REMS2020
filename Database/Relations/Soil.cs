@@ -3,13 +3,14 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Soil
+    [Relation("Soil")]
+    public class Soil
     {
         public Soil()
         {
             Fields = new HashSet<Field>();
             SoilLayers = new HashSet<SoilLayer>();
-            SoilTraits = new HashSet<SoilTraits>();
+            SoilTraits = new HashSet<SoilTrait>();
         }
 
         public int SoilId { get; set; }
@@ -18,6 +19,6 @@ namespace Database
 
         public virtual ICollection<Field> Fields { get; set; }
         public virtual ICollection<SoilLayer> SoilLayers { get; set; }
-        public virtual ICollection<SoilTraits> SoilTraits { get; set; }
+        public virtual ICollection<SoilTrait> SoilTraits { get; set; }
     }
 }

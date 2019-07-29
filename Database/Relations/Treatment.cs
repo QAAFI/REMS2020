@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Treatment
+    [Relation("Treatment")]
+    public class Treatment
     {
         public Treatment()
         {

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Database
 {
-    public partial class Crop
+    [Relation("Crop")]
+    public class Crop
     {
         public Crop()
         {
