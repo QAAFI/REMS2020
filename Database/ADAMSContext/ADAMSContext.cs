@@ -27,11 +27,49 @@ namespace Database
         public ADAMSContext(string connection)
         {
             Connection = connection;
+
+            ChemicalApplication = Set<ChemicalApplication>();
+            Crops = Set<Crop>();
+            Designs = Set<Design>();
+            ExperimentInfo = Set<ExperimentInfo>();
+            Experiments = Set<Experiment>();
+            Factors = Set<Factor>();
+            FertilizationInfo = Set<FertilizationInfo>();
+            Fertilizations = Set<Fertilization>();
+            Fertilizers = Set<Fertilizer>();
+            Fields = Set<Field>();
+            Harvests = Set<Harvest>();
+            IrrigationInfo = Set<IrrigationInfo>();
+            Irrigations = Set<Irrigation>();
+            Levels = Set<Level>();
+            MetData = Set<MetData>();
+            MetInfo = Set<MetInfo>();
+            MetStations = Set<MetStations>();
+            Methods = Set<Method>();
+            PlotData = Set<PlotData>();
+            Plots = Set<Plot>();
+            Regions = Set<Region>();
+            ResearcherLists = Set<ResearcherList>();
+            Researchers = Set<Researcher>();
+            Sites = Set<Site>();
+            SoilData = Set<SoilData>();
+            SoilLayerData = Set<SoilLayerData>();
+            SoilLayerTraits = Set<SoilLayerTrait>();
+            SoilLayers = Set<SoilLayer>();
+            SoilTraits = Set<SoilTrait>();
+            Soils = Set<Soil>();
+            Stats = Set<Stats>();
+            TillageInfo = Set<TillageInfo>();
+            Tillage = Set<Tillage>();
+            Traits = Set<Trait>();
+            Treatments = Set<Treatment>();
+            Units = Set<Unit>();
         }
 
         public ADAMSContext(DbContextOptions<ADAMSContext> options)
             : base(options)
         {
+
         }        
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -86,14 +124,50 @@ namespace Database
 
         public DbSet<dynamic> GetTable(string name)
         {
-            var table = typeof(ADAMSContext)
-                .GetProperties()
-                .Where(p => Attribute.IsDefined(p, typeof(Table)))
-                .Where(p => (p.GetCustomAttribute(typeof(Table)) as Table).Name == name)
-                .First()
-                .GetValue(this) as DbSet<dynamic>;
+            var props = typeof(ADAMSContext)
+                .GetProperties();
 
-            return table;
+            var tables = props
+                .Where(p => Attribute.IsDefined(p, typeof(Table)));
+
+            var table = tables
+                .FirstOrDefault(p => (p.GetCustomAttribute(typeof(Table)) as Table).Name == name);
+                       
+            
+            var set = table
+                .GetValue(this, null);
+
+            dynamic dyn = set as DbSet<object>;
+
+            var local = dyn.Local;
+
+            return null;
+        }
+
+        public void ImportDataSet(DataSet data)
+        {
+            var tables = typeof(ADAMSContext)
+                .GetProperties()
+                .Where(p => Attribute.IsDefined(p, typeof(Table)));            
+
+            foreach (DataTable table in data.Tables)
+            {
+                var info = tables
+                    .FirstOrDefault(p => 
+                    (p.GetCustomAttribute(typeof(Table)) as Table).Name == table.TableName);
+
+                var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;
+
+                
+
+                dynamic set = info.GetValue(this);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    row.ItemArray.Take(5);
+                }
+            }
+
         }
     }
 }

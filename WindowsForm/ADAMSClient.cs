@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -34,23 +35,41 @@ namespace WindowsForm
         private void LoadDatabase()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
-            string path = Environment.GetFolderPath(local) + "\\ADAMS\\ADAMS.db";
+            string path = Environment.GetFolderPath(local) + "\\ADAMS";
+            Directory.CreateDirectory(path);
 
-            string connection = $"Data Source={path};";
+            string connection = $"Data Source={path}\\ADAMS.db;";
+
+            var exp = new Experiment()
+            {
+                ExperimentId = 13,
+                ExperimentName = "Name",
+                Description = "Testing",
+                CropId = 2,
+                FieldId = 3,
+                BeginDate = new DateTime(2019, 7, 30),
+                EndDate = new DateTime(2019, 11, 3),
+                MetStationId = 4,
+                ExperimentDesign = "Good design",
+                Repetitions = 5,
+                Rating = 6,
+                Notes = "Nothing",
+                MethodId = 7,
+                PlantingNotes = "Nothing"
+            };
 
             ADAMS = new ADAMSContext(connection);
-            ADAMS.Database.EnsureCreated();         
+            ADAMS.Database.EnsureCreated();
+            ADAMS.Experiments.Add(new Experiment());
+            ADAMS.SaveChanges();
         }
 
         private void OtherMethods()
         {
-            string xlspath = "C:\\Users\\uqgmclea\\Documents\\Mike\\RemsData.xls";
-            var data = Excel.ReadRawData(xlspath);
-
-            DbSet<dynamic> table = ADAMS.GetTable("Experiments");
-
-            table.Add(new Experiment());
-            
+            string xlspath = "C:\\Users\\uqmstow1\\Documents\\RemsData.xls";
+            //var data = Excel.ReadRawData(xlspath);
+            //ADAMS.GetTable("Experiments");
+            //ADAMS.ImportDataSet(data);            
         }
 
         private void FillListView()
