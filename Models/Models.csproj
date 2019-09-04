@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3ABB82A7-60D0-4E28-A75F-D192412E5B5B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Models</RootNamespace>
+    <AssemblyName>Models</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Clock.cs" />
+    <Compile Include="Core\Replacements.cs" />
+    <Compile Include="Core\Simulations.cs" />
+    <Compile Include="Core\Folder.cs" />
+    <Compile Include="Core\Simulation.cs" />
+    <Compile Include="Core\Zone.cs" />
+    <Compile Include="Fertiliser.cs" />
+    <Compile Include="Functions\AccumulateFunction.cs" />
+    <Compile Include="Functions\AddFunction.cs" />
+    <Compile Include="Functions\AirTemperatureFunction.cs" />
+    <Compile Include="Functions\Constant.cs" />
+    <Compile Include="Functions\DecumulateFunction.cs" />
+    <Compile Include="Functions\DemandFunctions\StorageDMDemandFunction.cs" />
+    <Compile Include="Functions\DemandFunctions\StorageNDemandFunction.cs" />
+    <Compile Include="Functions\DemandFunctions\TEWaterDemandFunction.cs" />
+    <Compile Include="Functions\DivideFunction.cs" />
+    <Compile Include="Functions\HeightFunction.cs" />
+    <Compile Include="Functions\HoldFunction.cs" />
+    <Compile Include="Functions\LessThanFunction.cs" />
+    <Compile Include="Functions\LinearInterpolationFunction.cs" />
+    <Compile Include="Functions\MaximumFunction.cs" />
+    <Compile Include="Functions\MinimumFunction.cs" />
+    <Compile Include="Functions\MultiplyFunction.cs" />
+    <Compile Include="Functions\OnEventFunction.cs" />
+    <Compile Include="Functions\PhaseBasedSwitch.cs" />
+    <Compile Include="Functions\PhaseLookup.cs" />
+    <Compile Include="Functions\PhaseLookupValue.cs" />
+    <Compile Include="Functions\PhotoperiodFunction.cs" />
+    <Compile Include="Functions\SubtractFunction.cs" />
+    <Compile Include="Functions\SupplyFunctions\RUEModel.cs" />
+    <Compile Include="Functions\VariableReference.cs" />
+    <Compile Include="Functions\WeightedTemperatureFunction.cs" />
+    <Compile Include="Functions\XYPairs.cs" />
+    <Compile Include="Irrigation.cs" />
+    <Compile Include="Manager.cs" />
+    <Compile Include="Memo.cs" />
+    <Compile Include="Operation.cs" />
+    <Compile Include="Operations.cs" />
+    <Compile Include="Soils\Analysis.cs" />
+    <Compile Include="Soils\CERESSoilTemperature.cs" />
+    <Compile Include="Soils\NitrogenValue.cs" />
+    <Compile Include="Soils\Sample.cs" />
+    <Compile Include="Soils\Soil.cs" />
+    <Compile Include="Soils\SoilCrop.cs" />
+    <Compile Include="Soils\SoilNitrogen.cs" />
+    <Compile Include="Soils\SoilNitrogenNH4.cs" />
+    <Compile Include="Soils\SoilNitrogenNO3.cs" />
+    <Compile Include="Soils\SoilNitrogenPlantAvailableNH4.cs" />
+    <Compile Include="Soils\SoilNitrogenPlantAvailableNO3.cs" />
+    <Compile Include="Soils\SoilNitrogenUrea.cs" />
+    <Compile Include="Soils\SoilOrganicMatter.cs" />
+    <Compile Include="Soils\SoilWater.cs" />
+    <Compile Include="Soils\Water.cs" />
+    <Compile Include="Summary.cs" />
+    <Compile Include="Node.cs" />
+    <Compile Include="PMF\Biomass.cs" />
+    <Compile Include="PMF\BiomassDemand.cs" />
+    <Compile Include="PMF\CompositeBiomass.cs" />
+    <Compile Include="PMF\Cultivar.cs" />
+    <Compile Include="PMF\CultivarFolder.cs" />
+    <Compile Include="PMF\Library\BiomassRemoval.cs" />
+    <Compile Include="PMF\OrganBiomassRemovalType.cs" />
+    <Compile Include="PMF\Organs\GenericOrgan.cs" />
+    <Compile Include="PMF\Organs\ReproductiveOrgan.cs" />
+    <Compile Include="PMF\Organs\Root.cs" />
+    <Compile Include="PMF\Organs\SorghumLeaf.cs" />
+    <Compile Include="PMF\Phen\EmergingPhase.cs" />
+    <Compile Include="PMF\Phen\EndPhase.cs" />
+    <Compile Include="PMF\Phen\GenericPhase.cs" />
+    <Compile Include="PMF\Phen\GerminatingPhase.cs" />
+    <Compile Include="PMF\Phen\Phenology.cs" />
+    <Compile Include="PMF\Plant.cs" />
+    <Compile Include="PMF\PrioritythenRelativeAllocation.cs" />
+    <Compile Include="PMF\RetranslocateAvailableN.cs" />
+    <Compile Include="PMF\Sorghum.cs" />
+    <Compile Include="PMF\Struct\CulmStructure.cs" />
+    <Compile Include="PostSimulationTools\ExcelInput.cs" />
+    <Compile Include="PostSimulationTools\Input.cs" />
+    <Compile Include="PostSimulationTools\PredictedObserved.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Report\Report.cs" />
+    <Compile Include="Storage\DataStore.cs" />
+    <Compile Include="Surface\SurfaceOrganicMatter.cs" />
+    <Compile Include="Weather.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
