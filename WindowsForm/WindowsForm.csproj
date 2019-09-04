@@ -165,6 +165,7 @@
     <Compile Include="ADAMSClient.Designer.cs">
       <DependentUpon>ADAMSClient.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExampleApsimX.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ADAMSClient.resx">
@@ -197,6 +198,10 @@
     <ProjectReference Include="..\Database\Database.csproj">
       <Project>{a060a43d-ad01-431a-99c8-ae24e80e2752}</Project>
       <Name>Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Models\Models.csproj">
+      <Project>{3abb82a7-60d0-4e28-a75f-d192412e5b5b}</Project>
+      <Name>Models</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
