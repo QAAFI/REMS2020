@@ -24,11 +24,11 @@ namespace Database
 
                 entity.Property(e => e.Mean).HasDefaultValueSql("0");
 
-                entity.Property(e => e.N)
+                entity.Property(e => e.Number)
                     .HasColumnName("n")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.Se)
+                entity.Property(e => e.SE)
                     .HasColumnName("SE")
                     .HasDefaultValueSql("0");
 

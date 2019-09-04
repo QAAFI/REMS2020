@@ -11,23 +11,15 @@ namespace Database
             FertilizationInfo = new HashSet<FertilizationInfo>();
         }
 
+        [PrimaryKey]
         [Column("FertilizationId")]
         public int FertilizationId { get; set; }
 
         [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [Column("FertilizationDate")]
-        public DateTime? FertilizationDate { get; set; }
-
         [Column("FertilizerId")]
         public int? FertilizerId { get; set; }
-
-        [Column("FertilizationAmount")]
-        public int? FertilizationAmount { get; set; }
-
-        [Column("FertilizationDepth")]
-        public int? FertilizationDepth { get; set; }
 
         [Column("MethodId")]
         public int? MethodId { get; set; }
@@ -35,6 +27,19 @@ namespace Database
         [Column("UnitId")]
         public int? UnitId { get; set; }
 
+        [Nullable]
+        [Column("Date")]
+        public DateTime? Date { get; set; }        
+
+        [Nullable]
+        [Column("Amount")]
+        public int? Amount { get; set; }
+
+        [Nullable]
+        [Column("Depth")]
+        public int? Depth { get; set; }        
+
+        [Nullable]
         [Column("Notes")]
         public string Notes { get; set; }
 

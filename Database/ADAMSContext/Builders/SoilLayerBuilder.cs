@@ -19,13 +19,13 @@ namespace Database
 
                 entity.Property(e => e.SoilLayerId).HasColumnName("SoilLayerID");
 
-                entity.Property(e => e.SoilLayerDepthFrom).HasDefaultValueSql("0");
+                entity.Property(e => e.DepthFrom).HasDefaultValueSql("0");
 
                 entity.Property(e => e.SoilId)
                     .HasColumnName("SoilID")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.SoilLayerDepthTo).HasDefaultValueSql("0");
+                entity.Property(e => e.DepthTo).HasDefaultValueSql("0");
 
                 entity.HasOne(d => d.Soil)
                     .WithMany(p => p.SoilLayers)

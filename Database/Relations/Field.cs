@@ -11,16 +11,70 @@ namespace Database
             Experiments = new HashSet<Experiment>();
         }
 
+        // For use with Activator.CreateInstance
+        public Field(
+            int fieldId,
+            int siteId,
+            int soilId,
+            string name,
+            double? latitude,
+            double? longitude,
+            double? elevation,
+            double? slope,
+            int? depth,
+            string notes
+        )
+        {
+            FieldId = fieldId;
+            SiteId = siteId;
+            SoilId = soilId;
+            Name = name;
+            Latitude = latitude;
+            Longitude = longitude;
+            Elevation = elevation;
+            Slope = slope;
+            Depth = depth;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
+        [Column("FieldId")]
         public int FieldId { get; set; }
-        public int? SiteId { get; set; }
-        public int? SoilId { get; set; }
-        public string FieldName { get; set; }
-        public double? FieldLatitude { get; set; }
-        public double? FieldLongitude { get; set; }
-        public double? FieldElevation { get; set; }
-        public double? Slope { get; set; }
-        public int? Depth { get; set; }
-        public string Notes { get; set; }
+
+        [Column("SiteId")]
+        public int SiteId { get; set; }
+
+        [Column("SoilId")]
+        public int SoilId { get; set; }
+
+        [Nullable]
+        [Column("Name")]
+        public string Name { get; set; } = null;
+
+        [Nullable]
+        [Column("Latitude")]
+        public double? Latitude { get; set; } = null;
+
+        [Nullable]
+        [Column("Longitude")]
+        public double? Longitude { get; set; } = null;
+
+        [Nullable]
+        [Column("Elevation")]
+        public double? Elevation { get; set; } = null;
+
+        [Nullable]
+        [Column("Slope")]
+        public double? Slope { get; set; } = null;
+
+        [Nullable]
+        [Column("Depth")]
+        public int? Depth { get; set; } = null;
+
+        [Nullable]
+        [Column("Notes")]
+        public string Notes { get; set; } = null;
+
 
         public virtual Site Site { get; set; }
         public virtual Soil Soil { get; set; }

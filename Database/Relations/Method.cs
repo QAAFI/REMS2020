@@ -16,10 +16,19 @@ namespace Database
             Tillages = new HashSet<Tillage>();
         }
 
+        [PrimaryKey]
+        [Column("MethodId")]
         public int MethodId { get; set; }
-        public string MethodName { get; set; }
+
+        [Column("Name")]
+        public string Name { get; set; }
+
+        [Column("Type")]
         public string Type { get; set; }
+
+        [Column("Notes")]
         public string Notes { get; set; }
+
 
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }
         public virtual ICollection<Experiment> Experiments { get; set; }

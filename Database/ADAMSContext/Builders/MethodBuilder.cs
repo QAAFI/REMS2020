@@ -17,14 +17,14 @@ namespace Database
                     .HasName("MethodId")
                     .IsUnique();
 
-                entity.HasIndex(e => e.MethodName)
+                entity.HasIndex(e => e.Name)
                     .HasName("MethodName");
                                
                 // Define the table properties
                 entity.Property(e => e.MethodId)
                     .HasColumnName("MethodId");
 
-                entity.Property(e => e.MethodName)
+                entity.Property(e => e.Name)
                     .HasColumnName("Name")
                     .IsRequired()
                     .HasMaxLength(30);

@@ -27,43 +27,6 @@ namespace Database
         public ADAMSContext(string connection)
         {
             Connection = connection;
-
-            ChemicalApplication = Set<ChemicalApplication>();
-            Crops = Set<Crop>();
-            Designs = Set<Design>();
-            ExperimentInfo = Set<ExperimentInfo>();
-            Experiments = Set<Experiment>();
-            Factors = Set<Factor>();
-            FertilizationInfo = Set<FertilizationInfo>();
-            Fertilizations = Set<Fertilization>();
-            Fertilizers = Set<Fertilizer>();
-            Fields = Set<Field>();
-            Harvests = Set<Harvest>();
-            IrrigationInfo = Set<IrrigationInfo>();
-            Irrigations = Set<Irrigation>();
-            Levels = Set<Level>();
-            MetData = Set<MetData>();
-            MetInfo = Set<MetInfo>();
-            MetStations = Set<MetStations>();
-            Methods = Set<Method>();
-            PlotData = Set<PlotData>();
-            Plots = Set<Plot>();
-            Regions = Set<Region>();
-            ResearcherLists = Set<ResearcherList>();
-            Researchers = Set<Researcher>();
-            Sites = Set<Site>();
-            SoilData = Set<SoilData>();
-            SoilLayerData = Set<SoilLayerData>();
-            SoilLayerTraits = Set<SoilLayerTrait>();
-            SoilLayers = Set<SoilLayer>();
-            SoilTraits = Set<SoilTrait>();
-            Soils = Set<Soil>();
-            Stats = Set<Stats>();
-            TillageInfo = Set<TillageInfo>();
-            Tillage = Set<Tillage>();
-            Traits = Set<Trait>();
-            Treatments = Set<Treatment>();
-            Units = Set<Unit>();
         }
 
         public ADAMSContext(DbContextOptions<ADAMSContext> options)
@@ -122,28 +85,6 @@ namespace Database
             BuildUnit(modelBuilder);            
         }
 
-        public DbSet<dynamic> GetTable(string name)
-        {
-            var props = typeof(ADAMSContext)
-                .GetProperties();
-
-            var tables = props
-                .Where(p => Attribute.IsDefined(p, typeof(Table)));
-
-            var table = tables
-                .FirstOrDefault(p => (p.GetCustomAttribute(typeof(Table)) as Table).Name == name);
-                       
-            
-            var set = table
-                .GetValue(this, null);
-
-            dynamic dyn = set as DbSet<object>;
-
-            var local = dyn.Local;
-
-            return null;
-        }
-
         public void ImportDataSet(DataSet data)
         {
             var tables = typeof(ADAMSContext)
@@ -152,22 +93,63 @@ namespace Database
 
             foreach (DataTable table in data.Tables)
             {
-                var info = tables
+                var setInfo = tables
                     .FirstOrDefault(p => 
                     (p.GetCustomAttribute(typeof(Table)) as Table).Name == table.TableName);
 
-                var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;
+                //TODO: Alert the user if no table is found
+                if (setInfo == null) continue;                
 
-                
-
-                dynamic set = info.GetValue(this);
-
-                foreach (DataRow row in table.Rows)
-                {
-                    row.ItemArray.Take(5);
-                }
+                AddTable(table, setInfo);
             }
 
+            SaveChanges();
+        }
+
+        private void AddTable(DataTable table, PropertyInfo info)
+        {
+            // Find the column properties
+            var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;
+            var columns = relation.GetProperties().Where(p => p.IsDefined(typeof(Column)));            
+
+            // Intersect the names of the columns in the table and the relation
+            var relationNames = columns.Select(p => p.Name).ToArray();
+            var tableNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName);
+            var intersect = relationNames.Intersect(tableNames).ToArray();
+
+            // Create a subtable based on the intersection
+            var subtable = table.DefaultView.ToTable("", true, intersect);            
+
+            // Find the DbSet to add the data to
+            dynamic set = info.GetValue(this);
+
+            // Create a blank entity to store data in
+            dynamic entity = Activator.CreateInstance(relation);
+            
+            // Iterate over the rows
+            foreach (DataRow row in subtable.Rows)
+            {   
+                foreach(DataColumn column in subtable.Columns)
+                {
+                    var property = columns.FirstOrDefault(p => p.Name == column.ColumnName);
+                    if (property == null) continue;
+
+                    Type type = row[column].GetType();
+                    if (type != property.PropertyType)
+                    {
+                        int value = (int) (double)row[column];
+                        property.SetValue(entity, value);
+                    }                    
+                    else
+                    {
+                        property.SetValue(entity, row[column]);
+                    }
+                    
+                }
+
+                set.Add(entity);
+            }
+            
         }
     }
 }

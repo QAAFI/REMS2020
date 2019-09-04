@@ -20,7 +20,7 @@ namespace Database
                     .HasColumnName("amp")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.MetStationName).HasMaxLength(40);
+                entity.Property(e => e.Name).HasMaxLength(40);
 
                 entity.Property(e => e.TemperatureAverage)
                     .HasColumnName("tav")

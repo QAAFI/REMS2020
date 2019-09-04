@@ -21,7 +21,7 @@ namespace Database
 
                 entity.Property(e => e.Columns).HasDefaultValueSql("0");
 
-                entity.Property(e => e.Rep).HasDefaultValueSql("0");
+                entity.Property(e => e.Repetitions).HasDefaultValueSql("0");
 
                 entity.Property(e => e.Rows).HasDefaultValueSql("0");
 

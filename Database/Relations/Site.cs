@@ -11,13 +11,53 @@ namespace Database
             Fields = new HashSet<Field>();
         }
 
+        // For use with Activator.CreateInstance
+        public Site(
+            int siteId,
+            int regionId,
+            string name,
+            double? latitude,
+            double? longitude,
+            double? elevation,
+            string notes
+        )
+        {
+            SiteId = siteId;
+            RegionId = regionId;
+            Name = name;
+            Latitude = latitude;
+            Longitude = longitude;
+            Elevation = elevation;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
+        [Column("SiteId")]
         public int SiteId { get; set; }
-        public int? RegionId { get; set; }
-        public string SiteName { get; set; }
-        public double? SiteLatitude { get; set; }
-        public double? SiteLongitude { get; set; }
-        public double? SiteElevation { get; set; }
-        public string SiteNotes { get; set; }
+
+        [Column("RegionId")]
+        public int RegionId { get; set; }
+
+        [Nullable]
+        [Column("Name")]
+        public string Name { get; set; } = null;
+
+        [Nullable]
+        [Column("Latitude")]
+        public double? Latitude { get; set; } = null;
+
+        [Nullable]
+        [Column("Longitude")]
+        public double? Longitude { get; set; } = null;
+
+        [Nullable]
+        [Column("Elevation")]
+        public double? Elevation { get; set; } = null;
+
+        [Nullable]
+        [Column("Notes")]
+        public string Notes { get; set; } = null;
+
 
         public virtual Region Region { get; set; }
         public virtual ICollection<Field> Fields { get; set; }

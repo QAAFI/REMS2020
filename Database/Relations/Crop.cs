@@ -11,15 +11,31 @@ namespace Database
             Experiments = new HashSet<Experiment>();
         }
 
+        // For use with Activator.CreateInstance()
+        public Crop(
+            int cropId,
+            string name,
+            string notes
+        )
+        {
+            CropId = cropId;
+            Name = name;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
         [Column("CropId")]
         public int CropId { get; set; }
 
-        [Column("CropName")]
-        public string CropName { get; set; }
+        [Nullable]
+        [Column("Name")]
+        public string Name { get; set; }
 
+        [Nullable]
         [Column("Notes")]
         public string Notes { get; set; }
 
+        [ForeignKey]
         public virtual ICollection<Experiment> Experiments { get; set; }
     }
 }

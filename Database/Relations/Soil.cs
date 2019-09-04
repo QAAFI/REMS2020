@@ -13,9 +13,30 @@ namespace Database
             SoilTraits = new HashSet<SoilTrait>();
         }
 
+        // For use with Activator.CreateInstance
+        public Soil(
+            int soilId,
+            string soilType,
+            string notes
+        )
+        {
+            SoilId = soilId;
+            SoilType = soilType;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
+        [Column("SoilId")]
         public int SoilId { get; set; }
-        public string SoilType { get; set; }
-        public string Notes { get; set; }
+
+        [Nullable]
+        [Column("SoilType")]
+        public string SoilType { get; set; } = null;
+
+        [Nullable]
+        [Column("Notes")]
+        public string Notes { get; set; } = null;
+
 
         public virtual ICollection<Field> Fields { get; set; }
         public virtual ICollection<SoilLayer> SoilLayers { get; set; }

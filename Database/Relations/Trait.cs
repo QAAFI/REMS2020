@@ -16,13 +16,48 @@ namespace Database
             SoilTraits = new HashSet<SoilTrait>();
             Stats = new HashSet<Stats>();
         }
-        
+
+        // For use with Activator.CreateInstance
+        public Trait(
+            int traitId,
+            int unitId,
+            string name,
+            string type,
+            string description,
+            string notes
+        )
+        {
+            TraitId = traitId;
+            UnitId = unitId;
+            Name = name;
+            Type = type;
+            Description = description;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
+        [Column("TraitId")]
         public int TraitId { get; set; }
-        public string TraitName { get; set; }
-        public string TraitType { get; set; }
-        public string Description { get; set; }
-        public int? DefaultUnitId { get; set; }
-        public string TraitNotes { get; set; }
+
+        [Column("UnitId")]
+        public int UnitId { get; set; }
+
+        [Nullable]
+        [Column("Name")]
+        public string Name { get; set; } = null;
+
+        [Nullable]
+        [Column("Type")]
+        public string Type { get; set; } = null;
+
+        [Nullable]
+        [Column("Description")]
+        public string Description { get; set; } = null;
+
+        [Nullable]
+        [Column("Notes")]
+        public string Notes { get; set; } = null;
+
 
         public virtual Unit DefaultUnit { get; set; }
         public virtual ICollection<MetData> MetData { get; set; }

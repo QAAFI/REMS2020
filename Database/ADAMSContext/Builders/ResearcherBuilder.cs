@@ -18,7 +18,7 @@ namespace Database
 
                 entity.Property(e => e.Organisation).HasMaxLength(15);
 
-                entity.Property(e => e.ResearcherName).HasMaxLength(50);
+                entity.Property(e => e.Name).HasMaxLength(50);
             });
         }
     }

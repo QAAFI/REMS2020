@@ -16,7 +16,7 @@ namespace Database
 
                 entity.Property(e => e.RegionId).HasColumnName("RegionID");
 
-                entity.Property(e => e.RegionName).HasMaxLength(20);
+                entity.Property(e => e.Name).HasMaxLength(20);
             });
         }
     }

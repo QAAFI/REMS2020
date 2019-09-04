@@ -25,10 +25,12 @@ namespace Database
 
                 // Define the table properties
                 entity.Property(e => e.MetStationId)
-                    .HasColumnName("MetStationId");
+                    .HasColumnName("MetStationId")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.TraitId)
-                    .HasColumnName("TraitId");
+                    .HasColumnName("TraitId")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Value)
                     .HasDefaultValueSql("0");

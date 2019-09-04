@@ -11,12 +11,24 @@ namespace Database
             TillageInfo = new HashSet<TillageInfo>();
         }
 
-        public int? TreatmentId { get; set; }
+        [PrimaryKey]
+        [Column("TillageId")]
         public int TillageId { get; set; }
-        public DateTime? TillageDate { get; set; }
-        public int? TillageMethodId { get; set; }
-        public double? TillageDepth { get; set; }
-        public string TillageNotes { get; set; }
+
+        [Column("TreatmentId")]
+        public int? TreatmentId { get; set; }
+
+        [Column("MethodId")]
+        public int? MethodId { get; set; }
+
+        [Column("Date")]
+        public DateTime? Date { get; set; }        
+
+        [Column("Depth")]
+        public double? Depth { get; set; }
+
+        [Column("Notes")]
+        public string Notes { get; set; }
 
         public virtual Method TillageMethod { get; set; }
         public virtual Treatment Treatment { get; set; }

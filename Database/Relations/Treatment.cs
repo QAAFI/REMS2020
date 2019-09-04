@@ -18,8 +18,14 @@ namespace Database
             Tillages = new HashSet<Tillage>();
         }
 
+        [PrimaryKey]
+        [Column("TreatmentId")]
         public int TreatmentId { get; set; }
+
+        [Column("ExperimentId")]
         public int? ExperimentId { get; set; }
+
+        [Column("TreatmentName")]
         public string TreatmentName { get; set; }
 
         public virtual Experiment Experiment { get; set; }

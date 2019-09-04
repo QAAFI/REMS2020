@@ -17,7 +17,7 @@ namespace Database
                 entity.HasIndex(e => e.SiteId)
                     .HasName("SiteID123");
 
-                entity.HasIndex(e => e.SiteName)
+                entity.HasIndex(e => e.Name)
                     .HasName("SiteName");
 
                 entity.Property(e => e.SiteId).HasColumnName("SiteID");
@@ -26,7 +26,7 @@ namespace Database
                     .HasColumnName("RegionID")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.SiteName)
+                entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
 

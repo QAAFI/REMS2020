@@ -21,7 +21,7 @@ namespace Database
                 entity.Property(e => e.CropId)
                     .HasColumnName("CropId");
 
-                entity.Property(e => e.CropName)
+                entity.Property(e => e.Name)
                     .HasColumnName("Name")
                     .HasMaxLength(30);
             });

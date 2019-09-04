@@ -17,7 +17,7 @@ namespace Database
                     .HasName("IrrigationId")
                     .IsUnique();
 
-                entity.HasIndex(e => e.IrrigationMethodId)
+                entity.HasIndex(e => e.MethodId)
                     .HasName("IrrigationMethodId");
 
                 entity.HasIndex(e => e.TreatmentId)
@@ -31,7 +31,7 @@ namespace Database
                     .HasColumnName("Amount")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.IrrigationMethodId)
+                entity.Property(e => e.MethodId)
                     .HasColumnName("IrrigationMethodID");
 
                 entity.Property(e => e.Notes)
@@ -43,7 +43,7 @@ namespace Database
                 // Define foreign key constraints
                 entity.HasOne(d => d.IrrigationMethod)
                     .WithMany(p => p.Irrigations)
-                    .HasForeignKey(d => d.IrrigationMethodId)
+                    .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("IrrigationMethodId");
 

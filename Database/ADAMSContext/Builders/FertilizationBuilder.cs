@@ -33,10 +33,10 @@ namespace Database
                 entity.Property(e => e.FertilizationId)
                     .HasColumnName("FertilizationId");
 
-                entity.Property(e => e.FertilizationAmount)
+                entity.Property(e => e.Amount)
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.FertilizationDepth)
+                entity.Property(e => e.Depth)
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.FertilizerId)

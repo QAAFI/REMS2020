@@ -33,17 +33,17 @@ namespace Database
                 entity.Property(e => e.SoilId)
                     .HasColumnName("SoilId");
 
-                entity.Property(e => e.FieldName)
+                entity.Property(e => e.Name)
                     .HasColumnName("Name")
                     .HasMaxLength(20);
 
-                entity.Property(e => e.FieldLatitude)
+                entity.Property(e => e.Latitude)
                     .HasColumnName("Latitude");
 
-                entity.Property(e => e.FieldLongitude)
+                entity.Property(e => e.Longitude)
                     .HasColumnName("Longitude");
 
-                entity.Property(e => e.FieldElevation)
+                entity.Property(e => e.Elevation)
                     .HasColumnName("Elevation");
 
                 entity.Property(e => e.Slope)

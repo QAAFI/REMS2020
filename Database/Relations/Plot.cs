@@ -13,11 +13,25 @@ namespace Database
             SoilLayerData = new HashSet<SoilLayerData>();
         }
 
+        [PrimaryKey]
+        [Column("PlotId")]
         public int PlotId { get; set; }
-        public int? TreatmentId { get; set; }
-        public int? Rep { get; set; }
+
+        [Column("TreatmentId")]
+        public int TreatmentId { get; set; }
+
+        [Nullable]
+        [Column("Repetitions")]
+        public int? Repetitions { get; set; }
+
+        [Nullable]
+        [Column("Columns")]
         public int? Columns { get; set; }
+
+        [Nullable]
+        [Column("Rows")]
         public int? Rows { get; set; }
+
 
         public virtual Treatment Treatment { get; set; }
         public virtual ICollection<PlotData> PlotData { get; set; }

@@ -15,9 +15,29 @@ namespace Database
             Traits = new HashSet<Trait>();
         }
 
+        // For use with Activator.CreateInstance
+        public Unit(
+            int unitId,
+            string unitName,
+            string notes
+        )
+        {
+            UnitId = unitId;
+            UnitName = unitName;
+            Notes = notes;
+        }
+
+        [PrimaryKey]
+        [Column("UnitId")]
         public int UnitId { get; set; }
-        public string UnitName { get; set; }
-        public string Notes { get; set; }
+
+        [Nullable]
+        [Column("UnitName")]
+        public string UnitName { get; set; } = null;
+
+        [Nullable]
+        [Column("Notes")]
+        public string Notes { get; set; } = null;
 
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }
         public virtual ICollection<Fertilization> Fertilizations { get; set; }

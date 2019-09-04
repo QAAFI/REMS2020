@@ -13,6 +13,16 @@ namespace Database
             Treatments = new HashSet<Treatment>();
         }
 
+        public Experiment(
+            double experimentId,
+            string experimentName
+        )        
+        {
+            ExperimentId = (int)experimentId;
+            ExperimentName = experimentName;            
+        }
+
+        [PrimaryKey]
         [Column("ExperimentId")]
         public int ExperimentId { get; set; }
 

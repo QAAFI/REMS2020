@@ -11,6 +11,7 @@ namespace Database
             Level = new HashSet<Level>();
         }
 
+        [PrimaryKey]
         [Column("FactorId")]
         public int FactorId { get; set; }
 

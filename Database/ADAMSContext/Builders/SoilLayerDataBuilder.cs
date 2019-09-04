@@ -8,23 +8,23 @@ namespace Database
         {
             modelBuilder.Entity<SoilLayerData>(entity =>
             {
-                entity.HasKey(e => e.SoilLayerId)
+                entity.HasKey(e => e.SoilLayerDataId)
                     .HasName("PrimaryKey");
 
                 entity.HasIndex(e => e.PlotId)
                     .HasName("PlotsSoilLayerData");
 
-                entity.HasIndex(e => e.SoilLayerId)
+                entity.HasIndex(e => e.SoilLayerDataId)
                     .HasName("SoilLayerID");
 
                 entity.HasIndex(e => e.TraitId)
                     .HasName("TraitsSoilLayerData");
 
-                entity.Property(e => e.SoilLayerId).HasColumnName("SoilLayerID");
+                entity.Property(e => e.SoilLayerDataId).HasColumnName("SoilLayerID");
 
-                entity.Property(e => e.SoilLayerDataDepthFrom).HasDefaultValueSql("0");
+                entity.Property(e => e.DepthFrom).HasDefaultValueSql("0");
 
-                entity.Property(e => e.SoilLayerDataDepthTo).HasDefaultValueSql("0");
+                entity.Property(e => e.DepthTo).HasDefaultValueSql("0");
 
                 entity.Property(e => e.PlotId)
                     .HasColumnName("PlotID")

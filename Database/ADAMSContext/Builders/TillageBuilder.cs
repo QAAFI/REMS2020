@@ -11,7 +11,7 @@ namespace Database
                 entity.HasIndex(e => e.TillageId)
                     .HasName("TillageID");
 
-                entity.HasIndex(e => e.TillageMethodId)
+                entity.HasIndex(e => e.MethodId)
                     .HasName("TILLAGE IMPLEMENT_CODE");
 
                 entity.HasIndex(e => e.TreatmentId)
@@ -19,15 +19,15 @@ namespace Database
 
                 entity.Property(e => e.TillageId).HasColumnName("TillageID");
 
-                entity.Property(e => e.TillageNotes).HasMaxLength(50);
+                entity.Property(e => e.Notes).HasMaxLength(50);
 
-                entity.Property(e => e.TillageMethodId).HasColumnName("TillageMethodID");
+                entity.Property(e => e.MethodId).HasColumnName("TillageMethodID");
 
                 entity.Property(e => e.TreatmentId).HasColumnName("TreatmentID");
 
                 entity.HasOne(d => d.TillageMethod)
                     .WithMany(p => p.Tillages)
-                    .HasForeignKey(d => d.TillageMethodId)
+                    .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("MethodTillage");
 
