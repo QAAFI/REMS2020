@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("Trait")]
@@ -14,7 +16,7 @@ namespace Database
             SoilLayerData = new HashSet<SoilLayerData>();
             SoilLayerTraits = new HashSet<SoilLayerTrait>();
             SoilTraits = new HashSet<SoilTrait>();
-            Stats = new HashSet<Stats>();
+            Stats = new HashSet<Stat>();
         }
 
         // For use with Activator.CreateInstance
@@ -66,6 +68,41 @@ namespace Database
         public virtual ICollection<SoilLayerData> SoilLayerData { get; set; }
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }
         public virtual ICollection<SoilTrait> SoilTraits { get; set; }
-        public virtual ICollection<Stats> Stats { get; set; }
+        public virtual ICollection<Stat> Stats { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Trait>(entity =>
+            {
+                entity.HasKey(e => e.TraitId)
+                    .HasName("PrimaryKey");
+
+                entity.HasIndex(e => e.UnitId)
+                    .HasName("UnitsTrait");
+
+                entity.HasIndex(e => e.TraitId)
+                    .HasName("TraitID");
+
+                entity.Property(e => e.TraitId).HasColumnName("TraitID");
+
+                entity.Property(e => e.UnitId).HasColumnName("DefaultUnitsID");
+
+                entity.Property(e => e.Description).HasMaxLength(60);
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(25);
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(10);
+
+                entity.HasOne(d => d.DefaultUnit)
+                    .WithMany(p => p.Traits)
+                    .HasForeignKey(d => d.UnitId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("UnitsTrait");
+            });
+
+        }
     }
 }

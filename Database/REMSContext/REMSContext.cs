@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Database
 {
-    public partial class ADAMSContext : DbContext
+    public partial class REMSContext : DbContext
     {
         public string Connection { get; }
 
@@ -16,7 +16,7 @@ namespace Database
         {
             get
             {
-                return typeof(ADAMSContext)                    
+                return typeof(REMSContext)                    
                     .GetProperties()                    
                     .Where(p => Attribute.IsDefined(p, typeof(Table)))
                     .Select(p => p.Name)
@@ -24,12 +24,12 @@ namespace Database
             }
         }
 
-        public ADAMSContext(string connection)
+        public REMSContext(string connection)
         {
             Connection = connection;
         }
 
-        public ADAMSContext(DbContextOptions<ADAMSContext> options)
+        public REMSContext(DbContextOptions<REMSContext> options)
             : base(options)
         {
 
@@ -45,49 +45,49 @@ namespace Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
+            //modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
 
-            BuildChemicalApplication(modelBuilder);
-            BuildCrop(modelBuilder);
-            BuildDesign(modelBuilder);
-            BuildExperiment(modelBuilder);
-            BuildExperimentInfo(modelBuilder);
-            BuildFactor(modelBuilder);
-            BuildFertilization(modelBuilder);
-            BuildFertilizer(modelBuilder);
-            BuildFertilizerInfo(modelBuilder);
-            BuildField(modelBuilder);
-            BuildHarvest(modelBuilder);
-            BuildIrrigation(modelBuilder);
-            BuildIrrigationInfo(modelBuilder);
-            BuildLevel(modelBuilder);
-            BuildMetData(modelBuilder);
-            BuildMetInfo(modelBuilder);
-            BuildMetStation(modelBuilder);
-            BuildMethod(modelBuilder);
-            BuildPlot(modelBuilder);
-            BuildPlotData(modelBuilder);
-            BuildRegion(modelBuilder);
-            BuildResearcher(modelBuilder);
-            BuildResearcherList(modelBuilder);
-            BuildSite(modelBuilder);
-            BuildSoil(modelBuilder);
-            BuildSoilData(modelBuilder);
-            BuildSoilLayer(modelBuilder);
-            BuildSoilLayerData(modelBuilder);
-            BuildSoilLayerTrait(modelBuilder);
-            BuildSoilTrait(modelBuilder);
-            BuildStats(modelBuilder);
-            BuildTillage(modelBuilder);
-            BuildTillageInfo(modelBuilder);
-            BuildTrait(modelBuilder);
-            BuildTreatment(modelBuilder);
-            BuildUnit(modelBuilder);            
+            ChemicalApplication.Build(modelBuilder);
+            Crop.Build(modelBuilder);
+            Design.Build(modelBuilder);
+            Experiment.Build(modelBuilder);
+            ExperimentInfo.Build(modelBuilder);
+            Factor.Build(modelBuilder);
+            Fertilization.Build(modelBuilder);
+            FertilizationInfo.Build(modelBuilder);
+            Fertilizer.Build(modelBuilder);            
+            Field.Build(modelBuilder);
+            Harvest.Build(modelBuilder);
+            Irrigation.Build(modelBuilder);
+            IrrigationInfo.Build(modelBuilder);
+            Level.Build(modelBuilder);
+            MetData.Build(modelBuilder);
+            MetInfo.Build(modelBuilder);
+            MetStation.Build(modelBuilder);
+            Method.Build(modelBuilder);
+            Plot.Build(modelBuilder);
+            PlotData.Build(modelBuilder);
+            Region.Build(modelBuilder);
+            Researcher.Build(modelBuilder);
+            ResearcherList.Build(modelBuilder);
+            Site.Build(modelBuilder);
+            Soil.Build(modelBuilder);
+            SoilData.Build(modelBuilder);
+            SoilLayer.Build(modelBuilder);
+            SoilLayerData.Build(modelBuilder);
+            SoilLayerTrait.Build(modelBuilder);
+            SoilTrait.Build(modelBuilder);
+            Stat.Build(modelBuilder);
+            Tillage.Build(modelBuilder);
+            TillageInfo.Build(modelBuilder);
+            Trait.Build(modelBuilder);
+            Treatment.Build(modelBuilder);
+            Unit.Build(modelBuilder);
         }
 
         public void ImportDataSet(DataSet data)
         {
-            var tables = typeof(ADAMSContext)
+            var tables = typeof(REMSContext)
                 .GetProperties()
                 .Where(p => Attribute.IsDefined(p, typeof(Table)));            
 
@@ -113,7 +113,7 @@ namespace Database
 
             // Find the DbSet to add the data to
             dynamic set = info.GetValue(this);
-            
+
             // Iterate over the rows
             foreach (DataRow row in table.Rows)
             {

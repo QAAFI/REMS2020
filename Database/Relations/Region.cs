@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("Region")]
@@ -37,5 +39,23 @@ namespace Database
 
 
         public virtual ICollection<Site> Sites { get; set; }
+
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Region>(entity =>
+            {
+                entity.HasKey(e => e.RegionId)
+                    .HasName("PrimaryKey");
+
+                entity.HasIndex(e => e.RegionId)
+                    .HasName("RegionID");
+
+                entity.Property(e => e.RegionId).HasColumnName("RegionID");
+
+                entity.Property(e => e.Name).HasMaxLength(20);
+            });
+        }
     }
 }

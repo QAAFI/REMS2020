@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("Soil")]
@@ -41,5 +43,22 @@ namespace Database
         public virtual ICollection<Field> Fields { get; set; }
         public virtual ICollection<SoilLayer> SoilLayers { get; set; }
         public virtual ICollection<SoilTrait> SoilTraits { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Soil>(entity =>
+            {
+                entity.HasKey(e => e.SoilId)
+                    .HasName("PrimaryKey");
+
+                entity.HasIndex(e => e.SoilId)
+                    .HasName("SoilID586");
+
+                entity.Property(e => e.SoilId).HasColumnName("SoilID");
+
+                entity.Property(e => e.SoilType).HasMaxLength(30);
+            });
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using Schema = System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("MetData")]
@@ -38,7 +40,53 @@ namespace Database
         public double? Value { get; set; }
 
 
-        public virtual MetStations MetStation { get; set; }
+        public virtual MetStation MetStation { get; set; }
         public virtual Trait Trait { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MetData>(entity =>
+            {
+                // Define the primary key
+                entity.HasKey(e => new {
+                    e.MetStationId,
+                    e.TraitId,
+                    e.Date
+                })
+                    .HasName("PrimaryKey");
+
+                // Define the table indices
+                entity.HasIndex(e => e.MetStationId)
+                    .HasName("MetDataMetStationId");
+
+                entity.HasIndex(e => e.TraitId)
+                    .HasName("MetDataTraitId");
+
+                // Define the table properties
+                entity.Property(e => e.MetStationId)
+                    .HasColumnName("MetStationId")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.TraitId)
+                    .HasColumnName("TraitId")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Value)
+                    .HasDefaultValueSql("0");
+
+                // Define foregin key constraints
+                entity.HasOne(d => d.MetStation)
+                    .WithMany(p => p.MetData)
+                    .HasForeignKey(d => d.MetStationId)
+                    .HasConstraintName("MetDataMetStationId");
+
+                entity.HasOne(d => d.Trait)
+                    .WithMany(p => p.MetData)
+                    .HasForeignKey(d => d.TraitId)
+                    .HasConstraintName("MetDataTraitId");
+            });
+
+        }
     }
 }

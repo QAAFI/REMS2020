@@ -20,7 +20,7 @@ namespace WindowsForm
 {
     public partial class ADAMSClient : Form
     {
-        private ADAMSContext ADAMS = null;        
+        private REMSContext ADAMS = null;        
 
         public ADAMSClient()
         {
@@ -41,7 +41,7 @@ namespace WindowsForm
             if (ADAMS == null) return;
 
             var table = relationsListBox.SelectedItem.ToString();
-            var property = typeof(ADAMSContext).GetProperty(table);
+            var property = typeof(REMSContext).GetProperty(table);
             dynamic set = property.GetValue(ADAMS);            
 
             var data = set.Local.ToBindingList();
@@ -56,11 +56,11 @@ namespace WindowsForm
         {
             string connection = $"Data Source={file};";
 
-            ADAMS = new ADAMSContext(connection);
+            ADAMS = new REMSContext(connection);
             ADAMS.Database.EnsureCreated();
             ADAMS.SaveChanges();
 
-            dataGridView.DataSource = ADAMS.ChemicalApplication.Local.ToBindingList();
+            dataGridView.DataSource = ADAMS.ChemicalApplications.Local.ToBindingList();
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace WindowsForm
         /// </summary>
         private void PopulateListView()
         {
-            foreach (string table in ADAMSContext.TableNames)
+            foreach (string table in REMSContext.TableNames)
             {
                 relationsListBox.Items.Add(table);
             }            

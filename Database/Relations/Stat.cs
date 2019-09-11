@@ -1,14 +1,53 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Database
 {
-    public partial class ADAMSContext : DbContext
+    [Relation("Stat")]
+    public class Stat
     {
-        private void BuildStats(ModelBuilder modelBuilder)
+        [PrimaryKey]
+        [Column("StatId")]
+        public int StatId { get; set; }
+
+        [Column("TreatmentId")]
+        public int? TreatmentId { get; set; }
+
+        [Column("TraitId")]
+        public int? TraitId { get; set; }
+
+        [Column("UnitId")]
+        public int? UnitId { get; set; }
+
+        [Nullable]
+        [Column("Date")]
+        public DateTime? Date { get; set; }
+
+        [Nullable]
+        [Column("Mean")]
+        public double? Mean { get; set; }
+
+        [Nullable]
+        [Column("SE")]
+        public double? SE { get; set; }
+
+        [Nullable]
+        [Column("N")]
+        public int? Number { get; set; }
+        
+
+        public virtual Trait Trait { get; set; }
+        public virtual Treatment Treatment { get; set; }
+        public virtual Unit Unit { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stats>(entity =>
+            modelBuilder.Entity<Stat>(entity =>
             {
-                entity.HasIndex(e => e.StatsId)
+                entity.HasIndex(e => e.StatId)
                     .HasName("StatsID");
 
                 entity.HasIndex(e => e.TraitId)
@@ -20,7 +59,7 @@ namespace Database
                 entity.HasIndex(e => e.UnitId)
                     .HasName("UnitsStats");
 
-                entity.Property(e => e.StatsId).HasColumnName("StatsID");
+                entity.Property(e => e.StatId).HasColumnName("StatsID");
 
                 entity.Property(e => e.Mean).HasDefaultValueSql("0");
 

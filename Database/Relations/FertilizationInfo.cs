@@ -1,10 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Database
 {
-    public partial class ADAMSContext : DbContext
+    [Relation("FertilizationInfo")]
+    public class FertilizationInfo
     {
-        private void BuildFertilizerInfo(ModelBuilder modelBuilder)
+        [PrimaryKey]
+        [Column("FertilizationInfoId")]
+        public int FertilizationInfoId { get; set; }
+
+        [Column("FertilizationId")]
+        public int? FertilizationId { get; set; }
+
+        [Column("Variable")]
+        public string Variable { get; set; }
+
+        [Column("Value")]
+        public string Value { get; set; }
+
+
+        public virtual Fertilization Fertilization { get; set; }
+
+        public static void Build(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FertilizationInfo>(entity =>
             {
@@ -19,12 +39,12 @@ namespace Database
 
                 entity.HasIndex(e => e.FertilizationId)
                     .HasName("FertilizationInfoFertilizationId");
-                               
+
                 entity.HasIndex(e => e.Variable)
                     .HasName("FertilizationInfoVariable");
 
                 // Define the table properties
-                entity.Property(e => e.FertilizationInfoId)                    
+                entity.Property(e => e.FertilizationInfoId)
                     .HasColumnName("FertilizationInfoId");
 
                 entity.Property(e => e.FertilizationId)

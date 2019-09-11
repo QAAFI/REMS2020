@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("Unit")]
@@ -11,7 +13,7 @@ namespace Database
             ChemicalApplications = new HashSet<ChemicalApplication>();
             Fertilizations = new HashSet<Fertilization>();
             PlotData = new HashSet<PlotData>();
-            Stats = new HashSet<Stats>();
+            Stats = new HashSet<Stat>();
             Traits = new HashSet<Trait>();
         }
 
@@ -42,7 +44,24 @@ namespace Database
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }
         public virtual ICollection<Fertilization> Fertilizations { get; set; }
         public virtual ICollection<PlotData> PlotData { get; set; }
-        public virtual ICollection<Stats> Stats { get; set; }
+        public virtual ICollection<Stat> Stats { get; set; }
         public virtual ICollection<Trait> Traits { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Unit>(entity =>
+            {
+                entity.HasKey(e => e.UnitId)
+                    .HasName("PrimaryKey");
+
+                entity.HasIndex(e => e.UnitId)
+                    .HasName("UnitID");
+
+                entity.Property(e => e.UnitId).HasColumnName("UnitID");
+
+                entity.Property(e => e.UnitName).HasMaxLength(10);
+            });
+        }
     }
 }

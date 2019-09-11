@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Database
 {
     [Relation("MetStations")]
-    public class MetStations
+    public class MetStation
     {
-        public MetStations()
+        public MetStation()
         {
             Experiments = new HashSet<Experiment>();
             MetData = new HashSet<MetData>();
@@ -14,7 +16,7 @@ namespace Database
         }
 
         // For use with Activator.CreateInstance
-        public MetStations(
+        public MetStation(
             double metStationId,
             string metStationName,
             double? metStationLatitude,
@@ -70,5 +72,32 @@ namespace Database
         public virtual ICollection<Experiment> Experiments { get; set; }
         public virtual ICollection<MetData> MetData { get; set; }
         public virtual ICollection<MetInfo> MetInfo { get; set; }
+
+
+        public static void Build(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MetStation>(entity =>
+            {
+                entity.HasKey(e => e.MetStationId)
+                    .HasName("PrimaryKey");
+
+                entity.HasIndex(e => e.MetStationId)
+                    .HasName("MetStationID");
+
+                entity.Property(e => e.MetStationId)
+                    .HasColumnName("MetStationID");
+
+                entity.Property(e => e.Amp)
+                    .HasColumnName("amp")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.Name).HasMaxLength(40);
+
+                entity.Property(e => e.TemperatureAverage)
+                    .HasColumnName("tav")
+                    .HasDefaultValueSql("0");
+            });
+
+        }
     }
 }
