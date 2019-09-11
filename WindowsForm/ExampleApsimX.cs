@@ -124,7 +124,7 @@ namespace WindowsForm
             soil.Add(new SoilWater() { Name = "ExampleWater" });
             soil.Add(ExampleSoilNitrogen());
             //soil.Add(new SoilOrganicMatter() { Name = "ExampleOrganic" });
-            soil.Add(new Analysis() { Name = "ExampleAnalysis" });
+            //soil.Add(new Analysis() { Name = "ExampleAnalysis" });
             soil.Add(new Sample() { Name = "Initial Water" });
             soil.Add(new Sample() { Name = "Initial Nitrogen" });
             soil.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });

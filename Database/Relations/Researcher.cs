@@ -13,13 +13,13 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Researcher(
-            int researcherId,
+            double researcherId,
             string name,
             string organisation,
             string notes
         )
         {
-            ResearcherId = researcherId;
+            ResearcherId = (int)researcherId;
             Name = name;
             Organisation = organisation;
             Notes = notes;

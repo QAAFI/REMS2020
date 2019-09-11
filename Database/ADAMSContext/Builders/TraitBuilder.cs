@@ -24,11 +24,9 @@ namespace Database
                 entity.Property(e => e.Description).HasMaxLength(60);
 
                 entity.Property(e => e.Name)
-                    .IsRequired()
                     .HasMaxLength(25);
 
                 entity.Property(e => e.Type)
-                    .IsRequired()
                     .HasMaxLength(10);
 
                 entity.HasOne(d => d.DefaultUnit)

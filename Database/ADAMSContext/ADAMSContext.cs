@@ -108,48 +108,32 @@ namespace Database
 
         private void AddTable(DataTable table, PropertyInfo info)
         {
-            // Find the column properties
-            var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;
-            var columns = relation.GetProperties().Where(p => p.IsDefined(typeof(Column)));            
-
-            // Intersect the names of the columns in the table and the relation
-            var relationNames = columns.Select(p => p.Name).ToArray();
-            var tableNames = table.Columns.OfType<DataColumn>().Select(c => c.ColumnName);
-            var intersect = relationNames.Intersect(tableNames).ToArray();
-
-            // Create a subtable based on the intersection
-            var subtable = table.DefaultView.ToTable("", true, intersect);            
+            // Find the type of relation
+            var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;         
 
             // Find the DbSet to add the data to
             dynamic set = info.GetValue(this);
-
-            // Create a blank entity to store data in
-            dynamic entity = Activator.CreateInstance(relation);
             
             // Iterate over the rows
-            foreach (DataRow row in subtable.Rows)
-            {   
-                foreach(DataColumn column in subtable.Columns)
-                {
-                    var property = columns.FirstOrDefault(p => p.Name == column.ColumnName);
-                    if (property == null) continue;
+            foreach (DataRow row in table.Rows)
+            {
+                // Clean the data
+                var data = row.ItemArray.Select(i => ConvertDBNull(i)).ToArray();
 
-                    Type type = row[column].GetType();
-                    if (type != property.PropertyType)
-                    {
-                        int value = (int) (double)row[column];
-                        property.SetValue(entity, value);
-                    }                    
-                    else
-                    {
-                        property.SetValue(entity, row[column]);
-                    }
-                    
-                }
-
+                // Create a blank entity to store data in
+                dynamic entity = Activator.CreateInstance(relation, data);
                 set.Add(entity);
             }
             
+        }
+
+        /// <summary>
+        /// Converts DBNull objects into null references
+        /// </summary>
+        private dynamic ConvertDBNull(dynamic item)
+        {
+            if (item.GetType() == typeof(DBNull)) return null;
+            else return item;
         }
     }
 }

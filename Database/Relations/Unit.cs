@@ -17,12 +17,12 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Unit(
-            int unitId,
+            double unitId,
             string unitName,
             string notes
         )
         {
-            UnitId = unitId;
+            UnitId = (int)unitId;
             UnitName = unitName;
             Notes = notes;
         }

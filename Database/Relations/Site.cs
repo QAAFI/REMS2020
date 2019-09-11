@@ -13,8 +13,8 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Site(
-            int siteId,
-            int regionId,
+            double siteId,
+            double regionId,
             string name,
             double? latitude,
             double? longitude,
@@ -22,8 +22,8 @@ namespace Database
             string notes
         )
         {
-            SiteId = siteId;
-            RegionId = regionId;
+            SiteId = (int)siteId;
+            RegionId = (int)regionId;
             Name = name;
             Latitude = latitude;
             Longitude = longitude;

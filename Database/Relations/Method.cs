@@ -16,6 +16,19 @@ namespace Database
             Tillages = new HashSet<Tillage>();
         }
 
+        public Method(
+            double methodId,
+            string name,
+            string type,
+            string notes
+        )
+        {
+            MethodId = (int)methodId;
+            Name = name;
+            Type = type;
+            Notes = notes;
+        }
+
         [PrimaryKey]
         [Column("MethodId")]
         public int MethodId { get; set; }

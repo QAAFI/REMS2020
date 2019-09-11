@@ -13,14 +13,14 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public SoilLayer(
-            int soilLayerId,
-            int soilId,
+            double soilLayerId,
+            double soilId,
             int? depthFrom,
             int? depthTo
         )
         {
-            SoilLayerId = soilLayerId;
-            SoilId = soilId;
+            SoilLayerId = (int)soilLayerId;
+            SoilId = (int)soilId;
             DepthFrom = depthFrom;
             DepthTo = depthTo;
         }

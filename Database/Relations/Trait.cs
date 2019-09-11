@@ -19,16 +19,16 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Trait(
-            int traitId,
-            int unitId,
+            double traitId,
+            double unitId,
             string name,
             string type,
             string description,
             string notes
         )
         {
-            TraitId = traitId;
-            UnitId = unitId;
+            TraitId = (int)traitId;
+            UnitId = (int)unitId;
             Name = name;
             Type = type;
             Description = description;

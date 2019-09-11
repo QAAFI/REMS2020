@@ -21,7 +21,7 @@ namespace Database
                 entity.Property(e => e.FertilizerId)
                     .HasColumnName("FertilizerId");
 
-                entity.Property(e => e.FertilizerName)
+                entity.Property(e => e.Name)
                     .HasMaxLength(60);
 
                 entity.Property(e => e.Calcium)

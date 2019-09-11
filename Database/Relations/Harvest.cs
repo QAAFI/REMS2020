@@ -6,6 +6,9 @@ namespace Database
     [Relation("Harvest")]
     public class Harvest
     {
+        public Harvest()
+        { }
+
         public Harvest(
             int harvestId,
             int treatmentId,

@@ -61,7 +61,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(760, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(988, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -149,7 +149,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 27);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(760, 429);
+            this.tabControl1.Size = new System.Drawing.Size(988, 601);
             this.tabControl1.TabIndex = 2;
             // 
             // pageDatabase
@@ -160,7 +160,7 @@
             this.pageDatabase.Location = new System.Drawing.Point(4, 22);
             this.pageDatabase.Name = "pageDatabase";
             this.pageDatabase.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDatabase.Size = new System.Drawing.Size(1829, 928);
+            this.pageDatabase.Size = new System.Drawing.Size(980, 575);
             this.pageDatabase.TabIndex = 0;
             this.pageDatabase.Text = "Database";
             // 
@@ -171,7 +171,7 @@
             this.relationsListBox.FormattingEnabled = true;
             this.relationsListBox.Location = new System.Drawing.Point(0, 0);
             this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(143, 927);
+            this.relationsListBox.Size = new System.Drawing.Size(143, 563);
             this.relationsListBox.TabIndex = 3;
             this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.SelectedRelationChanged);
             // 
@@ -183,7 +183,7 @@
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView.Location = new System.Drawing.Point(143, 0);
             this.dataGridView.Name = "dataGridView";
-            this.dataGridView.Size = new System.Drawing.Size(1686, 928);
+            this.dataGridView.Size = new System.Drawing.Size(837, 575);
             this.dataGridView.TabIndex = 1;
             // 
             // pageAnalysis
@@ -202,7 +202,7 @@
             this.pageModelling.Location = new System.Drawing.Point(4, 22);
             this.pageModelling.Name = "pageModelling";
             this.pageModelling.Padding = new System.Windows.Forms.Padding(3);
-            this.pageModelling.Size = new System.Drawing.Size(752, 403);
+            this.pageModelling.Size = new System.Drawing.Size(980, 575);
             this.pageModelling.TabIndex = 2;
             this.pageModelling.Text = "Modelling";
             this.pageModelling.UseVisualStyleBackColor = true;
@@ -221,7 +221,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(760, 455);
+            this.ClientSize = new System.Drawing.Size(988, 627);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.tabControl1);
             this.MainMenuStrip = this.menuStrip1;

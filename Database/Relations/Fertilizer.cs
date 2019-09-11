@@ -12,7 +12,7 @@ namespace Database
         }
 
         public Fertilizer(
-            int fertilizerId,
+            double fertilizerId,
             string name,
             double nitrogen,
             double phosphorous,
@@ -24,7 +24,16 @@ namespace Database
             string notes
         )
         {
-
+            FertilizerId = (int)fertilizerId;
+            Name = name;
+            Nitrogen = nitrogen;
+            Phosphorous = phosphorous;
+            Potassium = potassium;
+            Calcium = calcium;
+            Sulfur = sulfur;
+            OtherAmount = otherAmount;
+            OtherElements = otherElements;
+            Notes = notes;
         }
 
         [PrimaryKey]
@@ -32,8 +41,8 @@ namespace Database
         public int FertilizerId { get; set; }
 
         [Nullable]
-        [Column("FertilizerName")]
-        public string FertilizerName { get; set; }
+        [Column("Name")]
+        public string Name { get; set; }
 
         [Nullable]
         [Column("Nitrogen")]

@@ -13,12 +13,12 @@ namespace Database
 
         // For use with Activator.CreateInstance()
         public Crop(
-            int cropId,
+            double cropId,
             string name,
             string notes
         )
         {
-            CropId = cropId;
+            CropId = (int)cropId;
             Name = name;
             Notes = notes;
         }

@@ -13,12 +13,12 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Region(
-            int regionId,
+            double regionId,
             string name,
             string notes
         )
         {
-            RegionId = regionId;
+            RegionId = (int)regionId;
             Name = name;
             Notes = notes;
         }

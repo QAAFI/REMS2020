@@ -13,9 +13,9 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Field(
-            int fieldId,
-            int siteId,
-            int soilId,
+            double fieldId,
+            double siteId,
+            double soilId,
             string name,
             double? latitude,
             double? longitude,
@@ -25,9 +25,9 @@ namespace Database
             string notes
         )
         {
-            FieldId = fieldId;
-            SiteId = siteId;
-            SoilId = soilId;
+            FieldId = (int)fieldId;
+            SiteId = (int)siteId;
+            SoilId = (int)soilId;
             Name = name;
             Latitude = latitude;
             Longitude = longitude;

@@ -15,7 +15,7 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public MetStations(
-            int metStationId,
+            double metStationId,
             string metStationName,
             double? metStationLatitude,
             double? metStationLongitude,
@@ -25,7 +25,7 @@ namespace Database
             string notes
         )
         {
-            MetStationId = metStationId;
+            MetStationId = (int)metStationId;
             Name = metStationName;
             Latitude = metStationLatitude;
             Longitude = metStationLongitude;

@@ -15,12 +15,12 @@ namespace Database
 
         // For use with Activator.CreateInstance
         public Soil(
-            int soilId,
+            double soilId,
             string soilType,
             string notes
         )
         {
-            SoilId = soilId;
+            SoilId = (int)soilId;
             SoilType = soilType;
             Notes = notes;
         }

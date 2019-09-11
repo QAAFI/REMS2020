@@ -14,7 +14,8 @@ namespace Database
                 entity.HasIndex(e => e.MetStationId)
                     .HasName("MetStationID");
 
-                entity.Property(e => e.MetStationId).HasColumnName("MetStationID");
+                entity.Property(e => e.MetStationId)
+                    .HasColumnName("MetStationID");
 
                 entity.Property(e => e.Amp)
                     .HasColumnName("amp")

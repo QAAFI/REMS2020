@@ -27,7 +27,6 @@ namespace Database
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Name)
-                    .IsRequired()
                     .HasMaxLength(50);
 
                 entity.HasOne(d => d.Region)
