@@ -39,18 +39,14 @@
             this.menuImport = new System.Windows.Forms.ToolStripMenuItem();
             this.menuExport = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
             this.pageDatabase = new System.Windows.Forms.TabPage();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.pageAnalysis = new System.Windows.Forms.TabPage();
-            this.pageModelling = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
             this.menuStrip1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
             this.pageDatabase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
-            this.pageModelling.SuspendLayout();
+            this.tabControl1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -61,7 +57,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(988, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(813, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -131,26 +127,13 @@
             this.menuExport.Name = "menuExport";
             this.menuExport.Size = new System.Drawing.Size(110, 22);
             this.menuExport.Text = "Export";
+            this.menuExport.Click += new System.EventHandler(this.MenuExportClicked);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.pageDatabase);
-            this.tabControl1.Controls.Add(this.pageAnalysis);
-            this.tabControl1.Controls.Add(this.pageModelling);
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(988, 601);
-            this.tabControl1.TabIndex = 2;
             // 
             // pageDatabase
             // 
@@ -160,7 +143,7 @@
             this.pageDatabase.Location = new System.Drawing.Point(4, 22);
             this.pageDatabase.Name = "pageDatabase";
             this.pageDatabase.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDatabase.Size = new System.Drawing.Size(980, 575);
+            this.pageDatabase.Size = new System.Drawing.Size(805, 670);
             this.pageDatabase.TabIndex = 0;
             this.pageDatabase.Text = "Database";
             // 
@@ -171,9 +154,9 @@
             this.relationsListBox.FormattingEnabled = true;
             this.relationsListBox.Location = new System.Drawing.Point(0, 0);
             this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(143, 563);
+            this.relationsListBox.Size = new System.Drawing.Size(143, 667);
             this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.SelectedRelationChanged);
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.ListBoxIndexChanged);
             // 
             // dataGridView
             // 
@@ -183,56 +166,36 @@
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView.Location = new System.Drawing.Point(143, 0);
             this.dataGridView.Name = "dataGridView";
-            this.dataGridView.Size = new System.Drawing.Size(837, 575);
+            this.dataGridView.Size = new System.Drawing.Size(662, 667);
             this.dataGridView.TabIndex = 1;
             // 
-            // pageAnalysis
+            // tabControl1
             // 
-            this.pageAnalysis.Location = new System.Drawing.Point(4, 22);
-            this.pageAnalysis.Name = "pageAnalysis";
-            this.pageAnalysis.Padding = new System.Windows.Forms.Padding(3);
-            this.pageAnalysis.Size = new System.Drawing.Size(1829, 928);
-            this.pageAnalysis.TabIndex = 1;
-            this.pageAnalysis.Text = "Analysis";
-            this.pageAnalysis.UseVisualStyleBackColor = true;
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Controls.Add(this.pageDatabase);
+            this.tabControl1.Location = new System.Drawing.Point(0, 27);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(813, 696);
+            this.tabControl1.TabIndex = 2;
             // 
-            // pageModelling
-            // 
-            this.pageModelling.Controls.Add(this.button1);
-            this.pageModelling.Location = new System.Drawing.Point(4, 22);
-            this.pageModelling.Name = "pageModelling";
-            this.pageModelling.Padding = new System.Windows.Forms.Padding(3);
-            this.pageModelling.Size = new System.Drawing.Size(980, 575);
-            this.pageModelling.TabIndex = 2;
-            this.pageModelling.Text = "Modelling";
-            this.pageModelling.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(8, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
-            // 
-            // ADAMSClient
+            // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(988, 627);
+            this.ClientSize = new System.Drawing.Size(813, 721);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.tabControl1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "ADAMSClient";
+            this.Name = "REMSClient";
             this.Text = "Form1";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
             this.pageDatabase.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
-            this.pageModelling.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -243,12 +206,6 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage pageDatabase;
-        private System.Windows.Forms.TabPage pageAnalysis;
-        private System.Windows.Forms.DataGridView dataGridView;
-        private System.Windows.Forms.ListBox relationsListBox;
-        private System.Windows.Forms.TabPage pageModelling;
         private System.Windows.Forms.ToolStripMenuItem dataToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem menuImport;
         private System.Windows.Forms.ToolStripMenuItem menuExport;
@@ -257,7 +214,10 @@
         private System.Windows.Forms.ToolStripMenuItem menuSave;
         private System.Windows.Forms.ToolStripMenuItem menuSaveAs;
         private System.Windows.Forms.ToolStripMenuItem menuRecent;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TabPage pageDatabase;
+        private System.Windows.Forms.ListBox relationsListBox;
+        private System.Windows.Forms.DataGridView dataGridView;
+        private System.Windows.Forms.TabControl tabControl1;
     }
 }
 

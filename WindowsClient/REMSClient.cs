@@ -8,33 +8,14 @@ namespace WindowsForm
 {
     public partial class REMSClient : Form
     {
-        private IREMSDatabase database = new REMSDatabase();        
+        private IREMSDatabase database = REMSDataFactory.Create();        
 
         public REMSClient()
         {
             InitializeComponent();
 
-            FormClosed += REMSClient_FormClosed;
-        }
-
-        private void REMSClient_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            database.Close();            
-        }        
-
-        private void SelectedRelationChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                var table = relationsListBox.SelectedItem.ToString();
-                var source = database[table];
-                dataGridView.DataSource = source;
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-            }
-        }                
+            FormClosed += REMSClientFormClosed;
+        }                   
 
         /// <summary>
         /// Populates the listview with the tables in the database
@@ -46,6 +27,30 @@ namespace WindowsForm
             {
                 relationsListBox.Items.Add(table);
             }            
+        }
+
+        private void UpdateGridData()
+        {
+            try
+            {
+                var table = relationsListBox.SelectedItem.ToString();
+                var source = database[table];
+                dataGridView.DataSource = source;
+            }
+            catch (Exception error)
+            {
+                ErrorMessage(error.Message);
+            }
+        }
+
+        private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
+        {
+            database.Close();
+        }
+
+        private void ListBoxIndexChanged(object sender, EventArgs e)
+        {
+            UpdateGridData();
         }
 
         /// <summary>
@@ -96,7 +101,7 @@ namespace WindowsForm
                         if (database.IsOpen) database.Close();
                         
                         database.Open(open.FileName);
-                        UpdateListView();
+                        UpdateGridData();
                     }
                     catch (Exception error)
                     {                        
@@ -143,6 +148,7 @@ namespace WindowsForm
                     try
                     {
                         database.ImportData(open.FileName);
+                        UpdateListView();
                     }
                     catch (Exception error)
                     {
@@ -152,14 +158,33 @@ namespace WindowsForm
             }
         }
 
+        private void MenuExportClicked(object sender, EventArgs e)
+        {
+            using (SaveFileDialog save = new SaveFileDialog()
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Filter = "ApsimNG (*.apsimx)|*.apsimx"
+            })
+            {
+                if (save.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        database.ExportData(save.FileName);
+                    }
+                    catch (Exception error)
+                    {
+                        ErrorMessage(error.Message);
+                    }
+                }
+            }            
+        }
+
         private void ErrorMessage(string message, string caption = "Oops! Something went wrong.")
         {
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            ExampleApsimX.GenerateExampleA();           
-        }
+        
     }
 }

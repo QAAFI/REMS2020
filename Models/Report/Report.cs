@@ -11,5 +11,8 @@ namespace Models.Report
         public List<string> VariableNames { get; set; } = default;
 
         public List<string> EventNames { get; set; } = default;
+
+        public Report()
+        { }
     }
 }

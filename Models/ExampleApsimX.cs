@@ -23,19 +23,19 @@ using Models.Soils;
 using Models.Storage;
 using Models.Surface;
 
-namespace WindowsForm
+namespace Models
 {
     public static class ExampleApsimX
     {
-        public static void GenerateExampleA()
+        public static void GenerateExampleA(string file)
         {
             var simulations = new Simulations();
 
             simulations.Add(ExampleDataStore());
-            simulations.Add(ExampleReplacements());
+            //simulations.Add(ExampleReplacements());
             simulations.Add(ExampleValidation());
 
-            using (StreamWriter stream = new StreamWriter($"C:\\Users\\uqmstow1\\Documents\\REMS - Templates\\Example.apsimx"))
+            using (StreamWriter stream = new StreamWriter(file))
             using (JsonWriter writer = new JsonTextWriter(stream))
             {
                 writer.CloseOutput = true;
@@ -57,16 +57,64 @@ namespace WindowsForm
         {
             var dataStore = new DataStore();
 
+            dataStore.Add(new ExcelInput() { Name = "ExampleExcel", FileName = "Example.xlsx"});
+            dataStore.Add(new PredictedObserved() { Name = "ExampleObserved" });
+            dataStore.Add(new Input() { Name = "ExampleInput" });
+
             return dataStore;
         }
 
-        private static Replacements ExampleReplacements()
-        {
-            var replacements = new Replacements() { Name = "Replacements" };
+        //private static Replacements ExampleReplacements()
+        //{
+        //    var replacements = new Replacements() { Name = "Replacements" };
 
+        //    replacements.Add(ExamplePlant());
+        //    replacements.Add(ExampleReport());
 
-            return replacements;
-        }
+        //    return replacements;
+        //}
+
+        //private static Plant ExamplePlant()
+        //{
+        //    var plant = new Plant() { Name = "ExamplePlant" };
+
+        //    plant.Add(ExamplePhenology());
+        //    //plant.Add(ExampleStructure());
+        //    //plant.Add(ExampleGrain());
+        //    //plant.Add(ExampleRoot());
+        //    //plant.Add(ExampleLeaf());
+        //    //plant.Add(ExampleOrgan());
+        //    //plant.Add(ExampleAdd());
+        //    //plant.Add(ExampleCultivar());
+
+        //    return plant;
+        //}
+
+        //private static Phenology ExamplePhenology()
+        //{
+        //    var phenology = new Phenology();
+
+        //    //phenology.Add(ExamplePhaseLookup());
+        //    //phenology.Add(ExampleMultiply());
+        //    //phenology.Add(ExampleWeather());
+        //    //phenology.Add(ExampleGerminating());
+        //    //phenology.Add(ExampleEmerging());
+        //    //phenology.Add(ExamplePhase());
+        //    //phenology.Add(ExampleEndPhase());
+        //    //phenology.Add(ExamplePhotoperiod());
+        //    //phenology.Add(ExampleEvent());
+        //    //phenology.Add(ExampleConstant());
+        //    //phenology.Add()
+
+        //    return phenology;
+        //}
+
+        //private static Report.Report ExampleReport()
+        //{
+        //    var report = new Report.Report() { Name = "ExampleReport" };
+
+        //    return report;
+        //}
 
         private static Folder ExampleValidation()
         {
@@ -100,7 +148,7 @@ namespace WindowsForm
             zone.Add(new Operations() { Name = "Operations" });
             zone.Add(ExampleSoil());
             zone.Add(new Plant() { Name = "ExamplePlant" });
-            zone.Add(new Report() { Name = "ExampleReport" });
+            zone.Add(new Report.Report() { Name = "ExampleReport" });
 
             return zone;
         }

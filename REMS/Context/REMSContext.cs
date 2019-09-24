@@ -82,56 +82,6 @@ namespace REMS
             Treatment.BuildModel(modelBuilder);
             Unit.BuildModel(modelBuilder);
         }
-
-        public void ImportDataSet(DataSet data)
-        {
-            var tables = typeof(REMSContext)
-                .GetProperties()
-                .Where(p => Attribute.IsDefined(p, typeof(Table)));            
-
-            foreach (DataTable table in data.Tables)
-            {
-                var setInfo = tables
-                    .FirstOrDefault(p => 
-                    (p.GetCustomAttribute(typeof(Table)) as Table).Name == table.TableName);
-
-                //TODO: Alert the user if no table is found
-                if (setInfo == null) continue;                
-
-                AddTable(table, setInfo);
-            }
-
-            SaveChanges();
-        }
-
-        private void AddTable(DataTable table, PropertyInfo info)
-        {
-            // Find the type of relation
-            var relation = (info.GetCustomAttribute(typeof(Table)) as Table).Relation;         
-
-            // Find the DbSet to add the data to
-            dynamic set = info.GetValue(this);
-
-            // Iterate over the rows
-            foreach (DataRow row in table.Rows)
-            {
-                // Clean the data
-                var data = row.ItemArray.Select(i => ConvertDBNull(i)).ToArray();
-
-                // Create a blank entity to store data in
-                dynamic entity = Activator.CreateInstance(relation, data);
-                set.Add(entity);
-            }
-            
-        }
-
-        /// <summary>
-        /// Converts DBNull objects into null references
-        /// </summary>
-        private dynamic ConvertDBNull(dynamic item)
-        {
-            if (item.GetType() == typeof(DBNull)) return null;
-            else return item;
-        }
+        
     }
 }

@@ -19,6 +19,8 @@ namespace REMS
 
         void ImportData(string file);
 
+        void ExportData(string file);
+
         void Save();
 
         void Close();
