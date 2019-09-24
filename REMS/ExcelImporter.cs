@@ -8,12 +8,13 @@ using System.Reflection;
 
 namespace REMS
 {
-    public static class Excel
+    public static class ExcelImporter
     {
         public static DataSet ReadRawData(string filePath)
         {           
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
+                
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
                     return reader.AsDataSet(new ExcelDataSetConfiguration()

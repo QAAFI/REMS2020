@@ -8,6 +8,8 @@ using System.Text;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
+using Models;
+
 namespace REMS
 {
     public class REMSDatabase : IREMSDatabase, IDisposable
@@ -81,9 +83,16 @@ namespace REMS
             IsOpen = true;            
         }
 
+        private object ParseItem(object item)
+        {
+            if (item.GetType() == typeof(DBNull)) return "null";
+
+            return item;
+        }
+
         public void ImportData(string file)
         {
-            var excel = Excel.ReadRawData(file);
+            var excel = ExcelImporter.ReadRawData(file);
 
             using (var transaction = connection.BeginTransaction())
             {
@@ -115,12 +124,11 @@ namespace REMS
             }
         }
 
-        private object ParseItem(object item)
+        public void ExportData(string file)
         {
-            if (item.GetType() == typeof(DBNull)) return "null";
-
-            return item;
+            ExampleApsimX.GenerateExampleA(file);
         }
+        
 
         /// <summary>
         /// Saves the database
