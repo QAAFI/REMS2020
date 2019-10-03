@@ -6,112 +6,112 @@ namespace REMS
 {
     public partial class REMSContext : DbContext
     {
-        [Table("ChemicalApplication", typeof(ChemicalApplication))]
+        [Set("ChemicalApplication", typeof(ChemicalApplication))]
         public virtual DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
-        [Table("Crops", typeof(Crop))]
+        [Set("Crops", typeof(Crop))]
         public virtual DbSet<Crop> Crops { get; set; }
 
-        [Table("Designs", typeof(Design))]
+        [Set("Designs", typeof(Design))]
         public virtual DbSet<Design> Designs { get; set; }
 
-        [Table("ExperimentInfo", typeof(ExperimentInfo))]
+        [Set("ExperimentInfo", typeof(ExperimentInfo))]
         public virtual DbSet<ExperimentInfo> ExperimentInfos { get; set; }
 
-        [Table("Experiments", typeof(Experiment))]
+        [Set("Experiments", typeof(Experiment))]
         public virtual DbSet<Experiment> Experiments { get; set; }
 
-        [Table("Factors", typeof(Factor))]
+        [Set("Factors", typeof(Factor))]
         public virtual DbSet<Factor> Factors { get; set; }
 
-        [Table("FertilizationInfo", typeof(FertilizationInfo))]
+        [Set("FertilizationInfo", typeof(FertilizationInfo))]
         public virtual DbSet<FertilizationInfo> FertilizationInfos { get; set; }
 
-        [Table("Fertilizations", typeof(Fertilization))]
+        [Set("Fertilizations", typeof(Fertilization))]
         public virtual DbSet<Fertilization> Fertilizations { get; set; }
 
-        [Table("Fertilizers", typeof(Fertilizer))]
+        [Set("Fertilizers", typeof(Fertilizer))]
         public virtual DbSet<Fertilizer> Fertilizers { get; set; }
 
-        [Table("Fields", typeof(Field))]
+        [Set("Fields", typeof(Field))]
         public virtual DbSet<Field> Fields { get; set; }
 
-        [Table("Harvests", typeof(Harvest))]
+        [Set("Harvests", typeof(Harvest))]
         public virtual DbSet<Harvest> Harvests { get; set; }
 
-        [Table("IrrigationInfo", typeof(IrrigationInfo))]
+        [Set("IrrigationInfo", typeof(IrrigationInfo))]
         public virtual DbSet<IrrigationInfo> IrrigationInfos { get; set; }
 
-        [Table("Irrigations", typeof(Irrigation))]
+        [Set("Irrigations", typeof(Irrigation))]
         public virtual DbSet<Irrigation> Irrigations { get; set; }
 
-        [Table("Levels", typeof(Level))]
+        [Set("Levels", typeof(Level))]
         public virtual DbSet<Level> Levels { get; set; }
 
-        [Table("MetData", typeof(MetData))]
+        [Set("MetData", typeof(MetData))]
         public virtual DbSet<MetData> MetDatas { get; set; }
 
-        [Table("MetInfo", typeof(MetInfo))]
+        [Set("MetInfo", typeof(MetInfo))]
         public virtual DbSet<MetInfo> MetInfos { get; set; }
 
-        [Table("MetStations", typeof(MetStation))]
+        [Set("MetStations", typeof(MetStation))]
         public virtual DbSet<MetStation> MetStations { get; set; }
 
-        [Table("Methods", typeof(Method))]
+        [Set("Methods", typeof(Method))]
         public virtual DbSet<Method> Methods { get; set; }
 
-        [Table("PlotData", typeof(PlotData))]
+        [Set("PlotData", typeof(PlotData))]
         public virtual DbSet<PlotData> PlotDatas { get; set; }
 
-        [Table("Plots", typeof(Plot))]
+        [Set("Plots", typeof(Plot))]
         public virtual DbSet<Plot> Plots { get; set; }
 
-        [Table("Regions", typeof(Region))]
+        [Set("Regions", typeof(Region))]
         public virtual DbSet<Region> Regions { get; set; }
 
-        [Table("ResearcherLists", typeof(ResearcherList))]
+        [Set("ResearcherLists", typeof(ResearcherList))]
         public virtual DbSet<ResearcherList> ResearcherLists { get; set; }
 
-        [Table("Researchers", typeof(Researcher))]
+        [Set("Researchers", typeof(Researcher))]
         public virtual DbSet<Researcher> Researchers { get; set; }
 
-        [Table("Sites", typeof(Site))]
+        [Set("Sites", typeof(Site))]
         public virtual DbSet<Site> Sites { get; set; }
 
-        [Table("SoilData", typeof(SoilData))]
+        [Set("SoilData", typeof(SoilData))]
         public virtual DbSet<SoilData> SoilDatas { get; set; }
 
-        [Table("SoilLayerData", typeof(SoilLayerData))]
+        [Set("SoilLayerData", typeof(SoilLayerData))]
         public virtual DbSet<SoilLayerData> SoilLayerDatas { get; set; }
 
-        [Table("SoilLayerTraits", typeof(SoilLayerTrait))]
+        [Set("SoilLayerTraits", typeof(SoilLayerTrait))]
         public virtual DbSet<SoilLayerTrait> SoilLayerTraits { get; set; }
 
-        [Table("SoilLayers", typeof(SoilLayer))]
+        [Set("SoilLayers", typeof(SoilLayer))]
         public virtual DbSet<SoilLayer> SoilLayers { get; set; }
 
-        [Table("SoilTraits", typeof(SoilTrait))]
+        [Set("SoilTraits", typeof(SoilTrait))]
         public virtual DbSet<SoilTrait> SoilTraits { get; set; }
 
-        [Table("Soils", typeof(Soil))]
+        [Set("Soils", typeof(Soil))]
         public virtual DbSet<Soil> Soils { get; set; }
 
-        [Table("Stats", typeof(Stat))]
+        [Set("Stats", typeof(Stat))]
         public virtual DbSet<Stat> Stats { get; set; }
 
-        [Table("TillageInfo", typeof(TillageInfo))]
+        [Set("TillageInfo", typeof(TillageInfo))]
         public virtual DbSet<TillageInfo> TillageInfos { get; set; }
 
-        [Table("Tillage", typeof(Tillage))]
+        [Set("Tillage", typeof(Tillage))]
         public virtual DbSet<Tillage> Tillages { get; set; }
 
-        [Table("Traits", typeof(Trait))]
+        [Set("Traits", typeof(Trait))]
         public virtual DbSet<Trait> Traits { get; set; }
 
-        [Table("Treatments", typeof(Treatment))]
+        [Set("Treatments", typeof(Treatment))]
         public virtual DbSet<Treatment> Treatments { get; set; }
 
-        [Table("Units", typeof(Unit))]
+        [Set("Units", typeof(Unit))]
         public virtual DbSet<Unit> Units { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace REMS
             {
                 return typeof(REMSContext)                    
                     .GetProperties()                    
-                    .Where(p => Attribute.IsDefined(p, typeof(Table)))
+                    .Where(p => Attribute.IsDefined(p, typeof(Set)))
                     .Select(p => p.Name)
                     .ToList();
             }
@@ -82,6 +82,6 @@ namespace REMS
             Treatment.BuildModel(modelBuilder);
             Unit.BuildModel(modelBuilder);
         }
-        
+
     }
 }

@@ -19,23 +19,24 @@ namespace REMS
 
         private REMSContext context = null;
 
-        private SqliteConnection connection;
-
-        private SqliteCommand command = new SqliteCommand();
-        
+        private SqliteConnection connection;        
         public List<string> Tables
         {
             get
-            {
-                var tables = new List<string>();
+            {               
+                string text = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
 
-                command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using SqliteCommand command = new SqliteCommand(text, connection);
+                using SqliteDataReader reader = command.ExecuteReader();
+
+                var tables = new List<string>();
+                while (reader.Read())
                 {
-                    while (reader.Read()) tables.Add((string)reader["name"]);
-                    tables.RemoveAt(tables.Count - 1);
-                    return tables;
-                }         
+                    tables.Add((string)reader["name"]);
+                }
+                tables.RemoveAt(tables.Count - 1);
+
+                return tables;
             }
         }
 
@@ -49,18 +50,18 @@ namespace REMS
         {
             get
             {
-                command.CommandText = $"SELECT * FROM {name}";
+                string text = $"SELECT * FROM {name}";
 
-                using (SqliteDataReader reader = command.ExecuteReader())
-                {
-                    DataTable table = new DataTable(name);
+                using var command = new SqliteCommand(text, connection);
+                using var reader = command.ExecuteReader();
+                
+                DataTable table = new DataTable(name);
 
-                    table.BeginLoadData();
-                    table.Load(reader);
-                    table.EndLoadData();
+                table.BeginLoadData();
+                table.Load(reader);
+                table.EndLoadData();
 
-                    return table;
-                }
+                return table;
             }
         }
 
@@ -78,8 +79,6 @@ namespace REMS
             connection = new SqliteConnection($"Data Source={file};");
             connection.Open();
 
-            command.Connection = connection;
-
             IsOpen = true;            
         }
 
@@ -92,36 +91,35 @@ namespace REMS
 
         public void ImportData(string file)
         {
-            var excel = ExcelImporter.ReadRawData(file);
-
-            using (var transaction = connection.BeginTransaction())
+            using var excel = ExcelImporter.ReadRawData(file);
+            using var transaction = connection.BeginTransaction();
+            using var command = new SqliteCommand()
             {
-                try
+                Connection = connection,
+                Transaction = transaction
+            };
+
+            foreach (DataTable table in excel.Tables)
+            {
+                List<string> names = new List<string>();
+
+                foreach (DataColumn column in table.Columns)
                 {
-                    command.Transaction = transaction;
-                    foreach (DataTable table in excel.Tables)
-                    {
-                        List<string> names = new List<string>();
-                        foreach (DataColumn column in table.Columns) names.Add(column.ColumnName);
-                        string columns = String.Join(", ", names);
-
-                        string insert = $"INSERT INTO {table.TableName} ({columns})";
-
-                        foreach (DataRow row in table.Rows)
-                        {
-                            var values = row.ItemArray.Select(i => ParseItem(i));
-                            //var values = String.Join(", ", row.ItemArray);                        
-                            command.CommandText = $"{insert} VALUES ({String.Join(", ", values)});";
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                    transaction.Commit();
+                    names.Add(column.ColumnName);
                 }
-                finally
+
+                string columns = String.Join(", ", names);
+                string insert = $"INSERT INTO {table.TableName} ({columns})";
+
+                foreach (DataRow row in table.Rows)
                 {
-                    command.Transaction = null;
+                    var values = row.ItemArray.Select(i => ParseItem(i));
+                    command.CommandText = $"{insert} VALUES ({String.Join(", ", values)});";
+                    command.ExecuteNonQuery();
                 }                
             }
+            transaction.Commit();
+
         }
 
         public void ExportData(string file)
@@ -170,8 +168,7 @@ namespace REMS
             if (disposing)
             {
                 context.Dispose();
-                connection.Dispose();
-                command.Dispose();      
+                connection.Dispose();     
             }
         }
         #endregion

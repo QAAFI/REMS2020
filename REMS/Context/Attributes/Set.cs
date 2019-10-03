@@ -5,7 +5,7 @@ using System.Text;
 namespace REMS
 {   
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class Table : Attribute
+    public class Set : Attribute
     {
         private string name;
 
@@ -21,7 +21,7 @@ namespace REMS
             get { return relation; }
         }
 
-        public Table(string name, Type relation)
+        public Set(string name, Type relation)
         {
             this.name = name;
             this.relation = relation;
