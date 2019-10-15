@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("SoilLayerData")]
     public class SoilLayerData
@@ -70,7 +70,7 @@ namespace REMS
 
                 // Define properties
                 entity.Property(e => e.SoilLayerDataId)
-                    .HasColumnName("SoilLayerID");
+                    .HasColumnName("SoilLayerDataId");
 
                 entity.Property(e => e.DepthFrom)
                     .HasColumnName("DepthFrom")

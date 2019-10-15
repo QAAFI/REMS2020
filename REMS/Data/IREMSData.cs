@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace REMS
     {
         bool IsOpen { get; }
 
-        List<string> Tables { get; }
+        IEnumerable<string> Tables { get; }
 
         DataTable this[string name] { get; }
 

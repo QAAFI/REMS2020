@@ -6,11 +6,15 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace REMS
+namespace REMS.Context
 {
+    using Entities;
+
     public partial class REMSContext : DbContext
     {
-        public string Connection { get; }
+        public string ConnectionString { get; }
+
+        //public string DataFile { get; }
 
         public static List<string> TableNames
         {
@@ -24,9 +28,10 @@ namespace REMS
             }
         }
 
-        public REMSContext(string connection)
+        public REMSContext(string file)
         {
-            Connection = connection;
+            //DataFile = file;
+            ConnectionString = $"Data Source={file};";
         }
 
         public REMSContext(DbContextOptions<REMSContext> options)
@@ -39,7 +44,7 @@ namespace REMS
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlite(Connection);
+                optionsBuilder.UseSqlite(ConnectionString);
             }
         }
 

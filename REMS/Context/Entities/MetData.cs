@@ -3,7 +3,7 @@ using Schema = System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("MetData")]
     public class MetData

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Models
@@ -84,6 +85,26 @@ namespace Models
             }
 
             return (Node)ancestor.Parent;
+        }
+
+        public void WriteToFile(string file)
+        {
+            using (StreamWriter stream = new StreamWriter(file))
+            using (JsonWriter writer = new JsonTextWriter(stream))
+            {
+                writer.CloseOutput = true;
+                writer.AutoCompleteOnClose = true;
+
+                JsonSerializer serializer = new JsonSerializer()
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Objects
+                };
+                serializer.Serialize(writer, this);
+
+                serializer = null;
+                Dispose();
+            }
         }
 
         /// <summary>
