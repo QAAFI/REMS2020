@@ -36,8 +36,6 @@ namespace REMS
 
         private REMSContext context = null;
 
-        private string connectionString;
-        
         public IEnumerable<string> Tables
         {
             get
@@ -86,7 +84,6 @@ namespace REMS
         {        
             if (IsOpen) Close();
 
-            connectionString = file;
             context = new REMSContext(file);
 
             IsOpen = true;            
@@ -214,7 +211,7 @@ namespace REMS
             zone.Add(new Fertiliser() { Name = "Fertiliser" });
             zone.Add(GetOperations());
 
-            //zone.Add(GetSoil(field.SoilId, field.Latitude, field.Longitude));
+            zone.Add(GetSoil(field.SoilId, field.Latitude, field.Longitude));
 
             zone.Add(new Plant() { Name = "Sorghum" });
             zone.Add(new Report() { Name = "Output file" });
@@ -241,32 +238,23 @@ namespace REMS
 
             var model = new Operations();
 
-            var irrigations = from i in context.Irrigations
-                              where (
-                                from t in context.Treatments
-                                where t.TreatmentId == i.TreatmentId
-                                select t.ExperimentId == exp
-                              ).Any()
-                              select (
-                                new Operation(){ 
-                                    Action = $"[Irrigation].Apply({i.Amount})",
-                                    Date = (DateTime)i.Date
-                                }
-                              );
+            var iquery = context.Query.IrrigationsByExperiment(exp);
+            var irrigations = iquery
+                .Select(i => new Operation()
+                    { 
+                        Action = $"[Irrigation].Apply({i.Amount})",
+                        Date = (DateTime)i.Date
+                    }
+                );
 
-            var fertilizations = from f in context.Fertilizations
-                                 where (
-                                   from t in context.Treatments
-                                   where t.TreatmentId == f.TreatmentId
-                                   select t.ExperimentId == exp
-                                 ).Any()
-                                 select (
-                                   new Operation()
-                                   {
-                                       Action = $"[Fertiliser].Apply({f.Amount}, {f.Fertilizer}, {f.Depth})",
-                                       Date = (DateTime)f.Date
-                                   }
-                                 );
+            var fquery = context.Query.FertilizationsByExperiment(exp);
+            var fertilizations = fquery
+                .Select(f => new Operation() 
+                    {
+                        Action = $"[Fertiliser].Apply({f.Amount}, {f.Fertilizer.Name}, {f.Depth})",
+                        Date = (DateTime)f.Date
+                    }
+                );
 
             model.Operation?.AddRange(irrigations);
             model.Operation?.AddRange(fertilizations);
@@ -284,7 +272,7 @@ namespace REMS
             };       
 
             model.Add(GetWater(soilId));
-            model.Add(GetSoilWater());
+            model.Add(GetSoilWater(soilId));
             model.Add(GetSoilNitrogen());
             //soil.Add(new SoilOrganicMatter() { Name = "ExampleOrganic" });
             //soil.Add(new Analysis() { Name = "ExampleAnalysis" });
@@ -296,34 +284,59 @@ namespace REMS
         }
 
         private Water GetWater(int soilId)
-        {
-            var soil = context.Soils.Find(soilId);
+        {           
+            var ThicknessQuery = context.Query.SoilLayerThicknessBySoil(soilId);
+
+            var BDQuery = context.Query.SoilLayerDataByTrait("BD", soilId);
+            var AirDryQuery = context.Query.SoilLayerDataByTrait("AirDry", soilId);
+            var LL15Query = context.Query.SoilLayerDataByTrait("LL15", soilId);
+            var DULQuery = context.Query.SoilLayerDataByTrait("DUL", soilId);
+            var SATQuery = context.Query.SoilLayerDataByTrait("SAT", soilId);
+            var KSQuery = context.Query.SoilLayerDataByTrait("KS", soilId);
 
             var model = new Water();
+            if (ThicknessQuery.Any()) model.Thickness.AddRange(ThicknessQuery);
+            if (BDQuery.Any()) model.BD.AddRange(BDQuery);
+            if (AirDryQuery.Any()) model.AirDry.AddRange(AirDryQuery);
+            if (LL15Query.Any()) model.LL15.AddRange(LL15Query);
+            if (DULQuery.Any()) model.DUL.AddRange(DULQuery);
+            if (SATQuery.Any()) model.SAT.AddRange(SATQuery);
+            if (KSQuery.Any()) model.KS.AddRange(KSQuery);
 
-            
-
-            // TODO: Connect data
-
-            model.Add(GetSoilCrop());
-
-            return model;
-        }
-
-        private SoilCrop GetSoilCrop()
-        {
-            var model = new SoilCrop();
-
-            // TODO: Connect data
+            model.Add(GetSoilCrop(soilId));
 
             return model;
         }
 
-        private SoilWater GetSoilWater()
-        {
-            var model = new SoilWater() { Name = "Physical" };
 
-            // TODO: Connect data
+        private SoilCrop GetSoilCrop(int soilId)
+        {
+            var model = new SoilCrop() { Name = "SoilCrop" };
+
+            var LLQuery = context.Query.SoilLayerDataByTrait("LL", soilId);
+            var KLQuery = context.Query.SoilLayerDataByTrait("KL", soilId);
+            var XFQuery = context.Query.SoilLayerDataByTrait("XF", soilId);
+
+            if (LLQuery.Any()) model.LL.AddRange(LLQuery);
+            if (KLQuery.Any()) model.KL.AddRange(KLQuery);
+            if (XFQuery.Any()) model.XF.AddRange(XFQuery);
+
+            return model;
+        }
+
+        private SoilWater GetSoilWater(int soilId)
+        {
+            var model = new SoilWater() { Name = "SoilWater" };
+
+            // TODO: Add single parameters
+
+            var ThicknessQuery = context.Query.SoilLayerThicknessBySoil(soilId);
+            var SWCONQuery = context.Query.SoilLayerDataByTrait("SWCON", soilId);
+            var KLATQuery = context.Query.SoilLayerDataByTrait("XF", soilId);
+
+            if (ThicknessQuery.Any()) model.Thickness.AddRange(ThicknessQuery);
+            if (SWCONQuery.Any()) model.SWCON.AddRange(SWCONQuery);
+            if (KLATQuery.Any()) model.KLAT.AddRange(KLATQuery);
 
             return model;
         }        
@@ -345,7 +358,7 @@ namespace REMS
         /// </summary>
         public void Save()
         {
-            
+            context.SaveChanges();
         }
 
         /// <summary>
@@ -354,8 +367,8 @@ namespace REMS
         public void Close()
         {
             Save();
+            context.Database.CloseConnection();
 
-            connectionString = null;
             IsOpen = false;
         }
         #endregion

@@ -9,20 +9,20 @@ namespace Models
     /// <summary>
     /// Base node in the tree, this should not be instantiated directly
     /// </summary>
-    public class Node : IDisposable
+    public abstract class Node : IDisposable
     {
-        public string Name { get; set; }      
+        public virtual string Name { get; set; }      
 
-        public List<Node> Children { get; set; } = new List<Node>();
+        public virtual List<Node> Children { get; set; } = new List<Node>();
 
-        public bool IncludeInDocumentation { get; set; } = true;
+        public virtual bool IncludeInDocumentation { get; set; } = true;
 
-        public bool Enabled { get; set; } = true;
+        public virtual bool Enabled { get; set; } = true;
 
-        public bool ReadOnly { get; set; } = false;
+        public virtual bool ReadOnly { get; set; } = false;
 
         [JsonIgnore]
-        public Node Parent { get; set; }
+        public virtual Node Parent { get; set; }
 
         [JsonIgnore]
         private bool disposed = false;
@@ -34,7 +34,7 @@ namespace Models
         /// <summary>
         /// Add a child node
         /// </summary>
-        public void Add(Node child)
+        public virtual void Add(Node child)
         {
             if (child is null) return;
             Children.Add(child);
@@ -43,7 +43,7 @@ namespace Models
         /// <summary>
         /// Add a collection of child nodes
         /// </summary>
-        public void Add(IEnumerable<Node> children)
+        public virtual void Add(IEnumerable<Node> children)
         {
             if (children is null) return;
             foreach (Node node in children) Add(node);
@@ -52,7 +52,7 @@ namespace Models
         /// <summary>
         /// Adds this node to the given parent
         /// </summary>
-        public void AddTo(Node parent)
+        public virtual void AddTo(Node parent)
         {
             parent.Add(this);
         }
@@ -62,7 +62,7 @@ namespace Models
         /// the given node type. Returns null if none are found.
         /// </summary>
         /// <typeparam name="Node">The type of node to search for</typeparam>
-        public Node SearchTree<Node>(Models.Node node) where Node : Models.Node
+        public virtual Node SearchTree<Node>(Models.Node node) where Node : Models.Node
         {
             var result = node.Children
                 .Select(n => (n.GetType() == typeof(Node)) ? n : SearchTree<Node>(n));
@@ -75,7 +75,7 @@ namespace Models
         /// the first instance of the given node type.
         /// </summary>
         /// <typeparam name="Node">The type of node to search for</typeparam>
-        public Node GetAncestor<Node>() where Node : Models.Node
+        public virtual Node GetAncestor<Node>() where Node : Models.Node
         {
             Models.Node ancestor = Parent;
 
@@ -87,7 +87,7 @@ namespace Models
             return (Node)ancestor.Parent;
         }
 
-        public void WriteToFile(string file)
+        public virtual void WriteToFile(string file)
         {
             using (StreamWriter stream = new StreamWriter(file))
             using (JsonWriter writer = new JsonTextWriter(stream))

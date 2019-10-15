@@ -14,7 +14,7 @@ namespace REMS.Context
     {
         public string ConnectionString { get; }
 
-        //public string DataFile { get; }
+        public Queries Query;
 
         public static List<string> TableNames
         {
@@ -32,6 +32,8 @@ namespace REMS.Context
         {
             //DataFile = file;
             ConnectionString = $"Data Source={file};";
+
+            Query = new Queries(this);
         }
 
         public REMSContext(DbContextOptions<REMSContext> options)

@@ -8,11 +8,11 @@ namespace Models.Soils
 {
     public class SoilCrop : Node
     {
-        public List<double> LL { get; set; } = default;
+        public List<double?> LL { get; set; } = default;
 
-        public List<double> KL { get; set; } = default;
+        public List<double?> KL { get; set; } = default;
 
-        public List<double> XF { get; set; } = default;
+        public List<double?> XF { get; set; } = default;
 
         public string LLMetaData { get; set; } = default;
 

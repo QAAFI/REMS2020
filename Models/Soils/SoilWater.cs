@@ -40,11 +40,11 @@ namespace Models.Soils
 
         public double max_pond = default;
 
-        public List<double> Thickness { get; set; } = default;
+        public List<double?> Thickness { get; set; } = new List<double?>();
 
-        public List<double> SWCON { get; set; } = default;
+        public List<double?> SWCON { get; set; } = new List<double?>();
 
-        public List<double> KLAT { get; set; } = default;
+        public List<double?> KLAT { get; set; } = new List<double?>();
 
         public double ResidueInterception { get; set; } = default;
 
