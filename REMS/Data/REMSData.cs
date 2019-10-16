@@ -186,10 +186,9 @@ namespace REMS
 
             simulation.Add(new Summary() { Name = "SummaryFile" });
 
-            simulation.Add(new Memo(){ 
-                Name = "Weather placeholder",
-                Text = "This is meant to be a weather model." +
-                    "However, the .met file is unavailable, so it has been disabled."
+            simulation.Add(new Weather(){ 
+                Name = "HE1996",
+                FileName = "HE1996.met"
             });
 
             simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
@@ -274,72 +273,57 @@ namespace REMS
             model.Add(GetWater(soilId));
             model.Add(GetSoilWater(soilId));
             model.Add(GetSoilNitrogen());
-            //soil.Add(new SoilOrganicMatter() { Name = "ExampleOrganic" });
-            //soil.Add(new Analysis() { Name = "ExampleAnalysis" });
-            //soil.Add(new Sample() { Name = "Initial Water" });
-            //soil.Add(new Sample() { Name = "Initial Nitrogen" });
+            model.Add(GetSoilOrganicMatter(soilId));
+            model.Add(GetChemicalAnalysis(soilId));
+            //model.Add(GetSample(soilId, "Initial Water"));
+            //model.Add(GetSample(soilId, "Initial Nitrogen"));
             model.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
 
             return model;
         }
 
         private Water GetWater(int soilId)
-        {           
-            var ThicknessQuery = context.Query.SoilLayerThicknessBySoil(soilId);
-
-            var BDQuery = context.Query.SoilLayerDataByTrait("BD", soilId);
-            var AirDryQuery = context.Query.SoilLayerDataByTrait("AirDry", soilId);
-            var LL15Query = context.Query.SoilLayerDataByTrait("LL15", soilId);
-            var DULQuery = context.Query.SoilLayerDataByTrait("DUL", soilId);
-            var SATQuery = context.Query.SoilLayerDataByTrait("SAT", soilId);
-            var KSQuery = context.Query.SoilLayerDataByTrait("KS", soilId);
-
-            var model = new Water();
-            if (ThicknessQuery.Any()) model.Thickness.AddRange(ThicknessQuery);
-            if (BDQuery.Any()) model.BD.AddRange(BDQuery);
-            if (AirDryQuery.Any()) model.AirDry.AddRange(AirDryQuery);
-            if (LL15Query.Any()) model.LL15.AddRange(LL15Query);
-            if (DULQuery.Any()) model.DUL.AddRange(DULQuery);
-            if (SATQuery.Any()) model.SAT.AddRange(SATQuery);
-            if (KSQuery.Any()) model.KS.AddRange(KSQuery);
+        {          
+            var model = new Water()
+            {
+                Name = "Physical",
+                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
+                BD = context.Query.SoilLayerDataByTrait("BD", soilId),
+                AirDry = context.Query.SoilLayerDataByTrait("AirDry", soilId),
+                LL15 = context.Query.SoilLayerDataByTrait("LL15", soilId),
+                DUL = context.Query.SoilLayerDataByTrait("DUL", soilId),
+                SAT = context.Query.SoilLayerDataByTrait("SAT", soilId),
+                KS = context.Query.SoilLayerDataByTrait("KS", soilId)
+            };
 
             model.Add(GetSoilCrop(soilId));
 
             return model;
         }
 
-
         private SoilCrop GetSoilCrop(int soilId)
-        {
-            var model = new SoilCrop() { Name = "SoilCrop" };
-
-            var LLQuery = context.Query.SoilLayerDataByTrait("LL", soilId);
-            var KLQuery = context.Query.SoilLayerDataByTrait("KL", soilId);
-            var XFQuery = context.Query.SoilLayerDataByTrait("XF", soilId);
-
-            if (LLQuery.Any()) model.LL.AddRange(LLQuery);
-            if (KLQuery.Any()) model.KL.AddRange(KLQuery);
-            if (XFQuery.Any()) model.XF.AddRange(XFQuery);
-
-            return model;
+        {           
+            return new SoilCrop() 
+            { 
+                Name = "SoilCrop",
+                LL = context.Query.SoilLayerDataByTrait("LL", soilId),
+                KL = context.Query.SoilLayerDataByTrait("KL", soilId),
+                XF = context.Query.SoilLayerDataByTrait("XF", soilId)
+            };
         }
 
         private SoilWater GetSoilWater(int soilId)
         {
-            var model = new SoilWater() { Name = "SoilWater" };
-
-            // TODO: Add single parameters
-
-            var ThicknessQuery = context.Query.SoilLayerThicknessBySoil(soilId);
-            var SWCONQuery = context.Query.SoilLayerDataByTrait("SWCON", soilId);
-            var KLATQuery = context.Query.SoilLayerDataByTrait("XF", soilId);
-
-            if (ThicknessQuery.Any()) model.Thickness.AddRange(ThicknessQuery);
-            if (SWCONQuery.Any()) model.SWCON.AddRange(SWCONQuery);
-            if (KLATQuery.Any()) model.KLAT.AddRange(KLATQuery);
-
-            return model;
+            return new SoilWater() 
+            { 
+                Name = "SoilWater",
+                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
+                SWCON = context.Query.SoilLayerDataByTrait("SWCON", soilId),
+                KLAT = context.Query.SoilLayerDataByTrait("KLAT", soilId)
+            };
+            // TODO: Initiliase single parameters           
         }        
+
         private SoilNitrogen GetSoilNitrogen()
         {
             var model = new SoilNitrogen() { Name = "SoilNitrogen" };
@@ -351,6 +335,37 @@ namespace REMS
             model.Add(new SoilNitrogenPlantAvailableNO3() { Name = "PlantAvailableNO3" });
 
             return model;
+        }
+
+        private SoilOrganicMatter GetSoilOrganicMatter(int soilId)
+        {
+            return new SoilOrganicMatter() 
+            { 
+                Name = "Organic",
+                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
+                OC = context.Query.SoilLayerDataByTrait("OC", soilId),
+                SoilCN = context.Query.SoilLayerDataByTrait("SoilCN", soilId),
+                FBiom = context.Query.SoilLayerDataByTrait("FBiom", soilId),
+                FInert = context.Query.SoilLayerDataByTrait("FInert", soilId),
+                RootWt = context.Query.SoilLayerDataByTrait("FOM", soilId)
+            };
+        }
+
+        private Analysis GetChemicalAnalysis(int soilId)
+        {
+            return new Analysis()
+            {
+                Name = "Chemical",
+                PH = context.Query.SoilLayerDataByTrait("PH", soilId)
+            };
+        }
+
+        private Sample GetSample(int soilId, string name)
+        {
+            return new Sample()
+            {
+                Name = ""
+            };
         }
 
         /// <summary>

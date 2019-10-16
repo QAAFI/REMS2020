@@ -8,19 +8,19 @@ namespace Models.Soils
 {
     public class Water : Node
     {
-        public List<double?> Thickness { get; set; } = new List<double?>();
+        public List<double> Thickness { get; set; } = default;
 
-        public List<double?> BD { get; set; } = new List<double?>();
+        public List<double> BD { get; set; } = default;
 
-        public List<double?> AirDry { get; set; } = new List<double?>();
+        public List<double> AirDry { get; set; } = default;
 
-        public List<double?> LL15 { get; set; } = new List<double?>();
+        public List<double> LL15 { get; set; } = default;
 
-        public List<double?> DUL { get; set; } = new List<double?>();
+        public List<double> DUL { get; set; } = default;
 
-        public List<double?> SAT { get; set; } = new List<double?>();
+        public List<double> SAT { get; set; } = default;
 
-        public List<double?> KS { get; set; } = new List<double?>();
+        public List<double> KS { get; set; } = default;
 
         public string BDMetaData { get; set; } = default;
 

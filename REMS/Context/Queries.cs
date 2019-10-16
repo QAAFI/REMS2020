@@ -21,26 +21,28 @@ namespace REMS.Context
                 this.context = context;
             }
 
-            public IEnumerable<double?> SoilLayerThicknessBySoil(int soilId)
+            public List<double> SoilLayerThicknessBySoil(int soilId)
             {
                 var widths = from layer in context.SoilLayers 
                              where layer.SoilId == soilId 
-                             select layer.DepthTo - layer.DepthFrom;
+                             select (double)((layer.DepthTo ?? 0) - (layer.DepthFrom ?? 0));
 
-                return widths.Select(w => (double?)w);
+                return widths.ToList();
             }
 
-            public IEnumerable<double?> SoilLayerDataByTrait(string traitName, int soilId)
+            public List<double> SoilLayerDataByTrait(string traitName, int soilId)
             {
                 var trait = (from t in context.Traits
                              where t.Name == traitName
                              select t).FirstOrDefault();
 
-                return from slt in context.SoilLayerTraits
+                var values = from slt in context.SoilLayerTraits
                        where slt.Trait == trait
                        where slt.SoilLayer.SoilId == soilId
                        orderby slt.SoilLayer.DepthFrom
-                       select slt.Value;                      
+                       select slt.Value ?? 0;
+
+                return values.ToList();
             }
 
             public IQueryable<Fertilization> FertilizationsByExperiment(int experimentId)
