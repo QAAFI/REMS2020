@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class Biomass
+    public class Biomass : ApsimNode
     {
         public double DMDOfStructural { get; set; } = default;
 

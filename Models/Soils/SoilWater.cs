@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class SoilWater : Node
+    public class SoilWater : ApsimNode
     {
         public string SummerDate = default;
 

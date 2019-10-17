@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class MaximumFunction : Node
+    public class MaximumFunction : ApsimNode
     {
         public MaximumFunction()
         { }

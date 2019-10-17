@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("Stat")]
     public class Stat
@@ -73,7 +73,7 @@ namespace REMS
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Number)
-                    .HasColumnName("n")
+                    .HasColumnName("Number")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.SE)
@@ -81,15 +81,15 @@ namespace REMS
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.TraitId)
-                    .HasColumnName("TraitID")
+                    .HasColumnName("TraitId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.TreatmentId)
-                    .HasColumnName("TreatmentID")
+                    .HasColumnName("TreatmentId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.UnitId)
-                    .HasColumnName("UnitID")
+                    .HasColumnName("UnitId")
                     .HasDefaultValueSql("0");
 
                 // Define constraints

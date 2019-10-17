@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class LinearInterpolationFunction
+    public class LinearInterpolationFunction : ApsimNode
     {
         public string XProperty { get; set; } = default;
         

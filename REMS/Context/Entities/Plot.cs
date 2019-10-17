@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("Plot")]
     public class Plot
@@ -23,8 +23,8 @@ namespace REMS
         public int TreatmentId { get; set; }
 
         [Nullable]
-        [Column("Repetitions")]
-        public int? Repetitions { get; set; }
+        [Column("RepetitionNumber")]
+        public int? RepetitionNumber { get; set; }
 
         [Nullable]
         [Column("Columns")]
@@ -64,8 +64,8 @@ namespace REMS
                     .HasColumnName("Columns")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.Repetitions)
-                    .HasColumnName("Repititions")
+                entity.Property(e => e.RepetitionNumber)
+                    .HasColumnName("RepetitionNumber")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Rows)

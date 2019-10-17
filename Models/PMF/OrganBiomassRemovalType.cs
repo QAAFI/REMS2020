@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class OrganBiomassRemovalType : Node
+    public class OrganBiomassRemovalType : ApsimNode
     {
         public double FractionLiveToRemove { get; set; } = default;
 

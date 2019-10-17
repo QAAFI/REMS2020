@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Surface
 {
-    public class SurfaceOrganicMatter : Node
+    public class SurfaceOrganicMatter : ApsimNode
     {
         public string InitialResidueName { get; set; } = default;
 

@@ -5,7 +5,7 @@ namespace Models.Core
     /// <summary>
     /// Container for a series of simulations
     /// </summary>
-    public class Simulations : Node
+    public class Simulations : ApsimNode
     {
         public int ExplorerWidth { get; set; } = 300;
 

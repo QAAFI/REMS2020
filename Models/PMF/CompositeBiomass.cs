@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class CompositeBiomass : Node
+    public class CompositeBiomass : ApsimNode
     {
         public List<string> Propertys { get; set; } = default;
 

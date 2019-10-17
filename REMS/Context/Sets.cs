@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace REMS
+namespace REMS.Context
 {
+    using Entities;
+
     public partial class REMSContext : DbContext
     {
         [Set("ChemicalApplication", typeof(ChemicalApplication))]

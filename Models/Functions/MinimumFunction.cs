@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class MinimumFunction : Node
+    public class MinimumFunction : ApsimNode
     {
         public MinimumFunction()
         { }

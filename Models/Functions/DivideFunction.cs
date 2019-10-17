@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class DivideFunction : Node
+    public class DivideFunction : ApsimNode
     {
         public DivideFunction()
         { }

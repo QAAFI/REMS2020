@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class HeightFunction : Node
+    public class HeightFunction : ApsimNode
     {
         public HeightFunction()
         { }

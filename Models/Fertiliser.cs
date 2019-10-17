@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Fertiliser : Node
+    public class Fertiliser : ApsimNode
     {
         public Fertiliser()
         { }

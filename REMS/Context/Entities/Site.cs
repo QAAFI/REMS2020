@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("Site")]
     public class Site

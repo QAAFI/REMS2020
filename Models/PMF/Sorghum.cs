@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class SorghumArbitrator : Node
+    public class SorghumArbitrator : ApsimNode
     {
         public double DltTT { get; set; } = default;
 
@@ -32,7 +32,7 @@ namespace Models.PMF
         { }
     }
 
-    public class SorghumArbitratorN : Node
+    public class SorghumArbitratorN : ApsimNode
     {
         public SorghumArbitratorN()
         {

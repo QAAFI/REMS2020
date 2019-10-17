@@ -34,8 +34,7 @@ namespace WindowsForm
             try
             {
                 var table = relationsListBox.SelectedItem.ToString();
-                var source = database[table];
-                dataGridView.DataSource = source;
+                dataGridView.DataSource = database[table];
             }
             catch (Exception error)
             {
@@ -101,7 +100,7 @@ namespace WindowsForm
                         if (database.IsOpen) database.Close();
                         
                         database.Open(open.FileName);
-                        UpdateGridData();
+                        UpdateListView();
                     }
                     catch (Exception error)
                     {                        
@@ -185,6 +184,5 @@ namespace WindowsForm
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        
     }
 }

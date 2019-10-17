@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions.DemandFunctions
 {
-    public class StorageNDemandFunction : Node
+    public class StorageNDemandFunction : ApsimNode
     {
         public StorageNDemandFunction()
         { }

@@ -9,7 +9,7 @@ namespace Models.Core
     /// <summary>
     /// Models a single simulation
     /// </summary>
-    public class Simulation : Node
+    public class Simulation : ApsimNode
     {
         public Simulation()
         { }

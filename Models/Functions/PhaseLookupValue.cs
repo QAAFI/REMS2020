@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class PhaseLookupValue : Node
+    public class PhaseLookupValue : ApsimNode
     {
         public string Start { get; set; } = default;
 

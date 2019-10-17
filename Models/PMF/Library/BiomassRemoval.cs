@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF.Library
 {
-    public class BiomassRemoval : Node
+    public class BiomassRemoval : ApsimNode
     {
         public BiomassRemoval()
         { }

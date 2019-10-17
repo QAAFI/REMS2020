@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Weather : Node
+    public class Weather : ApsimNode
     {
         public string FileName { get; set; } = default;
 

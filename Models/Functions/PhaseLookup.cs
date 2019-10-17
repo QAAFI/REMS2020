@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class PhaseLookup : Node
+    public class PhaseLookup : ApsimNode
     {
         public PhaseLookup()
         { }

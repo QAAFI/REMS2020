@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF.Phen
 {
-    public class Phenology : Node
+    public class Phenology : ApsimNode
     {
 
         public Phenology()

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class PhotoperiodFunction : Node
+    public class PhotoperiodFunction : ApsimNode
     {
         public double Twilight { get; set; } = default;
 

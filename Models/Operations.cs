@@ -4,13 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
+
 namespace Models
 {
-    public class Operations : Node
-    {
-        public List<Operation> Operation { get; set; } = default;
+    public class Operations : ApsimNode
+    {       
+        public List<Operation> Operation { get; } = new List<Operation>();
 
         public Operations()
-        { }
+        {
+            Name = "Operations";
+        }
     }
 }

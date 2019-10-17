@@ -9,11 +9,11 @@ namespace Models
     /// <summary>
     /// Models the simulation clock
     /// </summary>
-    public class Clock : Node
+    public class Clock : ApsimNode
     {
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public Clock()
         {

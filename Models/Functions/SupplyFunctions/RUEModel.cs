@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions.SupplyFunctions
 {
-    public class RUEModel : Node
+    public class RUEModel : ApsimNode
     {
         public RUEModel()
         { }

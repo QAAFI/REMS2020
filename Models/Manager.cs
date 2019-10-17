@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Manager : Node
+    public class Manager : ApsimNode
     {
         public string Code { get; set; } = default;
 

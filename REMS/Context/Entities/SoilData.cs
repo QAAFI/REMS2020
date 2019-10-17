@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace REMS
+namespace REMS.Context.Entities
 {
     [Relation("SoilData")]
     public class SoilData
@@ -16,14 +16,14 @@ namespace REMS
             int soilDataId,
             int plotId,
             int traitId,
-            DateTime soilDataDate,
+            DateTime date,
             double value
         )
         {
             SoilDataId = soilDataId;
             PlotId = plotId;
             TraitId = traitId;
-            SoilDataDate = soilDataDate;
+            Date = date;
             Value = value;
         }
 
@@ -39,7 +39,7 @@ namespace REMS
 
         [Nullable]
         [Column("Date")]
-        public DateTime? SoilDataDate { get; set; }
+        public DateTime? Date { get; set; }
 
         [Nullable]
         [Column("Value")]

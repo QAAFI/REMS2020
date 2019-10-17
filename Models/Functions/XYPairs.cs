@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class XYPairs : Node
+    public class XYPairs : ApsimNode
     {
         public List<double> X { get; set; } = default;
 

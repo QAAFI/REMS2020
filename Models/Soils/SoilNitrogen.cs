@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class SoilNitrogen : Node
+    public class SoilNitrogen : ApsimNode
     {
         public List<string> fom_types { get; set; } = default;
 

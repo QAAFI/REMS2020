@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PostSimulationTools
 {
-    public class Input : Node
+    public class Input : ApsimNode
     {
         public string FileName { get; set; } = default;
 

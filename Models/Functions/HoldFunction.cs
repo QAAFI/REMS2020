@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class HoldFunction : Node
+    public class HoldFunction : ApsimNode
     {
         public string WhenToHold { get; set; } = default;
 

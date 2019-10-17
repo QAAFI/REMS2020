@@ -9,7 +9,7 @@ namespace Models
     /// <summary>
     /// A memorandum for the user
     /// </summary>
-    public class Memo : Node
+    public class Memo : ApsimNode
     {
         public string Text { get; set; }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Core
 {
-    public class Zone : Node
+    public class Zone : ApsimNode
     {
         public double Area { get; set; } = default;
 
