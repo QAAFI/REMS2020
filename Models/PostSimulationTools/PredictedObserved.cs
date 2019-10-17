@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PostSimulationTools
 {
-    public class PredictedObserved : Node
+    public class PredictedObserved : ApsimNode
     {
         public string PredictedTableName { get; set; } = default;
 

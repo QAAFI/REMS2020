@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Irrigation : Node
+    public class Irrigation : ApsimNode
     {
         public Irrigation()
         { }

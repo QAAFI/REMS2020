@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class NitrogenValue : Node
+    public class NitrogenValue : ApsimNode
     {
         public List<double> Values { get; set; } = default;
 

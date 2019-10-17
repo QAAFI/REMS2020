@@ -9,13 +9,13 @@ using Newtonsoft.Json.Converters;
 
 namespace Models
 {
-    public class Operation : Node
+    public class Operation : ApsimNode
     {
         [JsonIgnore]
         public new string Name;
 
         [JsonIgnore]
-        public new List<Node> Children { get; set; } = new List<Node>();
+        public new List<ApsimNode> Children { get; set; } = new List<ApsimNode>();
 
         [JsonIgnore]
         public new bool IncludeInDocumentation { get; set; } = true;

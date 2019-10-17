@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PostSimulationTools
 {
-    public class ExcelInput : Node
+    public class ExcelInput : ApsimNode
     {
         public string FileName { get; set; } = default;
 

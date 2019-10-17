@@ -25,6 +25,5 @@ namespace REMS
         void Save();
 
         void Close();
-
     }
 }

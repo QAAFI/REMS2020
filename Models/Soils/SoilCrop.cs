@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class SoilCrop : Node
+    public class SoilCrop : ApsimNode
     {
         public List<double> LL { get; set; } = default;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class PrioritythenRelativeAllocation : Node
+    public class PrioritythenRelativeAllocation : ApsimNode
     {
 
         public PrioritythenRelativeAllocation()

@@ -75,7 +75,7 @@ namespace REMS
 
         public void Create(string file)
         {
-            context = new REMSContext($"Data Source={file};");
+            context = new REMSContext(file);
             context.Database.EnsureCreated();
             context.SaveChanges();
         }
@@ -148,20 +148,22 @@ namespace REMS
 
         public void ExportData(string file)
         {
-            Simulations simulations = new Simulations();
+            Simulations simulations = new Simulations();            
+
+            var replacements = new Replacements() { Name = "Replacements" };
+            replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
 
             simulations.Add(new DataStore());
+            simulations.Add(replacements);
             simulations.Add(GetSimulations());
-
             simulations.WriteToFile(file);
         }
         
         private IEnumerable<Simulation> GetSimulations()
         {
-            List<Simulation> simulations = new List<Simulation>();
+            List<Simulation> simulations = new List<Simulation>();           
 
             var exps = from exp in context.Experiments select exp;
-
             foreach(var exp in exps)
             {
                 var simulation = NewSorghumSimulation(exp.Name, exp.BeginDate, exp.EndDate);
@@ -184,7 +186,7 @@ namespace REMS
                 EndDate = end
             });
 
-            simulation.Add(new Summary() { Name = "SummaryFile" });
+            simulation.Add(new Summary() { Name = "SummaryFile" });            
 
             simulation.Add(new Weather(){ 
                 Name = "HE1996",
@@ -275,8 +277,8 @@ namespace REMS
             model.Add(GetSoilNitrogen());
             model.Add(GetSoilOrganicMatter(soilId));
             model.Add(GetChemicalAnalysis(soilId));
-            //model.Add(GetSample(soilId, "Initial Water"));
-            //model.Add(GetSample(soilId, "Initial Nitrogen"));
+            model.Add(GetSample(soilId, "Initial Water"));
+            model.Add(GetSample(soilId, "Initial Nitrogen"));
             model.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
 
             return model;
@@ -337,17 +339,17 @@ namespace REMS
             return model;
         }
 
-        private SoilOrganicMatter GetSoilOrganicMatter(int soilId)
+        private Organic GetSoilOrganicMatter(int soilId)
         {
-            return new SoilOrganicMatter() 
+            return new Organic() 
             { 
                 Name = "Organic",
                 Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
-                OC = context.Query.SoilLayerDataByTrait("OC", soilId),
-                SoilCN = context.Query.SoilLayerDataByTrait("SoilCN", soilId),
+                Carbon = context.Query.SoilLayerDataByTrait("Carbon", soilId),
+                SoilCNRatio = context.Query.SoilLayerDataByTrait("SoilCNRatio", soilId),
                 FBiom = context.Query.SoilLayerDataByTrait("FBiom", soilId),
                 FInert = context.Query.SoilLayerDataByTrait("FInert", soilId),
-                RootWt = context.Query.SoilLayerDataByTrait("FOM", soilId)
+                FOM = context.Query.SoilLayerDataByTrait("FOM", soilId)
             };
         }
 
@@ -364,9 +366,10 @@ namespace REMS
         {
             return new Sample()
             {
-                Name = ""
+                Name = name
             };
         }
+
 
         /// <summary>
         /// Saves the database

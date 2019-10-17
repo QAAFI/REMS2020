@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Core
 {
-    public class Replacements : Node
+    public class Replacements : ApsimNode
     {
         public Replacements()
         { }

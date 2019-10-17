@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF.Phen
 {
-    public class GerminatingPhase : Node
+    public class GerminatingPhase : ApsimNode
     {
         public string Start { get; set; } = default;
 

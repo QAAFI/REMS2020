@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class OnEventFunction : Node
+    public class OnEventFunction : ApsimNode
     {
         public string SetEvent { get; set; } = default;
 

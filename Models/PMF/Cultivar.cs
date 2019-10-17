@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class Cultivar : Node
+    public class Cultivar : ApsimNode
     {
         public List<string> Command { get; set; } = default;
 

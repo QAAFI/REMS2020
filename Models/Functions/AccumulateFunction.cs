@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class AccumulateFunction : Node
+    public class AccumulateFunction : ApsimNode
     {
         public string StartStageName { get; set; } = default;
 

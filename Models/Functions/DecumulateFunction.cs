@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class DecumulateFunction : Node
+    public class DecumulateFunction : ApsimNode
     {
         public double InitialValue { get; set; } = default;
 

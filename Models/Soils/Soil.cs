@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class Soil : Node
+    public class Soil : ApsimNode
     {
         public int RecordNumber { get; set; } = default;
 

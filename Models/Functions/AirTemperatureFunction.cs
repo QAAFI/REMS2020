@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class AirTemperatureFunction : Node
+    public class AirTemperatureFunction : ApsimNode
     {
         public AirTemperatureFunction()
         { }

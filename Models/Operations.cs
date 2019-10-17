@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Models
 {
-    public class Operations : Node
+    public class Operations : ApsimNode
     {       
         public List<Operation> Operation { get; } = new List<Operation>();
 

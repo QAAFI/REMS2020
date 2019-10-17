@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Report
 {
-    public class Report : Node
+    public class Report : ApsimNode
     {
         public List<string> VariableNames { get; set; } = default;
 

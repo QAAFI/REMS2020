@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class Constant : Node
+    public class Constant : ApsimNode
     {
         public double FixedValue { get; set; } = default;
 

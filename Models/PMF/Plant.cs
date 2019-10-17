@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class Plant : Node
+    public class Plant : ApsimNode
     {
         public string CropType { get; set; } = "";
 
@@ -17,8 +17,6 @@ namespace Models.PMF
         public string ResourceName { get; set; } = "";
 
         public Plant()
-        {
-
-        }
+        { }
     }
 }

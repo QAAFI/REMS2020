@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class LessThanFunction : Node
+    public class LessThanFunction : ApsimNode
     {
         public LessThanFunction()
         { }

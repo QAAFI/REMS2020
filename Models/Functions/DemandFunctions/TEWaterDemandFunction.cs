@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions.DemandFunctions
 {
-    class TEWaterDemandFunction
+    class TEWaterDemandFunction : ApsimNode
     {
     }
 }

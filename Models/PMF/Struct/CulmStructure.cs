@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF.Struct
 {
-    public class CulmStructure : Node
+    public class CulmStructure : ApsimNode
     {
         public double FinalLeafNo { get; set; } = default;
 

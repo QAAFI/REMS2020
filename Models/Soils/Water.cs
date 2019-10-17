@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class Water : Node
+    public class Water : ApsimNode
     {
         public List<double> Thickness { get; set; } = default;
 

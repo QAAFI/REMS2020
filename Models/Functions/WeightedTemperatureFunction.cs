@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class WeightedTemperatureFunction : Node
+    public class WeightedTemperatureFunction : ApsimNode
     {
         public double MaximumTemperatureWeighting { get; set; } = default;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class AddFunction : Node
+    public class AddFunction : ApsimNode
     {
         public AddFunction()
         { }

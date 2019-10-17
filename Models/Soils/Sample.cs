@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class Sample : Node
+    public class Sample : ApsimNode
     {
         public List<double> Thickness { get; set; } = default;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class CERESSoilTemperature : Node
+    public class CERESSoilTemperature : ApsimNode
     {
         public CERESSoilTemperature()
         { }

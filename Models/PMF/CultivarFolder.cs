@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class CultivarFolder : Node
+    public class CultivarFolder : ApsimNode
     {
         public CultivarFolder()
         { }

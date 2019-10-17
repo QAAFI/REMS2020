@@ -36,13 +36,17 @@ namespace REMS.Context
                              where t.Name == traitName
                              select t).FirstOrDefault();
 
-                var values = from slt in context.SoilLayerTraits
+                var values = (from slt in context.SoilLayerTraits
                        where slt.Trait == trait
                        where slt.SoilLayer.SoilId == soilId
                        orderby slt.SoilLayer.DepthFrom
-                       select slt.Value ?? 0;
+                       select slt.Value ?? 0.0)
+                       .ToList();
 
-                return values.ToList();
+                // Apsim doesn't like lists of zeros, needs empty list
+                if (values.Any(v => v != 0.0)) values.Clear();
+
+                return values;
             }
 
             public IQueryable<Fertilization> FertilizationsByExperiment(int experimentId)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF.Phen
 {
-    public class EmergingPhase : Node
+    public class EmergingPhase : ApsimNode
     {
         public double ShootLag { get; set; } = default;
 

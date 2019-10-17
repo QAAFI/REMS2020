@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Soils
 {
-    public class SoilNitrogenNO3 : Node
+    public class SoilNitrogenNO3 : ApsimNode
     {
         public SoilNitrogenNO3()
         {

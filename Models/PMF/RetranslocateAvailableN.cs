@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.PMF
 {
-    public class RetranslocateAvailableN : Node
+    public class RetranslocateAvailableN : ApsimNode
     {
         public RetranslocateAvailableN()
         { }

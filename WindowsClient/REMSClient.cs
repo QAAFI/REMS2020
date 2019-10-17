@@ -184,6 +184,5 @@ namespace WindowsForm
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        
     }
 }

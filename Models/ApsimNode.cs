@@ -5,15 +5,32 @@ using System.IO;
 using System.Linq;
 
 namespace Models
-{    
+{
+    using Core;
+    using Functions;
+    using Functions.DemandFunctions;
+    using Functions.SupplyFunctions;
+    using PMF;
+    using PMF.Library;
+    using PMF.Organs;
+    using PMF.Phen;
+    using PMF.Struct;
+    using PostSimulationTools;
+    using Report;
+    using Soils;
+    using Storage;
+    using Surface;
+
     /// <summary>
     /// Base node in the tree, this should not be instantiated directly
     /// </summary>
-    public abstract class Node : IDisposable
+    public abstract class ApsimNode : INode, IDisposable
     {
+        // TODO: Make class abstract?
+
         public virtual string Name { get; set; }      
 
-        public virtual List<Node> Children { get; set; } = new List<Node>();
+        public virtual List<INode> Children { get; set; } = new List<INode>();
 
         public virtual bool IncludeInDocumentation { get; set; } = true;
 
@@ -22,19 +39,19 @@ namespace Models
         public virtual bool ReadOnly { get; set; } = false;
 
         [JsonIgnore]
-        public virtual Node Parent { get; set; }
+        public virtual INode Parent { get; set; }
 
         [JsonIgnore]
         private bool disposed = false;
 
-        public Node()
+        public ApsimNode()
         {
         }
         
         /// <summary>
         /// Add a child node
         /// </summary>
-        public virtual void Add(Node child)
+        public void Add(INode child)
         {
             if (child is null) return;
             Children.Add(child);
@@ -43,16 +60,16 @@ namespace Models
         /// <summary>
         /// Add a collection of child nodes
         /// </summary>
-        public virtual void Add(IEnumerable<Node> children)
+        public void Add(IEnumerable<INode> children)
         {
             if (children is null) return;
-            foreach (Node node in children) Add(node);
+            foreach (INode node in children) Add(node);
         }
 
         /// <summary>
         /// Adds this node to the given parent
         /// </summary>
-        public virtual void AddTo(Node parent)
+        public void AddTo(INode parent)
         {
             parent.Add(this);
         }
@@ -61,33 +78,33 @@ namespace Models
         /// Use a Depth-first search to find an instance of 
         /// the given node type. Returns null if none are found.
         /// </summary>
-        /// <typeparam name="Node">The type of node to search for</typeparam>
-        public virtual Node SearchTree<Node>(Models.Node node) where Node : Models.Node
+        /// <typeparam name="T">The type of node to search for</typeparam>
+        public T SearchTree<T>(INode node) where T : INode
         {
             var result = node.Children
-                .Select(n => (n.GetType() == typeof(Node)) ? n : SearchTree<Node>(n));
+                .Select(n => (n.GetType() == typeof(T)) ? n : SearchTree<T>(n));
 
-            return result.OfType<Node>().FirstOrDefault();
+            return result.OfType<T>().FirstOrDefault();
         }
 
         /// <summary>
         /// Iterates over the nodes ancestors until it finds
         /// the first instance of the given node type.
         /// </summary>
-        /// <typeparam name="Node">The type of node to search for</typeparam>
-        public virtual Node GetAncestor<Node>() where Node : Models.Node
+        /// <typeparam name="T">The type of node to search for</typeparam>
+        public T GetAncestor<T>() where T : INode
         {
-            Models.Node ancestor = Parent;
+            INode ancestor = Parent;
 
-            while (ancestor.Parent.GetType() != typeof(Node))
+            while (ancestor.Parent.GetType() != typeof(T))
             {
                 ancestor = ancestor.Parent;
             }
 
-            return (Node)ancestor.Parent;
+            return (T)ancestor.Parent;
         }
 
-        public virtual void WriteToFile(string file)
+        public void WriteToFile(string file)
         {
             using (StreamWriter stream = new StreamWriter(file))
             using (JsonWriter writer = new JsonTextWriter(stream))
@@ -104,6 +121,22 @@ namespace Models
 
                 serializer = null;
                 Dispose();
+            }
+        }
+
+        public static T ReadFromFile<T>(string file) where T : INode
+        {
+            using (StreamReader stream = new StreamReader(file))
+            using (JsonReader reader = new JsonTextReader(stream))
+            {
+                JsonSerializer serializer = new JsonSerializer()
+                {
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.Objects
+                };                
+
+                var node = serializer.Deserialize<INode>(reader);
+                return (T)node;
             }
         }
 

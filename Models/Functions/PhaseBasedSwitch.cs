@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Functions
 {
-    public class PhaseBasedSwitch : Node
+    public class PhaseBasedSwitch : ApsimNode
     {
         public string Start { get; set; } = default;
 
