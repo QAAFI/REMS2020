@@ -155,51 +155,76 @@ namespace REMS
 
             simulations.Add(new DataStore());
             simulations.Add(replacements);
-            simulations.Add(GetSimulations());
+            simulations.Add(GetExperiments());
             simulations.WriteToFile(file);
         }
         
-        private IEnumerable<Simulation> GetSimulations()
+        private IEnumerable<ApsimNode> GetExperiments()
         {
-            List<Simulation> simulations = new List<Simulation>();           
+            List<ApsimNode> experiments = new List<ApsimNode>();           
 
             var exps = from exp in context.Experiments select exp;
             foreach(var exp in exps)
             {
-                var simulation = NewSorghumSimulation(exp.Name, exp.BeginDate, exp.EndDate);
+                var experiment = new Folder();
+                experiment.Add(GetTreatments(exp));
+                experiments.Add(experiment);
+            }
 
-                simulation.Add(GetField(exp.FieldId));
-                
+            return experiments;
+        }
+
+        private IEnumerable<Simulation> GetTreatments(Context.Entities.Experiment experiment)
+        {
+            List<Simulation> simulations = new List<Simulation>();
+
+            var treatments = from treatment in context.Treatments
+                             where treatment.Experiment == experiment
+                             select treatment;
+
+            foreach (var treatment in treatments)
+            {
+                var simulation = NewSorghumSimulation(treatment);
+                simulation.Add(GetField(treatment));
                 simulations.Add(simulation);
             }
 
             return simulations;
         }
 
-        public static Simulation NewSorghumSimulation(string name, DateTime? start, DateTime? end)
+        public static Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
         {
-            var simulation = new Simulation() { Name = name };
+            var simulation = new Simulation() 
+            { 
+                Name = treatment.Experiment.Name 
+            };
 
-            simulation.Add(new Clock(){
+            simulation.Add(new Clock()
+            {
                 Name = "Clock",
-                StartDate = start,
-                EndDate = end
+                StartDate = treatment.Experiment.BeginDate,
+                EndDate = treatment.Experiment.EndDate
             });
 
-            simulation.Add(new Summary() { Name = "SummaryFile" });            
+            simulation.Add(new Summary() 
+            { 
+                Name = "SummaryFile" 
+            });            
 
-            simulation.Add(new Weather(){ 
-                Name = "HE1996",
-                FileName = "HE1996.met"
-            });
+            simulation.Add(new Weather()
+            { 
+                Name = treatment.Experiment.MetStation.Name ?? "",
+                FileName = treatment.Experiment.MetStation.Name + ".met" ?? ""
+            });            
 
             simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
 
             return simulation;
         }
-        private Zone GetField(int? fieldId)
+        
+        private Zone GetField(Context.Entities.Treatment treatment)
         {
-            var field = (from f in context.Fields where f.FieldId == fieldId select f).First();
+            var field = treatment.Experiment.Field;
 
             var zone = new Zone()
             {
@@ -210,10 +235,8 @@ namespace REMS
             zone.Add(GetManagers());
             zone.Add(new Irrigation() { Name = "Irrigation" });
             zone.Add(new Fertiliser() { Name = "Fertiliser" });
-            zone.Add(GetOperations());
-
-            zone.Add(GetSoil(field.SoilId, field.Latitude, field.Longitude));
-
+            zone.Add(GetOperations(treatment));
+            zone.Add(GetSoil(field));
             zone.Add(new Plant() { Name = "Sorghum" });
             zone.Add(new Report() { Name = "Output file" });
 
@@ -233,13 +256,11 @@ namespace REMS
             return folder;
         }
 
-        private Operations GetOperations()
+        private Operations GetOperations(Context.Entities.Treatment treatment)
         {
-            int exp = 1;
-
             var model = new Operations();
 
-            var iquery = context.Query.IrrigationsByExperiment(exp);
+            var iquery = context.Query.IrrigationsByTreatment(treatment);
             var irrigations = iquery
                 .Select(i => new Operation()
                     { 
@@ -248,7 +269,7 @@ namespace REMS
                     }
                 );
 
-            var fquery = context.Query.FertilizationsByExperiment(exp);
+            var fquery = context.Query.FertilizationsByTreatment(treatment);
             var fertilizations = fquery
                 .Select(f => new Operation() 
                     {
@@ -263,22 +284,22 @@ namespace REMS
             return model;
         }
 
-        private Soil GetSoil(int soilId, double? lat, double? lon)
+        private Soil GetSoil(Context.Entities.Field field)
         {
             var model = new Soil()
             {
                 Name = "Soil",
-                Latitude = (double)lat,
-                Longitude = (double)lon
+                Latitude = (double)field.Latitude,
+                Longitude = (double)field.Longitude
             };       
 
-            model.Add(GetWater(soilId));
-            model.Add(GetSoilWater(soilId));
+            model.Add(GetWater(field.SoilId));
+            model.Add(GetSoilWater(field.SoilId));
             model.Add(GetSoilNitrogen());
-            model.Add(GetSoilOrganicMatter(soilId));
-            model.Add(GetChemicalAnalysis(soilId));
-            model.Add(GetSample(soilId, "Initial Water"));
-            model.Add(GetSample(soilId, "Initial Nitrogen"));
+            model.Add(GetSoilOrganicMatter(field.SoilId));
+            model.Add(GetChemicalAnalysis(field.SoilId));
+            model.Add(GetSample(field.SoilId, "Initial Water"));
+            model.Add(GetSample(field.SoilId, "Initial Nitrogen"));
             model.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
 
             return model;
