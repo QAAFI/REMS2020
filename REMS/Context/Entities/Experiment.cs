@@ -32,7 +32,7 @@ namespace REMS.Context.Entities
 
         public string Design { get; set; }
 
-        public short? Repetitions { get; set; }
+        public int? Repetitions { get; set; }
 
         public int? Rating { get; set; }
 
@@ -138,8 +138,7 @@ namespace REMS.Context.Entities
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentMethodId")
-                    .IsRequired();
+                    .HasConstraintName("ExperimentMethodId");
             });
         }
     }

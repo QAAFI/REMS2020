@@ -87,27 +87,25 @@ namespace WindowsForm
         /// </summary>
         private void MenuOpenClicked(object sender, EventArgs e)
         {
-            using (OpenFileDialog open = new OpenFileDialog()
+            using OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "SQLite (*.db)|*.db"
-            })
+            };
+            if (open.ShowDialog() == DialogResult.OK)
             {
-                if (open.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    try
-                    {
-                        if (database.IsOpen) database.Close();
-                        
-                        database.Open(open.FileName);
-                        UpdateListView();
-                    }
-                    catch (Exception error)
-                    {                        
-                        ErrorMessage(error.Message);
-                    }
+                    if (database.IsOpen) database.Close();
+
+                    database.Open(open.FileName);
+                    UpdateListView();
                 }
-            }            
+                catch (Exception error)
+                {
+                    ErrorMessage(error.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -136,47 +134,43 @@ namespace WindowsForm
                 return;
             }
 
-            using (OpenFileDialog open = new OpenFileDialog()
+            using OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "Excel (2007) (*.xlsx)|*.xlsx"
-            })
+            };
+            if (open.ShowDialog() == DialogResult.OK)
             {
-                if (open.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    try
-                    {
-                        database.ImportData(open.FileName);
-                        UpdateListView();
-                    }
-                    catch (Exception error)
-                    {
-                        ErrorMessage(error.Message);
-                    }
+                    database.ImportData(open.FileName);
+                    UpdateListView();
+                }
+                catch (Exception error)
+                {
+                    ErrorMessage(error.Message);
                 }
             }
         }
 
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            using (SaveFileDialog save = new SaveFileDialog()
+            using SaveFileDialog save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "ApsimNG (*.apsimx)|*.apsimx"
-            })
+            };
+            if (save.ShowDialog() == DialogResult.OK)
             {
-                if (save.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    try
-                    {
-                        database.ExportData(save.FileName);
-                    }
-                    catch (Exception error)
-                    {
-                        ErrorMessage(error.Message);
-                    }
+                    database.ExportData(save.FileName);
                 }
-            }            
+                catch (Exception error)
+                {
+                    ErrorMessage(error.Message);
+                }
+            }
         }
 
         private void ErrorMessage(string message, string caption = "Oops! Something went wrong.")

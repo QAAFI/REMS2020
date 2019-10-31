@@ -97,39 +97,8 @@ namespace REMS
 
             foreach (DataTable table in excel.Tables)
             {
-                //ImportTable(table, connection);
                 NewImportTable(table);
             }
-        }
-
-        private void ImportTable(DataTable table, SqliteConnection connection)
-        {            
-            using var transaction = connection.BeginTransaction();
-            using var command = new SqliteCommand()
-            {
-                Connection = connection,
-                Transaction = transaction
-            };
-
-            List<string> names = new List<string>();
-
-            foreach (DataColumn column in table.Columns)
-            {
-                names.Add(column.ColumnName);
-                command.Parameters.Add(new SqliteParameter(column.ColumnName, null));
-            }
-
-            string fields = String.Join(", ", names);
-            string values = String.Join(", @", names);
-            command.CommandText = $"INSERT INTO {table.TableName} ({fields}) VALUES (@{values})";
-
-            foreach (DataRow row in table.Rows)
-            {
-                UpdateParameters(command, row.ItemArray);  
-                command.ExecuteNonQuery();
-            }
-
-            transaction.Commit();
         }
 
         private void NewImportTable(DataTable table)
@@ -140,42 +109,8 @@ namespace REMS
             var entity = context.Entities.Where(e => e.CheckName(table.TableName)).First();            
             var entities =  values.Select(v => entity.Create(v, names));
 
-            //SafeAdd(entities);
             context.AddRange(entities);
             context.SaveChanges();
-        }
-
-        private void SafeAdd(IEnumerable<IEntity> entities)
-        {
-            int count = 0;
-            foreach (var entity in entities)
-            {
-                count++;
-                try
-                {
-                    context.Add(entity);
-                    context.SaveChanges();
-                }
-                catch
-                {
-                    var t = true;
-                }
-            }            
-        }
-
-        private void UpdateParameters(SqliteCommand command, object[] values)
-        {
-            for(int i = 0; i < values.Length; i++)
-            {
-                command.Parameters[i].Value = ParseItem(values[i]);
-            }
-        }
-
-        private object ParseItem(object item)
-        {
-            if (item.GetType() == typeof(DBNull)) return "null";
-
-            return item;
         }
 
         public void ExportData(string file)
@@ -187,23 +122,26 @@ namespace REMS
 
             simulations.Add(new DataStore());
             simulations.Add(replacements);
-            simulations.Add(GetExperiments());
+            simulations.Add(GetValidations());
             simulations.WriteToFile(file);
         }
         
-        private IEnumerable<ApsimNode> GetExperiments()
+        private Folder GetValidations()
         {
+            Folder validation = new Folder() { Name = "Validations" };
+
             List<ApsimNode> experiments = new List<ApsimNode>();           
 
-            var exps = from exp in context.Experiments select exp;
+            var exps = from exp in context.Experiments select exp;            
             foreach(var exp in exps)
             {
-                var experiment = new Folder();
+                var experiment = new Folder() { Name = exp.Name};
                 experiment.Add(GetTreatments(exp));
                 experiments.Add(experiment);
             }
+            validation.Add(experiments);
 
-            return experiments;
+            return validation;
         }
 
         private IEnumerable<Simulation> GetTreatments(Context.Entities.Experiment experiment)
@@ -224,11 +162,11 @@ namespace REMS
             return simulations;
         }
 
-        public static Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
+        public Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
         {
             var simulation = new Simulation() 
             { 
-                Name = treatment.Experiment.Name 
+                Name = treatment.Name ?? "null"
             };
 
             simulation.Add(new Clock()
@@ -245,8 +183,8 @@ namespace REMS
 
             simulation.Add(new Weather()
             { 
-                Name = treatment.Experiment.MetStation.Name ?? "",
-                FileName = treatment.Experiment.MetStation.Name + ".met" ?? ""
+                Name = treatment.Experiment.MetStation?.Name ?? "",
+                FileName = treatment.Experiment.MetStation?.Name + ".met" ?? ""
             });            
 
             simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
