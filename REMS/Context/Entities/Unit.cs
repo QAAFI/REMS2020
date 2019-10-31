@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Unit")]
-    public class Unit
+    public class Unit : BaseEntity
     {
-        public Unit()
+        public Unit() : base()
         {
             ChemicalApplications = new HashSet<ChemicalApplication>();
             Fertilizations = new HashSet<Fertilization>();
@@ -17,28 +16,10 @@ namespace REMS.Context.Entities
             Traits = new HashSet<Trait>();
         }
 
-        // For use with Activator.CreateInstance
-        public Unit(
-            double unitId,
-            string name,
-            string notes
-        )
-        {
-            UnitId = (int)unitId;
-            Name = name;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("UnitId")]
         public int UnitId { get; set; }
 
-        [Nullable]
-        [Column("Name")]
         public string Name { get; set; } = null;
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; } = null;
 
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }
@@ -48,7 +29,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<Trait> Traits { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Unit>(entity =>
             {

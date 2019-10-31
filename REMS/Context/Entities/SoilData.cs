@@ -5,44 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("SoilData")]
-    public class SoilData
+    public class SoilData : BaseEntity
     {
-        public SoilData()
+        public SoilData() : base()
         { }
 
-        // For use with Activator.CreateInstance
-        public SoilData(
-            int soilDataId,
-            int plotId,
-            int traitId,
-            DateTime date,
-            double value
-        )
-        {
-            SoilDataId = soilDataId;
-            PlotId = plotId;
-            TraitId = traitId;
-            Date = date;
-            Value = value;
-        }
-
-        [PrimaryKey]
-        [Column("SoilDataId")]
         public int SoilDataId { get; set; }
 
-        [Column("PlotId")]
         public int PlotId { get; set; }
 
-        [Column("TraitId")]
         public int TraitId { get; set; }
 
-        [Nullable]
-        [Column("Date")]
         public DateTime? Date { get; set; }
 
-        [Nullable]
-        [Column("Value")]
         public double? Value { get; set; }
 
 
@@ -50,7 +25,7 @@ namespace REMS.Context.Entities
         public virtual Trait Trait { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SoilData>(entity =>
             {

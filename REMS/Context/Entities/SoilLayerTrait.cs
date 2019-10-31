@@ -5,20 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("SoilLayerTrait")]
-    public class SoilLayerTrait
+    public class SoilLayerTrait : BaseEntity
     {
-        [PrimaryKey]
-        [Column("SoilLayerTraitId")]
+        public SoilLayerTrait() : base()
+        { }
+
         public int SoilLayerTraitId { get; set; }
 
-        [Column("SoilLayerId")]
         public int? SoilLayerId { get; set; }
 
-        [Column("TraitId")]
         public int? TraitId { get; set; }
 
-        [Column("Value")]
         public double? Value { get; set; }
 
 
@@ -26,7 +23,7 @@ namespace REMS.Context.Entities
         public virtual Trait Trait { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SoilLayerTrait>(entity =>
             {

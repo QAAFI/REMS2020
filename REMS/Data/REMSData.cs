@@ -61,7 +61,7 @@ namespace REMS
                 using var connection = new SqliteConnection(context.ConnectionString);
                 connection.Open();
                 using var command = new SqliteCommand(text, connection);
-                using var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader();                
 
                 DataTable table = new DataTable(name);
 
@@ -97,8 +97,9 @@ namespace REMS
 
             foreach (DataTable table in excel.Tables)
             {
-                ImportTable(table, connection);        
-            }           
+                //ImportTable(table, connection);
+                NewImportTable(table);
+            }
         }
 
         private void ImportTable(DataTable table, SqliteConnection connection)
@@ -129,6 +130,37 @@ namespace REMS
             }
 
             transaction.Commit();
+        }
+
+        private void NewImportTable(DataTable table)
+        {
+            var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
+            var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
+
+            var entity = context.Entities.Where(e => e.CheckName(table.TableName)).First();            
+            var entities =  values.Select(v => entity.Create(v, names));
+
+            //SafeAdd(entities);
+            context.AddRange(entities);
+            context.SaveChanges();
+        }
+
+        private void SafeAdd(IEnumerable<IEntity> entities)
+        {
+            int count = 0;
+            foreach (var entity in entities)
+            {
+                count++;
+                try
+                {
+                    context.Add(entity);
+                    context.SaveChanges();
+                }
+                catch
+                {
+                    var t = true;
+                }
+            }            
         }
 
         private void UpdateParameters(SqliteCommand command, object[] values)

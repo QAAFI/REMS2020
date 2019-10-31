@@ -5,66 +5,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Experiment")]
-    public class Experiment
+    public class Experiment  : BaseEntity
     {
-        public Experiment()
+        public Experiment() : base()
         {
             ExperimentInfo = new HashSet<ExperimentInfo>();
             ResearcherList = new HashSet<ResearcherList>();
             Treatments = new HashSet<Treatment>();
         }
 
-        public Experiment(
-            double experimentId,
-            string experimentName
-        )        
-        {
-            ExperimentId = (int)experimentId;
-            Name = experimentName;            
-        }
-
-        [PrimaryKey]
-        [Column("ExperimentId")]
         public int ExperimentId { get; set; }
 
-        [Column("ExperimentName")]
         public string Name { get; set; }
 
-        [Column("Description")]
         public string Description { get; set; }
 
-        [Column("CropId")]
         public int? CropId { get; set; }
 
-        [Column("FieldId")]
         public int? FieldId { get; set; }
 
-        [Column("BeginDate")]
         public DateTime? BeginDate { get; set; }
 
-        [Column("EndDate")]
         public DateTime? EndDate { get; set; }
 
-        [Column("MetStationId")]
         public int? MetStationId { get; set; }
 
-        [Column("ExperimentDesign")]
         public string Design { get; set; }
 
-        [Column("Repetitions")]
         public short? Repetitions { get; set; }
 
-        [Column("Rating")]
         public int? Rating { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
-        [Column("MethodId")]
         public int? MethodId { get; set; }
 
-        [Column("PlantingNotes")]
         public string PlantingNotes { get; set; }
 
 
@@ -77,7 +52,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<ResearcherList> ResearcherList { get; set; }
         public virtual ICollection<Treatment> Treatments { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Experiment>(entity =>
             {

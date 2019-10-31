@@ -3913,6 +3913,7 @@
       "NitrogenPhenoStress": 0.0,
       "PhosphorusStress": 1.0,
       "FinalLeafNo": 0.0,
+      "SowingDensity": 0.0,
       "senRadnCrit": 0.0,
       "senLightTimeConst": 10.0,
       "frostKill": 1.0,

@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Trait")]
-    public class Trait
+    public class Trait : BaseEntity
     {
-        public Trait()
+        public Trait() : base()
         {
             MetData = new HashSet<MetData>();
             PlotData = new HashSet<PlotData>();
@@ -19,45 +18,16 @@ namespace REMS.Context.Entities
             Stats = new HashSet<Stat>();
         }
 
-        // For use with Activator.CreateInstance
-        public Trait(
-            double traitId,
-            double unitId,
-            string name,
-            string type,
-            string description,
-            string notes
-        )
-        {
-            TraitId = (int)traitId;
-            UnitId = (int)unitId;
-            Name = name;
-            Type = type;
-            Description = description;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("TraitId")]
         public int TraitId { get; set; }
 
-        [Column("UnitId")]
         public int UnitId { get; set; }
 
-        [Nullable]
-        [Column("Name")]
         public string Name { get; set; } = null;
 
-        [Nullable]
-        [Column("Type")]
         public string Type { get; set; } = null;
 
-        [Nullable]
-        [Column("Description")]
         public string Description { get; set; } = null;
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; } = null;
 
 
@@ -71,7 +41,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<Stat> Stats { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Trait>(entity =>
             {

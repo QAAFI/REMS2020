@@ -5,41 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Design")]
-    public class Design
+    public class Design : BaseEntity
     {
-        public Design()
+        public Design() : base()
         { }
 
-        // For use with Activator.CreateInstance()
-        public Design(
-            int designId,
-            int? levelId,
-            int? treatmentId
-        )
-        {
-            DesignId = designId;
-            LevelId = levelId;
-            TreatmentId = treatmentId;
-        }
-
-        [PrimaryKey]
-        [Column("DesignId")]
         public int DesignId { get; set; }
 
-        [Column("LevelId")]
         public int? LevelId { get; set; }
 
-        [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [ForeignKey]
         public virtual Level Level { get; set; }
 
-        [ForeignKey]
         public virtual Treatment Treatment { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Design>(entity =>
             {

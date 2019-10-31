@@ -5,49 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Harvest")]
-    public class Harvest
+    public class Harvest : BaseEntity
     {
-        public Harvest()
+        public Harvest() : base()
         { }
 
-        public Harvest(
-            int harvestId,
-            int treatmentId,
-            int methodId,
-            DateTime harvestDate,
-            string notes
-        )
-        {
-            HarvestId = harvestId;
-            TreatmentId = treatmentId;
-            MethodId = methodId;
-            Date = harvestDate;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("HarvestId")]
         public int HarvestId { get; set; }
 
-        [Column("TreatmentId")]
         public int TreatmentId { get; set; }
 
-        [Column("MethodId")]
         public int MethodId { get; set; }
 
-        [Nullable]
-        [Column("HarvestDate")]
         public DateTime? Date { get; set; }        
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; }
 
         public virtual Method HarvestMethod { get; set; }
         public virtual Treatment Treatment { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Harvest>(entity =>
             {

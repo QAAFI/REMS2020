@@ -151,7 +151,7 @@ namespace WindowsForm
                     }
                     catch (Exception error)
                     {
-                        ErrorMessage(error.ToString());
+                        ErrorMessage(error.Message);
                     }
                 }
             }

@@ -5,32 +5,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Level")]
-    public class Level
+    public class Level : BaseEntity
     {
-        public Level()
+        public Level() : base()
         {
             Designs = new HashSet<Design>();
         }
 
-        [PrimaryKey]
-        [Column("LevelId")]
         public int LevelId { get; set; }
 
-        [Column("FactorId")]
         public int? FactorId { get; set; }
 
-        [Column("LevelName")]
-        public string LevelName { get; set; }
+        public string Name { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
 
         public virtual Factor Factor { get; set; }
         public virtual ICollection<Design> Designs { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Level>(entity =>
             {
@@ -52,7 +46,7 @@ namespace REMS.Context.Entities
                 entity.Property(e => e.FactorId)
                     .HasColumnName("FactorId");
 
-                entity.Property(e => e.LevelName)
+                entity.Property(e => e.Name)
                     .HasColumnName("Name")
                     .HasMaxLength(40);
 

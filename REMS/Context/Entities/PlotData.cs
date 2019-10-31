@@ -5,29 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("PlotData")]
-    public class PlotData
+    public class PlotData : BaseEntity
     {
-        [PrimaryKey]
-        [Column("PlotDataId")]
+        public PlotData() : base()
+        { }
+
         public int PlotDataId { get; set; }
 
-        [Column("PlotId")]
         public int? PlotId { get; set; }
 
-        [Column("TraitId")]
         public int? TraitId { get; set; }
 
-        [Column("PlotDataDate")]
         public DateTime? PlotDataDate { get; set; }
 
-        [Column("Sample")]
         public string Sample { get; set; }
 
-        [Column("Value")]
         public double? Value { get; set; }
 
-        [Column("UnitId")]
         public int? UnitId { get; set; }
 
 
@@ -36,7 +30,7 @@ namespace REMS.Context.Entities
         public virtual Unit Unit { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PlotData>(entity =>
             {
