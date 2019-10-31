@@ -5,31 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Irrigation")]
-    public class Irrigation
+    public class Irrigation : BaseEntity
     {
-        public Irrigation()
+        public Irrigation() : base()
         {
             IrrigationInfo = new HashSet<IrrigationInfo>();
         }
 
-        [PrimaryKey]
-        [Column("IrrigationId")]
         public int IrrigationId { get; set; }
 
-        [Column("MethodId")]
         public int? MethodId { get; set; }
 
-        [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [Column("Date")]
         public DateTime? Date { get; set; }        
 
-        [Column("Amount")]
         public int? Amount { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
 
@@ -37,7 +29,7 @@ namespace REMS.Context.Entities
         public virtual Treatment Treatment { get; set; }
         public virtual ICollection<IrrigationInfo> IrrigationInfo { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Irrigation>(entity =>
             {

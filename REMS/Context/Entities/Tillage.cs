@@ -5,31 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Tillage")]
-    public class Tillage
+    public class Tillage : BaseEntity
     {
-        public Tillage()
+        public Tillage() : base()
         {
             TillageInfo = new HashSet<TillageInfo>();
         }
 
-        [PrimaryKey]
-        [Column("TillageId")]
         public int TillageId { get; set; }
 
-        [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [Column("MethodId")]
         public int? MethodId { get; set; }
 
-        [Column("Date")]
         public DateTime? Date { get; set; }        
 
-        [Column("Depth")]
         public double? Depth { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
         public virtual Method TillageMethod { get; set; }
@@ -37,7 +29,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<TillageInfo> TillageInfo { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tillage>(entity =>
             {

@@ -5,33 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Plot")]
-    public class Plot
+    public class Plot : BaseEntity
     {
-        public Plot()
+        public Plot() : base()
         {
             PlotData = new HashSet<PlotData>();
             SoilData = new HashSet<SoilData>();
             SoilLayerData = new HashSet<SoilLayerData>();
         }
 
-        [PrimaryKey]
-        [Column("PlotId")]
         public int PlotId { get; set; }
 
-        [Column("TreatmentId")]
         public int TreatmentId { get; set; }
 
-        [Nullable]
-        [Column("RepetitionNumber")]
         public int? RepetitionNumber { get; set; }
 
-        [Nullable]
-        [Column("Columns")]
         public int? Columns { get; set; }
 
-        [Nullable]
-        [Column("Rows")]
         public int? Rows { get; set; }
 
 
@@ -41,7 +31,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<SoilLayerData> SoilLayerData { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Plot>(entity =>
             {

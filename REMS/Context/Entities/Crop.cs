@@ -5,42 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Crop")]
-    public class Crop
+    public class Crop : BaseEntity
     {
-        public Crop()
+        public Crop() : base()
         {
             Experiments = new HashSet<Experiment>();
         }
 
-        // For use with Activator.CreateInstance()
-        public Crop(
-            double cropId,
-            string name,
-            string notes
-        )
-        {
-            CropId = (int)cropId;
-            Name = name;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("CropId")]
         public int CropId { get; set; }
 
-        [Nullable]
-        [Column("Name")]
         public string Name { get; set; }
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; }
 
-        [ForeignKey]
         public virtual ICollection<Experiment> Experiments { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Crop>(entity =>
             {

@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Treatment")]
-    public class Treatment
+    public class Treatment : BaseEntity
     {
-        public Treatment()
+        public Treatment() : base()
         {
             ChemicalApplications = new HashSet<ChemicalApplication>();
             Designs = new HashSet<Design>();
@@ -20,14 +19,10 @@ namespace REMS.Context.Entities
             Tillages = new HashSet<Tillage>();
         }
 
-        [PrimaryKey]
-        [Column("TreatmentId")]
         public int TreatmentId { get; set; }
 
-        [Column("ExperimentId")]
         public int? ExperimentId { get; set; }
 
-        [Column("TreatmentName")]
         public string Name { get; set; }
 
         public virtual Experiment Experiment { get; set; }
@@ -41,7 +36,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<Tillage> Tillages { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Treatment>(entity =>
             {

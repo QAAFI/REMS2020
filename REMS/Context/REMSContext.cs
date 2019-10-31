@@ -16,30 +16,56 @@ namespace REMS.Context
 
         public Queries Query;
 
-        public static List<string> TableNames
+        public List<IEntity> Entities = new List<IEntity>()
         {
-            get
-            {
-                return typeof(REMSContext)                    
-                    .GetProperties()                    
-                    .Where(p => Attribute.IsDefined(p, typeof(Set)))
-                    .Select(p => p.Name)
-                    .ToList();
-            }
-        }
+            new ChemicalApplication(),
+            new Crop(),
+            new Design(),
+            new ExperimentInfo(),
+            new Experiment(),
+            new Factor(),
+            new FertilizationInfo(),
+            new Fertilization(),
+            new Fertilizer(),
+            new Field(),
+            new Harvest(),
+            new IrrigationInfo(),
+            new Irrigation(),
+            new Level(),
+            new MetData(),
+            new MetInfo(),
+            new MetStation(),
+            new Method(),
+            new PlotData(),
+            new Plot(),
+            new Region(),
+            new ResearcherList(),
+            new Researcher(),
+            new Site(),
+            new SoilData(),
+            new SoilLayerData(),
+            new SoilLayerTrait(),
+            new SoilLayer(),
+            new SoilTrait(),
+            new Soil(),
+            new Stat(),
+            new TillageInfo(),
+            new Tillage(),
+            new Trait(),
+            new Treatment(),
+            new Unit()
+        };
 
-        public REMSContext(string file)
+        public REMSContext(string file) : base()
         {
-            //DataFile = file;
             ConnectionString = $"Data Source={file};";
-
             Query = new Queries(this);
         }
 
-        public REMSContext(DbContextOptions<REMSContext> options)
-            : base(options)
+        public REMSContext(string file, DbContextOptions<REMSContext> options) : base(options)
         {
-
+            ConnectionString = $"Data Source={file};";
+            Query = new Queries(this);
         }        
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -47,48 +73,16 @@ namespace REMS.Context
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlite(ConnectionString);
+                optionsBuilder.EnableSensitiveDataLogging(true);
+                optionsBuilder.EnableDetailedErrors(true);
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ChemicalApplication.BuildModel(modelBuilder);
-            Crop.BuildModel(modelBuilder);
-            Design.BuildModel(modelBuilder);
-            Experiment.BuildModel(modelBuilder);
-            ExperimentInfo.BuildModel(modelBuilder);
-            Factor.BuildModel(modelBuilder);
-            Fertilization.BuildModel(modelBuilder);
-            FertilizationInfo.BuildModel(modelBuilder);
-            Fertilizer.BuildModel(modelBuilder);            
-            Field.BuildModel(modelBuilder);
-            Harvest.BuildModel(modelBuilder);
-            Irrigation.BuildModel(modelBuilder);
-            IrrigationInfo.BuildModel(modelBuilder);
-            Level.BuildModel(modelBuilder);
-            MetData.BuildModel(modelBuilder);
-            MetInfo.BuildModel(modelBuilder);
-            MetStation.BuildModel(modelBuilder);
-            Method.BuildModel(modelBuilder);
-            Plot.BuildModel(modelBuilder);
-            PlotData.BuildModel(modelBuilder);
-            Region.BuildModel(modelBuilder);
-            Researcher.BuildModel(modelBuilder);
-            ResearcherList.BuildModel(modelBuilder);
-            Site.BuildModel(modelBuilder);
-            Soil.BuildModel(modelBuilder);
-            SoilData.BuildModel(modelBuilder);
-            SoilLayer.BuildModel(modelBuilder);
-            SoilLayerData.BuildModel(modelBuilder);
-            SoilLayerTrait.BuildModel(modelBuilder);
-            SoilTrait.BuildModel(modelBuilder);
-            Stat.BuildModel(modelBuilder);
-            Tillage.BuildModel(modelBuilder);
-            TillageInfo.BuildModel(modelBuilder);
-            Trait.BuildModel(modelBuilder);
-            Treatment.BuildModel(modelBuilder);
-            Unit.BuildModel(modelBuilder);
+            foreach (IEntity entity in Entities) entity.BuildModel(modelBuilder);
         }
+
 
     }
 }

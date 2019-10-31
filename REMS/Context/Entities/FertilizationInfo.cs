@@ -5,26 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("FertilizationInfo")]
-    public class FertilizationInfo
+    public class FertilizationInfo : BaseEntity
     {
-        [PrimaryKey]
-        [Column("FertilizationInfoId")]
+        public FertilizationInfo() : base()
+        { }
+
         public int FertilizationInfoId { get; set; }
 
-        [Column("FertilizationId")]
         public int? FertilizationId { get; set; }
 
-        [Column("Variable")]
         public string Variable { get; set; }
 
-        [Column("Value")]
         public string Value { get; set; }
 
 
         public virtual Fertilization Fertilization { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FertilizationInfo>(entity =>
             {
