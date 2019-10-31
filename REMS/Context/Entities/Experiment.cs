@@ -46,7 +46,7 @@ namespace REMS.Context.Entities
         public virtual Crop Crop { get; set; }
         public virtual Field Field { get; set; }
         public virtual MetStation MetStation { get; set; }
-        public virtual Method PlantingMethod { get; set; }
+        public virtual Method Method { get; set; }
 
         public virtual ICollection<ExperimentInfo> ExperimentInfo { get; set; }
         public virtual ICollection<ResearcherList> ResearcherList { get; set; }
@@ -117,25 +117,29 @@ namespace REMS.Context.Entities
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.CropId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentCropId");
+                    .HasConstraintName("ExperimentCropId")
+                    .IsRequired();
 
                 entity.HasOne(d => d.Field)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.FieldId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentFieldId");
+                    .HasConstraintName("ExperimentFieldId")
+                    .IsRequired();                    
 
                 entity.HasOne(d => d.MetStation)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.MetStationId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentMetStationId");
+                    .HasConstraintName("ExperimentMetStationId")
+                    .IsRequired();
 
-                entity.HasOne(d => d.PlantingMethod)
+                entity.HasOne(d => d.Method)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentMethodId");
+                    .HasConstraintName("ExperimentMethodId")
+                    .IsRequired();
             });
         }
     }
