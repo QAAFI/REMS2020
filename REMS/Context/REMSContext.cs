@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -73,6 +73,7 @@ namespace REMS.Context
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlite(ConnectionString);
+                optionsBuilder.UseLazyLoadingProxies(true);
                 optionsBuilder.EnableSensitiveDataLogging(true);
                 optionsBuilder.EnableDetailedErrors(true);
             }

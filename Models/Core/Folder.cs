@@ -13,7 +13,10 @@ namespace Models.Core
     {
         public bool ShowPageOfGraphs { get; set; } = true;
 
-        public Folder()
+        public Folder() : base()
+        { }
+
+        public Folder(IEnumerable<ApsimNode> children) : base(children)
         { }
     }
 }

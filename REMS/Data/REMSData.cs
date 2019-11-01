@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -85,7 +86,13 @@ namespace REMS
             if (IsOpen) Close();
 
             context = new REMSContext(file);
+            context.SaveChanges();
 
+            //context.UpdateRange(context.Fields);
+            //context.UpdateRange(context.Experiments);
+            //context.UpdateRange(context.MetStations);
+
+            //context.SaveChanges();
             IsOpen = true;            
         }        
 
@@ -115,7 +122,7 @@ namespace REMS
 
         public void ExportData(string file)
         {
-            Simulations simulations = new Simulations();            
+            using Simulations simulations = new Simulations();            
 
             var replacements = new Replacements() { Name = "Replacements" };
             replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
@@ -124,42 +131,72 @@ namespace REMS
             simulations.Add(replacements);
             simulations.Add(GetValidations());
             simulations.WriteToFile(file);
+
+            GenerateMets(Path.GetDirectoryName(file));
         }
-        
+
+        private void GenerateMets(string path)
+        {
+            var mets = from met in context.MetStations
+                       select met;
+
+            foreach (var met in mets)
+            {
+                string file = path + "\\" + met.Name + ".met";
+                //if (File.Exists(file)) continue;
+
+                using var stream = new FileStream(file, FileMode.Create);
+                using var writer = new StreamWriter(stream);
+                
+                writer.WriteLine($"latitude = {met.Latitude}");
+                writer.WriteLine($"longitude = {met.Longitude}");
+                writer.WriteLine($"tav = {met.TemperatureAverage}");
+                writer.WriteLine($"amp = {met.Amp}\n");
+
+                writer.WriteLine($"{"Year", -8}{"Day", -8}{"maxt", -8}{"mint", -8}{"radn", -8}{"Rain", -8}");
+                writer.WriteLine($"{" () ", -8}{" () ",-8}{" () ", -8}{" () ", -8}{" () ", -8}{" () ", -8}");
+
+                var dates = context.MetDatas
+                    .Select(d => d.Date)
+                    .Distinct()
+                    .OrderBy(d => d.Date);
+
+                var TMAX = context.Traits.First(t => t.Name == "TMAX");
+                var TMIN = context.Traits.First(t => t.Name == "TMIN");
+                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
+                var RAIN = context.Traits.First(t => t.Name == "RAIN");
+
+                foreach (var date in dates)
+                {
+                    var value = from data in context.MetDatas
+                                where data.Date == date
+                                where data.Value.HasValue
+                                select data;
+
+                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
+                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
+                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
+                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
+
+                    writer.Write($"{date.Year, -8}{date.Day, -8}{tmax, -8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                }
+            }
+            
+        }
+
         private Folder GetValidations()
         {
-            Folder validation = new Folder() { Name = "Validations" };
+            var validations = new Folder() { Name = "Validations" };
 
-            List<ApsimNode> experiments = new List<ApsimNode>();           
-
-            var exps = from exp in context.Experiments select exp;            
-            foreach(var exp in exps)
+            foreach (var experiment in context.Experiments)
             {
-                var experiment = new Folder() { Name = exp.Name};
-                experiment.Add(GetTreatments(exp));
-                experiments.Add(experiment);
-            }
-            validation.Add(experiments);
-
-            return validation;
-        }
-
-        private IEnumerable<Simulation> GetTreatments(Context.Entities.Experiment experiment)
-        {
-            List<Simulation> simulations = new List<Simulation>();
-
-            var treatments = from treatment in context.Treatments
-                             where treatment.Experiment == experiment
-                             select treatment;
-
-            foreach (var treatment in treatments)
-            {
-                var simulation = NewSorghumSimulation(treatment);
-                simulation.Add(GetField(treatment));
-                simulations.Add(simulation);
+                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t));
+                var folder = new Folder() { Name = experiment.Name };
+                folder.Add(simulations);
+                validations.Add(folder);
             }
 
-            return simulations;
+            return validations;  
         }
 
         public Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
@@ -168,7 +205,7 @@ namespace REMS
             { 
                 Name = treatment.Name ?? "null"
             };
-
+            
             simulation.Add(new Clock()
             {
                 Name = "Clock",
@@ -183,11 +220,13 @@ namespace REMS
 
             simulation.Add(new Weather()
             { 
-                Name = treatment.Experiment.MetStation?.Name ?? "",
-                FileName = treatment.Experiment.MetStation?.Name + ".met" ?? ""
+                Name = "Weather",
+                FileName = treatment.Experiment.MetStation?.Name + ".met"
             });            
 
             simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
+
+            simulation.Add(GetField(treatment));
 
             return simulation;
         }
