@@ -5,27 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("MetInfo")]
-    public class MetInfo
+    public class MetInfo : BaseEntity
     {
-        [PrimaryKey]
-        [Column("MetInfoId")]
+        public MetInfo() : base()
+        { }
+
         public int MetInfoId { get; set; }
 
-        [Column("MetStationId")]
         public int? MetStationId { get; set; }
 
-        [Column("Variable")]
         public string Variable { get; set; }
 
-        [Column("Value")]
         public string Value { get; set; }
 
 
         public virtual MetStation MetStation { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MetInfo>(entity =>
             {

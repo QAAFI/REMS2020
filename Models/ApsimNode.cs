@@ -45,7 +45,11 @@ namespace Models
         private bool disposed = false;
 
         public ApsimNode()
+        { }
+
+        public ApsimNode(IEnumerable<ApsimNode> children) : this()
         {
+            Add(children);
         }
         
         /// <summary>

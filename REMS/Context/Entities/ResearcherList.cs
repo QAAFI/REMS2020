@@ -5,24 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("ResearcherList")]
-    public class ResearcherList
+    public class ResearcherList : BaseEntity
     {
-        [PrimaryKey]
-        [Column("ResearcherListId")]
+        public ResearcherList() : base()
+        { }
+
+
         public int ResearcherListId { get; set; }
 
-        [Column("ResearcherId")]
         public int? ResearcherId { get; set; }
 
-        [Column("ExperimentId")]
         public int? ExperimentId { get; set; }        
 
         public virtual Experiment Experiment { get; set; }
         public virtual Researcher Researcher { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ResearcherList>(entity =>
             {

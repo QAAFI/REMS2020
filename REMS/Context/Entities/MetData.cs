@@ -5,38 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("MetData")]
-    public class MetData
+    public class MetData : BaseEntity
     {
-        public MetData()
+        public MetData() : base()
         { }
 
-        public MetData(
-            double metStationId,
-            double traitId,
-            DateTime date
-        )
-        {
-            MetStationId = (int)metStationId;
-            TraitId = (int)traitId;
-            Date = date;
-        }
-
-        [PrimaryKey]
-        [Column("MetStationId")]
-        [Schema.DatabaseGenerated(Schema.DatabaseGeneratedOption.Identity)]
         public int MetStationId { get; set; }
 
-        [PrimaryKey]
-        [Column("TraitId")]
-        [Schema.DatabaseGenerated(Schema.DatabaseGeneratedOption.Identity)]
-        public int TraitId { get; set; }
+        public int? TraitId { get; set; }
 
-        [PrimaryKey]
-        [Column("Date")]
         public DateTime Date { get; set; }
 
-        [Column("Value")]
         public double? Value { get; set; }
 
 
@@ -44,16 +23,15 @@ namespace REMS.Context.Entities
         public virtual Trait Trait { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MetData>(entity =>
             {
                 // Define the primary key
                 entity.HasKey(e => new {
-                    e.MetStationId,
-                    e.TraitId,
-                    e.Date
-                })
+                        e.MetStationId,
+                        e.TraitId,
+                        e.Date})
                     .HasName("PrimaryKey");
 
                 // Define the table indices

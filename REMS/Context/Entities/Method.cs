@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Method")]
-    public class Method
+    public class Method : BaseEntity
     {
-        public Method()
+        public Method() : base()
         {
             ChemicalApplications = new HashSet<ChemicalApplication>();
             Experiments = new HashSet<Experiment>();
@@ -18,30 +17,12 @@ namespace REMS.Context.Entities
             Tillages = new HashSet<Tillage>();
         }
 
-        public Method(
-            double methodId,
-            string name,
-            string type,
-            string notes
-        )
-        {
-            MethodId = (int)methodId;
-            Name = name;
-            Type = type;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("MethodId")]
         public int MethodId { get; set; }
 
-        [Column("Name")]
         public string Name { get; set; }
 
-        [Column("Type")]
         public string Type { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
 
@@ -53,7 +34,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<Tillage> Tillages { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Method>(entity =>
             {

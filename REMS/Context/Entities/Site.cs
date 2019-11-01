@@ -5,59 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Site")]
-    public class Site
+    public class Site : BaseEntity
     {
-        public Site()
+        public Site() : base()
         {
             Fields = new HashSet<Field>();
         }
 
-        // For use with Activator.CreateInstance
-        public Site(
-            double siteId,
-            double regionId,
-            string name,
-            double? latitude,
-            double? longitude,
-            double? elevation,
-            string notes
-        )
-        {
-            SiteId = (int)siteId;
-            RegionId = (int)regionId;
-            Name = name;
-            Latitude = latitude;
-            Longitude = longitude;
-            Elevation = elevation;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("SiteId")]
         public int SiteId { get; set; }
 
-        [Column("RegionId")]
         public int RegionId { get; set; }
 
-        [Nullable]
-        [Column("Name")]
         public string Name { get; set; } = null;
 
-        [Nullable]
-        [Column("Latitude")]
         public double? Latitude { get; set; } = null;
 
-        [Nullable]
-        [Column("Longitude")]
         public double? Longitude { get; set; } = null;
 
-        [Nullable]
-        [Column("Elevation")]
         public double? Elevation { get; set; } = null;
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; } = null;
 
 
@@ -65,7 +31,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<Field> Fields { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Site>(entity =>
             {

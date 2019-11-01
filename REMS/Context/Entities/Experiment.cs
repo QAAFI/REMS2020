@@ -5,79 +5,54 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Experiment")]
-    public class Experiment
+    public class Experiment  : BaseEntity
     {
-        public Experiment()
+        public Experiment() : base()
         {
             ExperimentInfo = new HashSet<ExperimentInfo>();
             ResearcherList = new HashSet<ResearcherList>();
             Treatments = new HashSet<Treatment>();
         }
 
-        public Experiment(
-            double experimentId,
-            string experimentName
-        )        
-        {
-            ExperimentId = (int)experimentId;
-            Name = experimentName;            
-        }
-
-        [PrimaryKey]
-        [Column("ExperimentId")]
         public int ExperimentId { get; set; }
 
-        [Column("ExperimentName")]
         public string Name { get; set; }
 
-        [Column("Description")]
         public string Description { get; set; }
 
-        [Column("CropId")]
         public int? CropId { get; set; }
 
-        [Column("FieldId")]
         public int? FieldId { get; set; }
 
-        [Column("BeginDate")]
         public DateTime? BeginDate { get; set; }
 
-        [Column("EndDate")]
         public DateTime? EndDate { get; set; }
 
-        [Column("MetStationId")]
         public int? MetStationId { get; set; }
 
-        [Column("ExperimentDesign")]
         public string Design { get; set; }
 
-        [Column("Repetitions")]
-        public short? Repetitions { get; set; }
+        public int? Repetitions { get; set; }
 
-        [Column("Rating")]
         public int? Rating { get; set; }
 
-        [Column("Notes")]
         public string Notes { get; set; }
 
-        [Column("MethodId")]
         public int? MethodId { get; set; }
 
-        [Column("PlantingNotes")]
         public string PlantingNotes { get; set; }
 
 
         public virtual Crop Crop { get; set; }
         public virtual Field Field { get; set; }
         public virtual MetStation MetStation { get; set; }
-        public virtual Method PlantingMethod { get; set; }
+        public virtual Method Method { get; set; }
 
         public virtual ICollection<ExperimentInfo> ExperimentInfo { get; set; }
         public virtual ICollection<ResearcherList> ResearcherList { get; set; }
         public virtual ICollection<Treatment> Treatments { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Experiment>(entity =>
             {
@@ -142,21 +117,24 @@ namespace REMS.Context.Entities
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.CropId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentCropId");
+                    .HasConstraintName("ExperimentCropId")
+                    .IsRequired();
 
                 entity.HasOne(d => d.Field)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.FieldId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentFieldId");
+                    .HasConstraintName("ExperimentFieldId")
+                    .IsRequired();                    
 
                 entity.HasOne(d => d.MetStation)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.MetStationId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("ExperimentMetStationId");
+                    .HasConstraintName("ExperimentMetStationId")
+                    .IsRequired();
 
-                entity.HasOne(d => d.PlantingMethod)
+                entity.HasOne(d => d.Method)
                     .WithMany(p => p.Experiments)
                     .HasForeignKey(d => d.MethodId)
                     .OnDelete(DeleteBehavior.Cascade)

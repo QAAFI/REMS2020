@@ -5,36 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Region")]
-    public class Region
+    public class Region : BaseEntity
     {
-        public Region()
+        public Region() : base()
         {
             Sites = new HashSet<Site>();
         }
 
-        // For use with Activator.CreateInstance
-        public Region(
-            double regionId,
-            string name,
-            string notes
-        )
-        {
-            RegionId = (int)regionId;
-            Name = name;
-            Notes = notes;
-        }
-
-        [PrimaryKey]
-        [Column("RegionId")]
         public int RegionId { get; set; }
 
-        [Nullable]
-        [Column("Name")]
         public string Name { get; set; } = null;
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; } = null;
 
 
@@ -42,7 +23,7 @@ namespace REMS.Context.Entities
 
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Region>(entity =>
             {

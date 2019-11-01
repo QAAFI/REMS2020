@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -61,7 +62,7 @@ namespace REMS
                 using var connection = new SqliteConnection(context.ConnectionString);
                 connection.Open();
                 using var command = new SqliteCommand(text, connection);
-                using var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader();                
 
                 DataTable table = new DataTable(name);
 
@@ -85,7 +86,13 @@ namespace REMS
             if (IsOpen) Close();
 
             context = new REMSContext(file);
+            context.SaveChanges();
 
+            //context.UpdateRange(context.Fields);
+            //context.UpdateRange(context.Experiments);
+            //context.UpdateRange(context.MetStations);
+
+            //context.SaveChanges();
             IsOpen = true;            
         }        
 
@@ -97,109 +104,136 @@ namespace REMS
 
             foreach (DataTable table in excel.Tables)
             {
-                ImportTable(table, connection);        
-            }           
+                NewImportTable(table);
+            }
         }
 
-        private void ImportTable(DataTable table, SqliteConnection connection)
-        {            
-            using var transaction = connection.BeginTransaction();
-            using var command = new SqliteCommand()
-            {
-                Connection = connection,
-                Transaction = transaction
-            };
-
-            List<string> names = new List<string>();
-
-            foreach (DataColumn column in table.Columns)
-            {
-                names.Add(column.ColumnName);
-                command.Parameters.Add(new SqliteParameter(column.ColumnName, null));
-            }
-
-            string fields = String.Join(", ", names);
-            string values = String.Join(", @", names);
-            command.CommandText = $"INSERT INTO {table.TableName} ({fields}) VALUES (@{values})";
-
-            foreach (DataRow row in table.Rows)
-            {
-                UpdateParameters(command, row.ItemArray);  
-                command.ExecuteNonQuery();
-            }
-
-            transaction.Commit();
-        }
-
-        private void UpdateParameters(SqliteCommand command, object[] values)
+        private void NewImportTable(DataTable table)
         {
-            for(int i = 0; i < values.Length; i++)
-            {
-                command.Parameters[i].Value = ParseItem(values[i]);
-            }
-        }
+            var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
+            var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
-        private object ParseItem(object item)
-        {
-            if (item.GetType() == typeof(DBNull)) return "null";
+            var entity = context.Entities.Where(e => e.CheckName(table.TableName)).First();            
+            var entities =  values.Select(v => entity.Create(v, names));
 
-            return item;
+            context.AddRange(entities);
+            context.SaveChanges();
         }
 
         public void ExportData(string file)
         {
-            Simulations simulations = new Simulations();            
+            using Simulations simulations = new Simulations();            
 
             var replacements = new Replacements() { Name = "Replacements" };
             replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
 
             simulations.Add(new DataStore());
             simulations.Add(replacements);
-            simulations.Add(GetSimulations());
+            simulations.Add(GetValidations());
             simulations.WriteToFile(file);
+
+            GenerateMets(Path.GetDirectoryName(file));
         }
-        
-        private IEnumerable<Simulation> GetSimulations()
+
+        private void GenerateMets(string path)
         {
-            List<Simulation> simulations = new List<Simulation>();           
+            var mets = from met in context.MetStations
+                       select met;
 
-            var exps = from exp in context.Experiments select exp;
-            foreach(var exp in exps)
+            foreach (var met in mets)
             {
-                var simulation = NewSorghumSimulation(exp.Name, exp.BeginDate, exp.EndDate);
+                string file = path + "\\" + met.Name + ".met";
+                //if (File.Exists(file)) continue;
 
-                simulation.Add(GetField(exp.FieldId));
+                using var stream = new FileStream(file, FileMode.Create);
+                using var writer = new StreamWriter(stream);
                 
-                simulations.Add(simulation);
+                writer.WriteLine($"latitude = {met.Latitude}");
+                writer.WriteLine($"longitude = {met.Longitude}");
+                writer.WriteLine($"tav = {met.TemperatureAverage}");
+                writer.WriteLine($"amp = {met.Amp}\n");
+
+                writer.WriteLine($"{"Year", -8}{"Day", -8}{"maxt", -8}{"mint", -8}{"radn", -8}{"Rain", -8}");
+                writer.WriteLine($"{" () ", -8}{" () ",-8}{" () ", -8}{" () ", -8}{" () ", -8}{" () ", -8}");
+
+                var dates = context.MetDatas
+                    .Select(d => d.Date)
+                    .Distinct()
+                    .OrderBy(d => d.Date);
+
+                var TMAX = context.Traits.First(t => t.Name == "TMAX");
+                var TMIN = context.Traits.First(t => t.Name == "TMIN");
+                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
+                var RAIN = context.Traits.First(t => t.Name == "RAIN");
+
+                foreach (var date in dates)
+                {
+                    var value = from data in context.MetDatas
+                                where data.Date == date
+                                where data.Value.HasValue
+                                select data;
+
+                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
+                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
+                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
+                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
+
+                    writer.Write($"{date.Year, -8}{date.Day, -8}{tmax, -8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                }
+            }
+            
+        }
+
+        private Folder GetValidations()
+        {
+            var validations = new Folder() { Name = "Validations" };
+
+            foreach (var experiment in context.Experiments)
+            {
+                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t));
+                var folder = new Folder() { Name = experiment.Name };
+                folder.Add(simulations);
+                validations.Add(folder);
             }
 
-            return simulations;
+            return validations;  
         }
 
-        public static Simulation NewSorghumSimulation(string name, DateTime? start, DateTime? end)
+        public Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
         {
-            var simulation = new Simulation() { Name = name };
-
-            simulation.Add(new Clock(){
+            var simulation = new Simulation() 
+            { 
+                Name = treatment.Name ?? "null"
+            };
+            
+            simulation.Add(new Clock()
+            {
                 Name = "Clock",
-                StartDate = start,
-                EndDate = end
+                StartDate = treatment.Experiment.BeginDate,
+                EndDate = treatment.Experiment.EndDate
             });
 
-            simulation.Add(new Summary() { Name = "SummaryFile" });            
+            simulation.Add(new Summary() 
+            { 
+                Name = "SummaryFile" 
+            });            
 
-            simulation.Add(new Weather(){ 
-                Name = "HE1996",
-                FileName = "HE1996.met"
-            });
+            simulation.Add(new Weather()
+            { 
+                Name = "Weather",
+                FileName = treatment.Experiment.MetStation?.Name + ".met"
+            });            
 
             simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
 
+            simulation.Add(GetField(treatment));
+
             return simulation;
         }
-        private Zone GetField(int? fieldId)
+        
+        private Zone GetField(Context.Entities.Treatment treatment)
         {
-            var field = (from f in context.Fields where f.FieldId == fieldId select f).First();
+            var field = treatment.Experiment.Field;
 
             var zone = new Zone()
             {
@@ -210,10 +244,8 @@ namespace REMS
             zone.Add(GetManagers());
             zone.Add(new Irrigation() { Name = "Irrigation" });
             zone.Add(new Fertiliser() { Name = "Fertiliser" });
-            zone.Add(GetOperations());
-
-            zone.Add(GetSoil(field.SoilId, field.Latitude, field.Longitude));
-
+            zone.Add(GetOperations(treatment));
+            zone.Add(GetSoil(field));
             zone.Add(new Plant() { Name = "Sorghum" });
             zone.Add(new Report() { Name = "Output file" });
 
@@ -233,13 +265,11 @@ namespace REMS
             return folder;
         }
 
-        private Operations GetOperations()
+        private Operations GetOperations(Context.Entities.Treatment treatment)
         {
-            int exp = 1;
-
             var model = new Operations();
 
-            var iquery = context.Query.IrrigationsByExperiment(exp);
+            var iquery = context.Query.IrrigationsByTreatment(treatment);
             var irrigations = iquery
                 .Select(i => new Operation()
                     { 
@@ -248,7 +278,7 @@ namespace REMS
                     }
                 );
 
-            var fquery = context.Query.FertilizationsByExperiment(exp);
+            var fquery = context.Query.FertilizationsByTreatment(treatment);
             var fertilizations = fquery
                 .Select(f => new Operation() 
                     {
@@ -263,22 +293,22 @@ namespace REMS
             return model;
         }
 
-        private Soil GetSoil(int soilId, double? lat, double? lon)
+        private Soil GetSoil(Context.Entities.Field field)
         {
             var model = new Soil()
             {
                 Name = "Soil",
-                Latitude = (double)lat,
-                Longitude = (double)lon
+                Latitude = (double)field.Latitude,
+                Longitude = (double)field.Longitude
             };       
 
-            model.Add(GetWater(soilId));
-            model.Add(GetSoilWater(soilId));
+            model.Add(GetWater(field.SoilId));
+            model.Add(GetSoilWater(field.SoilId));
             model.Add(GetSoilNitrogen());
-            model.Add(GetSoilOrganicMatter(soilId));
-            model.Add(GetChemicalAnalysis(soilId));
-            model.Add(GetSample(soilId, "Initial Water"));
-            model.Add(GetSample(soilId, "Initial Nitrogen"));
+            model.Add(GetSoilOrganicMatter(field.SoilId));
+            model.Add(GetChemicalAnalysis(field.SoilId));
+            model.Add(GetSample(field.SoilId, "Initial Water"));
+            model.Add(GetSample(field.SoilId, "Initial Nitrogen"));
             model.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
 
             return model;

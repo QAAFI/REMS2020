@@ -5,36 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Stat")]
-    public class Stat
+    public class Stat : BaseEntity
     {
-        [PrimaryKey]
-        [Column("StatId")]
+        public Stat() : base()
+        { }
+
         public int StatId { get; set; }
 
-        [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [Column("TraitId")]
         public int? TraitId { get; set; }
 
-        [Column("UnitId")]
         public int? UnitId { get; set; }
 
-        [Nullable]
-        [Column("Date")]
         public DateTime? Date { get; set; }
 
-        [Nullable]
-        [Column("Mean")]
         public double? Mean { get; set; }
 
-        [Nullable]
-        [Column("SE")]
         public double? SE { get; set; }
 
-        [Nullable]
-        [Column("N")]
         public int? Number { get; set; }
         
 
@@ -43,7 +32,7 @@ namespace REMS.Context.Entities
         public virtual Unit Unit { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Stat>(entity =>
             {
@@ -66,7 +55,22 @@ namespace REMS.Context.Entities
 
                 // Define properties
                 entity.Property(e => e.StatId)
-                    .HasColumnName("StatsId");
+                    .HasColumnName("StatId");
+
+                entity.Property(e => e.TreatmentId)
+                    .HasColumnName("TreatmentId")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.TraitId)
+                    .HasColumnName("TraitId")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.UnitId)
+                    .HasColumnName("UnitId")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.Date)
+                    .HasColumnName("Date");
 
                 entity.Property(e => e.Mean)
                     .HasColumnName("Mean")
@@ -79,18 +83,7 @@ namespace REMS.Context.Entities
                 entity.Property(e => e.SE)
                     .HasColumnName("SE")
                     .HasDefaultValueSql("0");
-
-                entity.Property(e => e.TraitId)
-                    .HasColumnName("TraitId")
-                    .HasDefaultValueSql("0");
-
-                entity.Property(e => e.TreatmentId)
-                    .HasColumnName("TreatmentId")
-                    .HasDefaultValueSql("0");
-
-                entity.Property(e => e.UnitId)
-                    .HasColumnName("UnitId")
-                    .HasDefaultValueSql("0");
+                
 
                 // Define constraints
                 entity.HasOne(d => d.Trait)

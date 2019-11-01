@@ -5,27 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("IrrigationInfo")]
-    public class IrrigationInfo
+    public class IrrigationInfo : BaseEntity
     {
-        [PrimaryKey]
-        [Column("IrrigationInfoId")]
+        public IrrigationInfo() : base()
+        { }
+
         public int IrrigationInfoId { get; set; }
 
-        [Column("IrrigationId")]
         public int? IrrigationId { get; set; }
 
-        [Column("Variable")]
         public string Variable { get; set; }
 
-        [Column("Value")]
         public string Value { get; set; }
 
 
         public virtual Irrigation Irrigation { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IrrigationInfo>(entity =>
             {

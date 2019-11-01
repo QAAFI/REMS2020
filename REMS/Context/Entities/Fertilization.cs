@@ -5,44 +5,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("Fertilization")]
-    public class Fertilization
+    public class Fertilization : BaseEntity
     {
-        public Fertilization()
+        public Fertilization() : base()
         {
             FertilizationInfo = new HashSet<FertilizationInfo>();
         }
 
-        [PrimaryKey]
-        [Column("FertilizationId")]
         public int FertilizationId { get; set; }
 
-        [Column("TreatmentId")]
         public int? TreatmentId { get; set; }
 
-        [Column("FertilizerId")]
         public int? FertilizerId { get; set; }
 
-        [Column("MethodId")]
         public int? MethodId { get; set; }
 
-        [Column("UnitId")]
         public int? UnitId { get; set; }
 
-        [Nullable]
-        [Column("Date")]
         public DateTime? Date { get; set; }        
 
-        [Nullable]
-        [Column("Amount")]
         public int? Amount { get; set; }
 
-        [Nullable]
-        [Column("Depth")]
         public int? Depth { get; set; }        
 
-        [Nullable]
-        [Column("Notes")]
         public string Notes { get; set; }
 
 
@@ -52,7 +37,7 @@ namespace REMS.Context.Entities
         public virtual Unit Unit { get; set; }
         public virtual ICollection<FertilizationInfo> FertilizationInfo { get; set; }
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Fertilization>(entity =>
             {

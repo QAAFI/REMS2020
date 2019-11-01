@@ -7,11 +7,7 @@ namespace REMS.Context
 {
     using Entities;
     public partial class REMSContext 
-    {
-        
-
-        public IQueryable<Fertilization> GetFertilizations(int id) => Query.FertilizationsByExperiment(id);
-
+    {      
         public class Queries
         {
             private REMSContext context;
@@ -49,25 +45,17 @@ namespace REMS.Context
                 return values;
             }
 
-            public IQueryable<Fertilization> FertilizationsByExperiment(int experimentId)
+            public IQueryable<Fertilization> FertilizationsByTreatment(Treatment treatment)
             {
                 return from f in context.Fertilizations
-                       where (
-                         from t in context.Treatments
-                         where t.TreatmentId == f.TreatmentId
-                         select t.ExperimentId == experimentId
-                       ).Any()
+                       where f.Treatment == treatment
                        select f;
             }
 
-            public IQueryable<Irrigation> IrrigationsByExperiment(int experimentId)
+            public IQueryable<Irrigation> IrrigationsByTreatment(Treatment treatment)
             {
                 return from i in context.Irrigations
-                       where (
-                         from t in context.Treatments
-                         where t.TreatmentId == i.TreatmentId
-                         select t.ExperimentId == experimentId
-                       ).Any()
+                       where i.Treatment == treatment
                        select i;
             }
         }

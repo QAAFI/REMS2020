@@ -5,41 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace REMS.Context.Entities
 {
-    [Relation("SoilLayer")]
-    public class SoilLayer
+    public class SoilLayer : BaseEntity
     {
-        public SoilLayer()
+        public SoilLayer() : base()
         {
             SoilLayerTraits = new HashSet<SoilLayerTrait>();
         }
 
-        // For use with Activator.CreateInstance
-        public SoilLayer(
-            double soilLayerId,
-            double soilId,
-            int? depthFrom,
-            int? depthTo
-        )
-        {
-            SoilLayerId = (int)soilLayerId;
-            SoilId = (int)soilId;
-            DepthFrom = depthFrom;
-            DepthTo = depthTo;
-        }
-
-        [PrimaryKey]
-        [Column("SoilLayerId")]
         public int SoilLayerId { get; set; }
 
-        [Column("SoilId")]
         public int SoilId { get; set; }
 
-        [Nullable]
-        [Column("SoilLayerDepthFrom")]
         public int? DepthFrom { get; set; } = null;
 
-        [Nullable]
-        [Column("SoilLayerDepthTo")]
         public int? DepthTo { get; set; } = null;
 
 
@@ -47,7 +25,7 @@ namespace REMS.Context.Entities
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }
 
 
-        public static void BuildModel(ModelBuilder modelBuilder)
+        public override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SoilLayer>(entity =>
             {
