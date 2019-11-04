@@ -4,18 +4,56 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace WindowsForm
+namespace WindowsClient
 {
     public partial class REMSClient : Form
     {
-        private IREMSDatabase database = REMSDataFactory.Create();        
+        private readonly IREMSDatabase database = REMSDataFactory.Create();
+
+        private readonly Settings settings = Settings.Instance;
 
         public REMSClient()
         {
             InitializeComponent();
+            InitializeControls();
+                        
+
+            
 
             FormClosed += REMSClientFormClosed;
+            tablesBox.Click += TablesBoxClicked;
         }                   
+
+        private void InitializeControls()
+        {
+            pageProperties.AutoScroll = true;
+        }
+
+        private void LoadSettings()
+        {
+            settings.Load();
+
+            // If the settings couldn't be loaded
+            if (!settings.Loaded)
+            {
+                settings.TrackProperty("TABLES");
+                foreach (var table in database.Tables)
+                {
+                    settings["TABLES"][table] = table;
+                }
+
+                foreach (var entity in database.Entities)
+                {
+                    var type = entity.GetType();
+                    var name = type.Name + "s";
+                    settings.TrackProperty(name);
+                    foreach (var property in type.GetProperties())
+                    {
+                        settings[name][property.Name] = property.Name;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Populates the listview with the tables in the database
@@ -42,14 +80,77 @@ namespace WindowsForm
             }
         }
 
+        private void UpdateProperties(string table)
+        {
+            pageProperties.Controls.Clear();
+
+            var c1 = new TextBox()
+            {
+                Text = "NAME:",
+                Height = 20,
+                Width = 150,
+                Left = 5,
+                Top = 0,
+                TextAlign = HorizontalAlignment.Center,
+            };
+
+            var c2 = new TextBox()
+            {
+                Text = "MAPPED TO:",
+                Height = 20,
+                Left = 155,
+                Top = 0,
+                TextAlign = HorizontalAlignment.Center
+            };
+
+            pageProperties.Controls.Add(c1);
+            pageProperties.Controls.Add(c2);
+
+            int count = 1;
+            foreach (var item in settings[table])
+            {
+                var name = new TextBox()
+                {
+                    Text = item.Key,
+                    Height = 20, 
+                    Width = 150,
+                    Left = 5,
+                    Top = 20 * count        
+                };                
+
+                var value = new TextBox()
+                {
+                    Text = item.Value,
+                    Height = 20,
+                    Left = 155,
+                    Top = 20 * count                                 
+                };
+                
+                pageProperties.Controls.Add(name);
+                pageProperties.Controls.Add(value);
+
+                count++;
+            }            
+        }
+
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
+            settings.Save();
             database.Close();
         }
 
         private void ListBoxIndexChanged(object sender, EventArgs e)
         {
-            UpdateGridData();
+            if (notebook.SelectedTab.Name == "pageData")
+                UpdateGridData();
+            else if (notebook.SelectedTab.Name == "pageProperties")
+                UpdateProperties(relationsListBox.SelectedItem.ToString());
+        }
+
+        private void TablesBoxClicked(object sender, EventArgs e)
+        {
+            var s = sender as TextBox;
+            UpdateProperties(s.Text);
         }
 
         /// <summary>
@@ -72,6 +173,7 @@ namespace WindowsForm
                         if (database.IsOpen) database.Close();
                         database.Create(save.FileName);
                         database.Open(save.FileName);
+                        LoadSettings();
                         UpdateListView();
                     }
                     catch (Exception error)
@@ -99,6 +201,7 @@ namespace WindowsForm
                     if (database.IsOpen) database.Close();
 
                     database.Open(open.FileName);
+                    LoadSettings();
                     UpdateListView();
                 }
                 catch (Exception error)
@@ -178,5 +281,9 @@ namespace WindowsForm
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void propertyTable_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
