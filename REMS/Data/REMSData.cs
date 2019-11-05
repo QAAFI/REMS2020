@@ -11,21 +11,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-using Models;
-using Models.Core;
-using Models.Functions;
-using Models.Functions.DemandFunctions;
-using Models.Functions.SupplyFunctions;
-using Models.PMF;
-using Models.PMF.Library;
-using Models.PMF.Organs;
-using Models.PMF.Phen;
-using Models.PMF.Struct;
-using Models.PostSimulationTools;
-using Models.Report;
-using Models.Soils;
-using Models.Storage;
-using Models.Surface;
 
 namespace REMS
 {
@@ -35,7 +20,7 @@ namespace REMS
         #region IREMSDatabase implementation
         public bool IsOpen { get; private set; } = false;
 
-        private REMSContext context = null;
+        public REMSContext context = null;
 
         public IEnumerable<string> Tables
         {
@@ -122,17 +107,17 @@ namespace REMS
 
         public void ExportData(string file)
         {
-            using Simulations simulations = new Simulations();            
+            //using Simulations simulations = new Simulations();            
 
-            var replacements = new Replacements() { Name = "Replacements" };
-            replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
+            //var replacements = new Replacements() { Name = "Replacements" };
+            //replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
 
-            simulations.Add(new DataStore());
-            simulations.Add(replacements);
-            simulations.Add(GetValidations());
-            simulations.WriteToFile(file);
+            //simulations.Add(new DataStore());
+            //simulations.Add(replacements);
+            //simulations.Add(GetValidations());
+            //simulations.WriteToFile(file);
 
-            GenerateMets(Path.GetDirectoryName(file));
+            //GenerateMets(Path.GetDirectoryName(file));
         }
 
         private void GenerateMets(string path)
@@ -183,223 +168,6 @@ namespace REMS
             }
             
         }
-
-        private Folder GetValidations()
-        {
-            var validations = new Folder() { Name = "Validations" };
-
-            foreach (var experiment in context.Experiments)
-            {
-                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t));
-                var folder = new Folder() { Name = experiment.Name };
-                folder.Add(simulations);
-                validations.Add(folder);
-            }
-
-            return validations;  
-        }
-
-        public Simulation NewSorghumSimulation(Context.Entities.Treatment treatment)
-        {
-            var simulation = new Simulation() 
-            { 
-                Name = treatment.Name ?? "null"
-            };
-            
-            simulation.Add(new Clock()
-            {
-                Name = "Clock",
-                StartDate = treatment.Experiment.BeginDate,
-                EndDate = treatment.Experiment.EndDate
-            });
-
-            simulation.Add(new Summary() 
-            { 
-                Name = "SummaryFile" 
-            });            
-
-            simulation.Add(new Weather()
-            { 
-                Name = "Weather",
-                FileName = treatment.Experiment.MetStation?.Name + ".met"
-            });            
-
-            simulation.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
-
-            simulation.Add(GetField(treatment));
-
-            return simulation;
-        }
-        
-        private Zone GetField(Context.Entities.Treatment treatment)
-        {
-            var field = treatment.Experiment.Field;
-
-            var zone = new Zone()
-            {
-                Name = field.Name,
-                Slope = (double)field.Slope
-            };            
-
-            zone.Add(GetManagers());
-            zone.Add(new Irrigation() { Name = "Irrigation" });
-            zone.Add(new Fertiliser() { Name = "Fertiliser" });
-            zone.Add(GetOperations(treatment));
-            zone.Add(GetSoil(field));
-            zone.Add(new Plant() { Name = "Sorghum" });
-            zone.Add(new Report() { Name = "Output file" });
-
-            return zone;
-        }
-
-        private Folder GetManagers()
-        {
-            var folder = new Folder() { Name = "Manager folder" };
-
-            folder.Add(new Memo()
-            {
-                Name = "Manage placeholder",
-                Text = "Need to ask where this data is coming from"
-            });
-
-            return folder;
-        }
-
-        private Operations GetOperations(Context.Entities.Treatment treatment)
-        {
-            var model = new Operations();
-
-            var iquery = context.Query.IrrigationsByTreatment(treatment);
-            var irrigations = iquery
-                .Select(i => new Operation()
-                    { 
-                        Action = $"[Irrigation].Apply({i.Amount})",
-                        Date = (DateTime)i.Date
-                    }
-                );
-
-            var fquery = context.Query.FertilizationsByTreatment(treatment);
-            var fertilizations = fquery
-                .Select(f => new Operation() 
-                    {
-                        Action = $"[Fertiliser].Apply({f.Amount}, {f.Fertilizer.Name}, {f.Depth})",
-                        Date = (DateTime)f.Date
-                    }
-                );
-
-            model.Operation?.AddRange(irrigations);
-            model.Operation?.AddRange(fertilizations);
-
-            return model;
-        }
-
-        private Soil GetSoil(Context.Entities.Field field)
-        {
-            var model = new Soil()
-            {
-                Name = "Soil",
-                Latitude = (double)field.Latitude,
-                Longitude = (double)field.Longitude
-            };       
-
-            model.Add(GetWater(field.SoilId));
-            model.Add(GetSoilWater(field.SoilId));
-            model.Add(GetSoilNitrogen());
-            model.Add(GetSoilOrganicMatter(field.SoilId));
-            model.Add(GetChemicalAnalysis(field.SoilId));
-            model.Add(GetSample(field.SoilId, "Initial Water"));
-            model.Add(GetSample(field.SoilId, "Initial Nitrogen"));
-            model.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
-
-            return model;
-        }
-
-        private Water GetWater(int soilId)
-        {          
-            var model = new Water()
-            {
-                Name = "Physical",
-                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
-                BD = context.Query.SoilLayerDataByTrait("BD", soilId),
-                AirDry = context.Query.SoilLayerDataByTrait("AirDry", soilId),
-                LL15 = context.Query.SoilLayerDataByTrait("LL15", soilId),
-                DUL = context.Query.SoilLayerDataByTrait("DUL", soilId),
-                SAT = context.Query.SoilLayerDataByTrait("SAT", soilId),
-                KS = context.Query.SoilLayerDataByTrait("KS", soilId)
-            };
-
-            model.Add(GetSoilCrop(soilId));
-
-            return model;
-        }
-
-        private SoilCrop GetSoilCrop(int soilId)
-        {           
-            return new SoilCrop() 
-            { 
-                Name = "SoilCrop",
-                LL = context.Query.SoilLayerDataByTrait("LL", soilId),
-                KL = context.Query.SoilLayerDataByTrait("KL", soilId),
-                XF = context.Query.SoilLayerDataByTrait("XF", soilId)
-            };
-        }
-
-        private SoilWater GetSoilWater(int soilId)
-        {
-            return new SoilWater() 
-            { 
-                Name = "SoilWater",
-                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
-                SWCON = context.Query.SoilLayerDataByTrait("SWCON", soilId),
-                KLAT = context.Query.SoilLayerDataByTrait("KLAT", soilId)
-            };
-            // TODO: Initiliase single parameters           
-        }        
-
-        private SoilNitrogen GetSoilNitrogen()
-        {
-            var model = new SoilNitrogen() { Name = "SoilNitrogen" };
-
-            model.Add(new SoilNitrogenNH4() { Name = "NH4" });
-            model.Add(new SoilNitrogenNO3() { Name = "NO3" });
-            model.Add(new SoilNitrogenUrea() { Name = "Urea" });
-            model.Add(new SoilNitrogenPlantAvailableNH4() { Name = "PlantAvailableNH4" });
-            model.Add(new SoilNitrogenPlantAvailableNO3() { Name = "PlantAvailableNO3" });
-
-            return model;
-        }
-
-        private Organic GetSoilOrganicMatter(int soilId)
-        {
-            return new Organic() 
-            { 
-                Name = "Organic",
-                Thickness = context.Query.SoilLayerThicknessBySoil(soilId),
-                Carbon = context.Query.SoilLayerDataByTrait("Carbon", soilId),
-                SoilCNRatio = context.Query.SoilLayerDataByTrait("SoilCNRatio", soilId),
-                FBiom = context.Query.SoilLayerDataByTrait("FBiom", soilId),
-                FInert = context.Query.SoilLayerDataByTrait("FInert", soilId),
-                FOM = context.Query.SoilLayerDataByTrait("FOM", soilId)
-            };
-        }
-
-        private Analysis GetChemicalAnalysis(int soilId)
-        {
-            return new Analysis()
-            {
-                Name = "Chemical",
-                PH = context.Query.SoilLayerDataByTrait("PH", soilId)
-            };
-        }
-
-        private Sample GetSample(int soilId, string name)
-        {
-            return new Sample()
-            {
-                Name = name
-            };
-        }
-
 
         /// <summary>
         /// Saves the database

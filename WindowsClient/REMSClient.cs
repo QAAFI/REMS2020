@@ -1,8 +1,10 @@
 ﻿using REMS;
+using ApsimService;
 using System;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using Models.Core;
 
 namespace WindowsForm
 {
@@ -164,7 +166,9 @@ namespace WindowsForm
             {
                 try
                 {
-                    database.ExportData(save.FileName);
+                    Simulations sims = database.CreateApsimFile();
+                    sims.SaveApsimFile(save.FileName);
+                    //database.ExportData(save.FileName);
                 }
                 catch (Exception error)
                 {
