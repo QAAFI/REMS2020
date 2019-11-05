@@ -15,14 +15,22 @@ namespace WindowsClient
         public REMSClient()
         {
             InitializeComponent();
-            InitializeControls();
-                        
-
-            
+            InitializeControls();                       
 
             FormClosed += REMSClientFormClosed;
             tablesBox.Click += TablesBoxClicked;
-        }                   
+            notebook.SelectedIndexChanged += TabChanged;
+        }
+
+        private void TabChanged(object sender, EventArgs e)
+        {
+            if (relationsListBox.SelectedItem == null) return;
+
+            if (notebook.SelectedTab == pageData)
+                UpdateGridData();
+            else if (notebook.SelectedTab == pageProperties)
+                UpdateProperties(relationsListBox.SelectedItem.ToString());
+        }
 
         private void InitializeControls()
         {
@@ -55,6 +63,21 @@ namespace WindowsClient
             }
         }
 
+        private void PropertyChangedEvent(object sender, PropertyChangedEventArgs args)
+        {
+            if (settings[args.TableName][args.PropertyName] == args.NewValue) return;
+
+            try
+            {
+                settings[args.TableName][args.PropertyName] = args.NewValue;
+            }
+            catch
+            {
+                ErrorMessage("That value is currently mapped to another property.", "Invalid name.");
+                ((PropertyControl)sender).Value = settings[args.TableName][args.PropertyName];
+            }
+        }
+
         /// <summary>
         /// Populates the listview with the tables in the database
         /// </summary>
@@ -84,50 +107,19 @@ namespace WindowsClient
         {
             pageProperties.Controls.Clear();
 
-            var c1 = new TextBox()
+            int count = 0;
+            foreach (var item in settings[table].Reverse())
             {
-                Text = "NAME:",
-                Height = 20,
-                Width = 150,
-                Left = 5,
-                Top = 0,
-                TextAlign = HorizontalAlignment.Center,
-            };
-
-            var c2 = new TextBox()
-            {
-                Text = "MAPPED TO:",
-                Height = 20,
-                Left = 155,
-                Top = 0,
-                TextAlign = HorizontalAlignment.Center
-            };
-
-            pageProperties.Controls.Add(c1);
-            pageProperties.Controls.Add(c2);
-
-            int count = 1;
-            foreach (var item in settings[table])
-            {
-                var name = new TextBox()
+                var property = new PropertyControl()
                 {
-                    Text = item.Key,
-                    Height = 20, 
-                    Width = 150,
-                    Left = 5,
-                    Top = 20 * count        
-                };                
-
-                var value = new TextBox()
-                {
-                    Text = item.Value,
-                    Height = 20,
-                    Left = 155,
-                    Top = 20 * count                                 
+                    Table = table,
+                    Property = item.Key,
+                    Value = item.Value,
+                    Dock = DockStyle.Top
                 };
-                
-                pageProperties.Controls.Add(name);
-                pageProperties.Controls.Add(value);
+
+                property.PropertyChanged += PropertyChangedEvent;
+                pageProperties.Controls.Add(property);
 
                 count++;
             }            
@@ -218,7 +210,8 @@ namespace WindowsClient
         {
             try
             {
-                database.Save();
+                settings.Save();
+                database.Save();                
             }
             catch (Exception error)
             {

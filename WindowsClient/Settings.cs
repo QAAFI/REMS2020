@@ -4,36 +4,42 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
 namespace WindowsClient
 {
     public sealed class Settings
     {
-        private static Dictionary<string, DistinctDictionary<string, string>> properties
-            = new Dictionary<string, DistinctDictionary<string, string>>();
+        [JsonRequired]
+        private static Dictionary<string, DistinctDictionary<string, string>> properties;
 
-        [NonSerialized]
+        [JsonIgnore]
         private readonly string file;
 
-        [NonSerialized]
+        [JsonIgnore]
         private static bool loaded = false;
 
+        [JsonIgnore]
         public bool Loaded => loaded;
 
-        [NonSerialized]
+        [JsonIgnore]
         private static Settings instance = new Settings();
 
+        [JsonIgnore]
         public static Settings Instance => instance;
 
         private Settings()
-        {            
+        {
+            properties = new Dictionary<string, DistinctDictionary<string, string>>();
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\REMS2020";
 
             Directory.CreateDirectory(folder);
 
-            file = folder + "\\settings.xml";
+            file = folder + "\\settings.json";
         }
 
-        public Dictionary<string, string> this[string name]
+        public DistinctDictionary<string, string> this[string name]
         {
             get
             {
@@ -45,18 +51,37 @@ namespace WindowsClient
         {
             if (!File.Exists(file)) return;
 
-            var serializer = new XmlSerializer(GetType());
-            using var reader = new StreamReader(file);
-            instance = serializer.Deserialize(reader) as Settings;
+            using var stream = new StreamReader(file);
+            using var reader = new JsonTextReader(stream);
+
+            var serializer = new JsonSerializer()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            var node = serializer.Deserialize<Settings>(reader);
 
             loaded = true;
         }
 
         public void Save()
         {
-            var serializer = new XmlSerializer(GetType());
-            using var writer = new StreamWriter(file);
-            serializer.Serialize(writer, instance);
+            using var stream = new StreamWriter(file);
+
+            using var writer = new JsonTextWriter(stream)
+            {
+                CloseOutput = true,
+                AutoCompleteOnClose = true
+            };
+
+            var serializer = new JsonSerializer()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            serializer.Serialize(writer, this);
         }
 
         public void TrackProperty(string property)
@@ -73,22 +98,5 @@ namespace WindowsClient
         {
             properties.Remove(property);
         }
-
-        //public void TrackClasses<T>(ICollection<T> items) where T : class
-        //{
-        //    foreach (var item in items)
-        //    {
-        //        string key = item.GetType().Name;
-
-        //        var values = new DistinctDictionary<string, string>();
-
-        //        foreach(var property in item.GetType().GetProperties())
-        //        {
-        //            values.Add(property.Name, property.Name.ToLower());
-        //        }
-
-        //        properties.Add(key, values);
-        //    }
-        //}
     }
 }

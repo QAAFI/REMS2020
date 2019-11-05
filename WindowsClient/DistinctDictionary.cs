@@ -35,7 +35,14 @@ namespace WindowsClient
             set
             {
                 if (ContainsKey(key))
-                    base[key] = value;
+                {
+                    if (ContainsValue(value)) 
+                        throw new Exception($"Value already exists: {value}");
+                    else
+                    {
+                        base[key] = value;
+                    }                    
+                }
                 else
                     Add(key, value);
             }
