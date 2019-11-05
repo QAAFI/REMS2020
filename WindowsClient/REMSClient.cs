@@ -4,18 +4,79 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace WindowsForm
+namespace WindowsClient
 {
     public partial class REMSClient : Form
     {
-        private IREMSDatabase database = REMSDataFactory.Create();        
+        private readonly IREMSDatabase database = REMSDataFactory.Create();
+
+        private readonly Settings settings = Settings.Instance;
 
         public REMSClient()
         {
             InitializeComponent();
+            InitializeControls();                       
 
             FormClosed += REMSClientFormClosed;
-        }                   
+            tablesBox.Click += TablesBoxClicked;
+            notebook.SelectedIndexChanged += TabChanged;
+        }
+
+        private void TabChanged(object sender, EventArgs e)
+        {
+            if (relationsListBox.SelectedItem == null) return;
+
+            if (notebook.SelectedTab == pageData)
+                UpdateGridData();
+            else if (notebook.SelectedTab == pageProperties)
+                UpdateProperties(relationsListBox.SelectedItem.ToString());
+        }
+
+        private void InitializeControls()
+        {
+            pageProperties.AutoScroll = true;
+        }
+
+        private void LoadSettings()
+        {
+            settings.Load();
+
+            // If the settings couldn't be loaded
+            if (!settings.Loaded)
+            {
+                settings.TrackProperty("TABLES");
+                foreach (var table in database.Tables)
+                {
+                    settings["TABLES"][table] = table;
+                }
+
+                foreach (var entity in database.Entities)
+                {
+                    var type = entity.GetType();
+                    var name = type.Name + "s";
+                    settings.TrackProperty(name);
+                    foreach (var property in type.GetProperties())
+                    {
+                        settings[name][property.Name] = property.Name;
+                    }
+                }
+            }
+        }
+
+        private void PropertyChangedEvent(object sender, PropertyChangedEventArgs args)
+        {
+            if (settings[args.TableName][args.PropertyName] == args.NewValue) return;
+
+            try
+            {
+                settings[args.TableName][args.PropertyName] = args.NewValue;
+            }
+            catch
+            {
+                ErrorMessage("That value is currently mapped to another property.", "Invalid name.");
+                ((PropertyControl)sender).Value = settings[args.TableName][args.PropertyName];
+            }
+        }
 
         /// <summary>
         /// Populates the listview with the tables in the database
@@ -42,14 +103,46 @@ namespace WindowsForm
             }
         }
 
+        private void UpdateProperties(string table)
+        {
+            pageProperties.Controls.Clear();
+
+            int count = 0;
+            foreach (var item in settings[table].Reverse())
+            {
+                var property = new PropertyControl()
+                {
+                    Table = table,
+                    Property = item.Key,
+                    Value = item.Value,
+                    Dock = DockStyle.Top
+                };
+
+                property.PropertyChanged += PropertyChangedEvent;
+                pageProperties.Controls.Add(property);
+
+                count++;
+            }            
+        }
+
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
+            settings.Save();
             database.Close();
         }
 
         private void ListBoxIndexChanged(object sender, EventArgs e)
         {
-            UpdateGridData();
+            if (notebook.SelectedTab.Name == "pageData")
+                UpdateGridData();
+            else if (notebook.SelectedTab.Name == "pageProperties")
+                UpdateProperties(relationsListBox.SelectedItem.ToString());
+        }
+
+        private void TablesBoxClicked(object sender, EventArgs e)
+        {
+            var s = sender as TextBox;
+            UpdateProperties(s.Text);
         }
 
         /// <summary>
@@ -72,6 +165,7 @@ namespace WindowsForm
                         if (database.IsOpen) database.Close();
                         database.Create(save.FileName);
                         database.Open(save.FileName);
+                        LoadSettings();
                         UpdateListView();
                     }
                     catch (Exception error)
@@ -99,6 +193,7 @@ namespace WindowsForm
                     if (database.IsOpen) database.Close();
 
                     database.Open(open.FileName);
+                    LoadSettings();
                     UpdateListView();
                 }
                 catch (Exception error)
@@ -115,7 +210,8 @@ namespace WindowsForm
         {
             try
             {
-                database.Save();
+                settings.Save();
+                database.Save();                
             }
             catch (Exception error)
             {
@@ -178,5 +274,9 @@ namespace WindowsForm
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void propertyTable_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

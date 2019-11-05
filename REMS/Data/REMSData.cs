@@ -9,7 +9,7 @@ using System.Text;
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 using Models;
 using Models.Core;
@@ -37,6 +37,8 @@ namespace REMS
 
         private REMSContext context = null;
 
+        public IEnumerable<IEntity> Entities => context.Entities;
+
         public IEnumerable<string> Tables
         {
             get
@@ -57,12 +59,12 @@ namespace REMS
         {
             get
             {
-                string text = $"SELECT * FROM {name}";                
+                string text = $"SELECT * FROM {name}";
 
                 using var connection = new SqliteConnection(context.ConnectionString);
                 connection.Open();
                 using var command = new SqliteCommand(text, connection);
-                using var reader = command.ExecuteReader();                
+                using var reader = command.ExecuteReader();
 
                 DataTable table = new DataTable(name);
 
@@ -73,6 +75,18 @@ namespace REMS
                 return table;
             }
         }
+
+        //public BindingList<IEntity> this[string name]
+        //{
+        //    get
+        //    {
+        //        IEnumerable<IEntity> values = (IEnumerable<IEntity>)context.GetType().GetProperty(name).GetValue(context);
+        //        BindingList<IEntity> list = new BindingList<IEntity>(values.ToList());
+
+        //        return list;
+        //    }
+        //}
+
 
         public void Create(string file)
         {
@@ -86,13 +100,6 @@ namespace REMS
             if (IsOpen) Close();
 
             context = new REMSContext(file);
-            context.SaveChanges();
-
-            //context.UpdateRange(context.Fields);
-            //context.UpdateRange(context.Experiments);
-            //context.UpdateRange(context.MetStations);
-
-            //context.SaveChanges();
             IsOpen = true;            
         }        
 
@@ -105,7 +112,7 @@ namespace REMS
             foreach (DataTable table in excel.Tables)
             {
                 NewImportTable(table);
-            }
+            } 
         }
 
         private void NewImportTable(DataTable table)
@@ -143,7 +150,6 @@ namespace REMS
             foreach (var met in mets)
             {
                 string file = path + "\\" + met.Name + ".met";
-                //if (File.Exists(file)) continue;
 
                 using var stream = new FileStream(file, FileMode.Create);
                 using var writer = new StreamWriter(stream);
