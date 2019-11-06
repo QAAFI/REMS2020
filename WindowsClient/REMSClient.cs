@@ -1,5 +1,5 @@
 ﻿using REMS;
-using ApsimService;
+using Services;
 using System;
 using System.Data;
 using System.Linq;
@@ -11,6 +11,7 @@ namespace WindowsForm
     public partial class REMSClient : Form
     {
         private IREMSDatabase database = REMSDataFactory.Create();        
+        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\Data";
 
         public REMSClient()
         {
@@ -98,13 +99,17 @@ namespace WindowsForm
             {
                 try
                 {
+                    Application.UseWaitCursor = true;
+                    Application.DoEvents();
                     if (database.IsOpen) database.Close();
 
                     database.Open(open.FileName);
                     UpdateListView();
+                    Application.UseWaitCursor = false;
                 }
                 catch (Exception error)
                 {
+                    Application.UseWaitCursor = false;
                     ErrorMessage(error.Message);
                 }
             }
@@ -138,19 +143,25 @@ namespace WindowsForm
 
             using OpenFileDialog open = new OpenFileDialog()
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "Excel (2007) (*.xlsx)|*.xlsx"
+                InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Application.UseWaitCursor = true;
+                Application.DoEvents();
                 try
                 {
-                    database.ImportData(open.FileName);
+                    database.ImportExcelData(open.FileName);
+                    //database.ImportData(open.FileName);
                     UpdateListView();
+                    Application.UseWaitCursor = false;
+                    MessageBox.Show("Import Complete");
                 }
                 catch (Exception error)
                 {
                     ErrorMessage(error.Message);
+                    Application.UseWaitCursor = false;
                 }
             }
         }
