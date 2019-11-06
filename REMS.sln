@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "..\ApsimX\Models\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APSIM.Shared", "..\ApsimX\APSIM.Shared\APSIM.Shared.csproj", "{C1D8F17C-59E2-41AD-9D0B-33D03A03A3D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApsimServices", "Services\ApsimServices.csproj", "{B74BC782-665D-410A-B028-D9942E2FE195}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{B74BC782-665D-410A-B028-D9942E2FE195}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

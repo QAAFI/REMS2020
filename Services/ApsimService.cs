@@ -15,9 +15,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ApsimService
+namespace Services
 {
-    public static class ApsimServices
+    public static class ApsimService
     {
         public static void RunApsimFile(this Simulations sims)
         {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApsimService
+namespace Services
 {
     public class SimulationProperties
     {
