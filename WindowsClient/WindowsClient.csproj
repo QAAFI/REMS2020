@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ApsimX\Models\Models.csproj" />
     <ProjectReference Include="..\REMS\REMS.csproj" />
-    <ProjectReference Include="..\Services\ApsimServices.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
 </Project>
