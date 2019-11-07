@@ -1,6 +1,7 @@
 ﻿using Models;
 using Models.Core;
 using Models.Core.Run;
+using Models.Graph;
 using Models.PMF;
 using Models.Report;
 using Models.Soils;
@@ -57,6 +58,8 @@ namespace Services
         {
             var validations = new Folder() { Name = "Validations" };
 
+            validations.Children.Add(GetCombinedResults(dbContext));
+
             foreach (var experiment in dbContext.Experiments)
             {
                 var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));
@@ -66,6 +69,90 @@ namespace Services
             }
 
             return validations;
+        }
+
+        public static Folder GetCombinedResults(REMSContext context)
+        {
+            var folder = new Folder()
+            {
+                Name = "Combined Results"
+            };            
+
+            var variables = new List<string>()
+            {
+                "BiomassWt",
+                "GrainGreenWt",
+                "GrainGreenN",
+                "biomass_n",
+                "TPLA",
+                "GrainNo",
+                "GrainSize",
+            };
+
+            foreach (string variable in variables)
+                folder.Children.Add(NewGraph(variable));
+
+            return folder;
+        }
+
+        public static Graph NewGraph(string variable)
+        {
+            var regression = new Regression()
+            {
+                ForEachSeries = false,
+                showOneToOne = true,
+                showEquation = true,
+                Name = "Regression"
+            };
+
+            var series = new Series()
+            {
+                Type = SeriesType.Scatter,
+                XAxis = Axis.AxisType.Bottom,
+                YAxis = Axis.AxisType.Left,
+                ColourArgb = 0,
+                FactorToVaryColours = "SimulationName",
+                Marker = 0,
+                MarkerSize = 0,
+                Line = LineType.None,
+                LineThickness = LineThicknessType.Normal,
+                Checkpoint = "Current",
+                TableName = "PredictedObserved",
+                XFieldName = $"Observed.{variable}",
+                YFieldName = $"Predicted.{variable}",
+                IncludeSeriesNameInLegend = false,
+                Cumulative = false,
+                CumulativeX = false
+            };
+            series.Children.Add(regression);
+
+            var axes = new List<Axis>()
+            {
+                new Axis()
+                {
+                    Type = Axis.AxisType.Bottom,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                },
+                new Axis()
+                {
+                    Type = Axis.AxisType.Left,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                }
+            };
+
+            var graph = new Graph()
+            {
+                Name = variable,
+                Axis = axes,
+                LegendPosition = Graph.LegendPositionType.BottomRight
+            };
+            graph.Children.Add(series);
+
+            return graph;
         }
 
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
@@ -296,6 +383,17 @@ namespace Services
                 Name = "Chemical",
                 PH = dbContext.Query.SoilLayerDataByTrait("PH", soilId).ToArray()
             };
+
+
+            //var chem = new Chemical()
+            //{
+            //    Name = "Chemical",
+            //    Depth = new[] { "0-15", "15-30", "30-45", "40-60", "60-80", "80-100", "100-120", "120-140", "140-160", "160-180" },
+            //    Thickness = new[] { 100.0, 100.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0 },
+            //    NO3N = new[] { 10.4, 1.6329999999999996, 1.2330000000000008, 0.9, 1.1, 1.4670000000000005, 3.6329999999999996, 5.6670000000000007, 5.8, 7.267000000000003 },
+            //    NH4N = new[] { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+            //    PH = new[] { 6.3, 6.4, 6.5, 6.6, 6.6, 6.5, 6.5, 6.5, 6.5, 6.5 }
+            //};
 
             return chem;
         }
