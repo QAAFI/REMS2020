@@ -288,9 +288,5 @@ namespace WindowsClient
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void propertyTable_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
     }
 }
