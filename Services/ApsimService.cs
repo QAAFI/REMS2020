@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Services
 {
@@ -34,7 +35,7 @@ namespace Services
         public static Simulations CreateApsimFile(this IREMSDatabase db)
         {
             var sims = new Simulations();
-            JBTest(sims);
+            //JBTest(sims);
             //using Simulations simulations = new Simulations();            
 
             //var replacements = new Replacements() { Name = "Replacements" };
@@ -124,11 +125,42 @@ namespace Services
         {
             var folder = new Folder() { Name = "Manager folder" };
 
-            folder.Children.Add(new Memo()
+            StringBuilder skipBuilder = new StringBuilder();
+            using var skipReader = new StreamReader("SkipRow.cs.txt");      
+            while (!skipReader.EndOfStream)
             {
-                Name = "Manage placeholder",
-                Text = "Need to ask where this data is coming from"
-            });
+                skipBuilder.AppendLine(skipReader.ReadLine());
+            };
+
+            var skiprow = new Manager()
+            {
+                Name = "Sow SkipRow on a fixed date",
+                Code = skipBuilder.ToString(),
+                Parameters = new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("Date", "1997-01-09"),
+                    new KeyValuePair<string, string>("Density", "10"),
+                    new KeyValuePair<string, string>("Depth", "30"),
+                    new KeyValuePair<string, string>("Cultivar", "QL41xQL36"),
+                    new KeyValuePair<string, string>("RowSpacing", "500"),
+                    new KeyValuePair<string, string>("RowConfiguration", "solid"),
+                    new KeyValuePair<string, string>("Ftn", "0")
+                }
+            };            
+            folder.Children.Add(skiprow);
+
+            StringBuilder harvestBuilder = new StringBuilder();
+            using var harvestReader = new StreamReader("Harvest.cs.txt");
+            while (!harvestReader.EndOfStream)
+            {
+                harvestBuilder.AppendLine(harvestReader.ReadLine());
+            };
+            var harvest = new Manager()
+            {
+                Name = "Harvesting rule",
+                Code = harvestBuilder.ToString()
+            };
+            folder.Children.Add(harvest);
 
             return folder;
         }
@@ -253,11 +285,13 @@ namespace Services
 
         private static Chemical GetChemicalAnalysis(int soilId, REMSContext dbContext)
         {
-            return new Chemical()
+            var chem = new Chemical()
             {
                 Name = "Chemical",
                 PH = dbContext.Query.SoilLayerDataByTrait("PH", soilId).ToArray()
             };
+
+            return chem;
         }
 
         private static Sample GetSample(int soilId, string name)
