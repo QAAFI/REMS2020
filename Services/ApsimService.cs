@@ -54,6 +54,18 @@ namespace Services
             return sims;
         }
 
+        private static string GetScript(string file)
+        {
+            StringBuilder builder = new StringBuilder();
+            using var reader = new StreamReader(file);
+            while (!reader.EndOfStream)
+            {
+                builder.AppendLine(reader.ReadLine());
+            };
+
+            return builder.ToString();
+        }
+
         private static Folder GetValidations(REMSContext dbContext)
         {
             var validations = new Folder() { Name = "Validations" };
@@ -218,17 +230,12 @@ namespace Services
         {
             var folder = new Folder() { Name = "Manager folder" };
 
-            StringBuilder skipBuilder = new StringBuilder();
-            using var skipReader = new StreamReader("SkipRow.cs.txt");      
-            while (!skipReader.EndOfStream)
-            {
-                skipBuilder.AppendLine(skipReader.ReadLine());
-            };
+            
 
             var skiprow = new Manager()
             {
                 Name = "Sow SkipRow on a fixed date",
-                Code = skipBuilder.ToString(),
+                Code = GetScript("SkipRow.cs.txt"),
                 Parameters = new List<KeyValuePair<string, string>>()
                 {
                     new KeyValuePair<string, string>("Date", "1997-01-09"),
@@ -242,16 +249,10 @@ namespace Services
             };            
             folder.Children.Add(skiprow);
 
-            StringBuilder harvestBuilder = new StringBuilder();
-            using var harvestReader = new StreamReader("Harvest.cs.txt");
-            while (!harvestReader.EndOfStream)
-            {
-                harvestBuilder.AppendLine(harvestReader.ReadLine());
-            };
             var harvest = new Manager()
             {
                 Name = "Harvesting rule",
-                Code = harvestBuilder.ToString()
+                Code = "Harvest.cs.txt"
             };
             folder.Children.Add(harvest);
 
