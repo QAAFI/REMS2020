@@ -191,13 +191,11 @@ namespace Services
         {
             var designs = from design in dbContext.Designs
                           where design.Treatment == treatment
-                          select design;
-
-            treatment.Name = designs.Select(d => d.Level.Name + d.Level.Factor.Name).Aggregate((s1, s2) => s1 + ", " + s2);
+                          select design;           
 
             var simulation = new Simulation()
             {
-                Name = treatment.Name ?? "null"
+                Name = treatment.Name ?? GetTreatmentName(designs)
             };
 
             simulation.Children.Add(new Clock()
@@ -223,6 +221,20 @@ namespace Services
             simulation.Children.Add(GetField(treatment, dbContext));
 
             return simulation;
+        }
+
+        private static string GetTreatmentName(IEnumerable<Design> designs)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var design in designs)
+            {
+                builder.Append(design.Level.Name);
+                builder.Append("-");
+                builder.Append(design.Level.Factor.Name);
+                builder.Append(", ");
+            }
+            
+            return builder.ToString();
         }
 
         private static Zone GetField(Treatment treatment, REMSContext dbContext)
