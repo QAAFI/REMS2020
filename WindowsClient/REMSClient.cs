@@ -1,7 +1,7 @@
 ﻿using REMS;
 using Services;
 using System;
-using System.Data;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Models.Core;
@@ -274,7 +274,16 @@ namespace WindowsClient
                 {
                     Simulations sims = database.CreateApsimFile();
                     sims.SaveApsimFile(save.FileName);
-                    //database.ExportData(save.FileName);
+                }
+                catch (Exception error)
+                {
+                    ErrorMessage(error.Message);
+                }
+
+                try
+                {
+                    var path = Path.GetDirectoryName(save.FileName);
+                    database.GenerateMetFiles(path);
                 }
                 catch (Exception error)
                 {
