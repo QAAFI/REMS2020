@@ -70,6 +70,12 @@ namespace Services
 
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
         {
+            var designs = from design in dbContext.Designs
+                          where design.Treatment == treatment
+                          select design;
+
+            treatment.Name = designs.Select(d => d.Level.Name + d.Level.Factor.Name).Aggregate((s1, s2) => s1 + ", " + s2);
+
             var simulation = new Simulation()
             {
                 Name = treatment.Name ?? "null"
