@@ -260,9 +260,7 @@ namespace Services
 
         private static Folder GetManagers()
         {
-            var folder = new Folder() { Name = "Manager folder" };
-
-            
+            var folder = new Folder() { Name = "Manager folder" };            
 
             var skiprow = new Manager()
             {
@@ -284,7 +282,7 @@ namespace Services
             var harvest = new Manager()
             {
                 Name = "Harvesting rule",
-                Code = "Harvest.cs.txt"
+                Code = GetScript("Harvest.cs.txt")
             };
             folder.Children.Add(harvest);
 
