@@ -1,15 +1,17 @@
 ﻿using REMS;
+using Services;
 using System;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using Models.Core;
 
 namespace WindowsClient
 {
     public partial class REMSClient : Form
     {
-        private readonly IREMSDatabase database = REMSDataFactory.Create();
-
+        private IREMSDatabase database = REMSDataFactory.Create();        
+        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\Data";
         private readonly Settings settings = Settings.Instance;
 
         public REMSClient()
@@ -190,14 +192,18 @@ namespace WindowsClient
             {
                 try
                 {
+                    Application.UseWaitCursor = true;
+                    Application.DoEvents();
                     if (database.IsOpen) database.Close();
 
                     database.Open(open.FileName);
                     LoadSettings();
                     UpdateListView();
+                    Application.UseWaitCursor = false;
                 }
                 catch (Exception error)
                 {
+                    Application.UseWaitCursor = false;
                     ErrorMessage(error.Message);
                 }
             }
@@ -232,19 +238,25 @@ namespace WindowsClient
 
             using OpenFileDialog open = new OpenFileDialog()
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "Excel (2007) (*.xlsx)|*.xlsx"
+                InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Application.UseWaitCursor = true;
+                Application.DoEvents();
                 try
                 {
-                    database.ImportData(open.FileName);
+                    database.ImportExcelData(open.FileName);
+                    //database.ImportData(open.FileName);
                     UpdateListView();
+                    Application.UseWaitCursor = false;
+                    MessageBox.Show("Import Complete");
                 }
                 catch (Exception error)
                 {
                     ErrorMessage(error.Message);
+                    Application.UseWaitCursor = false;
                 }
             }
         }
@@ -260,7 +272,9 @@ namespace WindowsClient
             {
                 try
                 {
-                    database.ExportData(save.FileName);
+                    Simulations sims = database.CreateApsimFile();
+                    sims.SaveApsimFile(save.FileName);
+                    //database.ExportData(save.FileName);
                 }
                 catch (Exception error)
                 {
