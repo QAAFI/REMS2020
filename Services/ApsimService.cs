@@ -38,19 +38,10 @@ namespace Services
         {
             var sims = new Simulations();
             //JBTest(sims);
-            //using Simulations simulations = new Simulations();            
 
-            //var replacements = new Replacements() { Name = "Replacements" };
-            //replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
-
-            //simulations.Add(new DataStore());
-            //simulations.Add(replacements);
+            sims.Children.Add(new DataStore());
             var context = (db as REMSDatabase).context;
             sims.Children.Add(GetValidations(context));
-            //simulations.WriteToFile(file);
-
-            //GenerateMets(Path.GetDirectoryName(file));
-
 
             return sims;
         }
@@ -185,8 +176,7 @@ namespace Services
 
             return graph;
         }
-
-
+        
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
         {
             var designs = from design in dbContext.Designs
