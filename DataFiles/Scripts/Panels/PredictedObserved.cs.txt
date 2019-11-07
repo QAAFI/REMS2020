@@ -15,7 +15,7 @@ namespace Models
     [Serializable]
     public class Script : Model, IGraphPanelScript
     {
-    /// <summary>
+        /// <summary>
         /// Gets a list of simulation names. One tab of graphs will be generated for each simulation.
         /// </summary>
         /// <param name="storage">Provides access to the datastore.</param>

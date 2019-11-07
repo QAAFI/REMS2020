@@ -27,6 +27,7 @@ namespace Services
             var list = tmp.Run();
 
         }
+
         public static void SaveApsimFile(this Simulations sims, string filename)
         {
             sims.FileName = filename;
@@ -70,7 +71,7 @@ namespace Services
         {
             var validations = new Folder() { Name = "Validations" };
 
-            validations.Children.Add(GetCombinedResults(dbContext));
+            validations.Children.Add(GetCombinedResults());
 
             foreach (var experiment in dbContext.Experiments)
             {
@@ -80,10 +81,25 @@ namespace Services
                 validations.Children.Add(folder);
             }
 
+            var predictedObserved = new Dictionary<string, IEnumerable<string>>()
+            {
+                { "Biomass", new List<string>(){ "BiomassWt", "GrainGreenWt" } },
+                { "StemLeafWt", new List<string>(){ "BiomassWt", "StemGreenWt", "LeafGreenWt" } },
+                { "Grain", new List<string>(){ "GrainNo", "GrainGreenNConc" } },
+                { "LAI", new List<string>(){ "LAI" } },
+                { "LeafNo", new List<string>(){ "LeafNo" } },
+                { "Stage", new List<string>(){ "Stage" } },
+                { "BiomassN", new List<string>(){ "BiomassN", "GrainGreenN" } },
+                { "SteamLeafN", new List<string>(){ "BiomassN", "StemGreenN", "LeafGreenN" } },
+                { "SLN", new List<string>(){ "NO3", "SLN" } },
+            };
+
+            validations.Children.Add(NewPanel(predictedObserved, "PredictedObserved.cs.txt"));
+
             return validations;
         }
 
-        public static Folder GetCombinedResults(REMSContext context)
+        public static Folder GetCombinedResults()
         {
             var folder = new Folder()
             {
@@ -100,43 +116,6 @@ namespace Services
                 "GrainNo",
                 "GrainSize",
             };
-
-            foreach (string variable in variables)
-                folder.Children.Add(NewGraph(variable));
-
-            return folder;
-        }
-
-        public static Graph NewGraph(string variable)
-        {
-            var regression = new Regression()
-            {
-                ForEachSeries = false,
-                showOneToOne = true,
-                showEquation = true,
-                Name = "Regression"
-            };
-
-            var series = new Series()
-            {
-                Type = SeriesType.Scatter,
-                XAxis = Axis.AxisType.Bottom,
-                YAxis = Axis.AxisType.Left,
-                ColourArgb = 0,
-                FactorToVaryColours = "SimulationName",
-                Marker = 0,
-                MarkerSize = 0,
-                Line = LineType.None,
-                LineThickness = LineThicknessType.Normal,
-                Checkpoint = "Current",
-                TableName = "PredictedObserved",
-                XFieldName = $"Observed.{variable}",
-                YFieldName = $"Predicted.{variable}",
-                IncludeSeriesNameInLegend = false,
-                Cumulative = false,
-                CumulativeX = false
-            };
-            series.Children.Add(regression);
 
             var axes = new List<Axis>()
             {
@@ -156,16 +135,57 @@ namespace Services
                 }
             };
 
+            foreach (string variable in variables)
+            {
+                var series = new Series()
+                {
+                    Type = SeriesType.Scatter,
+                    XAxis = Axis.AxisType.Bottom,
+                    YAxis = Axis.AxisType.Left,
+                    ColourArgb = 0,
+                    FactorToVaryColours = "SimulationName",
+                    Marker = 0,
+                    MarkerSize = 0,
+                    Line = LineType.None,
+                    LineThickness = LineThicknessType.Normal,
+                    Checkpoint = "Current",
+                    TableName = "PredictedObserved",
+                    XFieldName = $"Observed.{variable}",
+                    YFieldName = $"Predicted.{variable}",
+                    IncludeSeriesNameInLegend = false,
+                    Cumulative = false,
+                    CumulativeX = false
+                };
+
+                series.Children.Add(new Regression()
+                {
+                    ForEachSeries = false,
+                    showOneToOne = true,
+                    showEquation = true,
+                    Name = "Regression"
+                });
+
+                var graph = NewGraph(variable, axes);                
+                graph.Children.Add(series);
+                folder.Children.Add(graph);
+            }                
+
+            return folder;
+        }
+
+        public static Graph NewGraph(string variable, List<Axis> axes)
+        {
+            
             var graph = new Graph()
             {
                 Name = variable,
                 Axis = axes,
                 LegendPosition = Graph.LegendPositionType.BottomRight
             };
-            graph.Children.Add(series);
 
             return graph;
         }
+
 
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
         {
@@ -405,6 +425,101 @@ namespace Services
             {
                 Name = name
             };
+        }
+
+        private static GraphPanel NewPanel(Dictionary<string, IEnumerable<string>> variables, string scriptFile)
+        {
+            var panel = new GraphPanel()
+            {
+                SameAxes = false,
+                NumCols = 3,
+                Name = "PredictedObserved"                
+            };
+
+            var manager = new Manager()
+            {
+                Name = "Config",
+                Code = GetScript(scriptFile)
+            };
+
+            panel.Children.Add(manager);
+
+            var axes = new List<Axis>()
+            {
+                new Axis()
+                {
+                    Type = Axis.AxisType.Bottom,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                },
+                new Axis()
+                {
+                    Type = Axis.AxisType.Left,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                }
+            };
+            foreach (var variable in variables)
+            {
+                var graph = NewGraph(variable.Key, axes);
+                foreach(var value in variable.Value)
+                {
+                    AddPredictedObservedPair(graph, value);
+                }
+                panel.Children.Add(graph);
+            }
+
+            return panel;
+        }
+
+        private static void AddPredictedObservedPair(Graph graph, string variable)
+        {
+            var predicted = new Series()
+            {
+                Type = SeriesType.Scatter,
+                XAxis = Axis.AxisType.Bottom,
+                YAxis = Axis.AxisType.Left,
+                ColourArgb = 0,
+                Marker = MarkerType.None,
+                MarkerSize = 0,
+                Line = 0,
+                LineThickness = LineThicknessType.Normal,
+                Checkpoint = "Current",
+                TableName = "DailyPredictedObserved",
+                XFieldName = $"Date",
+                YFieldName = $"Predicted.{variable}",
+                ShowInLegend = true,
+                IncludeSeriesNameInLegend = false,
+                Cumulative = false,
+                CumulativeX = false,
+                Name = $"Predicted {variable}"
+            };
+
+            var observed = new Series()
+            {
+                Type = SeriesType.Scatter,
+                XAxis = Axis.AxisType.Bottom,
+                YAxis = Axis.AxisType.Left,
+                ColourArgb = 0,
+                Marker = 0,
+                MarkerSize = 0,
+                Line = LineType.None,
+                LineThickness = LineThicknessType.Normal,
+                Checkpoint = "Current",
+                TableName = "DailyPredictedObserved",
+                XFieldName = $"Date",
+                YFieldName = $"Observed.{variable}",
+                ShowInLegend = true,
+                IncludeSeriesNameInLegend = false,
+                Cumulative = false,
+                CumulativeX = false,
+                Name = $"Predicted {variable}"
+            };
+
+            graph.Children.Add(predicted);
+            graph.Children.Add(observed);
         }
 
         public static void JBTest(Simulations sims)

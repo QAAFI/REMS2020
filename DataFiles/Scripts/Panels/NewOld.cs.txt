@@ -18,8 +18,8 @@ namespace Models
         /// <summary>
         /// Gets a list of simulation names. One tab of graphs will be generated for each simulation.
         /// </summary>
-        /// <param name=\"storage\">Provides access to the datastore.</param>
-        /// <param name=\"panel\">Provides access to the graph panel and the simulations tree.</param>
+        /// <param name="storage">Provides access to the datastore.</param>
+        /// <param name="panel">Provides access to the graph panel and the simulations tree.</param>
         public string[] GetSimulationNames(IStorageReader reader, GraphPanel panel)
         {
             // Get a list of all descendants of the panel's parent which are runnable
@@ -36,13 +36,13 @@ namespace Models
         /// <summary>
         /// Called on each graph before it is drawn in a tab.
         /// </summary>
-        /// <param name=\"graph\">The graph.</param>
-        /// <param name=\"simulationName\">Simulation name for this tab.</param>
+        /// <param name="graph">The graph.</param>
+        /// <param name="simulationName">Simulation name for this tab.</param>
         public void TransformGraph(Models.Graph.Graph graph, string simulationName)
         {
             foreach (Series series in Apsim.Children(graph, typeof(Series)))
-            if (series.Name.Contains(\"710\")) // it works, ok?
-            series.TableName = simulationName.Replace(\"Sorghum_\", \"\").Replace(\"-\", \"minus\").Replace(\"+\", \"plus\");
+            if (series.Name.Contains("710")) // it works, ok?
+            series.TableName = simulationName.Replace("Sorghum_", "").Replace("-", "minus").Replace("+", "plus");
         }
     }
 }
