@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsForm
+namespace WindowsClient
 {
     static class Program
     {
@@ -18,11 +18,8 @@ namespace WindowsForm
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new REMSClient());
-
-            
+            Application.Run(new REMSClient());            
         }
-
         
     }
 }
