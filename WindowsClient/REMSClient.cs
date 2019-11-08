@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using Models.Core;
 
 namespace WindowsClient
 {
@@ -272,7 +271,7 @@ namespace WindowsClient
             {
                 try
                 {
-                    Simulations sims = database.CreateApsimFile();
+                    var sims = database.CreateApsimFile();
                     sims.SaveApsimFile(save.FileName);
                     //database.ExportData(save.FileName);
                 }

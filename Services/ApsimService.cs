@@ -11,6 +11,8 @@ using Models.Surface;
 using REMS;
 using REMS.Context;
 using REMS.Context.Entities;
+using Services.Interfaces;
+using Services.Classes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,22 +23,25 @@ namespace Services
 {
     public static class ApsimService
     {
-        public static void RunApsimFile(this Simulations sims)
+        public static void RunApsimFile(this IApsimX apsimx)
         {
-            var tmp = new Runner(sims);
+            ApsimX apsim = apsimx as ApsimX;
+            var tmp = new Runner(apsim.Simulations);
             var list = tmp.Run();
 
         }
 
-        public static void SaveApsimFile(this Simulations sims, string filename)
+        public static void SaveApsimFile(this IApsimX apsimx, string filename)
         {
-            sims.FileName = filename;
-            sims.Write(filename);
+            ApsimX apsim = apsimx as ApsimX;
+            apsim.Simulations.FileName = filename;
+            apsim.Simulations.Write(filename);
         }
 
-        public static Simulations CreateApsimFile(this IREMSDatabase db)
+        public static IApsimX CreateApsimFile(this IREMSDatabase db)
         {
-            var sims = new Simulations();
+            var Apsim = new ApsimX();
+            Apsim.Simulations = new Simulations();
             //JBTest(sims);
             //using Simulations simulations = new Simulations();            
 
@@ -46,13 +51,13 @@ namespace Services
             //simulations.Add(new DataStore());
             //simulations.Add(replacements);
             var context = (db as REMSDatabase).context;
-            sims.Children.Add(GetValidations(context));
+            Apsim.Simulations.Children.Add(GetValidations(context));
             //simulations.WriteToFile(file);
 
             //GenerateMets(Path.GetDirectoryName(file));
 
 
-            return sims;
+            return Apsim;
         }
 
         private static string GetScript(string file)
