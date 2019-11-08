@@ -183,7 +183,7 @@ namespace WindowsClient
         /// </summary>
         private void MenuOpenClicked(object sender, EventArgs e)
         {
-            using OpenFileDialog open = new OpenFileDialog()
+            OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "SQLite (*.db)|*.db"
@@ -236,7 +236,7 @@ namespace WindowsClient
                 return;
             }
 
-            using OpenFileDialog open = new OpenFileDialog()
+            OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
@@ -263,7 +263,7 @@ namespace WindowsClient
 
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            using SaveFileDialog save = new SaveFileDialog()
+            SaveFileDialog save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "ApsimNG (*.apsimx)|*.apsimx"
