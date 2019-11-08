@@ -292,7 +292,23 @@ namespace Services
             zone.Children.Add(GetOperations(treatment, dbContext));
             zone.Children.Add(GetSoil(field, dbContext));
             zone.Children.Add(new Plant() { Name = "Sorghum" });
-            zone.Children.Add(new Report() { Name = "Output file" });
+
+            var daily = new Report()
+            {
+                Name = "DailyReport",
+                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                EventNames = new string[] { "[Clock].DoReport" }
+            };
+
+            var harvest = new Report()
+            {
+                Name = "HarvestReport",
+                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                EventNames = new string[] { "[Sorghum].Harvesting" }
+            };
+
+            zone.Children.Add(daily);
+            zone.Children.Add(harvest);
 
             return zone;
         }
