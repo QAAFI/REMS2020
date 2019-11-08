@@ -273,7 +273,7 @@ namespace WindowsClient
 
                 try
                 {
-                    Simulations sims = database.CreateApsimFile(path);
+                    var sims = database.CreateApsimFile(path);
                     sims.SaveApsimFile(save.FileName);
                 }
                 catch (Exception error)

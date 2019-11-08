@@ -40,7 +40,7 @@ namespace Services
             apsim.Simulations.Write(filename);
         }
 
-        public static IApsimX CreateApsimFile(this IREMSDatabase db)
+        public static IApsimX CreateApsimFile(this IREMSDatabase db, string filepath)
         {
             var context = (db as REMSDatabase).context;
             var Apsim = new ApsimX();
