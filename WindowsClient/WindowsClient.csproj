@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ApsimX\Models\Models.csproj" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3-beta1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\REMS\REMS.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
