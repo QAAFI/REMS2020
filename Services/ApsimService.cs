@@ -285,6 +285,8 @@ namespace Services
 
             simulation.Children.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
 
+            simulation.Children.Add(new SoilArbitrator() { Name = "SoilArbitrator" });
+
             simulation.Children.Add(GetField(treatment, dbContext));
 
             return simulation;
