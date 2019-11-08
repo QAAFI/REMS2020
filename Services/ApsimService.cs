@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Services
 {
@@ -35,13 +36,13 @@ namespace Services
             sims.Write(filename);
         }
 
-        public static Simulations CreateApsimFile(this IREMSDatabase db)
+        public static Simulations CreateApsimFile(this IREMSDatabase db, string filepath)
         {
+            var context = (db as REMSDatabase).context;
             var sims = new Simulations();
             //JBTest(sims);
-
-            sims.Children.Add(GetDataStore());
-            var context = (db as REMSDatabase).context;
+            sims.Children.Add(GetDataStore(context, filepath));
+            sims.Children.Add(GetReplacements());          
             sims.Children.Add(GetValidations(context));
 
             return sims;
@@ -63,13 +64,17 @@ namespace Services
                 using var stream = new FileStream(file, FileMode.Create);
                 using var writer = new StreamWriter(stream);
 
-                writer.WriteLine($"latitude = {met.Latitude}");
-                writer.WriteLine($"longitude = {met.Longitude}");
-                writer.WriteLine($"tav = {met.TemperatureAverage}");
-                writer.WriteLine($"amp = {met.Amp}\n");
+                writer.WriteLine("[weather.met.weather]");
+                writer.WriteLine($"!experiment number = 1");
+                writer.WriteLine($"!experiment = ");
+                writer.WriteLine($"!station name = {met.Name}");
+                writer.WriteLine($"latitude = {met.Latitude} (DECIMAL DEGREES)");
+                writer.WriteLine($"longitude = {met.Longitude} (DECIMAL DEGREES)");
+                writer.WriteLine($"tav = {met.TemperatureAverage} (oC)");
+                writer.WriteLine($"amp = {met.Amp} (oC)\n");
 
-                writer.WriteLine($"{"Year",-8}{"Day",-8}{"maxt",-8}{"mint",-8}{"radn",-8}{"Rain",-8}");
-                writer.WriteLine($"{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}");
+                writer.WriteLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}");
+                writer.WriteLine($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}");
 
                 var dates = context.MetDatas
                     .Select(d => d.Date)
@@ -93,7 +98,7 @@ namespace Services
                     double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
                     double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
 
-                    writer.Write($"{date.Year,-8}{date.Day,-8}{tmax,-8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                    writer.Write($"{date.Year,-7}{date.DayOfYear,3}{tmax,8}{tmin,8}{radn,8}{rain,8}\n");
                 }
             }
         }
@@ -109,12 +114,12 @@ namespace Services
 
             return builder.ToString();
         }
-
-        private static DataStore GetDataStore()
+                
+        private static DataStore GetDataStore(REMSContext context, string filepath)
         {
             var store = new DataStore();
 
-            var input = new ExcelInput()
+            var excel = new ExcelInput()
             {
                 Name = "ExcelInput",
                 FileName = "Observed.xlsx",
@@ -129,10 +134,57 @@ namespace Services
                 Name = "PredictedObserved"
             };
 
-            store.Children.Add(input);
+            store.Children.Add(excel);
             store.Children.Add(observed);
 
+            var inputs = context.Treatments.Select(t => new Input() 
+            { 
+                Name = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}",
+                FileName = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}.out"
+            });            
+
+            foreach (var input in inputs)
+                if (!File.Exists(input.FileName)) File.Create($"{filepath}\\{input.FileName}").Close();
+
+            store.Children.AddRange(inputs);
+
             return store;
+        }
+
+        private static Replacements GetReplacements()
+        {
+            var replacements = new Replacements() { Name = "Replacements" };
+
+            using var stream = new StreamReader("Sorghum.json");
+            using var reader = new JsonTextReader(stream);
+
+            var serializer = new JsonSerializer()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            var sorghum = serializer.Deserialize<Plant>(reader);
+            replacements.Children.Add(sorghum);
+
+            var daily = new Report()
+            {
+                Name = "DailyReport",
+                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                EventNames = new string[] { "[Clock].DoReport" }
+            };
+
+            var harvest = new Report()
+            {
+                Name = "HarvestReport",
+                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                EventNames = new string[] { "[Sorghum].Harvesting" }
+            };
+
+            replacements.Children.Add(daily);
+            replacements.Children.Add(harvest);
+
+            return replacements;
         }
 
         private static Folder GetValidations(REMSContext dbContext)
@@ -143,7 +195,7 @@ namespace Services
 
             foreach (var experiment in dbContext.Experiments)
             {
-                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));
+                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));                
                 var folder = new Folder() { Name = experiment.Name };
                 folder.Children.AddRange(simulations);
                 validations.Children.Add(folder);
@@ -255,15 +307,18 @@ namespace Services
         }
         
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
-        {
-            var designs = from design in dbContext.Designs
-                          where design.Treatment == treatment
-                          select design;           
-
+        {                    
             var simulation = new Simulation()
             {
-                Name = treatment.Name ?? GetTreatmentName(designs)
+                Name = $"{treatment.Experiment.Crop.Name}_{treatment.Experiment.Name}_{treatment.TreatmentId}"
             };
+
+            var memo = new Memo()
+            {
+                Name = "Treatment factors",
+                Text = GetTreatmentMemo(treatment, dbContext)
+            };
+            simulation.Children.Add(memo);
 
             simulation.Children.Add(new Clock()
             {
@@ -283,7 +338,13 @@ namespace Services
                 FileName = treatment.Experiment.MetStation?.Name + ".met"
             });
 
-            simulation.Children.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
+            simulation.Children.Add(new SurfaceOrganicMatter()
+            {
+                ResourceName = "SurfaceOrganicMatter",
+                InitialResidueName = "wheat_stubble",
+                InitialResidueType = "wheat",
+                InitialCNR = 80.0
+            });
 
             simulation.Children.Add(new SoilArbitrator() { Name = "SoilArbitrator" });
 
@@ -292,15 +353,20 @@ namespace Services
             return simulation;
         }
 
-        private static string GetTreatmentName(IEnumerable<Design> designs)
+        private static string GetTreatmentMemo(Treatment treatment, REMSContext context)
         {
+            var designs = from design in context.Designs
+                          where design.Treatment == treatment
+                          select design;
+
             StringBuilder builder = new StringBuilder();
+            builder.AppendLine("This treatment uses the following factor/level combinations:\n");
             foreach (var design in designs)
             {
-                builder.Append(design.Level.Name);
-                builder.Append("-");
-                builder.Append(design.Level.Factor.Name);
-                builder.Append(", ");
+                var factor = "\tFactor: " + design.Level.Factor.Name;
+                var level = "Level: " + design.Level.Name;                
+
+                builder.AppendLine($"{factor, -30}{level, -30}");
             }
             
             return builder.ToString();
@@ -313,7 +379,8 @@ namespace Services
             var zone = new Zone()
             {
                 Name = field.Name,
-                Slope = (double)field.Slope
+                Slope = (double)field.Slope,
+                Area = 1
             };
 
             zone.Children.Add(GetManagers());
@@ -332,14 +399,13 @@ namespace Services
             var daily = new Report()
             {
                 Name = "DailyReport",
-                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                VariableNames = new string[] { "GrainTempFactor" },
                 EventNames = new string[] { "[Clock].DoReport" }
             };
 
             var harvest = new Report()
             {
                 Name = "HarvestReport",
-                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
                 EventNames = new string[] { "[Sorghum].Harvesting" }
             };
 
@@ -400,7 +466,7 @@ namespace Services
             var fertilizations = fquery
                 .Select(f => new Operation()
                 {
-                    Action = $"[Fertiliser].Apply({f.Amount}, {f.Fertilizer.Name}, {f.Depth})",
+                    Action = $"[Fertiliser].Apply({f.Amount}, Fertiliser.Types.NO3N, {f.Depth})",
                     Date = ((DateTime)f.Date).ToString()
                 }
                 );
