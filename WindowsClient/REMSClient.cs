@@ -270,9 +270,11 @@ namespace WindowsClient
             };
             if (save.ShowDialog() == DialogResult.OK)
             {
+                var path = Path.GetDirectoryName(save.FileName);
+
                 try
                 {
-                    Simulations sims = database.CreateApsimFile();
+                    Simulations sims = database.CreateApsimFile(path);
                     sims.SaveApsimFile(save.FileName);
                 }
                 catch (Exception error)
@@ -281,8 +283,7 @@ namespace WindowsClient
                 }
 
                 try
-                {
-                    var path = Path.GetDirectoryName(save.FileName);
+                {                    
                     database.GenerateMetFiles(path);
                 }
                 catch (Exception error)
