@@ -180,7 +180,7 @@ namespace REMS
         /// </summary>
         public void Save()
         {
-            context.SaveChanges();
+            context?.SaveChanges();
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace REMS
         public void Close()
         {
             Save();
-            context.Database.CloseConnection();
+            context?.Database.CloseConnection();
 
             IsOpen = false;
         }
