@@ -376,7 +376,10 @@ namespace Services
 
         private static Operations GetOperations(Treatment treatment, REMSContext dbContext)
         {
-            var model = new Operations();
+            var model = new Operations()
+            {
+                Operation = new List<Operation>()
+            };            
 
             var iquery = dbContext.Query.IrrigationsByTreatment(treatment);
             var irrigations = iquery
@@ -422,6 +425,7 @@ namespace Services
 
             return model;
         }
+        
 
         private static Physical GetWater(int soilId, REMSContext dbContext)
         {
