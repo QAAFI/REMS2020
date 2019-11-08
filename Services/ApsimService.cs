@@ -110,8 +110,9 @@ namespace Services
 
         private static string GetScript(string file)
         {
+            var filePath = Path.Combine("Data", "apsimx", file);
             StringBuilder builder = new StringBuilder();
-            using var reader = new StreamReader(file);
+            using var reader = new StreamReader(filePath);
             while (!reader.EndOfStream)
             {
                 builder.AppendLine(reader.ReadLine());
@@ -159,8 +160,8 @@ namespace Services
         private static Replacements GetReplacements()
         {
             var replacements = new Replacements() { Name = "Replacements" };
-
-            using var stream = new StreamReader("Sorghum.json");
+            var sorghumModel = Path.Combine("Data", "apsimx", "Sorghum.json");
+            using var stream = new StreamReader(sorghumModel);
             using var reader = new JsonTextReader(stream);
 
             var serializer = new JsonSerializer()
