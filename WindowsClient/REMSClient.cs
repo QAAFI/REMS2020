@@ -1,10 +1,9 @@
 ﻿using REMS;
 using Services;
 using System;
-using System.Data;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Models.Core;
 
 namespace WindowsClient
 {
@@ -183,7 +182,7 @@ namespace WindowsClient
         /// </summary>
         private void MenuOpenClicked(object sender, EventArgs e)
         {
-            using OpenFileDialog open = new OpenFileDialog()
+            OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "SQLite (*.db)|*.db"
@@ -236,7 +235,7 @@ namespace WindowsClient
                 return;
             }
 
-            using OpenFileDialog open = new OpenFileDialog()
+            OpenFileDialog open = new OpenFileDialog()
             {
                 InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
@@ -263,7 +262,7 @@ namespace WindowsClient
 
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            using SaveFileDialog save = new SaveFileDialog()
+            SaveFileDialog save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "ApsimNG (*.apsimx)|*.apsimx"
@@ -272,9 +271,18 @@ namespace WindowsClient
             {
                 try
                 {
-                    Simulations sims = database.CreateApsimFile();
+                    var sims = database.CreateApsimFile();
                     sims.SaveApsimFile(save.FileName);
-                    //database.ExportData(save.FileName);
+                }
+                catch (Exception error)
+                {
+                    ErrorMessage(error.Message);
+                }
+
+                try
+                {
+                    var path = Path.GetDirectoryName(save.FileName);
+                    database.GenerateMetFiles(path);
                 }
                 catch (Exception error)
                 {
@@ -288,9 +296,5 @@ namespace WindowsClient
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void propertyTable_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
     }
 }

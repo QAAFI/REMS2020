@@ -1,0 +1,61 @@
+[Sorghum].Phenology.DaysAfterSowing as Das
+[Sorghum].Phenology.CurrentStageName as Stage
+[Sorghum].AboveGround.Wt as BiomassWt
+[Sorghum].AboveGround.N as biomass_n
+[Sorghum].Grain.Size * 1000 as GrainSize // FIXME!
+[Sorghum].Grain.NumberFunction as GrainNoFunc
+[Sorghum].Grain.Number as GrainNo
+[Sorghum].Leaf.LAI as LAI
+[Sorghum].Root.Live.Wt as RootGreenWt
+[Sorghum].Leaf.Live.Wt as LeafGreenWt
+[Sorghum].Stem.Live.Wt as StemGreenWt
+[Sorghum].Rachis.Live.Wt as RachisGreenWt
+[Sorghum].Grain.Live.Wt as GrainGreenWt
+[Sorghum].Root.Live.N as RootGreenN
+[Sorghum].Leaf.Live.N as LeafGreenN
+[Sorghum].Stem.Live.N as StemGreenN
+[Sorghum].Rachis.Live.N as RachisGreenN
+[Sorghum].Grain.Live.N as GrainGreenN
+[Sorghum].Grain.Live.NConc * 100 as GrainGreenNConc // old apsim grain nconc is in percent
+//[Sorghum].Leaf.Number as LeafNo
+sum([Soil].SoilWater.ESW) as ESW
+sum([Soil].SoilNitrogen.NO3.kgha) as NO3
+[Sorghum].Leaf.SLN as SLN
+sum([Soil].SoilWater.SW) as sw
+// HI
+
+[Sorghum].Leaf.LAI / [Sorghum].Population * 10000 as GPLA
+[Sorghum].Leaf.LAIDead / [Sorghum].Population * 10000 as SPLA
+([Sorghum].Leaf.SenescedLai / [Sorghum].Population + [Sorghum].Leaf.LAI / [Sorghum].Population) * 10000 as TPLA // gpla + spla as per old apsim. this assumes paddock area = 1ha
+[Sorghum].Leaf.LAIDead as SPLA
+// Yield
+[Sorghum].AboveGround.Wt // g/m2 - Biomass (kg/ha) in old Apsim
+
+// Variables in old apsim:
+//
+//DaysAfterSowing as Das
+//Stage
+//GrainSize
+//GrainNo
+//MaxLAI as LaiAnth
+//RootGreenWt
+//LeafGreenWt
+//StemGreenWt
+//RachisGreenWt
+//GrainGreenWt
+//RootGreenN
+//LeafGreenN
+//StemGreenN
+//RachisGreenN
+//GrainGreenN
+//GrainGreenNConc
+//LeafNo
+//ESW
+//no3() as NO3
+//SLN
+//sw()
+//HI
+//TPLA
+//SPLA
+//Yield
+//Biomass

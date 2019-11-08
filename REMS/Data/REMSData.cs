@@ -127,60 +127,12 @@ namespace REMS
             //GenerateMets(Path.GetDirectoryName(file));
         }
 
-        private void GenerateMets(string path)
-        {
-            var mets = from met in context.MetStations
-                       select met;
-
-            foreach (var met in mets)
-            {
-                string file = path + "\\" + met.Name + ".met";
-
-                using var stream = new FileStream(file, FileMode.Create);
-                using var writer = new StreamWriter(stream);
-                
-                writer.WriteLine($"latitude = {met.Latitude}");
-                writer.WriteLine($"longitude = {met.Longitude}");
-                writer.WriteLine($"tav = {met.TemperatureAverage}");
-                writer.WriteLine($"amp = {met.Amp}\n");
-
-                writer.WriteLine($"{"Year", -8}{"Day", -8}{"maxt", -8}{"mint", -8}{"radn", -8}{"Rain", -8}");
-                writer.WriteLine($"{" () ", -8}{" () ",-8}{" () ", -8}{" () ", -8}{" () ", -8}{" () ", -8}");
-
-                var dates = context.MetDatas
-                    .Select(d => d.Date)
-                    .Distinct()
-                    .OrderBy(d => d.Date);
-
-                var TMAX = context.Traits.First(t => t.Name == "TMAX");
-                var TMIN = context.Traits.First(t => t.Name == "TMIN");
-                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
-                var RAIN = context.Traits.First(t => t.Name == "RAIN");
-
-                foreach (var date in dates)
-                {
-                    var value = from data in context.MetDatas
-                                where data.Date == date
-                                where data.Value.HasValue
-                                select data;
-
-                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
-                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
-                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
-                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
-
-                    writer.Write($"{date.Year, -8}{date.Day, -8}{tmax, -8}{tmin,-8}{radn,-8}{rain,-8}\n");
-                }
-            }
-            
-        }
-
         /// <summary>
         /// Saves the database
         /// </summary>
         public void Save()
         {
-            context.SaveChanges();
+            context?.SaveChanges();
         }
 
         /// <summary>
@@ -189,7 +141,7 @@ namespace REMS
         public void Close()
         {
             Save();
-            context.Database.CloseConnection();
+            context?.Database.CloseConnection();
 
             IsOpen = false;
         }

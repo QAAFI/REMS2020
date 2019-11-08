@@ -1,6 +1,7 @@
 ﻿using Models;
 using Models.Core;
 using Models.Core.Run;
+using Models.Graph;
 using Models.PMF;
 using Models.Report;
 using Models.Soils;
@@ -10,51 +11,112 @@ using Models.Surface;
 using REMS;
 using REMS.Context;
 using REMS.Context.Entities;
+using Services.Interfaces;
+using Services.Classes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Services
 {
     public static class ApsimService
     {
-        public static void RunApsimFile(this Simulations sims)
+        public static void RunApsimFile(this IApsimX apsimx)
         {
-            var tmp = new Runner(sims);
+            ApsimX apsim = apsimx as ApsimX;
+            var tmp = new Runner(apsim.Simulations);
             var list = tmp.Run();
 
         }
-        public static void SaveApsimFile(this Simulations sims, string filename)
+
+        public static void SaveApsimFile(this IApsimX apsimx, string filename)
         {
-            sims.FileName = filename;
-            sims.Write(filename);
+            ApsimX apsim = apsimx as ApsimX;
+            apsim.Simulations.FileName = filename;
+            apsim.Simulations.Write(filename);
         }
 
-        public static Simulations CreateApsimFile(this IREMSDatabase db)
+        public static IApsimX CreateApsimFile(this IREMSDatabase db)
         {
-            var sims = new Simulations();
-            JBTest(sims);
-            //using Simulations simulations = new Simulations();            
+            var Apsim = new ApsimX();
+            Apsim.Simulations = new Simulations();
+            //JBTest(sims);
 
-            //var replacements = new Replacements() { Name = "Replacements" };
-            //replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
-
-            //simulations.Add(new DataStore());
-            //simulations.Add(replacements);
+            Apsim.Simulations.Children.Add(new DataStore());
             var context = (db as REMSDatabase).context;
-            sims.Children.Add(GetValidations(context));
-            //simulations.WriteToFile(file);
+            Apsim.Simulations.Children.Add(GetValidations(context));
 
-            //GenerateMets(Path.GetDirectoryName(file));
+            return Apsim;
+        }
 
+        public static void GenerateMetFiles(this IREMSDatabase db, string path)
+        {
+            var context = (db as REMSDatabase).context;
 
-            return sims;
+            var mets = from met in context.MetStations
+                       select met;
+
+            foreach (var met in mets)
+            {
+                string file = path + "\\" + met.Name + ".met";
+
+                using var stream = new FileStream(file, FileMode.Create);
+                using var writer = new StreamWriter(stream);
+
+                writer.WriteLine($"latitude = {met.Latitude}");
+                writer.WriteLine($"longitude = {met.Longitude}");
+                writer.WriteLine($"tav = {met.TemperatureAverage}");
+                writer.WriteLine($"amp = {met.Amp}\n");
+
+                writer.WriteLine($"{"Year",-8}{"Day",-8}{"maxt",-8}{"mint",-8}{"radn",-8}{"Rain",-8}");
+                writer.WriteLine($"{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}");
+
+                var dates = context.MetDatas
+                    .Select(d => d.Date)
+                    .Distinct()
+                    .OrderBy(d => d.Date);
+
+                var TMAX = context.Traits.First(t => t.Name == "TMAX");
+                var TMIN = context.Traits.First(t => t.Name == "TMIN");
+                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
+                var RAIN = context.Traits.First(t => t.Name == "RAIN");
+
+                foreach (var date in dates)
+                {
+                    var value = from data in context.MetDatas
+                                where data.Date == date
+                                where data.Value.HasValue
+                                select data;
+
+                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
+                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
+                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
+                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
+
+                    writer.Write($"{date.Year,-8}{date.Day,-8}{tmax,-8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                }
+            }
+        }
+
+        private static string GetScript(string file)
+        {
+            StringBuilder builder = new StringBuilder();
+            using var reader = new StreamReader(file);
+            while (!reader.EndOfStream)
+            {
+                builder.AppendLine(reader.ReadLine());
+            };
+
+            return builder.ToString();
         }
 
         private static Folder GetValidations(REMSContext dbContext)
         {
             var validations = new Folder() { Name = "Validations" };
+
+            validations.Children.Add(GetCombinedResults());
 
             foreach (var experiment in dbContext.Experiments)
             {
@@ -64,14 +126,120 @@ namespace Services
                 validations.Children.Add(folder);
             }
 
+            var predictedObserved = new Dictionary<string, IEnumerable<string>>()
+            {
+                { "Biomass", new List<string>(){ "BiomassWt", "GrainGreenWt" } },
+                { "StemLeafWt", new List<string>(){ "BiomassWt", "StemGreenWt", "LeafGreenWt" } },
+                { "Grain", new List<string>(){ "GrainNo", "GrainGreenNConc" } },
+                { "LAI", new List<string>(){ "LAI" } },
+                { "LeafNo", new List<string>(){ "LeafNo" } },
+                { "Stage", new List<string>(){ "Stage" } },
+                { "BiomassN", new List<string>(){ "BiomassN", "GrainGreenN" } },
+                { "SteamLeafN", new List<string>(){ "BiomassN", "StemGreenN", "LeafGreenN" } },
+                { "SLN", new List<string>(){ "NO3", "SLN" } },
+            };
+
+            validations.Children.Add(NewPanel(predictedObserved, "PredictedObserved.cs.txt"));
+
             return validations;
         }
 
+        public static Folder GetCombinedResults()
+        {
+            var folder = new Folder()
+            {
+                Name = "Combined Results"
+            };            
+
+            var variables = new List<string>()
+            {
+                "BiomassWt",
+                "GrainGreenWt",
+                "GrainGreenN",
+                "biomass_n",
+                "TPLA",
+                "GrainNo",
+                "GrainSize",
+            };
+
+            var axes = new List<Axis>()
+            {
+                new Axis()
+                {
+                    Type = Axis.AxisType.Bottom,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                },
+                new Axis()
+                {
+                    Type = Axis.AxisType.Left,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                }
+            };
+
+            foreach (string variable in variables)
+            {
+                var series = new Series()
+                {
+                    Type = SeriesType.Scatter,
+                    XAxis = Axis.AxisType.Bottom,
+                    YAxis = Axis.AxisType.Left,
+                    ColourArgb = 0,
+                    FactorToVaryColours = "SimulationName",
+                    Marker = 0,
+                    MarkerSize = 0,
+                    Line = LineType.None,
+                    LineThickness = LineThicknessType.Normal,
+                    Checkpoint = "Current",
+                    TableName = "PredictedObserved",
+                    XFieldName = $"Observed.{variable}",
+                    YFieldName = $"Predicted.{variable}",
+                    IncludeSeriesNameInLegend = false,
+                    Cumulative = false,
+                    CumulativeX = false
+                };
+
+                series.Children.Add(new Regression()
+                {
+                    ForEachSeries = false,
+                    showOneToOne = true,
+                    showEquation = true,
+                    Name = "Regression"
+                });
+
+                var graph = NewGraph(variable, axes);                
+                graph.Children.Add(series);
+                folder.Children.Add(graph);
+            }                
+
+            return folder;
+        }
+
+        public static Graph NewGraph(string variable, List<Axis> axes)
+        {
+            
+            var graph = new Graph()
+            {
+                Name = variable,
+                Axis = axes,
+                LegendPosition = Graph.LegendPositionType.BottomRight
+            };
+
+            return graph;
+        }
+        
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
         {
+            var designs = from design in dbContext.Designs
+                          where design.Treatment == treatment
+                          select design;           
+
             var simulation = new Simulation()
             {
-                Name = treatment.Name ?? "null"
+                Name = treatment.Name ?? GetTreatmentName(designs)
             };
 
             simulation.Children.Add(new Clock()
@@ -99,6 +267,20 @@ namespace Services
             return simulation;
         }
 
+        private static string GetTreatmentName(IEnumerable<Design> designs)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var design in designs)
+            {
+                builder.Append(design.Level.Name);
+                builder.Append("-");
+                builder.Append(design.Level.Factor.Name);
+                builder.Append(", ");
+            }
+            
+            return builder.ToString();
+        }
+
         private static Zone GetField(Treatment treatment, REMSContext dbContext)
         {
             var field = treatment.Experiment.Field;
@@ -115,20 +297,54 @@ namespace Services
             zone.Children.Add(GetOperations(treatment, dbContext));
             zone.Children.Add(GetSoil(field, dbContext));
             zone.Children.Add(new Plant() { Name = "Sorghum" });
-            zone.Children.Add(new Report() { Name = "Output file" });
+
+            var daily = new Report()
+            {
+                Name = "DailyReport",
+                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                EventNames = new string[] { "[Clock].DoReport" }
+            };
+
+            var harvest = new Report()
+            {
+                Name = "HarvestReport",
+                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                EventNames = new string[] { "[Sorghum].Harvesting" }
+            };
+
+            zone.Children.Add(daily);
+            zone.Children.Add(harvest);
 
             return zone;
         }
 
         private static Folder GetManagers()
         {
-            var folder = new Folder() { Name = "Manager folder" };
+            var folder = new Folder() { Name = "Manager folder" };            
 
-            folder.Children.Add(new Memo()
+            var skiprow = new Manager()
             {
-                Name = "Manage placeholder",
-                Text = "Need to ask where this data is coming from"
-            });
+                Name = "Sow SkipRow on a fixed date",
+                Code = GetScript("SkipRow.cs.txt"),
+                Parameters = new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("Date", "1997-01-09"),
+                    new KeyValuePair<string, string>("Density", "10"),
+                    new KeyValuePair<string, string>("Depth", "30"),
+                    new KeyValuePair<string, string>("Cultivar", "QL41xQL36"),
+                    new KeyValuePair<string, string>("RowSpacing", "500"),
+                    new KeyValuePair<string, string>("RowConfiguration", "solid"),
+                    new KeyValuePair<string, string>("Ftn", "0")
+                }
+            };            
+            folder.Children.Add(skiprow);
+
+            var harvest = new Manager()
+            {
+                Name = "Harvesting rule",
+                Code = GetScript("Harvest.cs.txt")
+            };
+            folder.Children.Add(harvest);
 
             return folder;
         }
@@ -253,11 +469,24 @@ namespace Services
 
         private static Chemical GetChemicalAnalysis(int soilId, REMSContext dbContext)
         {
-            return new Chemical()
+            var chem = new Chemical()
             {
                 Name = "Chemical",
                 PH = dbContext.Query.SoilLayerDataByTrait("PH", soilId).ToArray()
             };
+
+
+            //var chem = new Chemical()
+            //{
+            //    Name = "Chemical",
+            //    Depth = new[] { "0-15", "15-30", "30-45", "40-60", "60-80", "80-100", "100-120", "120-140", "140-160", "160-180" },
+            //    Thickness = new[] { 100.0, 100.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0 },
+            //    NO3N = new[] { 10.4, 1.6329999999999996, 1.2330000000000008, 0.9, 1.1, 1.4670000000000005, 3.6329999999999996, 5.6670000000000007, 5.8, 7.267000000000003 },
+            //    NH4N = new[] { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+            //    PH = new[] { 6.3, 6.4, 6.5, 6.6, 6.6, 6.5, 6.5, 6.5, 6.5, 6.5 }
+            //};
+
+            return chem;
         }
 
         private static Sample GetSample(int soilId, string name)
@@ -266,6 +495,101 @@ namespace Services
             {
                 Name = name
             };
+        }
+
+        private static GraphPanel NewPanel(Dictionary<string, IEnumerable<string>> variables, string scriptFile)
+        {
+            var panel = new GraphPanel()
+            {
+                SameAxes = false,
+                NumCols = 3,
+                Name = "PredictedObserved"                
+            };
+
+            var manager = new Manager()
+            {
+                Name = "Config",
+                Code = GetScript(scriptFile)
+            };
+
+            panel.Children.Add(manager);
+
+            var axes = new List<Axis>()
+            {
+                new Axis()
+                {
+                    Type = Axis.AxisType.Bottom,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                },
+                new Axis()
+                {
+                    Type = Axis.AxisType.Left,
+                    Inverted = false,
+                    DateTimeAxis = false,
+                    CrossesAtZero = false
+                }
+            };
+            foreach (var variable in variables)
+            {
+                var graph = NewGraph(variable.Key, axes);
+                foreach(var value in variable.Value)
+                {
+                    AddPredictedObservedPair(graph, value);
+                }
+                panel.Children.Add(graph);
+            }
+
+            return panel;
+        }
+
+        private static void AddPredictedObservedPair(Graph graph, string variable)
+        {
+            var predicted = new Series()
+            {
+                Type = SeriesType.Scatter,
+                XAxis = Axis.AxisType.Bottom,
+                YAxis = Axis.AxisType.Left,
+                ColourArgb = 0,
+                Marker = MarkerType.None,
+                MarkerSize = 0,
+                Line = 0,
+                LineThickness = LineThicknessType.Normal,
+                Checkpoint = "Current",
+                TableName = "DailyPredictedObserved",
+                XFieldName = $"Date",
+                YFieldName = $"Predicted.{variable}",
+                ShowInLegend = true,
+                IncludeSeriesNameInLegend = false,
+                Cumulative = false,
+                CumulativeX = false,
+                Name = $"Predicted {variable}"
+            };
+
+            var observed = new Series()
+            {
+                Type = SeriesType.Scatter,
+                XAxis = Axis.AxisType.Bottom,
+                YAxis = Axis.AxisType.Left,
+                ColourArgb = 0,
+                Marker = 0,
+                MarkerSize = 0,
+                Line = LineType.None,
+                LineThickness = LineThicknessType.Normal,
+                Checkpoint = "Current",
+                TableName = "DailyPredictedObserved",
+                XFieldName = $"Date",
+                YFieldName = $"Observed.{variable}",
+                ShowInLegend = true,
+                IncludeSeriesNameInLegend = false,
+                Cumulative = false,
+                CumulativeX = false,
+                Name = $"Predicted {variable}"
+            };
+
+            graph.Children.Add(predicted);
+            graph.Children.Add(observed);
         }
 
         public static void JBTest(Simulations sims)
