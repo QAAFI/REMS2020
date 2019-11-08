@@ -24,6 +24,10 @@
       "SWAvailRatio": 0.0,
       "SDRatio": 0.0,
       "PhotoStress": 0.0,
+      "Avail": null,
+      "PotAvail": null,
+      "TotalAvail": 0.0,
+      "TotalPotAvail": 0.0,
       "Name": "Arbitrator",
       "Children": [
         {
@@ -623,7 +627,7 @@
         },
         {
           "$type": "Models.Functions.PhotoperiodFunction, Models",
-          "Twilight": -6.0,
+          "Twilight": -2.2,
           "DayLength": 0.0,
           "Name": "Photoperiod",
           "Children": [],
@@ -1109,6 +1113,31 @@
           "FractionRemovedOnHarvest": 0.0,
           "FractionRemovedOnGraze": 0.0,
           "FractionRemovedOnPrune": 0.0,
+          "Name": "TTFromFlowering",
+          "Children": [
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Phenology].DltTT",
+              "Name": "ThermalTime",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.AccumulateFunction, Models",
+          "StartStageName": "Flowering",
+          "EndStageName": "Maturity",
+          "ResetStageName": null,
+          "FractionRemovedOnCut": 0.0,
+          "FractionRemovedOnHarvest": 0.0,
+          "FractionRemovedOnGraze": 0.0,
+          "FractionRemovedOnPrune": 0.0,
           "Name": "TTFMFromFlowering",
           "Children": [
             {
@@ -1249,8 +1278,9 @@
     {
       "$type": "Models.PMF.Struct.CulmStructure, Models",
       "FinalLeafNo": 0.0,
+      "TTTargetFI": 0.0,
       "FertileTillerNumber": 0.0,
-      "CurrentLeafNo": 0.0,
+      "NLeaves": 0.0,
       "LeafInitialisationStage": "Emergence",
       "Name": "Structure",
       "Children": [
@@ -1339,61 +1369,6 @@
           "ReadOnly": false
         },
         {
-          "$type": "Models.Functions.HoldFunction, Models",
-          "WhenToHold": "FloralInitiation",
-          "Name": "FinalLeafNumber",
-          "Children": [
-            {
-              "$type": "Models.Functions.AddFunction, Models",
-              "Name": "ValueToHold",
-              "Children": [
-                {
-                  "$type": "Models.Functions.VariableReference, Models",
-                  "VariableName": "[Structure].LeafNumSeed.Value()",
-                  "Name": "LeafNumSeed",
-                  "Children": [],
-                  "IncludeInDocumentation": true,
-                  "Enabled": true,
-                  "ReadOnly": false
-                },
-                {
-                  "$type": "Models.Functions.DivideFunction, Models",
-                  "Name": "DivideFunction",
-                  "Children": [
-                    {
-                      "$type": "Models.Functions.VariableReference, Models",
-                      "VariableName": "[Phenology].TTEmergToFloralInit.Value()",
-                      "Name": "TTEmergToFI",
-                      "Children": [],
-                      "IncludeInDocumentation": true,
-                      "Enabled": true,
-                      "ReadOnly": false
-                    },
-                    {
-                      "$type": "Models.Functions.VariableReference, Models",
-                      "VariableName": "[Structure].LeafInitiationRate.Value()",
-                      "Name": "LeafInitRate",
-                      "Children": [],
-                      "IncludeInDocumentation": true,
-                      "Enabled": true,
-                      "ReadOnly": false
-                    }
-                  ],
-                  "IncludeInDocumentation": true,
-                  "Enabled": true,
-                  "ReadOnly": false
-                }
-              ],
-              "IncludeInDocumentation": true,
-              "Enabled": true,
-              "ReadOnly": false
-            }
-          ],
-          "IncludeInDocumentation": true,
-          "Enabled": true,
-          "ReadOnly": false
-        },
-        {
           "$type": "Models.PMF.Struct.HeightFunction, Models",
           "Name": "HeightModel",
           "Children": [
@@ -1443,9 +1418,8 @@
           "ReadOnly": false
         },
         {
-          "$type": "Models.Functions.Constant, Models",
-          "FixedValue": 21.6,
-          "Units": null,
+          "$type": "Models.Functions.VariableReference, Models",
+          "VariableName": "[Leaf].leafInitRate",
           "Name": "LeafInitiationRate",
           "Children": [],
           "IncludeInDocumentation": true,
@@ -1517,6 +1491,51 @@
           "VariableName": "[Leaf].TTEmergToFI",
           "Name": "ttFi",
           "Children": [],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.AddFunction, Models",
+          "Name": "FinalLeafNumber",
+          "Children": [
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Structure].LeafNumSeed.Value()",
+              "Name": "LeafNumSeed",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.DivideFunction, Models",
+              "Name": "DivideFunction",
+              "Children": [
+                {
+                  "$type": "Models.Functions.VariableReference, Models",
+                  "VariableName": "[Structure].TTTargetFI",
+                  "Name": "TTEmergToFI",
+                  "Children": [],
+                  "IncludeInDocumentation": true,
+                  "Enabled": true,
+                  "ReadOnly": false
+                },
+                {
+                  "$type": "Models.Functions.VariableReference, Models",
+                  "VariableName": "[Structure].LeafInitiationRate.Value()",
+                  "Name": "LeafInitRate",
+                  "Children": [],
+                  "IncludeInDocumentation": true,
+                  "Enabled": true,
+                  "ReadOnly": false
+                }
+              ],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
           "IncludeInDocumentation": true,
           "Enabled": true,
           "ReadOnly": false
@@ -1614,7 +1633,7 @@
             {
               "$type": "Models.Functions.PhaseLookupValue, Models",
               "Start": "StartGrainFill",
-              "End": "EndGrainFill",
+              "End": "Maturity",
               "Name": "LinearPhase",
               "Children": [
                 {
@@ -1654,7 +1673,7 @@
             {
               "$type": "Models.Functions.PhaseLookupValue, Models",
               "Start": "StartGrainFill",
-              "End": "EndGrainFill",
+              "End": "Maturity",
               "Name": "GrainFilling",
               "Children": [
                 {
@@ -1871,18 +1890,8 @@
                       "Children": [
                         {
                           "$type": "Models.Functions.VariableReference, Models",
-                          "VariableName": "[Grain].DaysFIToStartGrainFill.Value()",
+                          "VariableName": "[Arbitrator].NDaysFIToSgf",
                           "Name": "DaysFIToStartGF",
-                          "Children": [],
-                          "IncludeInDocumentation": true,
-                          "Enabled": true,
-                          "ReadOnly": false
-                        },
-                        {
-                          "$type": "Models.Functions.Constant, Models",
-                          "FixedValue": 0.0,
-                          "Units": null,
-                          "Name": "1DayOffset",
                           "Children": [],
                           "IncludeInDocumentation": true,
                           "Enabled": true,
@@ -2546,7 +2555,7 @@
                             },
                             {
                               "$type": "Models.Functions.VariableReference, Models",
-                              "VariableName": "[Phenology].TTFMFromFlowering.Value()",
+                              "VariableName": "[Phenology].TTFromFlowering.Value()",
                               "Name": "eTTPostAnthesis",
                               "Children": [],
                               "IncludeInDocumentation": true,
@@ -2619,7 +2628,7 @@
                                     },
                                     {
                                       "$type": "Models.Functions.VariableReference, Models",
-                                      "VariableName": "[Phenology].TTFMFromFlowering.Value()",
+                                      "VariableName": "[Phenology].TTFromFlowering.Value()",
                                       "Name": "is less than eTTPostAnthesis",
                                       "Children": [],
                                       "IncludeInDocumentation": true,
@@ -2663,7 +2672,7 @@
                                             },
                                             {
                                               "$type": "Models.Functions.VariableReference, Models",
-                                              "VariableName": "[Phenology].TTFMFromFlowering.Value()",
+                                              "VariableName": "[Phenology].TTFromFlowering.Value()",
                                               "Name": "eTTPostAnthesis",
                                               "Children": [],
                                               "IncludeInDocumentation": true,
@@ -3590,7 +3599,17 @@
           "FixedValue": 1.0,
           "Units": "",
           "Name": "RootFrontCalcSwitch",
-          "Children": [],
+          "Children": [
+            {
+              "$type": "Models.Memo, Models",
+              "Text": "Setting this to 0 will force sorghum to use the generic uptake *and* root growth routines",
+              "Name": "Memo",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
           "IncludeInDocumentation": true,
           "Enabled": true,
           "ReadOnly": false
@@ -3914,7 +3933,6 @@
       "PhosphorusStress": 1.0,
       "FinalLeafNo": 0.0,
       "SowingDensity": 0.0,
-      "senRadnCrit": 0.0,
       "senLightTimeConst": 10.0,
       "frostKill": 1.0,
       "senThreshold": 0.25,
@@ -4306,11 +4324,36 @@
           "ReadOnly": false
         },
         {
-          "$type": "Models.Functions.Constant, Models",
-          "FixedValue": 10.0,
-          "Units": null,
+          "$type": "Models.Functions.LinearInterpolationFunction, Models",
+          "XProperty": "[Stem].dmGreenStem",
           "Name": "HeightFunction",
-          "Children": [],
+          "Children": [
+            {
+              "$type": "Models.Functions.XYPairs, Models",
+              "X": [
+                0.0,
+                80.0
+              ],
+              "Y": [
+                0.0,
+                2000.0
+              ],
+              "Name": "XYPairs",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Memo, Models",
+              "Text": "[Stem].Live.Wt is in the wrong units - it's out by a factor of 10 vs old apsim.\n\nTo overcome this, we re-scale the x-values.",
+              "Name": "Memo",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
           "IncludeInDocumentation": true,
           "Enabled": true,
           "ReadOnly": false
@@ -5418,7 +5461,7 @@
           "ReadOnly": false
         },
         {
-          "$type": "Models.Functions.OnEventFunction, Models",
+          "$type": "Models.Functions.LiveOnEventFunction, Models",
           "SetEvent": "FlagLeaf",
           "ReSetEvent": null,
           "Name": "TargetSLN",
@@ -5435,7 +5478,7 @@
             },
             {
               "$type": "Models.Functions.VariableReference, Models",
-              "VariableName": "[Leaf].SLN",
+              "VariableName": "[Leaf].SlnAtFlag",
               "Name": "PostEventValue",
               "Children": [],
               "IncludeInDocumentation": true,
@@ -5448,59 +5491,48 @@
           "ReadOnly": false
         },
         {
-          "$type": "Models.Functions.PhaseBasedSwitch, Models",
-          "Start": "StartGrainFill",
-          "End": "EndGrainFill",
+          "$type": "Models.Functions.OnEventFunction, Models",
+          "SetEvent": "Flowering",
+          "ReSetEvent": null,
           "Name": "MinPlantWt",
           "Children": [
             {
-              "$type": "Models.Functions.OnEventFunction, Models",
-              "SetEvent": "Flowering",
-              "ReSetEvent": null,
-              "Name": "OnFlowering",
+              "$type": "Models.Functions.Constant, Models",
+              "FixedValue": 0.0,
+              "Units": null,
+              "Name": "PreEventValue",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.MultiplyFunction, Models",
+              "Name": "PostEventValue",
               "Children": [
                 {
-                  "$type": "Models.Functions.Constant, Models",
-                  "FixedValue": 0.0,
-                  "Units": null,
-                  "Name": "PreEventValue",
-                  "Children": [],
-                  "IncludeInDocumentation": true,
-                  "Enabled": true,
-                  "ReadOnly": false
-                },
-                {
-                  "$type": "Models.Functions.MultiplyFunction, Models",
-                  "Name": "PostEventValue",
+                  "$type": "Models.Functions.DivideFunction, Models",
+                  "Name": "DivideFunction",
                   "Children": [
                     {
-                      "$type": "Models.Functions.DivideFunction, Models",
-                      "Name": "DivideFunction",
+                      "$type": "Models.Functions.VariableReference, Models",
+                      "VariableName": "[Leaf].Live.Wt",
+                      "Name": "LiveWt",
+                      "Children": [],
+                      "IncludeInDocumentation": true,
+                      "Enabled": true,
+                      "ReadOnly": false
+                    },
+                    {
+                      "$type": "Models.Functions.VariableReference, Models",
+                      "VariableName": "[Sorghum].SowingData.Population",
+                      "Name": "Density",
                       "Children": [
                         {
-                          "$type": "Models.Functions.VariableReference, Models",
-                          "VariableName": "[Leaf].Live.Wt",
-                          "Name": "LiveWt",
+                          "$type": "Models.Memo, Models",
+                          "Text": "This assumes paddock area is 1ha...",
+                          "Name": "Memo",
                           "Children": [],
-                          "IncludeInDocumentation": true,
-                          "Enabled": true,
-                          "ReadOnly": false
-                        },
-                        {
-                          "$type": "Models.Functions.VariableReference, Models",
-                          "VariableName": "[Sorghum].SowingData.Population",
-                          "Name": "Density",
-                          "Children": [
-                            {
-                              "$type": "Models.Memo, Models",
-                              "Text": "This assumes paddock area is 1ha...",
-                              "Name": "Memo",
-                              "Children": [],
-                              "IncludeInDocumentation": true,
-                              "Enabled": true,
-                              "ReadOnly": false
-                            }
-                          ],
                           "IncludeInDocumentation": true,
                           "Enabled": true,
                           "ReadOnly": false
@@ -5509,32 +5541,32 @@
                       "IncludeInDocumentation": true,
                       "Enabled": true,
                       "ReadOnly": false
+                    }
+                  ],
+                  "IncludeInDocumentation": true,
+                  "Enabled": true,
+                  "ReadOnly": false
+                },
+                {
+                  "$type": "Models.Functions.SubtractFunction, Models",
+                  "Name": "SubtractFunction",
+                  "Children": [
+                    {
+                      "$type": "Models.Functions.Constant, Models",
+                      "FixedValue": 1.0,
+                      "Units": null,
+                      "Name": "base",
+                      "Children": [],
+                      "IncludeInDocumentation": true,
+                      "Enabled": true,
+                      "ReadOnly": false
                     },
                     {
-                      "$type": "Models.Functions.SubtractFunction, Models",
-                      "Name": "SubtractFunction",
-                      "Children": [
-                        {
-                          "$type": "Models.Functions.Constant, Models",
-                          "FixedValue": 1.0,
-                          "Units": null,
-                          "Name": "base",
-                          "Children": [],
-                          "IncludeInDocumentation": true,
-                          "Enabled": true,
-                          "ReadOnly": false
-                        },
-                        {
-                          "$type": "Models.Functions.Constant, Models",
-                          "FixedValue": 0.15,
-                          "Units": null,
-                          "Name": "RetranslocationFactor",
-                          "Children": [],
-                          "IncludeInDocumentation": true,
-                          "Enabled": true,
-                          "ReadOnly": false
-                        }
-                      ],
+                      "$type": "Models.Functions.Constant, Models",
+                      "FixedValue": 0.15,
+                      "Units": null,
+                      "Name": "RetranslocationFactor",
+                      "Children": [],
                       "IncludeInDocumentation": true,
                       "Enabled": true,
                       "ReadOnly": false
@@ -5659,6 +5691,128 @@
           "Units": null,
           "Name": "aMaxIntercept",
           "Children": [],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.OnEventFunction, Models",
+          "SetEvent": "FlagLeaf",
+          "ReSetEvent": "Germination",
+          "Name": "SlnAtFlag",
+          "Children": [
+            {
+              "$type": "Models.Memo, Models",
+              "Text": "This seems like a terrible idea...",
+              "Name": "Memo",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Leaf].SLN",
+              "Name": "PreEventValue",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Leaf].SLN",
+              "Name": "PostEventValue",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.Constant, Models",
+          "FixedValue": 2.0,
+          "Units": "Mj/m^2",
+          "Name": "senRadnCrit",
+          "Children": [],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.BoundFunction, Models",
+          "Name": "WaterSDRatio",
+          "Children": [
+            {
+              "$type": "Models.Functions.DivideFunction, Models",
+              "Name": "WaterSDRatio",
+              "Children": [
+                {
+                  "$type": "Models.Functions.VariableReference, Models",
+                  "VariableName": "[Arbitrator].WatSupply",
+                  "Name": "totalSupply",
+                  "Children": [],
+                  "IncludeInDocumentation": true,
+                  "Enabled": true,
+                  "ReadOnly": false
+                },
+                {
+                  "$type": "Models.Functions.DivideFunction, Models",
+                  "Name": "swDemand",
+                  "Children": [
+                    {
+                      "$type": "Models.Functions.VariableReference, Models",
+                      "VariableName": "[Leaf].BiomassRUE",
+                      "Name": "dltDMPotRue",
+                      "Children": [],
+                      "IncludeInDocumentation": true,
+                      "Enabled": true,
+                      "ReadOnly": false
+                    },
+                    {
+                      "$type": "Models.Functions.VariableReference, Models",
+                      "VariableName": "[Leaf].BiomassTE",
+                      "Name": "dltDMPotTE",
+                      "Children": [],
+                      "IncludeInDocumentation": true,
+                      "Enabled": true,
+                      "ReadOnly": false
+                    }
+                  ],
+                  "IncludeInDocumentation": true,
+                  "Enabled": true,
+                  "ReadOnly": false
+                }
+              ],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.Constant, Models",
+              "FixedValue": 0.0,
+              "Units": null,
+              "Name": "Lower",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.Constant, Models",
+              "FixedValue": 1.0,
+              "Units": null,
+              "Name": "Upper",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
           "IncludeInDocumentation": true,
           "Enabled": true,
           "ReadOnly": false
@@ -7614,67 +7768,56 @@
                                   "ReadOnly": false
                                 },
                                 {
-                                  "$type": "Models.Functions.Constant, Models",
-                                  "FixedValue": 0.3,
-                                  "Units": null,
+                                  "$type": "Models.Functions.MultiplyFunction, Models",
                                   "Name": "PostEventValue",
                                   "Children": [
                                     {
-                                      "$type": "Models.Functions.MultiplyFunction, Models",
-                                      "Name": "PlantMinDM",
+                                      "$type": "Models.Functions.DivideFunction, Models",
+                                      "Name": "dmPlantStem",
                                       "Children": [
                                         {
-                                          "$type": "Models.Functions.DivideFunction, Models",
-                                          "Name": "dmPlantStem",
-                                          "Children": [
-                                            {
-                                              "$type": "Models.Functions.VariableReference, Models",
-                                              "VariableName": "[Stem].Live.Wt",
-                                              "Name": "dmGreen",
-                                              "Children": [],
-                                              "IncludeInDocumentation": true,
-                                              "Enabled": true,
-                                              "ReadOnly": false
-                                            },
-                                            {
-                                              "$type": "Models.Functions.VariableReference, Models",
-                                              "VariableName": "[Plant].SowingData.Density",
-                                              "Name": "density",
-                                              "Children": [],
-                                              "IncludeInDocumentation": true,
-                                              "Enabled": true,
-                                              "ReadOnly": false
-                                            }
-                                          ],
+                                          "$type": "Models.Functions.VariableReference, Models",
+                                          "VariableName": "[Stem].Live.Wt",
+                                          "Name": "dmGreen",
+                                          "Children": [],
                                           "IncludeInDocumentation": true,
                                           "Enabled": true,
                                           "ReadOnly": false
                                         },
                                         {
-                                          "$type": "Models.Functions.SubtractFunction, Models",
-                                          "Name": "SubtractFunction",
-                                          "Children": [
-                                            {
-                                              "$type": "Models.Functions.Constant, Models",
-                                              "FixedValue": 1.0,
-                                              "Units": null,
-                                              "Name": "One",
-                                              "Children": [],
-                                              "IncludeInDocumentation": true,
-                                              "Enabled": true,
-                                              "ReadOnly": false
-                                            },
-                                            {
-                                              "$type": "Models.Functions.Constant, Models",
-                                              "FixedValue": 0.2,
-                                              "Units": null,
-                                              "Name": "translocFrac",
-                                              "Children": [],
-                                              "IncludeInDocumentation": true,
-                                              "Enabled": true,
-                                              "ReadOnly": false
-                                            }
-                                          ],
+                                          "$type": "Models.Functions.VariableReference, Models",
+                                          "VariableName": "[Plant].SowingData.Density",
+                                          "Name": "density",
+                                          "Children": [],
+                                          "IncludeInDocumentation": true,
+                                          "Enabled": true,
+                                          "ReadOnly": false
+                                        }
+                                      ],
+                                      "IncludeInDocumentation": true,
+                                      "Enabled": true,
+                                      "ReadOnly": false
+                                    },
+                                    {
+                                      "$type": "Models.Functions.SubtractFunction, Models",
+                                      "Name": "SubtractFunction",
+                                      "Children": [
+                                        {
+                                          "$type": "Models.Functions.Constant, Models",
+                                          "FixedValue": 1.0,
+                                          "Units": null,
+                                          "Name": "One",
+                                          "Children": [],
+                                          "IncludeInDocumentation": true,
+                                          "Enabled": true,
+                                          "ReadOnly": false
+                                        },
+                                        {
+                                          "$type": "Models.Functions.Constant, Models",
+                                          "FixedValue": 0.2,
+                                          "Units": null,
+                                          "Name": "translocFrac",
+                                          "Children": [],
                                           "IncludeInDocumentation": true,
                                           "Enabled": true,
                                           "ReadOnly": false
@@ -8306,6 +8449,33 @@
           "IncludeInDocumentation": true,
           "Enabled": true,
           "ReadOnly": false
+        },
+        {
+          "$type": "Models.Functions.DivideFunction, Models",
+          "Name": "dmGreenStem",
+          "Children": [
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Stem].Live.Wt",
+              "Name": "StemWt",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            },
+            {
+              "$type": "Models.Functions.VariableReference, Models",
+              "VariableName": "[Leaf].SowingDensity",
+              "Name": "Destiny",
+              "Children": [],
+              "IncludeInDocumentation": true,
+              "Enabled": true,
+              "ReadOnly": false
+            }
+          ],
+          "IncludeInDocumentation": true,
+          "Enabled": true,
+          "ReadOnly": false
         }
       ],
       "IncludeInDocumentation": true,
@@ -8503,7 +8673,9 @@
             {
               "$type": "Models.PMF.Cultivar, Models",
               "Command": [
-                ""
+                "[Leaf].aX0.FixedValue = 0.786",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13"
               ],
               "Name": "Buster",
               "Children": [],
@@ -8514,7 +8686,10 @@
             {
               "$type": "Models.PMF.Cultivar, Models",
               "Command": [
-                "[Phenology].TTEndJuvToInit.FixedValue = 114"
+                "[Phenology].TTEndJuvToInit.FixedValue = 114",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "early",
               "Children": [],
@@ -8525,7 +8700,10 @@
             {
               "$type": "Models.PMF.Cultivar, Models",
               "Command": [
-                "[Phenology].TTEndJuvToInit.FixedValue = 157"
+                "[Phenology].TTEndJuvToInit.FixedValue = 157",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "medium",
               "Children": [],
@@ -8536,7 +8714,10 @@
             {
               "$type": "Models.PMF.Cultivar, Models",
               "Command": [
-                "[Phenology].TTEndJuvToInit.FixedValue = 201"
+                "[Phenology].TTEndJuvToInit.FixedValue = 201",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "late",
               "Children": [],
@@ -8594,7 +8775,10 @@
                 "[Phenology].PhotoModifier.XYPairs.X[1] = 11.8",
                 "[Phenology].PhotoModifier.XYPairs.X[2] = 14",
                 "[Phenology].PhotoModifier.XYPairs.Y[2] = 87.34",
-                "[Phenology].TTEndJuvToInit.FixedValue = 114.4"
+                "[Phenology].TTEndJuvToInit.FixedValue = 114.4",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "QL39xQL36",
               "Children": [],
@@ -8647,7 +8831,10 @@
                 "[Phenology].TTEndJuvToInit.FixedValue = 205",
                 "[Phenology].FlagLeafToFlowering.Target.FixedValue = 100",
                 "[Phenology].FloweringToGrainFilling.Target.FixedValue = 30",
-                "[Phenology].TTFlowerToMaturity.FixedValue = 695"
+                "[Phenology].TTFlowerToMaturity.FixedValue = 695",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "dekalb_DK55",
               "Children": [],
@@ -8664,7 +8851,10 @@
                 "[Phenology].TTEndJuvToInit.FixedValue = 120",
                 "[Phenology].FlagLeafToFlowering.Target.FixedValue = 100",
                 "[Phenology].FloweringToGrainFilling.Target.FixedValue = 30",
-                "[Phenology].TTFlowerToMaturity.FixedValue = 695"
+                "[Phenology].TTFlowerToMaturity.FixedValue = 695",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "texas_RS610",
               "Children": [],
@@ -8681,7 +8871,10 @@
                 "[Phenology].TTEndJuvToInit.FixedValue = 115",
                 "[Phenology].FlagLeafToFlowering.Target.FixedValue = 100",
                 "[Phenology].FloweringToGrainFilling.Target.FixedValue = 30",
-                "[Phenology].TTFlowerToMaturity.FixedValue = 695"
+                "[Phenology].TTFlowerToMaturity.FixedValue = 695",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "pioneer_s34",
               "Children": [],
@@ -8698,7 +8891,10 @@
                 "[Phenology].TTEndJuvToInit.FixedValue = 159",
                 "[Phenology].FlagLeafToFlowering.Target.FixedValue = 100",
                 "[Phenology].FloweringToGrainFilling.Target.FixedValue = 30",
-                "[Phenology].TTFlowerToMaturity.FixedValue = 695"
+                "[Phenology].TTFlowerToMaturity.FixedValue = 695",
+                "[Leaf].aMaxIntercept.FixedValue = -321.13",
+                "[Leaf].aMaxSlope.FixedValue = 46.312",
+                "[Leaf].aX0.FixedValue = 0.786"
               ],
               "Name": "texas_671",
               "Children": [],

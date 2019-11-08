@@ -3,6 +3,7 @@ using Models.Core;
 using Models.Core.Run;
 using Models.Graph;
 using Models.PMF;
+using Models.PostSimulationTools;
 using Models.Report;
 using Models.Soils;
 using Models.Soils.Arbitrator;
@@ -18,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Services
 {
@@ -38,14 +40,14 @@ namespace Services
             apsim.Simulations.Write(filename);
         }
 
-        public static IApsimX CreateApsimFile(this IREMSDatabase db)
+        public static IApsimX CreateApsimFile(this IREMSDatabase db, string filepath)
         {
+            var context = (db as REMSDatabase).context;
             var Apsim = new ApsimX();
             Apsim.Simulations = new Simulations();
-            //JBTest(sims);
-
-            Apsim.Simulations.Children.Add(new DataStore());
-            var context = (db as REMSDatabase).context;
+            //JBTest(sims);            
+            Apsim.Simulations.Children.Add(GetDataStore(context, filepath));
+            Apsim.Simulations.Children.Add(GetReplacements());  
             Apsim.Simulations.Children.Add(GetValidations(context));
 
             return Apsim;
@@ -62,16 +64,22 @@ namespace Services
             {
                 string file = path + "\\" + met.Name + ".met";
 
+                if (File.Exists(file)) continue;
+
                 using var stream = new FileStream(file, FileMode.Create);
                 using var writer = new StreamWriter(stream);
 
-                writer.WriteLine($"latitude = {met.Latitude}");
-                writer.WriteLine($"longitude = {met.Longitude}");
-                writer.WriteLine($"tav = {met.TemperatureAverage}");
-                writer.WriteLine($"amp = {met.Amp}\n");
+                writer.WriteLine("[weather.met.weather]");
+                writer.WriteLine($"!experiment number = 1");
+                writer.WriteLine($"!experiment = ");
+                writer.WriteLine($"!station name = {met.Name}");
+                writer.WriteLine($"latitude = {met.Latitude} (DECIMAL DEGREES)");
+                writer.WriteLine($"longitude = {met.Longitude} (DECIMAL DEGREES)");
+                writer.WriteLine($"tav = {met.TemperatureAverage} (oC)");
+                writer.WriteLine($"amp = {met.Amp} (oC)\n");
 
-                writer.WriteLine($"{"Year",-8}{"Day",-8}{"maxt",-8}{"mint",-8}{"radn",-8}{"Rain",-8}");
-                writer.WriteLine($"{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}");
+                writer.WriteLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}");
+                writer.WriteLine($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}");
 
                 var dates = context.MetDatas
                     .Select(d => d.Date)
@@ -95,7 +103,7 @@ namespace Services
                     double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
                     double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
 
-                    writer.Write($"{date.Year,-8}{date.Day,-8}{tmax,-8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                    writer.Write($"{date.Year,-7}{date.DayOfYear,3}{tmax,8}{tmin,8}{radn,8}{rain,8}\n");
                 }
             }
         }
@@ -111,6 +119,78 @@ namespace Services
 
             return builder.ToString();
         }
+                
+        private static DataStore GetDataStore(REMSContext context, string filepath)
+        {
+            var store = new DataStore();
+
+            var excel = new ExcelInput()
+            {
+                Name = "ExcelInput",
+                FileName = "Observed.xlsx",
+                SheetNames = new string[] { "Observed" }
+            };
+
+            var observed = new PredictedObserved()
+            {
+                PredictedTableName = "HarvestReport",
+                ObservedTableName = "Observed",
+                FieldNameUsedForMatch = "SimulationID",
+                Name = "PredictedObserved"
+            };
+
+            store.Children.Add(excel);
+            store.Children.Add(observed);
+
+            var inputs = context.Treatments.Select(t => new Input() 
+            { 
+                Name = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}",
+                FileName = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}.out"
+            });            
+
+            foreach (var input in inputs)
+                if (!File.Exists(input.FileName)) File.Create($"{filepath}\\{input.FileName}").Close();
+
+            store.Children.AddRange(inputs);
+
+            return store;
+        }
+
+        private static Replacements GetReplacements()
+        {
+            var replacements = new Replacements() { Name = "Replacements" };
+
+            using var stream = new StreamReader("Sorghum.json");
+            using var reader = new JsonTextReader(stream);
+
+            var serializer = new JsonSerializer()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            var sorghum = serializer.Deserialize<Plant>(reader);
+            replacements.Children.Add(sorghum);
+
+            var daily = new Report()
+            {
+                Name = "DailyReport",
+                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                EventNames = new string[] { "[Clock].DoReport" }
+            };
+
+            var harvest = new Report()
+            {
+                Name = "HarvestReport",
+                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                EventNames = new string[] { "[Sorghum].Harvesting" }
+            };
+
+            replacements.Children.Add(daily);
+            replacements.Children.Add(harvest);
+
+            return replacements;
+        }
 
         private static Folder GetValidations(REMSContext dbContext)
         {
@@ -120,7 +200,7 @@ namespace Services
 
             foreach (var experiment in dbContext.Experiments)
             {
-                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));
+                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));                
                 var folder = new Folder() { Name = experiment.Name };
                 folder.Children.AddRange(simulations);
                 validations.Children.Add(folder);
@@ -232,15 +312,18 @@ namespace Services
         }
         
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
-        {
-            var designs = from design in dbContext.Designs
-                          where design.Treatment == treatment
-                          select design;           
-
+        {                    
             var simulation = new Simulation()
             {
-                Name = treatment.Name ?? GetTreatmentName(designs)
+                Name = $"{treatment.Experiment.Crop.Name}_{treatment.Experiment.Name}_{treatment.TreatmentId}"
             };
+
+            var memo = new Memo()
+            {
+                Name = "Treatment factors",
+                Text = GetTreatmentMemo(treatment, dbContext)
+            };
+            simulation.Children.Add(memo);
 
             simulation.Children.Add(new Clock()
             {
@@ -260,22 +343,35 @@ namespace Services
                 FileName = treatment.Experiment.MetStation?.Name + ".met"
             });
 
-            simulation.Children.Add(new SurfaceOrganicMatter() { Name = "SurfaceOrganicMatter" });
+            simulation.Children.Add(new SurfaceOrganicMatter()
+            {
+                ResourceName = "SurfaceOrganicMatter",
+                InitialResidueName = "wheat_stubble",
+                InitialResidueType = "wheat",
+                InitialCNR = 80.0
+            });
+
+            simulation.Children.Add(new SoilArbitrator() { Name = "SoilArbitrator" });
 
             simulation.Children.Add(GetField(treatment, dbContext));
 
             return simulation;
         }
 
-        private static string GetTreatmentName(IEnumerable<Design> designs)
+        private static string GetTreatmentMemo(Treatment treatment, REMSContext context)
         {
+            var designs = from design in context.Designs
+                          where design.Treatment == treatment
+                          select design;
+
             StringBuilder builder = new StringBuilder();
+            builder.AppendLine("This treatment uses the following factor/level combinations:\n");
             foreach (var design in designs)
             {
-                builder.Append(design.Level.Name);
-                builder.Append("-");
-                builder.Append(design.Level.Factor.Name);
-                builder.Append(", ");
+                var factor = "\tFactor: " + design.Level.Factor.Name;
+                var level = "Level: " + design.Level.Name;                
+
+                builder.AppendLine($"{factor, -30}{level, -30}");
             }
             
             return builder.ToString();
@@ -288,27 +384,33 @@ namespace Services
             var zone = new Zone()
             {
                 Name = field.Name,
-                Slope = (double)field.Slope
+                Slope = (double)field.Slope,
+                Area = 1
             };
 
             zone.Children.Add(GetManagers());
             zone.Children.Add(new Models.Irrigation() { Name = "Irrigation" });
             zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });
             zone.Children.Add(GetOperations(treatment, dbContext));
-            zone.Children.Add(GetSoil(field, dbContext));
+
+            //zone.Children.Add(GetSoil(field, dbContext));
+
+            // TEMPORARY FOR DEMO
+            if (field.Soil.CheckName("BW5")) zone.Children.Add(GetDemoBW5());
+            else zone.Children.Add(GetDemoBW8());
+
             zone.Children.Add(new Plant() { Name = "Sorghum" });
 
             var daily = new Report()
             {
                 Name = "DailyReport",
-                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                VariableNames = new string[] { "GrainTempFactor" },
                 EventNames = new string[] { "[Clock].DoReport" }
             };
 
             var harvest = new Report()
             {
                 Name = "HarvestReport",
-                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
                 EventNames = new string[] { "[Sorghum].Harvesting" }
             };
 
@@ -351,7 +453,10 @@ namespace Services
 
         private static Operations GetOperations(Treatment treatment, REMSContext dbContext)
         {
-            var model = new Operations();
+            var model = new Operations()
+            {
+                Operation = new List<Operation>()
+            };            
 
             var iquery = dbContext.Query.IrrigationsByTreatment(treatment);
             var irrigations = iquery
@@ -366,7 +471,7 @@ namespace Services
             var fertilizations = fquery
                 .Select(f => new Operation()
                 {
-                    Action = $"[Fertiliser].Apply({f.Amount}, {f.Fertilizer.Name}, {f.Depth})",
+                    Action = $"[Fertiliser].Apply({f.Amount}, Fertiliser.Types.NO3N, {f.Depth})",
                     Date = ((DateTime)f.Date).ToString()
                 }
                 );
@@ -396,6 +501,320 @@ namespace Services
             model.Children.Add(new CERESSoilTemperature() { Name = "ExampleSoilTemperature" });
 
             return model;
+        }
+        
+        private static Models.Soils.Soil GetDemoBW5()
+        {
+            var soil = new Models.Soils.Soil()
+            {
+                Name = "Soil",
+                SoilType = "BW5",
+                Site = "ICRISAT",
+                Region = "Hyderebad",
+                LocalName = "ICRISAT",
+                Latitude = 18.0,
+                Longitude = 76.0
+            };
+
+            var phys = new Physical
+            {
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195"},
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                BD = new[] { 1.32, 1.49, 1.54, 1.54, 1.49, 1.47, 1.38, 1.37, 1.33, 1.35, 1.35, 1.33, 1.33 },
+                AirDry = new[] { 0.1, 0.21, 0.23, 0.23, 0.22, 0.22, 0.22, 0.21, 0.22, 0.22, 0.22, 0.22, 0.22 },
+                LL15 = new[] { 0.21, 0.22, 0.24, 0.24, 0.23, 0.23, 0.23, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22 },
+                DUL = new[] { 0.42, 0.39, 0.36, 0.36, 0.39, 0.42, 0.43, 0.43, 0.45, 0.43, 0.43, 0.45, 0.45 },
+                SAT = new[] { 0.44, 0.41, 0.38, 0.38, 0.41, 0.44, 0.45, 0.45, 0.47, 0.45, 0.45, 0.47, 0.47}
+            };
+
+            var soilCrop = new SoilCrop() 
+            { 
+                Name = "SorghumSoil",
+                LL = new[] { 0.21, 0.22, 0.24, 0.24, 0.23, 0.23, 0.23, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22 },
+                KL = new[] { 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.04, 0.04, 0.04, 0.04},
+                XF = new[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }
+            };            
+
+            phys.Children.Add(soilCrop);
+
+            var sw = new SoilWater()
+            {
+                SummerDate = "1-Nov",
+                SummerU = 6.0,
+                SummerCona = 3.5,
+                WinterDate = "1-Apr",
+                WinterU = 6.0,
+                WinterCona = 3.5,
+                DiffusConst = 40.0,
+                DiffusSlope = 16.0,
+                Salb = 0.11,
+                CN2Bare = 85.0,
+                CNRed = 0.8,
+                CNCov = 0.2,
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
+                SWCON = new[] { 0.16, 0.11, 0.14, 0.14, 0.11, 0.11, 0.1, 0.1, 0.1, 0.12, 0.12, 0.1, 0.1 }
+            };
+            soil.Children.Add(phys);
+            soil.Children.Add(sw);
+
+            soil.Children.Add(GetSoilNitrogen());
+
+            var organic = new Organic()
+            {
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
+                Carbon = new[] { 0.45, 0.32, 0.29, 0.23, 0.27, 0.3, 0.23, 0.22, 0.19, 0.12, 0.12, 0.14, 0.14},
+                SoilCNRatio = new[] { 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5},
+                FBiom = new[] { 0.05, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01},
+                FInert = new[] { 0.39, 0.47, 0.52, 0.62, 0.74, 0.83, 0.93, 0.93, 0.93, 0.93, 0.93, 0.93, 0.93},
+                FOM = new[] { 216.87490805674403, 172.18190341843405, 136.69911439011696, 108.5285242179618, 86.163254396184115, 68.406959936462783, 54.309835446002637, 43.117808902945995, 34.232205443513422, 27.177723528684304, 21.577010497334516, 17.130477521809652, 13.600274243805792}
+            };
+            soil.Children.Add(organic);
+
+            var chem = new Chemical()
+            {
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
+                NO3N = new[] { 6.1, 5.6, 4.0, 3.3, 3.2, 3.7, 5.0, 3.0, 3.0, 2.0, 2.0, 2.0, 2.0 },
+                NH4N = new[] { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+                PH = new[] { 8.35, 8.52, 8.8, 8.95, 9.0, 9.0, 9.0, 9.0, 8.92, 8.97, 8.97, 8.82, 8.82 }
+            };
+            soil.Children.Add(chem);
+
+            var sample = new Sample()
+            {
+                Name = "Initial",
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
+                SW = new[] { 0.281, 0.338, 0.353, 0.36, 0.39, 0.407, 0.43, 0.43, 0.45, 0.43, 0.43, 0.45, 0.45 }
+            };
+            soil.Children.Add(sample);
+
+            var ceres = new CERESSoilTemperature();
+            soil.Children.Add(ceres);
+
+            return soil;
+        }
+
+        private static Models.Soils.Soil GetDemoBW8()
+        {
+            var soil = new Models.Soils.Soil()
+            {
+                Name = "Soil",
+                SoilType = "BW8",
+                Site = "ICRISAT",
+                Region = "Hyderebad",
+                Latitude = 18.0,
+                Longitude = 76.0
+            };
+
+            var phys = new Physical
+            {
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 },
+                BD = new[] { 1.49,
+1.41,
+1.41,
+1.56,
+1.49,
+1.52,
+1.61,
+1.68,
+1.63,
+1.62,
+1.62 },
+                AirDry = new[] { 0.12,
+0.15,
+0.15,
+0.1,
+0.11,
+0.13,
+0.09,
+0.08,
+0.09,
+0.09,
+0.09 },
+                LL15 = new[] { 0.16,
+0.19,
+0.19,
+0.14,
+0.15,
+0.17,
+0.13,
+0.12,
+0.13,
+0.13,
+0.13 },
+                DUL = new[] { 0.32,
+0.35,
+0.35,
+0.28,
+0.31,
+0.33,
+0.26,
+0.22,
+0.24,
+0.24,
+0.24 },
+                SAT = new[] { 0.43,
+0.46,
+0.46,
+0.41,
+0.43,
+0.42,
+0.39,
+0.36,
+0.38,
+0.38,
+0.38 }
+            };
+
+            var soilCrop = new SoilCrop()
+            {
+                Name = "SorghumSoil",
+                LL = new[] { 0.16,
+    0.19,
+    0.19,
+    0.14,
+    0.15,
+    0.17,
+    0.13,
+    0.12,
+    0.13,
+    0.13,
+    0.13 },
+                KL = new[] { 0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.07,
+    0.04,
+    0.04 },
+                XF = new[] { 1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0 }
+            };
+
+            phys.Children.Add(soilCrop);
+
+            var sw = new SoilWater()
+            {
+                SummerDate = "1-Nov",
+                SummerU = 6.0,
+                SummerCona = 3.5,
+                WinterDate = "1-Apr",
+                WinterU = 6.0,
+                WinterCona = 3.5,
+                DiffusConst = 40.0,
+                DiffusSlope = 16.0,
+                Salb = 0.11,
+                CN2Bare = 85.0,
+                CNRed = 0.8,
+                CNCov = 0.2,
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 },
+                SWCON = new[] { 0.16,
+0.11,
+0.14,
+0.14,
+0.11,
+0.11,
+0.1,
+0.1,
+0.1,
+0.12,
+0.1 }
+            };
+            soil.Children.Add(phys);
+            soil.Children.Add(sw);
+
+            soil.Children.Add(GetSoilNitrogen());
+
+            var organic = new Organic()
+            {
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 },
+                Carbon = new[] { 0.49,
+0.45,
+0.28,
+0.18,
+0.14,
+0.11,
+0.09,
+0.07,
+0.06,
+0.05,
+0.03 },
+                SoilCNRatio = new[] { 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5 },
+                FBiom = new[] { 0.05, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 },
+                FInert = new[] { 0.39, 0.47, 0.52, 0.62, 0.74, 0.83, 0.93, 0.93, 0.93, 0.93, 0.93 },
+                FOM = new[] { 226.92975737066317,
+180.16467610969974,
+143.03681850192319,
+113.56017111087074,
+90.157992870603834,
+71.5784733233617,
+56.827771783434649,
+45.116855612176408,
+35.819293920007865,
+22.577373292364666,
+14.230816104894044 }
+            };
+            soil.Children.Add(organic);
+
+            var chem = new Chemical()
+            {
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 },
+                NO3N = new[] { 9.0,
+11.0,
+8.0,
+6.0,
+4.0,
+3.0,
+3.0,
+3.0,
+6.0,
+4.0,
+5.0 },
+                NH4N = new[] { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+                PH = new[] { 8.35, 8.52, 8.8, 8.95, 9.0, 9.0, 9.0, 9.0, 8.92, 8.97, 8.82 }
+            };
+            soil.Children.Add(chem);
+
+            var initial = new InitialWater()
+            {
+                PercentMethod = 0,
+                FractionFull = 0.5,
+                Name = "Initial Water"
+            };
+            soil.Children.Add(initial);
+
+            var sample = new Sample()
+            {
+                Name = "Initial",
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 }
+            };
+            soil.Children.Add(sample);
+
+            var ceres = new CERESSoilTemperature();
+            soil.Children.Add(ceres);
+
+            return soil;
         }
 
         private static Physical GetWater(int soilId, REMSContext dbContext)
