@@ -3,6 +3,7 @@ using Models.Core;
 using Models.Core.Run;
 using Models.Graph;
 using Models.PMF;
+using Models.PostSimulationTools;
 using Models.Report;
 using Models.Soils;
 using Models.Soils.Arbitrator;
@@ -39,7 +40,7 @@ namespace Services
             var sims = new Simulations();
             //JBTest(sims);
 
-            sims.Children.Add(new DataStore());
+            sims.Children.Add(GetDataStore());
             var context = (db as REMSDatabase).context;
             sims.Children.Add(GetValidations(context));
 
@@ -56,6 +57,8 @@ namespace Services
             foreach (var met in mets)
             {
                 string file = path + "\\" + met.Name + ".met";
+
+                if (File.Exists(file)) continue;
 
                 using var stream = new FileStream(file, FileMode.Create);
                 using var writer = new StreamWriter(stream);
@@ -105,6 +108,31 @@ namespace Services
             };
 
             return builder.ToString();
+        }
+
+        private static DataStore GetDataStore()
+        {
+            var store = new DataStore();
+
+            var input = new ExcelInput()
+            {
+                Name = "ExcelInput",
+                FileName = "Observed.xlsx",
+                SheetNames = new string[] { "Observed" }
+            };
+
+            var observed = new PredictedObserved()
+            {
+                PredictedTableName = "HarvestReport",
+                ObservedTableName = "Observed",
+                FieldNameUsedForMatch = "SimulationID",
+                Name = "PredictedObserved"
+            };
+
+            store.Children.Add(input);
+            store.Children.Add(observed);
+
+            return store;
         }
 
         private static Folder GetValidations(REMSContext dbContext)
