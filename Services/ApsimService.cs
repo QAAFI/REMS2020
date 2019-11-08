@@ -47,7 +47,6 @@ namespace Services
             Apsim.Simulations.Children.Add(new DataStore());
             var context = (db as REMSDatabase).context;
             Apsim.Simulations.Children.Add(GetValidations(context));
-            //simulations.WriteToFile(file);
 
             return Apsim;
         }
