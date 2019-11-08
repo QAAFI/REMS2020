@@ -43,21 +43,62 @@ namespace Services
             var Apsim = new ApsimX();
             Apsim.Simulations = new Simulations();
             //JBTest(sims);
-            //using Simulations simulations = new Simulations();            
 
-            //var replacements = new Replacements() { Name = "Replacements" };
-            //replacements.Add(ApsimNode.ReadFromFile<Plant>("Sorghum.json"));
-
-            //simulations.Add(new DataStore());
-            //simulations.Add(replacements);
+            Apsim.Simulations.Children.Add(new DataStore());
             var context = (db as REMSDatabase).context;
             Apsim.Simulations.Children.Add(GetValidations(context));
             //simulations.WriteToFile(file);
 
-            //GenerateMets(Path.GetDirectoryName(file));
-
-
             return Apsim;
+        }
+
+        public static void GenerateMetFiles(this IREMSDatabase db, string path)
+        {
+            var context = (db as REMSDatabase).context;
+
+            var mets = from met in context.MetStations
+                       select met;
+
+            foreach (var met in mets)
+            {
+                string file = path + "\\" + met.Name + ".met";
+
+                using var stream = new FileStream(file, FileMode.Create);
+                using var writer = new StreamWriter(stream);
+
+                writer.WriteLine($"latitude = {met.Latitude}");
+                writer.WriteLine($"longitude = {met.Longitude}");
+                writer.WriteLine($"tav = {met.TemperatureAverage}");
+                writer.WriteLine($"amp = {met.Amp}\n");
+
+                writer.WriteLine($"{"Year",-8}{"Day",-8}{"maxt",-8}{"mint",-8}{"radn",-8}{"Rain",-8}");
+                writer.WriteLine($"{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}{" () ",-8}");
+
+                var dates = context.MetDatas
+                    .Select(d => d.Date)
+                    .Distinct()
+                    .OrderBy(d => d.Date);
+
+                var TMAX = context.Traits.First(t => t.Name == "TMAX");
+                var TMIN = context.Traits.First(t => t.Name == "TMIN");
+                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
+                var RAIN = context.Traits.First(t => t.Name == "RAIN");
+
+                foreach (var date in dates)
+                {
+                    var value = from data in context.MetDatas
+                                where data.Date == date
+                                where data.Value.HasValue
+                                select data;
+
+                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
+                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
+                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
+                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
+
+                    writer.Write($"{date.Year,-8}{date.Day,-8}{tmax,-8}{tmin,-8}{radn,-8}{rain,-8}\n");
+                }
+            }
         }
 
         private static string GetScript(string file)
@@ -190,19 +231,16 @@ namespace Services
 
             return graph;
         }
-
-
+        
         public static Simulation NewSorghumSimulation(Treatment treatment, REMSContext dbContext)
         {
             var designs = from design in dbContext.Designs
                           where design.Treatment == treatment
-                          select design;
-
-            treatment.Name = designs.Select(d => d.Level.Name + d.Level.Factor.Name).Aggregate((s1, s2) => s1 + ", " + s2);
+                          select design;           
 
             var simulation = new Simulation()
             {
-                Name = treatment.Name ?? "null"
+                Name = treatment.Name ?? GetTreatmentName(designs)
             };
 
             simulation.Children.Add(new Clock()
@@ -230,6 +268,20 @@ namespace Services
             return simulation;
         }
 
+        private static string GetTreatmentName(IEnumerable<Design> designs)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var design in designs)
+            {
+                builder.Append(design.Level.Name);
+                builder.Append("-");
+                builder.Append(design.Level.Factor.Name);
+                builder.Append(", ");
+            }
+            
+            return builder.ToString();
+        }
+
         private static Zone GetField(Treatment treatment, REMSContext dbContext)
         {
             var field = treatment.Experiment.Field;
@@ -246,16 +298,30 @@ namespace Services
             zone.Children.Add(GetOperations(treatment, dbContext));
             zone.Children.Add(GetSoil(field, dbContext));
             zone.Children.Add(new Plant() { Name = "Sorghum" });
-            zone.Children.Add(new Report() { Name = "Output file" });
+
+            var daily = new Report()
+            {
+                Name = "DailyReport",
+                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                EventNames = new string[] { "[Clock].DoReport" }
+            };
+
+            var harvest = new Report()
+            {
+                Name = "HarvestReport",
+                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                EventNames = new string[] { "[Sorghum].Harvesting" }
+            };
+
+            zone.Children.Add(daily);
+            zone.Children.Add(harvest);
 
             return zone;
         }
 
         private static Folder GetManagers()
         {
-            var folder = new Folder() { Name = "Manager folder" };
-
-            
+            var folder = new Folder() { Name = "Manager folder" };            
 
             var skiprow = new Manager()
             {
@@ -277,7 +343,7 @@ namespace Services
             var harvest = new Manager()
             {
                 Name = "Harvesting rule",
-                Code = "Harvest.cs.txt"
+                Code = GetScript("Harvest.cs.txt")
             };
             folder.Children.Add(harvest);
 
