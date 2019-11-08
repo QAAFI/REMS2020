@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Services
+namespace Services.Classes
 {
     public class SimulationProperties
     {
