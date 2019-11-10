@@ -33,8 +33,8 @@ namespace REMS.Context.Entities
                     .HasName("PrimaryKey");
 
                 // Define the indices
-                entity.HasIndex(e => e.ExperimentId);
-                    //.HasName("ExperimentInfoExperimentId");
+                entity.HasIndex(e => e.ExperimentId)
+                    .HasName("ExperimentInfoExperimentId");
 
                 entity.HasIndex(e => e.ExperimentInfoId)
                     .HasName("ExperimentInfoId");
@@ -64,10 +64,10 @@ namespace REMS.Context.Entities
 
                 // Define the foreign key constraints
                 entity.HasOne(d => d.Experiment)
-                    .WithMany(p => p.ExperimentInfo);
-                    //.HasForeignKey(d => d.ExperimentId)
-                    //.OnDelete(DeleteBehavior.Cascade);
-                    //.HasConstraintName("ExperimentInfoExperimentId");
+                    .WithMany(p => p.ExperimentInfo)
+                    .HasForeignKey(d => d.ExperimentId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("ExperimentInfoExperimentId");
             });
         }
     }
