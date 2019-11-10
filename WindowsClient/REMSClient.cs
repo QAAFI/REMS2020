@@ -10,8 +10,8 @@ namespace WindowsClient
     public partial class REMSClient : Form
     {
         private IREMSDatabase database = REMSDataFactory.Create();        
-        //private string _importFolder = "D:\\Projects\\Apsim\\REMS\\Data";
-        private string _importFolder = "C:\\Projects\\Apsim\\Rems\\REMS2020\\DataFiles";
+        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\REMS2020\\DataFiles";
+
         private readonly Settings settings = Settings.Instance;
 
         public REMSClient()

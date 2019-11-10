@@ -28,13 +28,6 @@ namespace Services
                     {
                         ImportPlotData(table, dbContext);
                     }
-                    else if (table.TableName == "ExperimentInfos")
-                    {
-                        var exp = dbContext.Experiments;
-                        var infos = dbContext.ExperimentInfos;
-
-                        NewImportTable(dbContext, table);
-                    }
                     else
                     {
                         NewImportTable(dbContext, table);
@@ -51,59 +44,78 @@ namespace Services
 
         private static void ImportPlotData(DataTable table, REMSContext dbContext)
         {
-            //each row can have multiple samples - any data after the first 4 cols is an individual sample
-            //exp id, plot id, date sample
-            foreach (DataRow row in table.Rows)
+            try
             {
-                for(int i = 4; i < row.ItemArray.Length; ++i)
+                //each row can have multiple samples - any data after the first 4 cols is an individual sample
+                //exp id, plot id, date sample
+                foreach (DataRow row in table.Rows)
                 {
-                    var val = row.ItemArray[i].ToString();
-                    if (val != "")
-                    { 
-                        var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
-                        if (trait != null) 
+                    for (int i = 4; i < row.ItemArray.Length; ++i)
+                    {
+                        var val = row.ItemArray[i].ToString();
+                        if (val != "")
                         {
-                            var plt = Convert.ToInt32(row.Field<double>("Plot"));
-                            var existingPlot = dbContext.Plots.Where(p => p.PlotId == plt);
-                            if(existingPlot == null)
+                            //I think this is the slow part - lookup table?
+                            var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
+                            if (trait != null)
                             {
-                                int tmp = plt;
-                            }
-                            var dt = row.Field<DateTime>("date");
-                            var tid = trait.TraitId;
-                            var sample = row.Field<string>("Sample");
-                            var val2 = val;
+                                var plot = Convert.ToInt32(row.Field<double>("Plot"));
+                                //var existingPlot = dbContext.Plots.Where(p => p.PlotId == plt);
+                                //if (existingPlot == null)
+                                //{
+                                //    int tmp = plt;
+                                //}
+                                //var dt = row.Field<DateTime>("date");
+                                //var tid = trait.TraitId;
+                                //var sample = row.Field<string>("Sample");
+                                //var val2 = val;
 
-                            var plotdata = new PlotData()
-                            {
-                                PlotId = Convert.ToInt32(row.Field<double>("Plot")),
-                                PlotDataDate = row.Field<DateTime>("date"),
-                                Sample = row.Field<string>("Sample"),
-                                TraitId = trait.TraitId,
-                                Value = Convert.ToDouble(val),
-                                UnitId = trait.UnitId
-                            };
-                            dbContext.PlotDatas.Add(plotdata);
+                                var plotdata = new PlotData()
+                                {
+                                    PlotId = plot,
+                                    PlotDataDate = row.Field<DateTime>("date"),
+                                    Sample = row.Field<string>("Sample"),
+                                    TraitId = trait.TraitId,
+                                    Value = Convert.ToDouble(val),
+                                    UnitId = trait.UnitId
+                                };
+
+                                dbContext.PlotDatas.Add(plotdata);
+                            }
                         }
                     }
                 }
+                dbContext.SaveChanges();
+
             }
-            dbContext.SaveChanges();
+            catch (Exception ex)
+            {
+                var itemCount = dbContext.PlotDatas.Count();
+                throw;
+            }
         }
     
 
         private static void NewImportTable(REMSContext dbContext, DataTable table)
         {
-            var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
-            var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
-
-            var entity = dbContext.Entities.Where(e => e.CheckName(table.TableName)).FirstOrDefault();
-            if(entity != null)
+            try
             {
-                var entities = values.Select(v => entity.Create(v, names));
+                var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
+                var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
-                dbContext.AddRange(entities);
-                dbContext.SaveChanges();
+                var entity = dbContext.Entities.Where(e => e.CheckName(table.TableName)).FirstOrDefault();
+                if(entity != null)
+                {
+                    var entities = values.Select(v => entity.Create(v, names));
+
+                    dbContext.AddRange(entities);
+                    dbContext.SaveChanges();
+                }
+            }
+            catch(Exception ex)
+            {
+                var tmp = table.TableName;
+                throw;
             }
         }
 
