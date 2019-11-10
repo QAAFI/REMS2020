@@ -175,14 +175,14 @@ namespace Services
             var daily = new Report()
             {
                 Name = "DailyReport",
-                VariableNames = GetScript("Daily.txt").Split("\n\n"),
+                VariableNames = GetScript("Daily.txt").Replace("\r", "").Split("\n"),
                 EventNames = new string[] { "[Clock].DoReport" }
             };
 
             var harvest = new Report()
             {
                 Name = "HarvestReport",
-                VariableNames = GetScript("Harvest.txt").Split("\n\n"),
+                VariableNames = GetScript("Harvest.txt").Replace("\r", "").Split("\n"),
                 EventNames = new string[] { "[Sorghum].Harvesting" }
             };
 
@@ -396,7 +396,7 @@ namespace Services
             //zone.Children.Add(GetSoil(field, dbContext));
 
             // TEMPORARY FOR DEMO
-            if (field.Soil.CheckName("BW5")) zone.Children.Add(GetDemoBW5());
+            if (field.Soil.Type == "BW5") zone.Children.Add(GetDemoBW5());
             else zone.Children.Add(GetDemoBW8());
 
             zone.Children.Add(new Plant() { Name = "Sorghum" });
