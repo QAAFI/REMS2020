@@ -2,6 +2,8 @@
 using Microsoft.Data.Sqlite;
 using REMS;
 using REMS.Context;
+using REMS.Context.Entities;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -20,9 +22,75 @@ namespace Services
 
             foreach (DataTable table in excel.Tables)
             {
-                NewImportTable(dbContext, table);
+                try
+                {
+                    if (table.TableName == "PlotData")
+                    {
+                        ImportPlotData(table, dbContext);
+                    }
+                    else if (table.TableName == "ExperimentInfos")
+                    {
+                        var exp = dbContext.Experiments;
+                        var infos = dbContext.ExperimentInfos;
+
+                        NewImportTable(dbContext, table);
+                    }
+                    else
+                    {
+                        NewImportTable(dbContext, table);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    var name = table.TableName;
+                    var tmp = ex.Message;
+                    var tmp2 = ex.InnerException.Message;
+                }
             }
         }
+
+        private static void ImportPlotData(DataTable table, REMSContext dbContext)
+        {
+            //each row can have multiple samples - any data after the first 4 cols is an individual sample
+            //exp id, plot id, date sample
+            foreach (DataRow row in table.Rows)
+            {
+                for(int i = 4; i < row.ItemArray.Length; ++i)
+                {
+                    var val = row.ItemArray[i].ToString();
+                    if (val != "")
+                    { 
+                        var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
+                        if (trait != null) 
+                        {
+                            var plt = Convert.ToInt32(row.Field<double>("Plot"));
+                            var existingPlot = dbContext.Plots.Where(p => p.PlotId == plt);
+                            if(existingPlot == null)
+                            {
+                                int tmp = plt;
+                            }
+                            var dt = row.Field<DateTime>("date");
+                            var tid = trait.TraitId;
+                            var sample = row.Field<string>("Sample");
+                            var val2 = val;
+
+                            var plotdata = new PlotData()
+                            {
+                                PlotId = Convert.ToInt32(row.Field<double>("Plot")),
+                                PlotDataDate = row.Field<DateTime>("date"),
+                                Sample = row.Field<string>("Sample"),
+                                TraitId = trait.TraitId,
+                                Value = Convert.ToDouble(val),
+                                UnitId = trait.UnitId
+                            };
+                            dbContext.PlotDatas.Add(plotdata);
+                        }
+                    }
+                }
+            }
+            dbContext.SaveChanges();
+        }
+    
 
         private static void NewImportTable(REMSContext dbContext, DataTable table)
         {
