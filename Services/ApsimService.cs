@@ -110,13 +110,13 @@ namespace Services
 
         private static string GetScript(string file)
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder();            
             using var reader = new StreamReader(file);
             while (!reader.EndOfStream)
             {
                 builder.AppendLine(reader.ReadLine());
             };
-
+            builder.Replace("\r", "");
             return builder.ToString();
         }
                 
@@ -124,11 +124,18 @@ namespace Services
         {
             var store = new DataStore();
 
-            var excel = new ExcelInput()
+            var excelObserved = new ExcelInput()
             {
-                Name = "ExcelInput",
+                Name = "Observed",
                 FileName = "Observed.xlsx",
                 SheetNames = new string[] { "Observed" }
+            };
+
+            var excelDailyObserved = new ExcelInput()
+            {
+                Name = "DailyObserved",
+                FileName = "DailyObserved.xlsx",
+                SheetNames = new string[] { "DailyObserved" }
             };
 
             var observed = new PredictedObserved()
@@ -139,8 +146,18 @@ namespace Services
                 Name = "PredictedObserved"
             };
 
-            store.Children.Add(excel);
+            var dailyObserved = new PredictedObserved()
+            {
+                PredictedTableName = "DailyReport",
+                ObservedTableName = "DailyObserved",
+                FieldNameUsedForMatch = "SimulationID",
+                Name = "DailyPredictedObserved"
+            };
+
+            store.Children.Add(excelObserved);
+            store.Children.Add(excelDailyObserved);
             store.Children.Add(observed);
+            store.Children.Add(dailyObserved);
 
             var inputs = context.Treatments.Select(t => new Input() 
             { 
@@ -175,14 +192,14 @@ namespace Services
             var daily = new Report()
             {
                 Name = "DailyReport",
-                VariableNames = GetScript("Daily.txt").Replace("\r", "").Split("\n"),
+                VariableNames = GetScript("Daily.txt").Split("\n"),
                 EventNames = new string[] { "[Clock].DoReport" }
             };
 
             var harvest = new Report()
             {
                 Name = "HarvestReport",
-                VariableNames = GetScript("Harvest.txt").Replace("\r", "").Split("\n"),
+                VariableNames = GetScript("Harvest.txt").Split("\n"),
                 EventNames = new string[] { "[Sorghum].Harvesting" }
             };
 
@@ -269,6 +286,7 @@ namespace Services
                     YAxis = Axis.AxisType.Left,
                     ColourArgb = 0,
                     FactorToVaryColours = "SimulationName",
+                    FactorToVaryMarkers = "SimulationName",
                     Marker = 0,
                     MarkerSize = 0,
                     Line = LineType.None,
@@ -277,6 +295,7 @@ namespace Services
                     TableName = "PredictedObserved",
                     XFieldName = $"Observed.{variable}",
                     YFieldName = $"Predicted.{variable}",
+                    ShowInLegend = true,
                     IncludeSeriesNameInLegend = false,
                     Cumulative = false,
                     CumulativeX = false
@@ -300,12 +319,13 @@ namespace Services
 
         public static Graph NewGraph(string variable, List<Axis> axes)
         {
-            
+
             var graph = new Graph()
             {
                 Name = variable,
                 Axis = axes,
-                LegendPosition = Graph.LegendPositionType.BottomRight
+                LegendPosition = Graph.LegendPositionType.BottomRight,
+                DisabledSeries = new List<string>()
             };
 
             return graph;
@@ -334,7 +354,7 @@ namespace Services
 
             simulation.Children.Add(new Summary()
             {
-                Name = "SummaryFile"
+                Name = "Summary"
             });
 
             simulation.Children.Add(new Weather()
@@ -388,19 +408,6 @@ namespace Services
                 Area = 1
             };
 
-            zone.Children.Add(GetManagers());
-            zone.Children.Add(new Models.Irrigation() { Name = "Irrigation" });
-            zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });
-            zone.Children.Add(GetOperations(treatment, dbContext));
-
-            //zone.Children.Add(GetSoil(field, dbContext));
-
-            // TEMPORARY FOR DEMO
-            if (field.Soil.Type == "BW5") zone.Children.Add(GetDemoBW5());
-            else zone.Children.Add(GetDemoBW8());
-
-            zone.Children.Add(new Plant() { Name = "Sorghum" });
-
             var daily = new Report()
             {
                 Name = "DailyReport",
@@ -416,6 +423,22 @@ namespace Services
 
             zone.Children.Add(daily);
             zone.Children.Add(harvest);
+            zone.Children.Add(GetManagers());
+            zone.Children.Add(GetOperations(treatment, dbContext));
+            zone.Children.Add(new Models.Irrigation() { Name = "Irrigation" });
+            zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });            
+
+            //zone.Children.Add(GetSoil(field, dbContext));
+            // TEMPORARY FOR DEMO
+            if (field.Soil.Type == "BW5") zone.Children.Add(GetDemoBW5());
+            else zone.Children.Add(GetDemoBW8());
+
+            zone.Children.Add(new Plant()
+            { 
+                CropType = "name",
+                Name = "Sorghum",
+                ResourceName = "Sorghum"
+            });
 
             return zone;
         }
@@ -430,21 +453,23 @@ namespace Services
                 Code = GetScript("SkipRow.cs.txt"),
                 Parameters = new List<KeyValuePair<string, string>>()
                 {
-                    new KeyValuePair<string, string>("Date", "1997-01-09"),
+                    new KeyValuePair<string, string>("Date", "1996-10-10"),
                     new KeyValuePair<string, string>("Density", "10"),
                     new KeyValuePair<string, string>("Depth", "30"),
-                    new KeyValuePair<string, string>("Cultivar", "QL41xQL36"),
-                    new KeyValuePair<string, string>("RowSpacing", "500"),
+                    new KeyValuePair<string, string>("Cultivar", "M35-1"),
+                    new KeyValuePair<string, string>("RowSpacing", "0.5"),
                     new KeyValuePair<string, string>("RowConfiguration", "solid"),
                     new KeyValuePair<string, string>("Ftn", "0")
-                }
+                },
+                Enabled = true
             };            
             folder.Children.Add(skiprow);
 
             var harvest = new Manager()
             {
                 Name = "Harvesting rule",
-                Code = GetScript("Harvest.cs.txt")
+                Code = GetScript("Harvest.cs.txt"),
+                Parameters = new List<KeyValuePair<string, string>>()
             };
             folder.Children.Add(harvest);
 
@@ -462,8 +487,8 @@ namespace Services
             var irrigations = iquery
                 .Select(i => new Operation()
                 {
-                    Action = $"[Irrigation].Apply({i.Amount})",
-                    Date = ((DateTime)i.Date).ToString()
+                    Action = $"[Irrigation].Apply({i.Amount});",
+                    Date = ((DateTime)i.Date).ToString("yyyy-MM-dd")
                 }
                 );
 
@@ -471,8 +496,8 @@ namespace Services
             var fertilizations = fquery
                 .Select(f => new Operation()
                 {
-                    Action = $"[Fertiliser].Apply({f.Amount}, Fertiliser.Types.NO3N, {f.Depth})",
-                    Date = ((DateTime)f.Date).ToString()
+                    Action = $"[Fertiliser].Apply({f.Amount}, Fertiliser.Types.Urea, {f.Depth});",
+                    Date = ((DateTime)f.Date).ToString("yyyy-MM-dd")
                 }
                 );
 
@@ -563,6 +588,7 @@ namespace Services
             var organic = new Organic()
             {
                 Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                FOMCNRatio = 45.0,
                 Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
                 Carbon = new[] { 0.45, 0.32, 0.29, 0.23, 0.27, 0.3, 0.23, 0.22, 0.19, 0.12, 0.12, 0.14, 0.14},
                 SoilCNRatio = new[] { 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5},
@@ -582,14 +608,22 @@ namespace Services
             };
             soil.Children.Add(chem);
 
-            var sample = new Sample()
+            var initNitrogen = new Sample()
             {
-                Name = "Initial",
+                Name = "Initial Nitrogen",
+                Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
+                Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" }
+            };
+            soil.Children.Add(initNitrogen);
+
+            var initWater = new Sample()
+            {
+                Name = "Initial Water",
                 Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
                 Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
                 SW = new[] { 0.281, 0.338, 0.353, 0.36, 0.39, 0.407, 0.43, 0.43, 0.45, 0.43, 0.43, 0.45, 0.45 }
             };
-            soil.Children.Add(sample);
+            soil.Children.Add(initWater);
 
             var ceres = new CERESSoilTemperature();
             soil.Children.Add(ceres);
@@ -746,6 +780,7 @@ namespace Services
             var organic = new Organic()
             {
                 Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
+                FOMCNRatio = 45.0,
                 Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 },
                 Carbon = new[] { 0.49,
 0.45,
@@ -803,13 +838,13 @@ namespace Services
             };
             soil.Children.Add(initial);
 
-            var sample = new Sample()
+            var initNitrogen = new Sample()
             {
-                Name = "Initial",
+                Name = "Initial Nitrogen",
                 Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-165", "165-195" },
                 Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 300.0, 300.0 }
             };
-            soil.Children.Add(sample);
+            soil.Children.Add(initNitrogen);
 
             var ceres = new CERESSoilTemperature();
             soil.Children.Add(ceres);
@@ -920,7 +955,6 @@ namespace Services
         {
             var panel = new GraphPanel()
             {
-                SameAxes = false,
                 NumCols = 3,
                 Name = "PredictedObserved"                
             };
@@ -954,7 +988,7 @@ namespace Services
             {
                 var graph = NewGraph(variable.Key, axes);
                 foreach(var value in variable.Value)
-                {
+                { 
                     AddPredictedObservedPair(graph, value);
                 }
                 panel.Children.Add(graph);
@@ -970,41 +1004,41 @@ namespace Services
                 Type = SeriesType.Scatter,
                 XAxis = Axis.AxisType.Bottom,
                 YAxis = Axis.AxisType.Left,
-                ColourArgb = 0,
                 Marker = MarkerType.None,
                 MarkerSize = 0,
                 Line = 0,
                 LineThickness = LineThicknessType.Normal,
+                FactorToVaryColours = "Graph series",
                 Checkpoint = "Current",
                 TableName = "DailyPredictedObserved",
-                XFieldName = $"Date",
+                XFieldName = $"Predicted.Date",
                 YFieldName = $"Predicted.{variable}",
                 ShowInLegend = true,
                 IncludeSeriesNameInLegend = false,
                 Cumulative = false,
                 CumulativeX = false,
-                Name = $"Predicted {variable}"
-            };
+                Name = $"Predicted {variable}"                
+            };            
 
             var observed = new Series()
             {
                 Type = SeriesType.Scatter,
                 XAxis = Axis.AxisType.Bottom,
                 YAxis = Axis.AxisType.Left,
-                ColourArgb = 0,
                 Marker = 0,
                 MarkerSize = 0,
                 Line = LineType.None,
                 LineThickness = LineThicknessType.Normal,
+                FactorToVaryColours = "Graph series",
                 Checkpoint = "Current",
                 TableName = "DailyPredictedObserved",
-                XFieldName = $"Date",
+                XFieldName = $"Observed.Date",
                 YFieldName = $"Observed.{variable}",
                 ShowInLegend = true,
                 IncludeSeriesNameInLegend = false,
                 Cumulative = false,
                 CumulativeX = false,
-                Name = $"Predicted {variable}"
+                Name = $"Observed {variable}"
             };
 
             graph.Children.Add(predicted);

@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Reference Include="Models">
-      <HintPath>..\..\ApsimX\Models\Bin\Debug\netcoreapp3.0\Models.dll</HintPath>
+      <HintPath>..\..\ApsimX\Models\Bin\Models.exe</HintPath>
     </Reference>
   </ItemGroup>
 
