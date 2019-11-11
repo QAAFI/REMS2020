@@ -107,7 +107,7 @@ namespace Services
                 dbContext.SaveChanges();
 
             }
-            catch (Exception ex)
+            catch
             {
                 var itemCount = dbContext.PlotDatas.Count();
                 throw;
@@ -118,11 +118,7 @@ namespace Services
         private static void NewImportTable(REMSContext dbContext, DataTable table)
         {
             try
-            {
-                if(table.TableName == "SoilLayers")
-                {
-                    int tmp = 0;
-                }
+            {                
                 var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
                 var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
@@ -135,7 +131,7 @@ namespace Services
                     dbContext.SaveChanges();
                 }
             }
-            catch(Exception ex)
+            catch
             {
                 var tmp = table.TableName;
                 throw;
