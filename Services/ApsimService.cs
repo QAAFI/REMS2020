@@ -159,17 +159,6 @@ namespace Services
             store.Children.Add(observed);
             store.Children.Add(dailyObserved);
 
-            var inputs = context.Treatments.Select(t => new Input() 
-            { 
-                Name = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}",
-                FileName = $"{t.Experiment.Crop.Name}_{t.Experiment.Name}_{t.TreatmentId}.out"
-            });            
-
-            foreach (var input in inputs)
-                if (!File.Exists(input.FileName)) File.Create($"{filepath}\\{input.FileName}").Close();
-
-            store.Children.AddRange(inputs);
-
             return store;
         }
 
