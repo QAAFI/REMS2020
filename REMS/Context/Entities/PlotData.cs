@@ -42,14 +42,14 @@ namespace REMS.Context.Entities
                 entity.HasIndex(e => e.PlotDataId)
                     .HasName("PlotDataId");
 
-                entity.HasIndex(e => e.PlotId)
-                    .HasName("PlotDataPlotId");
+                //entity.HasIndex(e => e.PlotId)
+                //    .HasName("PlotDataPlotId");
 
-                entity.HasIndex(e => e.TraitId)
-                    .HasName("PlotDataTraitId");
+                //entity.HasIndex(e => e.TraitId)
+                //    .HasName("PlotDataTraitId");
 
-                entity.HasIndex(e => e.UnitId)
-                    .HasName("PlotDataUnitId");
+                //entity.HasIndex(e => e.UnitId)
+                //    .HasName("PlotDataUnitId");
 
                 // Define properties
                 entity.Property(e => e.PlotDataId)

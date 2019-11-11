@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using EFCore.BulkExtensions;
+using ExcelDataReader;
 using Microsoft.Data.Sqlite;
 using REMS;
 using REMS.Context;
@@ -6,6 +7,7 @@ using REMS.Context.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,13 +27,29 @@ namespace Services
             {
                 try
                 {
+                    var bulkConfig = new BulkConfig(){};
+ 
                     if (table.TableName == "PlotData")
                     {
                         ImportPlotData(table, dbContext);
                     }
-                    else
+                    else 
                     {
-                        NewImportTable(dbContext, table);
+                        var entities = ReadEntitiesFromTable(table, dbContext);
+                        if (table.TableName == "SoilLayerDatas")
+                        {
+                            bulkConfig.PropertiesToExclude = new List<string> { nameof(SoilLayerData.SoilLayerDataId) };
+                            dbContext.BulkInsert(entities.Cast<SoilLayerData>().ToList());
+                        }
+                        else if (table.TableName == "MetDatas")
+                        {
+                            bulkConfig.PropertiesToExclude = new List<string> { nameof(MetData.MetStationId), nameof(MetData.TraitId), nameof(MetData.Date) };
+                            dbContext.BulkInsert(entities.Cast<MetData>().ToList());
+                        }
+                        else
+                        {
+                            NewImportTable(dbContext, table, entities);
+                        }
                     }
                 }
                 catch(Exception ex)
@@ -41,6 +59,19 @@ namespace Services
                     var tmp2 = ex.InnerException.Message;
                 }
             }
+        }
+
+        private static IEnumerable<IEntity> ReadEntitiesFromTable(DataTable table, REMSContext dbContext)
+        {
+            var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
+            var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
+
+            var entity = dbContext.Entities.Where(e => e.CheckName(table.TableName)).FirstOrDefault();
+            if (entity != null)
+            {
+                return values.Select(v => entity.Create(v, names));
+            }
+            return null;
         }
 
         private static void ImportPlotData(DataTable table, REMSContext dbContext)
@@ -74,38 +105,24 @@ namespace Services
                         var val = row.ItemArray[i].ToString();
                         if (val != "")
                         {
-                            //I think this is the slow part - lookup table?
-                            //var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
-                            //if (trait != null)
-                            //{
-                                //var plot = Convert.ToInt32(row.Field<double>("Plot"));
-                                //var existingPlot = dbContext.Plots.Where(p => p.PlotId == plt);
-                                //if (existingPlot == null)
-                                //{
-                                //    int tmp = plt;
-                                //}
-                                //var dt = row.Field<DateTime>("date");
-                                //var tid = trait.TraitId;
-                                //var sample = row.Field<string>("Sample");
-                                //var val2 = val;
-
-                                var plotdata = new PlotData()
-                                {
-                                    PlotId = plot,
-                                    PlotDataDate = plotDataDate,
-                                    Sample = sample,
-                                    TraitId = TraitList[i-4].TraitId,
-                                    Value = Convert.ToDouble(val),
-                                    UnitId = TraitList[i-4].UnitId
-                                };
-                                plotdataList.Add(plotdata);
-                            //}
+                            var plotdata = new PlotData()
+                            {
+                                PlotId = plot,
+                                PlotDataDate = plotDataDate,
+                                Sample = sample,
+                                TraitId = TraitList[i-4].TraitId,
+                                Value = Convert.ToDouble(val),
+                                UnitId = TraitList[i-4].UnitId
+                            };
+                            plotdataList.Add(plotdata);
                         }
                     }
                 }
-                dbContext.PlotDatas.AddRange(plotdataList);
-                dbContext.SaveChanges();
-
+                var bulkConfig = new BulkConfig()
+                {
+                    PropertiesToExclude = new List<string> { nameof(PlotData.PlotDataId) }
+                };
+                dbContext.BulkInsert(plotdataList, bulkConfig);
             }
             catch
             {
@@ -115,23 +132,14 @@ namespace Services
         }
     
 
-        private static void NewImportTable(REMSContext dbContext, DataTable table)
+        private static void NewImportTable(REMSContext dbContext, DataTable table, IEnumerable<IEntity> entities)
         {
             try
-            {                
-                var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
-                var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
-
-                var entity = dbContext.Entities.Where(e => e.CheckName(table.TableName)).FirstOrDefault();
-                if(entity != null)
-                {
-                    var entities = values.Select(v => entity.Create(v, names));
-
-                    dbContext.AddRange(entities);
-                    dbContext.SaveChanges();
-                }
+            {
+                dbContext.AddRange(entities);
+                dbContext.SaveChanges();
             }
-            catch
+            catch (Exception ex)
             {
                 var tmp = table.TableName;
                 throw;
