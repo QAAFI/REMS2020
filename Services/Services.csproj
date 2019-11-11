@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EFCore.BulkExtensions" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3-beta1" />
   </ItemGroup>
 
@@ -14,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="Models">
-      <HintPath>..\..\ApsimX\Models\Bin\Models.exe</HintPath>
+      <HintPath>..\..\ApsimX\Models\bin\Debug\netcoreapp3.0\Models.dll</HintPath>
     </Reference>
   </ItemGroup>
 
