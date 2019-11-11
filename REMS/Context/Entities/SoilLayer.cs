@@ -45,7 +45,7 @@ namespace REMS.Context.Entities
                     .HasColumnName("SoilLayerId");
 
                 entity.Property(e => e.SoilId)
-                    .HasColumnName("SoilID")
+                    .HasColumnName("SoilId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.DepthFrom)

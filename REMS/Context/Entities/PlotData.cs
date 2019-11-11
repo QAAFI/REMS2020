@@ -53,6 +53,7 @@ namespace REMS.Context.Entities
 
                 // Define properties
                 entity.Property(e => e.PlotDataId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("PlotDataID");
 
                 entity.Property(e => e.PlotId)

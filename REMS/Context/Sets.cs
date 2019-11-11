@@ -67,7 +67,9 @@ namespace REMS.Context
         public virtual DbSet<SoilTrait> SoilTraits { get; set; }
         
         public virtual DbSet<Soil> Soils { get; set; }
-        
+
+        public virtual DbSet<Sowing> Sowing { get; set; }
+
         public virtual DbSet<Stat> Stats { get; set; }
         
         public virtual DbSet<TillageInfo> TillageInfos { get; set; }

@@ -102,14 +102,21 @@ namespace REMS
 
         private void NewImportTable(DataTable table)
         {
-            var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
-            var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
+            try
+            {
+                var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
+                var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
-            var entity = context.Entities.Where(e => e.CheckName(table.TableName)).First();            
-            var entities =  values.Select(v => entity.Create(v, names));
+                var entity = context.Entities.Where(e => e.CheckName(table.TableName)).First();            
+                var entities =  values.Select(v => entity.Create(v, names));
 
-            context.AddRange(entities);
-            context.SaveChanges();
+                context.AddRange(entities);
+                context.SaveChanges();
+            }
+            catch(Exception Ex)
+            {
+                var tmp = table.TableName;
+            }
         }
 
         public void ExportData(string file)

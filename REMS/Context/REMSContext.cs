@@ -48,6 +48,7 @@ namespace REMS.Context
             new SoilLayer(),
             new SoilTrait(),
             new Soil(),
+            new Sowing(),
             new Stat(),
             new TillageInfo(),
             new Tillage(),

@@ -10,7 +10,8 @@ namespace WindowsClient
     public partial class REMSClient : Form
     {
         private IREMSDatabase database = REMSDataFactory.Create();        
-        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\Data";
+        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\REMS2020\\DataFiles";
+
         private readonly Settings settings = Settings.Instance;
 
         public REMSClient()
@@ -151,16 +152,18 @@ namespace WindowsClient
         /// </summary>
         private void MenuNewClicked(object sender, EventArgs e)
         {
-            using (SaveFileDialog save = new SaveFileDialog()
+            SaveFileDialog save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 AddExtension = true,
                 Filter = "SQLite (*.db)|*.db",
                 RestoreDirectory = true
-            })
+            };
             {
                 if (save.ShowDialog() == DialogResult.OK)
                 {
+                    Application.UseWaitCursor = true;
+                    Application.DoEvents();
                     try
                     {
                         if (database.IsOpen) database.Close();
@@ -168,9 +171,11 @@ namespace WindowsClient
                         database.Open(save.FileName);
                         LoadSettings();
                         UpdateListView();
+                        Application.UseWaitCursor = false;
                     }
                     catch (Exception error)
                     {
+                        Application.UseWaitCursor = false;
                         ErrorMessage(error.Message);
                     }
                 }
