@@ -20,7 +20,7 @@ namespace REMS.Context.Entities
 
         public int TraitId { get; set; }
 
-        public int UnitId { get; set; }
+        public int? UnitId { get; set; }
 
         public string Name { get; set; } = null;
 

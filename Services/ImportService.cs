@@ -4,6 +4,7 @@ using REMS;
 using REMS.Context;
 using REMS.Context.Entities;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -48,18 +49,36 @@ namespace Services
             {
                 //each row can have multiple samples - any data after the first 4 cols is an individual sample
                 //exp id, plot id, date sample
+                var plotdataList = new List<PlotData>();
+                var TraitList = new List<Trait>();
+                var firstRow = table.Rows[0];
+                
+                for(int c = 4; c < table.Columns.Count; ++c)
+                {
+                    var trait = dbContext.Traits.Where(t => t.Name == table.Columns[c].ColumnName).FirstOrDefault();
+                    if(trait == null)
+                    {
+                        var tmptrait = trait;
+                    }
+                    TraitList.Add(trait);
+                }
+
                 foreach (DataRow row in table.Rows)
                 {
+                    var plotDataDate = row.Field<DateTime>("date");
+                    var sample = row.Field<string>("Sample");
+                    var plot = Convert.ToInt32(row.Field<double>("Plot"));
+
                     for (int i = 4; i < row.ItemArray.Length; ++i)
                     {
                         var val = row.ItemArray[i].ToString();
                         if (val != "")
                         {
                             //I think this is the slow part - lookup table?
-                            var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
-                            if (trait != null)
-                            {
-                                var plot = Convert.ToInt32(row.Field<double>("Plot"));
+                            //var trait = dbContext.Traits.Where(t => t.Name == table.Columns[i].ColumnName).FirstOrDefault();
+                            //if (trait != null)
+                            //{
+                                //var plot = Convert.ToInt32(row.Field<double>("Plot"));
                                 //var existingPlot = dbContext.Plots.Where(p => p.PlotId == plt);
                                 //if (existingPlot == null)
                                 //{
@@ -73,18 +92,18 @@ namespace Services
                                 var plotdata = new PlotData()
                                 {
                                     PlotId = plot,
-                                    PlotDataDate = row.Field<DateTime>("date"),
-                                    Sample = row.Field<string>("Sample"),
-                                    TraitId = trait.TraitId,
+                                    PlotDataDate = plotDataDate,
+                                    Sample = sample,
+                                    TraitId = TraitList[i-4].TraitId,
                                     Value = Convert.ToDouble(val),
-                                    UnitId = trait.UnitId
+                                    UnitId = TraitList[i-4].UnitId
                                 };
-
-                                dbContext.PlotDatas.Add(plotdata);
-                            }
+                                plotdataList.Add(plotdata);
+                            //}
                         }
                     }
                 }
+                dbContext.PlotDatas.AddRange(plotdataList);
                 dbContext.SaveChanges();
 
             }
@@ -100,6 +119,10 @@ namespace Services
         {
             try
             {
+                if(table.TableName == "SoilLayers")
+                {
+                    int tmp = 0;
+                }
                 var values = table.Rows.Cast<DataRow>().Select(r => r.ItemArray);
                 var names = table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
