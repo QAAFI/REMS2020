@@ -44,7 +44,7 @@ namespace REMS.Context
         
         public virtual DbSet<Method> Methods { get; set; }
         
-        public virtual DbSet<PlotData> PlotDatas { get; set; }
+        public virtual DbSet<PlotData> PlotData { get; set; }
         
         public virtual DbSet<Plot> Plots { get; set; }
         

@@ -41,11 +41,11 @@ namespace Services
                             bulkConfig.PropertiesToExclude = new List<string> { nameof(SoilLayerData.SoilLayerDataId) };
                             dbContext.BulkInsert(entities.Cast<SoilLayerData>().ToList());
                         }
-                        else if (table.TableName == "MetDatas")
-                        {
-                            bulkConfig.PropertiesToExclude = new List<string> { nameof(MetData.MetStationId), nameof(MetData.TraitId), nameof(MetData.Date) };
-                            dbContext.BulkInsert(entities.Cast<MetData>().ToList());
-                        }
+                        //else if (table.TableName == "MetDatas")
+                        //{
+                        //    bulkConfig.PropertiesToExclude = new List<string> { nameof(MetData.MetStationId), nameof(MetData.TraitId), nameof(MetData.Date) };
+                        //    dbContext.BulkInsert(entities.Cast<MetData>().ToList());
+                        //}
                         else
                         {
                             NewImportTable(dbContext, table, entities);
@@ -126,7 +126,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                var itemCount = dbContext.PlotDatas.Count();
+                var itemCount = dbContext.PlotData.Count();
                 throw;
             }
         }
