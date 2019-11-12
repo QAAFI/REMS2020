@@ -55,6 +55,7 @@ namespace REMS.Context.Entities
 
                 // Define properties
                 entity.Property(e => e.StatId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("StatId");
 
                 entity.Property(e => e.TreatmentId)

@@ -44,6 +44,7 @@ namespace REMS.Context.Entities
 
                 // Define the properties
                 entity.Property(e => e.ExperimentInfoId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("ExperimentInfoId");
 
                 entity.Property(e => e.ExperimentId)

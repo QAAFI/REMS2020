@@ -50,6 +50,7 @@ namespace REMS.Context.Entities
 
                 // Define properties
                 entity.Property(e => e.SoilLayerDataId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("SoilLayerDataId");
 
                 entity.Property(e => e.DepthFrom)
