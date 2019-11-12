@@ -14,7 +14,7 @@ namespace REMS.Context.Entities
 
         public int SowingId { get; set; }
 
-        public int ExperimentId { get; set; }
+        public int TreatmentId { get; set; }
 
         public DateTime? Date { get; set; }
 
@@ -27,7 +27,7 @@ namespace REMS.Context.Entities
 
         public string Notes { get; set; }
 
-        public virtual Experiment Experiment { get; set; }
+        public virtual Treatment Treatment { get; set; }
 
         public override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -68,9 +68,9 @@ namespace REMS.Context.Entities
                     .HasMaxLength(50);
 
                 // Define foreign key constraints
-                entity.HasOne(d => d.Experiment)
+                entity.HasOne(d => d.Treatment)
                     .WithOne(p => p.Sowing)
-                    .HasForeignKey<Sowing>(p => p.ExperimentId)
+                    .HasForeignKey<Sowing>(p => p.TreatmentId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

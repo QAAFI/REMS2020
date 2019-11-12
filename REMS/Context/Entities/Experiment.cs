@@ -47,7 +47,6 @@ namespace REMS.Context.Entities
         public virtual Field Field { get; set; }
         public virtual MetStation MetStation { get; set; }
         public virtual Method Method { get; set; }
-        public virtual Sowing Sowing { get; set; }
 
         public virtual ICollection<ExperimentInfo> ExperimentInfo { get; set; }
         public virtual ICollection<ResearcherList> ResearcherList { get; set; }

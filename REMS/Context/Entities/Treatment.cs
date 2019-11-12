@@ -26,6 +26,7 @@ namespace REMS.Context.Entities
         public string Name { get; set; }
 
         public virtual Experiment Experiment { get; set; }
+        public virtual Sowing Sowing { get; set; }
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }
         public virtual ICollection<Design> Designs { get; set; }
         public virtual ICollection<Fertilization> Fertilizations { get; set; }
