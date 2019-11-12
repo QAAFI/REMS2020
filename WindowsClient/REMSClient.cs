@@ -275,24 +275,22 @@ namespace WindowsClient
             if (save.ShowDialog() == DialogResult.OK)
             {
                 var path = Path.GetDirectoryName(save.FileName);
+                Application.UseWaitCursor = true;
+                Application.DoEvents();
 
                 try
                 {
                     var sims = database.CreateApsimFile(path);
                     sims.SaveApsimFile(save.FileName);
-                }
-                catch (Exception error)
-                {
-                    ErrorMessage(error.Message);
-                }
 
-                try
-                {                    
                     database.GenerateMetFiles(path);
+
+                    Application.UseWaitCursor = false;
                 }
                 catch (Exception error)
                 {
                     ErrorMessage(error.Message);
+                    Application.UseWaitCursor = false;
                 }
             }
         }
