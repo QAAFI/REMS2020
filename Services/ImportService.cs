@@ -16,7 +16,7 @@ namespace Services
 {
     public static class ImportService
     {
-        public static void ImportExcelData(this IREMSDatabase db, string file)
+        public static void ImportExcelDataSlow(this IREMSDatabase db, string file)
         {
             var dbContext = (db as REMSDatabase).context;
             using var excel = ExcelImporter.ReadRawData(file);
@@ -31,28 +31,53 @@ namespace Services
  
                     if (table.TableName == "PlotData")
                     {
-                        ImportPlotData(table, dbContext);
+                        var data = ImportPlotData(table, dbContext);
+                        dbContext.AddRange(data);
+                        dbContext.SaveChanges();
                     }
                     else 
                     {
                         var entities = ReadEntitiesFromTable(table, dbContext);
-                        if (table.TableName == "SoilLayerDatas")
-                        {
-                            bulkConfig.PropertiesToExclude = new List<string> { nameof(SoilLayerData.SoilLayerDataId) };
-                            dbContext.BulkInsert(entities.Cast<SoilLayerData>().ToList());
-                        }
-                        //else if (table.TableName == "MetDatas")
-                        //{
-                        //    bulkConfig.PropertiesToExclude = new List<string> { nameof(MetData.MetStationId), nameof(MetData.TraitId), nameof(MetData.Date) };
-                        //    dbContext.BulkInsert(entities.Cast<MetData>().ToList());
-                        //}
-                        else
-                        {
-                            NewImportTable(dbContext, table, entities);
-                        }
+                        dbContext.AddRange(entities);
+                        dbContext.SaveChanges();
                     }
                 }
                 catch(Exception ex)
+                {
+                    var name = table.TableName;
+                    var tmp = ex.Message;
+                    var tmp2 = ex.InnerException.Message;
+                }
+            }
+        }
+
+        public static void ImportExcelDataFast(this IREMSDatabase db, string file)
+        {
+            var dbContext = (db as REMSDatabase).context;
+            using var excel = ExcelImporter.ReadRawData(file);
+            using var connection = new SqliteConnection(dbContext.ConnectionString);
+            connection.Open();
+
+            foreach (DataTable table in excel.Tables)
+            {
+                try
+                {
+                    var bulkConfig = new BulkConfig();
+                    if (table.TableName == "PlotData")
+                    {
+                        var data = ImportPlotData(table, dbContext);
+
+                        bulkConfig.PropertiesToExclude = new List<string> { nameof(PlotData.PlotDataId) };
+                        dbContext.BulkInsert(data, bulkConfig);
+                    }
+                    else
+                    {
+                        var entities = ReadEntitiesFromTable(table, dbContext);
+                        dbContext.AddRange(entities);
+                        dbContext.SaveChanges();
+                    }
+                }
+                catch (Exception ex)
                 {
                     var name = table.TableName;
                     var tmp = ex.Message;
@@ -74,7 +99,7 @@ namespace Services
             return null;
         }
 
-        private static void ImportPlotData(DataTable table, REMSContext dbContext)
+        private static List<PlotData> ImportPlotData(DataTable table, REMSContext dbContext)
         {
             try
             {
@@ -118,33 +143,20 @@ namespace Services
                         }
                     }
                 }
-                var bulkConfig = new BulkConfig()
-                {
-                    PropertiesToExclude = new List<string> { nameof(PlotData.PlotDataId) }
-                };
-                dbContext.BulkInsert(plotdataList, bulkConfig);
+                //var bulkConfig = new BulkConfig()
+                //{
+                //    PropertiesToExclude = new List<string> { nameof(PlotData.PlotDataId) }
+                //};
+                //dbContext.BulkInsert(plotdataList, bulkConfig);
+                //dbContext.AddRange(plotdataList);
+                return plotdataList;
             }
             catch
             {
                 var itemCount = dbContext.PlotData.Count();
                 throw;
             }
-        }
-    
-
-        private static void NewImportTable(REMSContext dbContext, DataTable table, IEnumerable<IEntity> entities)
-        {
-            try
-            {
-                dbContext.AddRange(entities);
-                dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                var tmp = table.TableName;
-                throw;
-            }
-        }
+        }    
 
         public static class ExcelImporter
         {

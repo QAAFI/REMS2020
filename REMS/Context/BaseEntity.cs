@@ -25,7 +25,8 @@ namespace REMS.Context
 
             for (int i = 0; i < values.Length; i++)
             {                
-                var property = properties.First(p => p.Name == names[i]);
+                var property = properties.FirstOrDefault(p => p.Name == names[i]);
+                if (property == null) continue;
                 var value = ParseValue(values[i], property.PropertyType);
                 property.SetValue(clone, value);
             }

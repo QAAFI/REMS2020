@@ -44,6 +44,7 @@ namespace REMS.Context.Entities
 
                 // Define table properties
                 entity.Property(e => e.HarvestId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("HarvestId");
 
                 entity.Property(e => e.Date)

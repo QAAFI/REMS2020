@@ -61,36 +61,34 @@ namespace Services
             var mets = from met in context.MetStations
                        select met;
 
-            foreach (var met in mets)
-            {
-                string file = path + "\\" + met.Name + ".met";
-
-                if (File.Exists(file)) continue;
-
-                using var stream = new FileStream(file, FileMode.Create);
-                using var writer = new StreamWriter(stream);
-
-                writer.WriteLine("[weather.met.weather]");
-                writer.WriteLine($"!experiment number = 1");
-                writer.WriteLine($"!experiment = ");
-                writer.WriteLine($"!station name = {met.Name}");
-                writer.WriteLine($"latitude = {met.Latitude} (DECIMAL DEGREES)");
-                writer.WriteLine($"longitude = {met.Longitude} (DECIMAL DEGREES)");
-                writer.WriteLine($"tav = {met.TemperatureAverage} (oC)");
-                writer.WriteLine($"amp = {met.Amp} (oC)\n");
-
-                writer.WriteLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}");
-                writer.WriteLine($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}");
-
-                var dates = context.MetDatas
+            var dates = context.MetDatas
                     .Select(d => d.Date)
                     .Distinct()
                     .OrderBy(d => d.Date);
 
-                var TMAX = context.Traits.First(t => t.Name == "TMAX");
-                var TMIN = context.Traits.First(t => t.Name == "TMIN");
-                var SOLAR = context.Traits.First(t => t.Name == "SOLAR");
-                var RAIN = context.Traits.First(t => t.Name == "RAIN");
+            var TMAX = context.Traits.First(t => t.Name == "maxt");
+            var TMIN = context.Traits.First(t => t.Name == "mint");
+            var SOLAR = context.Traits.First(t => t.Name == "radn");
+            var RAIN = context.Traits.First(t => t.Name == "RAIN");
+
+            foreach (var met in mets)
+            {
+                string file = path + "\\" + met.Name + ".met";       
+
+                using var stream = new FileStream(file, FileMode.Create);
+                using var writer = new StreamWriter(stream);
+
+                writer.Write("[weather.met.weather]\n");
+                writer.Write($"!experiment number = 1\n");
+                writer.Write($"!experiment = \n");
+                writer.Write($"!station name = {met.Name}\n");
+                writer.Write($"latitude = {met.Latitude} (DECIMAL DEGREES)\n");
+                writer.Write($"longitude = {met.Longitude} (DECIMAL DEGREES)\n");
+                writer.Write($"tav = {met.TemperatureAverage} (oC)\n");
+                writer.Write($"amp = {met.Amp} (oC)\n\n");
+
+                writer.Write($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}\n");
+                writer.Write($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}\n");                               
 
                 foreach (var date in dates)
                 {
@@ -98,6 +96,8 @@ namespace Services
                                 where data.Date == date
                                 where data.Value.HasValue
                                 select data;
+
+                    if (!value.Any()) continue;
 
                     double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
                     double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
@@ -315,7 +315,7 @@ namespace Services
             {
                 Name = variable,
                 Axis = axes,
-                LegendPosition = Graph.LegendPositionType.BottomRight,
+                LegendPosition = Graph.LegendPositionType.TopLeft,
                 DisabledSeries = new List<string>()
             };
 
@@ -833,11 +833,10 @@ namespace Services
             {
                 Name = "Initial Water",
                 PercentMethod = 0,
-                FractionFull = 0.5                
+                FractionFull = 0.50                
             };
             soil.Children.Add(initWater);
 
-            soil.Children.Add(new CERESSoilTemperature());
             var ceres = new CERESSoilTemperature();
             soil.Children.Add(ceres);
 

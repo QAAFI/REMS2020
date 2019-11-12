@@ -54,10 +54,10 @@ namespace REMS.Context.Entities
                 // Define properties
                 entity.Property(e => e.PlotDataId)
                     .ValueGeneratedOnAdd()
-                    .HasColumnName("PlotDataID");
+                    .HasColumnName("PlotDataId");
 
                 entity.Property(e => e.PlotId)
-                    .HasColumnName("PlotID")
+                    .HasColumnName("PlotId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Sample)
@@ -65,11 +65,11 @@ namespace REMS.Context.Entities
                     .HasMaxLength(10);
 
                 entity.Property(e => e.TraitId)
-                    .HasColumnName("TraitID")
+                    .HasColumnName("TraitId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.UnitId)
-                    .HasColumnName("UnitID")
+                    .HasColumnName("UnitId")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Value)

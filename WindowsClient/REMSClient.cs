@@ -9,7 +9,8 @@ namespace WindowsClient
 {
     public partial class REMSClient : Form
     {
-        private IREMSDatabase database = REMSDataFactory.Create();        
+        private IREMSDatabase database = REMSDataFactory.Create();
+        private IREMSDatabase testdatabase = REMSDataFactory.Create();
         private string _importFolder = "D:\\Projects\\Apsim\\REMS\\REMS2020\\DataFiles";
 
         private readonly Settings settings = Settings.Instance;
@@ -169,6 +170,11 @@ namespace WindowsClient
                         if (database.IsOpen) database.Close();
                         database.Create(save.FileName);
                         database.Open(save.FileName);
+
+                        if (testdatabase.IsOpen) testdatabase.Close();
+                        testdatabase.Create(save.FileName + "test");
+                        testdatabase.Open(save.FileName + "test");
+
                         LoadSettings();
                         UpdateListView();
                         Application.UseWaitCursor = false;
@@ -198,9 +204,13 @@ namespace WindowsClient
                 {
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
-                    if (database.IsOpen) database.Close();
 
+                    if (database.IsOpen) database.Close();
                     database.Open(open.FileName);
+
+                    if (testdatabase.IsOpen) testdatabase.Close();
+                    testdatabase.Open(open.FileName + "test");
+
                     LoadSettings();
                     UpdateListView();
                     Application.UseWaitCursor = false;
@@ -250,12 +260,21 @@ namespace WindowsClient
                 Application.UseWaitCursor = true;
                 Application.DoEvents();
                 try
-                {
-                    database.ImportExcelData(open.FileName);
-                    //database.ImportData(open.FileName);
+                {                  
+                    var watch1 = new System.Diagnostics.Stopwatch();
+                    watch1.Start();
+                    database.ImportExcelDataFast(open.FileName);
+                    watch1.Stop();
+
+                    var watch2 = new System.Diagnostics.Stopwatch();
+                    watch2.Start();
+                    testdatabase.ImportExcelDataSlow(open.FileName);
+                    watch2.Stop();
+
                     UpdateListView();
                     Application.UseWaitCursor = false;
-                    MessageBox.Show("Import Complete");
+                    MessageBox.Show($"Import Complete.\n);
+                    //MessageBox.Show($"Import Complete.\nTime elapsed fast: {watch1.ElapsedMilliseconds} ms\nTime elapsed slow: {watch2.ElapsedMilliseconds} ms");
                 }
                 catch (Exception error)
                 {
