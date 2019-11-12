@@ -305,6 +305,7 @@ namespace WindowsClient
                     database.GenerateMetFiles(path);
 
                     Application.UseWaitCursor = false;
+                    MessageBox.Show($"Export Complete.");
                 }
                 catch (Exception error)
                 {
