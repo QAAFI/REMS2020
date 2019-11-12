@@ -38,7 +38,8 @@ namespace Services
         {
             ApsimX apsim = apsimx as ApsimX;
             apsim.Simulations.FileName = filename;
-            apsim.Simulations.Write(filename);
+            //Calling apsim.Simulations.Write causes the storage to run which looks for sqlite.dll
+            File.WriteAllText(filename, FileFormat.WriteToString(apsim.Simulations));
         }
 
         public static IApsimX CreateApsimFile(this IREMSDatabase db, string filepath)
