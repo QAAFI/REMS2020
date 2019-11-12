@@ -45,6 +45,7 @@ namespace REMS.Context.Entities
 
                 // Define properties
                 entity.Property(e => e.SoilDataId)
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("SoilDataId");
 
                 entity.Property(e => e.PlotId)
