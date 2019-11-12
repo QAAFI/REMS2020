@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Models.Core.ApsimFile;
 
 namespace Services
 {
@@ -414,7 +415,7 @@ namespace Services
 
             zone.Children.Add(daily);
             zone.Children.Add(harvest);
-            zone.Children.Add(GetManagers(treatment.Experiment.Sowing));
+            zone.Children.Add(GetManagers(treatment.Sowing));
             zone.Children.Add(GetOperations(treatment, dbContext));
             zone.Children.Add(new Models.Irrigation() { Name = "Irrigation" });
             zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });            
