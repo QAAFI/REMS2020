@@ -124,7 +124,7 @@ namespace Services
                 };
                 dbContext.BulkInsert(plotdataList, bulkConfig);
             }
-            catch (Exception ex)
+            catch
             {
                 var itemCount = dbContext.PlotData.Count();
                 throw;

@@ -413,11 +413,11 @@ namespace Services
 
             zone.Children.Add(daily);
             zone.Children.Add(harvest);
-            zone.Children.Add(GetManagers());
+            zone.Children.Add(GetManagers(treatment.Experiment.Sowing));
             zone.Children.Add(GetOperations(treatment, dbContext));
             zone.Children.Add(new Models.Irrigation() { Name = "Irrigation" });
             zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });            
-
+            
             //zone.Children.Add(GetSoil(field, dbContext));
             // TEMPORARY FOR DEMO
             if (field.Soil.Type == "BW5") zone.Children.Add(GetDemoBW5());
@@ -433,8 +433,8 @@ namespace Services
             return zone;
         }
 
-        private static Folder GetManagers()
-        {
+        private static Folder GetManagers(Sowing sowing)
+        {   
             var folder = new Folder() { Name = "Manager folder" };            
 
             var skiprow = new Manager()
@@ -443,13 +443,13 @@ namespace Services
                 Code = GetScript("SkipRow.cs.txt"),
                 Parameters = new List<KeyValuePair<string, string>>()
                 {
-                    new KeyValuePair<string, string>("Date", "1996-10-10"),
-                    new KeyValuePair<string, string>("Density", "10"),
-                    new KeyValuePair<string, string>("Depth", "30"),
-                    new KeyValuePair<string, string>("Cultivar", "M35-1"),
-                    new KeyValuePair<string, string>("RowSpacing", "0.5"),
+                    new KeyValuePair<string, string>("Date", sowing.Date.Value.ToString("yyyy-MM-dd")),
+                    new KeyValuePair<string, string>("Density", sowing.Population.ToString()),
+                    new KeyValuePair<string, string>("Depth", sowing.Depth.ToString()),
+                    new KeyValuePair<string, string>("Cultivar", sowing.Cultivar.ToString()),
+                    new KeyValuePair<string, string>("RowSpacing", sowing.RowSpace.ToString()),
                     new KeyValuePair<string, string>("RowConfiguration", "solid"),
-                    new KeyValuePair<string, string>("Ftn", "0")
+                    new KeyValuePair<string, string>("Ftn", sowing.FTN.ToString())
                 },
                 Enabled = true
             };            
@@ -608,7 +608,7 @@ namespace Services
 
             var initWater = new Sample()
             {
-                Name = "Initial Water",
+                Name = "Initial Water",                
                 Thickness = new[] { 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0, 150.0 },
                 Depth = new[] { "0-15", "15-30", "30-45", "45-60", "60-75", "75-90", "90-105", "105-120", "120-135", "135-150", "150-165", "165-180", "180-195" },
                 SW = new[] { 0.281, 0.338, 0.353, 0.36, 0.39, 0.407, 0.43, 0.43, 0.45, 0.43, 0.43, 0.45, 0.45 }
@@ -818,15 +818,7 @@ namespace Services
                 NH4N = new[] { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
                 PH = new[] { 8.35, 8.52, 8.8, 8.95, 9.0, 9.0, 9.0, 9.0, 8.92, 8.97, 8.82 }
             };
-            soil.Children.Add(chem);
-
-            var initial = new InitialWater()
-            {
-                PercentMethod = 0,
-                FractionFull = 0.5,
-                Name = "Initial Water"
-            };
-            soil.Children.Add(initial);
+            soil.Children.Add(chem);            
 
             var initNitrogen = new Sample()
             {
@@ -836,6 +828,15 @@ namespace Services
             };
             soil.Children.Add(initNitrogen);
 
+            var initWater = new InitialWater()
+            {
+                Name = "Initial Water",
+                PercentMethod = 0,
+                FractionFull = 0.5                
+            };
+            soil.Children.Add(initWater);
+
+            soil.Children.Add(new CERESSoilTemperature());
             var ceres = new CERESSoilTemperature();
             soil.Children.Add(ceres);
 
