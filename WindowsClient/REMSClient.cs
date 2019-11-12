@@ -11,7 +11,7 @@ namespace WindowsClient
     {
         private IREMSDatabase database = REMSDataFactory.Create();
         private IREMSDatabase testdatabase = REMSDataFactory.Create();
-        private string _importFolder = "D:\\Projects\\Apsim\\REMS\\REMS2020\\DataFiles";
+        private string _importFolder = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly Settings settings = Settings.Instance;
 
@@ -266,14 +266,14 @@ namespace WindowsClient
                     database.ImportExcelDataFast(open.FileName);
                     watch1.Stop();
 
-                    var watch2 = new System.Diagnostics.Stopwatch();
-                    watch2.Start();
-                    testdatabase.ImportExcelDataSlow(open.FileName);
-                    watch2.Stop();
+                    //var watch2 = new System.Diagnostics.Stopwatch();
+                    //watch2.Start();
+                    //testdatabase.ImportExcelDataSlow(open.FileName);
+                    //watch2.Stop();
 
                     UpdateListView();
                     Application.UseWaitCursor = false;
-                    MessageBox.Show($"Import Complete.\n);
+                    MessageBox.Show($"Import Complete.\n");
                     //MessageBox.Show($"Import Complete.\nTime elapsed fast: {watch1.ElapsedMilliseconds} ms\nTime elapsed slow: {watch2.ElapsedMilliseconds} ms");
                 }
                 catch (Exception error)
