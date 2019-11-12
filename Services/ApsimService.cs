@@ -314,7 +314,7 @@ namespace Services
             {
                 Name = variable,
                 Axis = axes,
-                LegendPosition = Graph.LegendPositionType.BottomRight,
+                LegendPosition = Graph.LegendPositionType.TopLeft,
                 DisabledSeries = new List<string>()
             };
 
@@ -832,11 +832,10 @@ namespace Services
             {
                 Name = "Initial Water",
                 PercentMethod = 0,
-                FractionFull = 0.5                
+                FractionFull = 0.50                
             };
             soil.Children.Add(initWater);
 
-            soil.Children.Add(new CERESSoilTemperature());
             var ceres = new CERESSoilTemperature();
             soil.Children.Add(ceres);
 
