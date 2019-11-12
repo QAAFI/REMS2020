@@ -273,7 +273,8 @@ namespace WindowsClient
 
                     UpdateListView();
                     Application.UseWaitCursor = false;
-                    MessageBox.Show($"Import Complete.\nTime elapsed fast: {watch1.ElapsedMilliseconds} ms\nTime elapsed slow: {watch2.ElapsedMilliseconds} ms");
+                    MessageBox.Show($"Import Complete.\n);
+                    //MessageBox.Show($"Import Complete.\nTime elapsed fast: {watch1.ElapsedMilliseconds} ms\nTime elapsed slow: {watch2.ElapsedMilliseconds} ms");
                 }
                 catch (Exception error)
                 {
