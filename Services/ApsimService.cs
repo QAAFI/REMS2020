@@ -50,7 +50,7 @@ namespace Services
             Apsim.Simulations.Children.Add(GetReplacements());  
             Apsim.Simulations.Children.Add(GetValidations(context));
 
-            db.WriteDailyObservedData(Path.GetDirectoryName(filepath));
+            //db.WriteDailyObservedData(Path.GetDirectoryName(filepath));
             return Apsim;
         }
 
