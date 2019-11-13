@@ -952,7 +952,8 @@ namespace Services
             var panel = new GraphPanel()
             {
                 NumCols = 3,
-                Name = "PredictedObserved"                
+                Name = "PredictedObserved",
+                SameAxes = true
             };
 
             var manager = new Manager()
