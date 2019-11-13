@@ -50,65 +50,66 @@ namespace Services
             //JBTest(sims);            
             Apsim.Simulations.Children.Add(GetDataStore(context, filepath));
             Apsim.Simulations.Children.Add(GetReplacements());  
-            Apsim.Simulations.Children.Add(GetValidations(context));
+            Apsim.Simulations.Children.Add(GetValidations(context, filepath));
 
             //db.WriteDailyObservedData(Path.GetDirectoryName(filepath));
             return Apsim;
         }
 
-        public static void GenerateMetFiles(this IREMSDatabase db, string path)
+        public static void GenerateMetFile(REMSContext context, MetStation met, string path)
         {
-            var context = (db as REMSDatabase).context;
-
-            var mets = from met in context.MetStations
-                       select met;
-
             var dates = context.MetDatas
                     .Select(d => d.Date)
                     .Distinct()
                     .OrderBy(d => d.Date);
 
-            var TMAX = context.Traits.First(t => t.Name == "maxt");
-            var TMIN = context.Traits.First(t => t.Name == "mint");
-            var SOLAR = context.Traits.First(t => t.Name == "radn");
-            var RAIN = context.Traits.First(t => t.Name == "RAIN");
+            var TMAX = context.Traits.FirstOrDefault(t => t.Name == "maxt");
+            var TMIN = context.Traits.FirstOrDefault(t => t.Name == "mint");
+            var SOLAR = context.Traits.FirstOrDefault(t => t.Name == "radn");
+            var RAIN = context.Traits.FirstOrDefault(t => t.Name == "RAIN");
 
-            foreach (var met in mets)
+            if (TMAX == null || TMIN == null || SOLAR == null || RAIN == null) 
+                throw new Exception("MetData traits could not be mapped - check trait names.");
+
+            string file = path + "\\" + met.Name + ".met";       
+
+            using var stream = new FileStream(file, FileMode.Create);
+            using var writer = new StreamWriter(stream);
+
+            writer.Write("[weather.met.weather]\n");
+            writer.Write($"!experiment number = 1\n");
+            writer.Write($"!experiment = \n");
+            writer.Write($"!station name = {met.Name}\n");
+            writer.Write($"latitude = {met.Latitude} (DECIMAL DEGREES)\n");
+            writer.Write($"longitude = {met.Longitude} (DECIMAL DEGREES)\n");
+            writer.Write($"tav = {met.TemperatureAverage} (oC)\n");
+            writer.Write($"amp = {met.Amp} (oC)\n\n");
+
+            writer.Write($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}\n");
+            writer.Write($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}\n");                               
+
+            foreach (var date in dates)
             {
-                string file = path + "\\" + met.Name + ".met";       
+                var value = from data in context.MetDatas
+                            where data.MetStation == met
+                            where data.Date == date
+                            where data.Value.HasValue                            
+                            select data;
 
-                using var stream = new FileStream(file, FileMode.Create);
-                using var writer = new StreamWriter(stream);
-
-                writer.Write("[weather.met.weather]\n");
-                writer.Write($"!experiment number = 1\n");
-                writer.Write($"!experiment = \n");
-                writer.Write($"!station name = {met.Name}\n");
-                writer.Write($"latitude = {met.Latitude} (DECIMAL DEGREES)\n");
-                writer.Write($"longitude = {met.Longitude} (DECIMAL DEGREES)\n");
-                writer.Write($"tav = {met.TemperatureAverage} (oC)\n");
-                writer.Write($"amp = {met.Amp} (oC)\n\n");
-
-                writer.Write($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}\n");
-                writer.Write($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}\n");                               
-
-                foreach (var date in dates)
+                try
                 {
-                    var value = from data in context.MetDatas
-                                where data.Date == date
-                                where data.Value.HasValue
-                                select data;
-
-                    if (!value.Any()) continue;
-
-                    double tmax = Math.Round(value.FirstOrDefault(d => d.Trait == TMAX).Value.Value, 2);
-                    double tmin = Math.Round(value.FirstOrDefault(d => d.Trait == TMIN).Value.Value, 2);
-                    double radn = Math.Round(value.FirstOrDefault(d => d.Trait == SOLAR).Value.Value, 2);
-                    double rain = Math.Round(value.FirstOrDefault(d => d.Trait == RAIN).Value.Value, 2);
+                    double tmax = Math.Round(value.Single(d => d.Trait == TMAX).Value.Value, 2);
+                    double tmin = Math.Round(value.Single(d => d.Trait == TMIN).Value.Value, 2);
+                    double radn = Math.Round(value.Single(d => d.Trait == SOLAR).Value.Value, 2);
+                    double rain = Math.Round(value.Single(d => d.Trait == RAIN).Value.Value, 2);
 
                     writer.Write($"{date.Year,-7}{date.DayOfYear,3}{tmax,8}{tmin,8}{radn,8}{rain,8}\n");
                 }
-            }
+                catch
+                {
+                    // Will skip the data for a given date if any of it is invalid
+                }
+            }            
         }
 
         private static string GetScript(string file)
@@ -202,7 +203,7 @@ namespace Services
             return replacements;
         }
 
-        private static Folder GetValidations(REMSContext dbContext)
+        private static Folder GetValidations(REMSContext dbContext, string path)
         {
             var validations = new Folder() { Name = "Validations" };
 
@@ -214,6 +215,8 @@ namespace Services
                 var folder = new Folder() { Name = experiment.Name };
                 folder.Children.AddRange(simulations);
                 validations.Children.Add(folder);
+
+                GenerateMetFile(dbContext, experiment.MetStation, path);
             }
 
             var predictedObserved = new Dictionary<string, IEnumerable<string>>()

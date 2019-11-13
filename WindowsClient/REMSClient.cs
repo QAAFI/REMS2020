@@ -302,8 +302,6 @@ namespace WindowsClient
                     var sims = database.CreateApsimFile(path);
                     sims.SaveApsimFile(save.FileName);
 
-                    database.GenerateMetFiles(path);
-
                     Application.UseWaitCursor = false;
                     MessageBox.Show($"Export Complete.");
                 }
