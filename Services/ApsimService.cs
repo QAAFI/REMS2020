@@ -48,7 +48,7 @@ namespace Services
             var Apsim = new ApsimX();
             Apsim.Simulations = new Simulations();
             //JBTest(sims);            
-            Apsim.Simulations.Children.Add(GetDataStore(context, filepath));
+            Apsim.Simulations.Children.Add(GetDataStore());
             Apsim.Simulations.Children.Add(GetReplacements());  
             Apsim.Simulations.Children.Add(GetValidations(context, filepath));
 
@@ -125,7 +125,7 @@ namespace Services
             return builder.ToString();
         }
                 
-        private static DataStore GetDataStore(REMSContext context, string filepath)
+        private static DataStore GetDataStore()
         {
             var store = new DataStore();
 
