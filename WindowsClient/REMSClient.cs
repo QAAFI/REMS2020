@@ -1,9 +1,14 @@
-﻿using REMS;
+﻿using Lamar;
+using REMS;
 using Services;
 using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Rems.Application.Common.Interfaces;
+using MediatR;
+using Rems.Application.Tables.Queries.GetTableList;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WindowsClient
 {
@@ -14,9 +19,12 @@ namespace WindowsClient
         private string _importFolder = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly Settings settings = Settings.Instance;
-
-        public REMSClient()
+        private IMediator _mediator;
+        private readonly IServiceProvider _provider;
+        protected IMediator Mediator => _mediator ??= _provider.GetRequiredService<IMediator>();
+        public REMSClient(IServiceProvider provider)
         {
+            _provider = provider;
             InitializeComponent();
             InitializeControls();                       
 
@@ -24,7 +32,7 @@ namespace WindowsClient
             tablesBox.Click += TablesBoxClicked;
             notebook.SelectedIndexChanged += TabChanged;
         }
-
+        
         private void TabChanged(object sender, EventArgs e)
         {
             if (relationsListBox.SelectedItem == null) return;
@@ -84,8 +92,10 @@ namespace WindowsClient
         /// <summary>
         /// Populates the listview with the tables in the database
         /// </summary>
-        private void UpdateListView()
+        private async void UpdateListView()
         {
+            var tables = await Mediator.Send(new GetTableListQuery());
+
             relationsListBox.Items.Clear();
             foreach (string table in database.Tables)
             {
