@@ -1,13 +1,14 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using REMS.Context.Entities;
 
 namespace REMS.Context
 {
-    using Entities;
 
     public partial class REMSContext : DbContext
-    {        
+    {
+        public virtual Model Model { get; set; }
+
         public virtual DbSet<ChemicalApplication> ChemicalApplications { get; set; }
         
         public virtual DbSet<Crop> Crops { get; set; }

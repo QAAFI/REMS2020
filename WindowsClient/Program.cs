@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Rems.Application;
+using Rems.Persistence;
+using System;
 using System.Windows.Forms;
 
 namespace WindowsClient
 {
     static class Program
     {
+        
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -18,8 +18,20 @@ namespace WindowsClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new REMSClient());            
+
+            ConfigureServices();
+
+            Application.Run(new REMSClient(ServiceProvider));            
         }
-        
+       // public static Container Container { get; set; }
+        public static IServiceProvider ServiceProvider { get; set; }
+
+        static void ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddPersistence();
+            services.AddApplication();
+            ServiceProvider = services.BuildServiceProvider();
+        }
     }
 }
