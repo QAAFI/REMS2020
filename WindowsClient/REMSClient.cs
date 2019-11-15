@@ -1,11 +1,9 @@
-﻿using Lamar;
-using REMS;
+﻿using REMS;
 using Services;
 using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Rems.Application.Common.Interfaces;
 using MediatR;
 using Rems.Application.Tables.Queries.GetTableList;
 using Microsoft.Extensions.DependencyInjection;
@@ -180,10 +178,6 @@ namespace WindowsClient
                         if (database.IsOpen) database.Close();
                         database.Create(save.FileName);
                         database.Open(save.FileName);
-
-                        if (testdatabase.IsOpen) testdatabase.Close();
-                        testdatabase.Create(save.FileName + "test");
-                        testdatabase.Open(save.FileName + "test");
 
                         LoadSettings();
                         UpdateListView();
