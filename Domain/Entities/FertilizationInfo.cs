@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Rems.Domain.Entities
+﻿namespace Rems.Domain.Entities
 {
-    public class FertilizationInfo
+    public class FertilizationInfo : IEntity
     {
         public int FertilizationInfoId { get; set; }
 

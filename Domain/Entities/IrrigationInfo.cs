@@ -1,10 +1,7 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class IrrigationInfo
+    public class IrrigationInfo : IEntity
     {
-        public IrrigationInfo()
-        { }
-
         public int IrrigationInfoId { get; set; }
 
         public int? IrrigationId { get; set; }

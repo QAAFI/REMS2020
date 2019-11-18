@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Treatment
+    public class Treatment : IEntity
     {
         public Treatment()
         {

@@ -1,6 +1,6 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class SoilLayerTrait
+    public class SoilLayerTrait : IEntity
     {
         public int SoilLayerTraitId { get; set; }
 

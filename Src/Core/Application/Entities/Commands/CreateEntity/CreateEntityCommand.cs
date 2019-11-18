@@ -30,12 +30,22 @@ namespace Rems.Application.Entities.Commands.InsertEntity
 
             public async Task<MediatR.Unit> Handle(CreateEntityCommand request, CancellationToken token)
             {
-                var entity = EntityFactory.Create(request.EntityType);
-                entity.Update(request.Pairs);
+                try
+                {
+                    //CreateInstance is likely to cause an exception on any typo - use northwind example for error handling 
+                    IEntity entity = Activator.CreateInstance(Type.GetType(request.EntityType)) as IEntity;
 
-                _context.Add(entity);
-                await _context.SaveChangesAsync(token);
+                    //var entity = EntityFactory.Create(request.EntityType);
+                    entity.Update(request.Pairs);
 
+                    _context.Add(entity);
+                    await _context.SaveChangesAsync(token);
+
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
                 return MediatR.Unit.Value;
             }
         }

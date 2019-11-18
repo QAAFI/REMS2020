@@ -1,7 +1,7 @@
 ﻿
 namespace Rems.Domain.Entities
 {
-    public class Design
+    public class Design : IEntity
     {
         public int DesignId { get; set; }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Tillage
+    public class Tillage : IEntity
     {
         public Tillage()
         {

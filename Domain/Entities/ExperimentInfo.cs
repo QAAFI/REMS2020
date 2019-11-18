@@ -1,10 +1,7 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class ExperimentInfo
+    public class ExperimentInfo : IEntity
     {
-        public ExperimentInfo()
-        { }
-
         public int ExperimentInfoId { get; set; }
 
         public int ExperimentId { get; set; }

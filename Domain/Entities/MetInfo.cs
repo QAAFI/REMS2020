@@ -1,8 +1,7 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class MetInfo
+    public class MetInfo : IEntity
     {
-
         public int MetInfoId { get; set; }
 
         public int? MetStationId { get; set; }

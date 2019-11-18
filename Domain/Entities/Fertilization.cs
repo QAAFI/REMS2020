@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Fertilization
+    public class Fertilization : IEntity
     {
         public Fertilization()
         {

@@ -2,11 +2,8 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Harvest
+    public class Harvest : IEntity
     {
-        public Harvest()
-        { }
-
         public int HarvestId { get; set; }
 
         public int TreatmentId { get; set; }

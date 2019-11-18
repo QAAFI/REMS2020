@@ -1,6 +1,6 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class TillageInfo
+    public class TillageInfo : IEntity
     {
         public int TillageInfoId { get; set; }
 

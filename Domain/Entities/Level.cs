@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Level
+    public class Level : IEntity
     {
         public Level()
         {

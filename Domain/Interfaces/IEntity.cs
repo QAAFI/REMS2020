@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Rems.Application.Common.Interfaces
+namespace Rems.Domain.Entities
 {
     public interface IEntity
     { }

@@ -30,9 +30,11 @@ namespace Rems.Application.Entities.Commands.BulkInsert
 
             public async Task<MediatR.Unit> Handle(BulkInsertCommand request, CancellationToken token)
             {
+
                 var entities = request.Data.Select(d => 
                 {
-                    var entity = EntityFactory.Create(request.EntityType);
+                    //CreateInstance is likely to cause an exception on any typo - use northwind example for error handling 
+                    IEntity entity = Activator.CreateInstance(Type.GetType(request.EntityType)) as IEntity;
                     entity.Update(d);
                     return entity;                
                 });                

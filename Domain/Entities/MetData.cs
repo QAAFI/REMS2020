@@ -3,9 +3,8 @@
 
 namespace Rems.Domain.Entities
 {
-    public class MetData
+    public class MetData : IEntity
     {
-
         public int MetStationId { get; set; }
 
         public int? TraitId { get; set; }
