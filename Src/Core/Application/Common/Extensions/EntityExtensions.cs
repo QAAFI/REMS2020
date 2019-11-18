@@ -1,16 +1,10 @@
-﻿using System;
+﻿using Rems.Domain.Entities;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-
-using Rems.Domain;
-using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
 
 
 namespace Rems.Application.Common.Extensions
 {
-    public static class EEntity
+    public static class EntityExtensions
     {
         public static void Update(this IEntity entity, Dictionary<string, object> pairs)
         {
