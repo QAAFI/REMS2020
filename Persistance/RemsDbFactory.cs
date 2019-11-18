@@ -1,7 +1,7 @@
-﻿using Rems.Application.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Data.Sqlite;
+using Rems.Application.Common.Interfaces;
+using System.Data;
+using System.Linq;
 
 namespace Rems.Persistence
 {
@@ -12,6 +12,7 @@ namespace Rems.Persistence
 
         public void Create(string filename)
         {
+            FileName = filename;
             var holder = new RemsDbContext(filename);
 
             holder.Database.EnsureCreated();
@@ -21,9 +22,32 @@ namespace Rems.Persistence
         }
         public void Open(string filename)
         {
+            FileName = filename;
             Context = new RemsDbContext(filename);
 
         }
+
+        public DataTable getDataTable(string name)
+        {
+            string text = $"SELECT * FROM {name}";
+            DataTable table = null;
+
+            using (var connection = new SqliteConnection("Data Source=" + FileName))
+            {
+                connection.Open();
+                using var command = new SqliteCommand(text, connection);
+                using var reader = command.ExecuteReader();
+
+                table = new DataTable(name);
+
+                table.BeginLoadData();
+                table.Load(reader);
+                table.EndLoadData();
+            };
+
+            return table;
+        }
+
 
     }
 }
