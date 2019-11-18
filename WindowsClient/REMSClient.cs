@@ -8,6 +8,8 @@ using MediatR;
 using Rems.Application.Tables.Queries.GetTableList;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.DB.Commands.CreateDB;
+using Rems.Application.DB.Commands.OpenDB;
+using Rems.Application.DB.Queries.GetDataTable;
 
 namespace WindowsClient
 {
@@ -96,18 +98,18 @@ namespace WindowsClient
             var tables = await Mediator.Send(new GetTableListQuery());
 
             relationsListBox.Items.Clear();
-            foreach (string table in database.Tables)
+            foreach (string table in tables)
             {
                 relationsListBox.Items.Add(table);
             }            
         }
 
-        private void UpdateGridData()
+        private async void UpdateGridData()
         {
             try
             {
-                var table = relationsListBox.SelectedItem.ToString();
-                dataGridView.DataSource = database[table];
+                var tableName = relationsListBox.SelectedItem.ToString();
+                dataGridView.DataSource = await Mediator.Send(new GetDataTableQuery() { TableName = tableName });
             }
             catch (Exception error)
             {
@@ -176,11 +178,11 @@ namespace WindowsClient
                     Application.DoEvents();
                     try
                     {
-                        var tables = await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
+                        await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
 
-                        if (database.IsOpen) database.Close();
-                        database.Create(save.FileName);
-                        database.Open(save.FileName);
+                        //if (database.IsOpen) database.Close();
+                        //database.Create(save.FileName);
+                        //database.Open(save.FileName);
 
                         LoadSettings();
                         UpdateListView();
@@ -212,6 +214,7 @@ namespace WindowsClient
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
 
+                    await Mediator.Send(new OpenDBCommand() { FileName = open.FileName });
 
                     if (database.IsOpen) database.Close();
                     database.Open(open.FileName);
