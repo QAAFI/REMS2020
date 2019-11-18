@@ -1,14 +1,13 @@
-﻿using Lamar;
-using REMS;
+﻿using REMS;
 using Services;
 using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Rems.Application.Common.Interfaces;
 using MediatR;
 using Rems.Application.Tables.Queries.GetTableList;
 using Microsoft.Extensions.DependencyInjection;
+using Rems.Application.DB.Commands.CreateDB;
 
 namespace WindowsClient
 {
@@ -161,7 +160,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to create a new blank database
         /// </summary>
-        private void MenuNewClicked(object sender, EventArgs e)
+        private async void MenuNewClicked(object sender, EventArgs e)
         {
             SaveFileDialog save = new SaveFileDialog()
             {
@@ -177,13 +176,11 @@ namespace WindowsClient
                     Application.DoEvents();
                     try
                     {
+                        var tables = await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
+
                         if (database.IsOpen) database.Close();
                         database.Create(save.FileName);
                         database.Open(save.FileName);
-
-                        if (testdatabase.IsOpen) testdatabase.Close();
-                        testdatabase.Create(save.FileName + "test");
-                        testdatabase.Open(save.FileName + "test");
 
                         LoadSettings();
                         UpdateListView();
@@ -201,7 +198,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to open an existing database
         /// </summary>
-        private void MenuOpenClicked(object sender, EventArgs e)
+        private async void MenuOpenClicked(object sender, EventArgs e)
         {
             OpenFileDialog open = new OpenFileDialog()
             {
@@ -215,11 +212,9 @@ namespace WindowsClient
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
 
+
                     if (database.IsOpen) database.Close();
                     database.Open(open.FileName);
-
-                    if (testdatabase.IsOpen) testdatabase.Close();
-                    testdatabase.Open(open.FileName + "test");
 
                     LoadSettings();
                     UpdateListView();

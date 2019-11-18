@@ -7,8 +7,6 @@ namespace REMS.Context
 
     public partial class REMSContext : DbContext
     {
-        public virtual Model Model { get; set; }
-
         public virtual DbSet<ChemicalApplication> ChemicalApplications { get; set; }
         
         public virtual DbSet<Crop> Crops { get; set; }

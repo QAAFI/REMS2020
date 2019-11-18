@@ -8,10 +8,15 @@ namespace Rems.Persistence
 {
     public class RemsDbContext: DbContext, IRemsDbContext
     {
+        public RemsDbContext(string filename) 
+        {
+            FileName = filename;
+        }
         public RemsDbContext(DbContextOptions<RemsDbContext> options)
             : base(options)
         {
         }
+        public string FileName { get; set; }
 
         public IEnumerable<string> Names 
         { 
@@ -19,10 +24,7 @@ namespace Rems.Persistence
             {
                 return Model.GetEntityTypes().Select(e => e.GetTableName());
             }
-            set
-            {
-
-            }
+            set{}
         }
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
@@ -101,6 +103,16 @@ namespace Rems.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RemsDbContext).Assembly);
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlite("Data Source=" + FileName);
+                optionsBuilder.UseLazyLoadingProxies(true);
+                optionsBuilder.EnableSensitiveDataLogging(true);
+                optionsBuilder.EnableDetailedErrors(true);
+            }
         }
 
     }
