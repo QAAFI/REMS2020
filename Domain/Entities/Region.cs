@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Region
+    public class Region : IEntity
     {
         public Region()
         {

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace WindowsClient
+namespace Rems.Application.Common.Models
 {
     /// <summary>
     /// A dictionary where both the values and keys must be distinct
@@ -20,7 +19,7 @@ namespace WindowsClient
 
             if (ContainsValue(value))
             {
-                throw new Exception($"Value already exists: {value}"); 
+                throw new Exception($"Value already exists: {value}");
             }
 
             base.Add(key, value);
@@ -34,17 +33,9 @@ namespace WindowsClient
             }
             set
             {
-                if (ContainsKey(key))
-                {
-                    if (ContainsValue(value)) 
-                        throw new Exception($"Value already exists: {value}");
-                    else
-                    {
-                        base[key] = value;
-                    }                    
-                }
-                else
-                    Add(key, value);
+                if (ContainsValue(value)) throw new Exception($"Value already exists in DistinctDictionary: {value}");
+
+                base[key] = value;
             }
         }
     }

@@ -1,12 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Rems.Domain.Entities;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
 {
     public interface IRemsDbContext
     {
-        public IEnumerable<string> Names { get; set; }
+        EntityEntry Add(object entity);
+
+        void AddRange(params object[] entities);
+
+        Task<int> SaveChangesAsync(CancellationToken token);
+
+        public IEnumerable<string> Names { get; set; }      
+
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
         public DbSet<Crop> Crops { get; set; }

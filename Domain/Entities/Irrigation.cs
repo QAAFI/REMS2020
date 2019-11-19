@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Irrigation
+    public class Irrigation : IEntity
     {
         public Irrigation()
         {

@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Unit
+    public class Unit : IEntity
     {
         public Unit()
         {
@@ -24,7 +24,5 @@ namespace Rems.Domain.Entities
         public virtual ICollection<PlotData> PlotData { get; set; }
         public virtual ICollection<Stat> Stats { get; set; }
         public virtual ICollection<Trait> Traits { get; set; }
-
-
     }
 }

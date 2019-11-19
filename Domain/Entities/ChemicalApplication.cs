@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 
 
 namespace Rems.Domain.Entities
 {
-    public class ChemicalApplication
+    public class ChemicalApplication : IEntity
     {
         public int ApplicationId { get; set; }
 

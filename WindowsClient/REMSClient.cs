@@ -6,6 +6,8 @@ using System.Linq;
 using System.Windows.Forms;
 using MediatR;
 using Rems.Application.Tables.Queries.GetTableList;
+using Rems.Application.Common.Mappings;
+using Rems.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.DB.Commands.CreateDB;
 using Rems.Application.DB.Commands.OpenDB;
@@ -16,7 +18,6 @@ namespace WindowsClient
     public partial class REMSClient : Form
     {
         private IREMSDatabase database = REMSDataFactory.Create();
-        private IREMSDatabase testdatabase = REMSDataFactory.Create();
         private string _importFolder = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly Settings settings = Settings.Instance;
@@ -56,21 +57,55 @@ namespace WindowsClient
             // If the settings couldn't be loaded
             if (!settings.Loaded)
             {
-                settings.TrackProperty("TABLES");
+                // Track the tables
+                var tables = new PropertyMap("TABLES");
                 foreach (var table in database.Tables)
                 {
-                    settings["TABLES"][table] = table;
+                    tables.AddMapping(table);
                 }
+                settings.TrackProperty(tables);
 
+                // Track the traits
+                var traits = new PropertyMap("TRAITS");
+
+                // TEMPORARY
+                traits.AddMapping("AirDry", "air_dry");
+                traits.AddMapping("CN2Bare", "cn2_bare");
+                traits.AddMapping("CNCov", "cn_cov");
+                traits.AddMapping("CNRed", "cn_red");
+                traits.AddMapping("SummerCona", "cona");
+                traits.AddMapping("DiffusConst", "diffus_const");
+                traits.AddMapping("DiffusSlope", "diffus_slope");
+                traits.AddMapping("DUL", "dul");
+                //traits.AddMapping("", "enr_a_coeff");
+                //traits.AddMapping("", "enr_b_coeff");
+                traits.AddMapping("FBiom", "fbiom");
+                traits.AddMapping("FInert", "finert");
+                traits.AddMapping("KL", "kl");
+                traits.AddMapping("LL", "ll");
+                traits.AddMapping("LL15", "ll15");
+                traits.AddMapping("MaxT", "maxt");
+                traits.AddMapping("MinT", "mint");
+                //traits.AddMapping("", "nh4ppm");
+                //traits.AddMapping("", "no3ppm");
+                traits.AddMapping("OC", "oc");
+                traits.AddMapping("Radn", "radn");
+                //traits.AddMapping("", "root_cn");
+                //traits.AddMapping("", "root_wt");
+                traits.AddMapping("Salb", "salb");
+                traits.AddMapping("SAT", "sat");
+                traits.AddMapping("SoilCNRatio", "soil_cn");
+                traits.AddMapping("SW", "sw");
+                traits.AddMapping("SWCON", "swcon");
+                //traits.AddMapping("", "u");
+                //traits.AddMapping("", "ureappm");
+                traits.AddMapping("XF", "xf");
+
+                // Track the entities
                 foreach (var entity in database.Entities)
                 {
-                    var type = entity.GetType();
-                    var name = type.Name + "s";
-                    settings.TrackProperty(name);
-                    foreach (var property in type.GetProperties())
-                    {
-                        settings[name][property.Name] = property.Name;
-                    }
+                    var map = new PropertyMap(entity);
+                    settings.TrackProperty(map);
                 }
             }
         }
@@ -179,10 +214,6 @@ namespace WindowsClient
                     try
                     {
                         await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
-
-                        //if (database.IsOpen) database.Close();
-                        //database.Create(save.FileName);
-                        //database.Open(save.FileName);
 
                         LoadSettings();
                         UpdateListView();

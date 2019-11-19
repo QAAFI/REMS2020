@@ -3,6 +3,8 @@ using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Rems.Persistence
 {
@@ -26,6 +28,7 @@ namespace Rems.Persistence
             }
             set{}
         }
+
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
         public DbSet<Crop> Crops { get; set; }

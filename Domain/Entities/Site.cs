@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Site
+    public class Site : IEntity
     {
         public Site()
         {

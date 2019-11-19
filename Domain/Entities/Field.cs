@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Field
+    public class Field : IEntity
     {
         public Field()
         {

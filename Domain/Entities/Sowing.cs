@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Sowing
+    public class Sowing : IEntity
     {
         public int SowingId { get; set; }
 

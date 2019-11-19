@@ -2,9 +2,8 @@
 
 namespace Rems.Domain.Entities
 {
-    public class PlotData
+    public class PlotData : IEntity
     {
-        
         public int PlotDataId { get; set; }
 
         public int? PlotId { get; set; }

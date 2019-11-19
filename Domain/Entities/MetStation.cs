@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class MetStation
+    public class MetStation : IEntity
     {
         public MetStation()
         {

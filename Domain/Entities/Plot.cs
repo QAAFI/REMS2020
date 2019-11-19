@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Plot
+    public class Plot : IEntity
     {
         public Plot()
         {

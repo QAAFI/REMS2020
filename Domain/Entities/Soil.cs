@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Soil
+    public class Soil : IEntity
     {
         public Soil()
         {

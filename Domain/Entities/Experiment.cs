@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Experiment 
+    public class Experiment : IEntity
     {
         public Experiment()
         {

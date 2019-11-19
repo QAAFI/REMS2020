@@ -1,6 +1,6 @@
 ﻿namespace Rems.Domain.Entities
 {
-    public class ResearcherList
+    public class ResearcherList : IEntity
     {
         public int ResearcherListId { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Stat
+    public class Stat : IEntity
     {
         public int StatId { get; set; }
 
