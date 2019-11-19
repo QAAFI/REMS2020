@@ -33,17 +33,9 @@ namespace Rems.Application.Common.Models
             }
             set
             {
-                if (ContainsKey(key))
-                {
-                    if (ContainsValue(value))
-                        throw new Exception($"Value already exists: {value}");
-                    else
-                    {
-                        base[key] = value;
-                    }
-                }
-                else
-                    Add(key, value);
+                if (ContainsValue(value)) throw new Exception($"Value already exists in DistinctDictionary: {value}");
+
+                base[key] = value;
             }
         }
     }
