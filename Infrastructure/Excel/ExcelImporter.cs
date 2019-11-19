@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace REMS
+namespace Rems.Infrastructure.Excel
 {
     public static class ExcelImporter
     {
