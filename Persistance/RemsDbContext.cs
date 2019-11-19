@@ -1,6 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,24 +14,22 @@ namespace Rems.Persistence
 {
     public class RemsDbContext: DbContext, IRemsDbContext
     {
+        public string FileName { get; set; }
+
+        public IEnumerable<string> Names { get; set; }
+
+        public IEnumerable<IPropertyMap> Mappings { get; set; }
+
         public RemsDbContext(string filename) 
         {
             FileName = filename;
+            Mappings = Model.GetEntityTypes().Select(e => new PropertyMap(Activator.CreateInstance(e.ClrType)));
+            Names = Model.GetEntityTypes().Select(e => e.GetTableName());
         }
+
         public RemsDbContext(DbContextOptions<RemsDbContext> options)
             : base(options)
-        {
-        }
-        public string FileName { get; set; }
-
-        public IEnumerable<string> Names 
-        { 
-            get 
-            {
-                return Model.GetEntityTypes().Select(e => e.GetTableName());
-            }
-            set{}
-        }
+        { }        
 
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 

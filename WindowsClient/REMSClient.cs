@@ -18,7 +18,7 @@ namespace WindowsClient
 {
     public partial class REMSClient : Form
     {
-        private IREMSDatabase database = REMSDataFactory.Create();
+        private IRemsDbContext context;
         private string _importFolder = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly Settings settings = Settings.Instance;
@@ -60,7 +60,7 @@ namespace WindowsClient
             {
                 // Track the tables
                 var tables = new PropertyMap("TABLES");
-                foreach (var table in database.Tables)
+                foreach (var table in context.Names)
                 {
                     tables.AddMapping(table);
                 }
@@ -103,9 +103,8 @@ namespace WindowsClient
                 traits.AddMapping("XF", "xf");
 
                 // Track the entities
-                foreach (var entity in database.Entities)
+                foreach (var map in context.Mappings)
                 {
-                    var map = new PropertyMap(entity);
                     settings.TrackProperty(map);
                 }
             }
@@ -175,10 +174,10 @@ namespace WindowsClient
             }            
         }
 
-        private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
+        private async void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             settings.Save();
-            database.Close();
+            await Mediator.Send(new CloseDBCommand() { Context = context });
         }
 
         private void ListBoxIndexChanged(object sender, EventArgs e)
@@ -200,7 +199,7 @@ namespace WindowsClient
         /// </summary>
         private async void MenuNewClicked(object sender, EventArgs e)
         {
-            SaveFileDialog save = new SaveFileDialog()
+            using var save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 AddExtension = true,
@@ -214,7 +213,7 @@ namespace WindowsClient
                     Application.DoEvents();
                     try
                     {
-                        await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
+                        context = await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
 
                         LoadSettings();
                         UpdateListView();
@@ -234,7 +233,7 @@ namespace WindowsClient
         /// </summary>
         private async void MenuOpenClicked(object sender, EventArgs e)
         {
-            OpenFileDialog open = new OpenFileDialog()
+            using var open = new OpenFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "SQLite (*.db)|*.db"
@@ -246,10 +245,7 @@ namespace WindowsClient
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
 
-                    await Mediator.Send(new OpenDBCommand() { FileName = open.FileName });
-
-                    if (database.IsOpen) database.Close();
-                    database.Open(open.FileName);
+                    context = await Mediator.Send(new OpenDBCommand() { FileName = open.FileName });
 
                     LoadSettings();
                     UpdateListView();
@@ -266,12 +262,13 @@ namespace WindowsClient
         /// <summary>
         /// On click, saves changes made to the database
         /// </summary>
-        private void MenuSaveClicked(object sender, EventArgs e)
+        private async void MenuSaveClicked(object sender, EventArgs e)
         {
             try
             {
                 settings.Save();
-                database.Save();                
+
+                await Mediator.Send(new SaveDBCommand() { Context = context });
             }
             catch (Exception error)
             {
@@ -284,7 +281,7 @@ namespace WindowsClient
         /// </summary>
         private void MenuImportClicked(object sender, EventArgs e)
         {            
-            if (!database.IsOpen)
+            if (context == null)
             {
                 ErrorMessage("You must select a database before importing data.", "No database selected.");
                 return;
@@ -300,27 +297,20 @@ namespace WindowsClient
                 Application.UseWaitCursor = true;
                 Application.DoEvents();
                 try
-                {                  
-                    var watch1 = new System.Diagnostics.Stopwatch();
-                    watch1.Start();
-                    database.ImportExcelDataFast(open.FileName);
-                    watch1.Stop();
-
-                    //var watch2 = new System.Diagnostics.Stopwatch();
-                    //watch2.Start();
-                    //testdatabase.ImportExcelDataSlow(open.FileName);
-                    //watch2.Stop();
+                {     
+                    // TODO: Get the import working again
+                    //context.ImportExcelDataFast(open.FileName);
 
                     UpdateListView();
-                    Application.UseWaitCursor = false;
+                    
                     MessageBox.Show($"Import Complete.\n");
-                    //MessageBox.Show($"Import Complete.\nTime elapsed fast: {watch1.ElapsedMilliseconds} ms\nTime elapsed slow: {watch2.ElapsedMilliseconds} ms");
                 }
                 catch (Exception error)
                 {
                     ErrorMessage(error.Message);
-                    Application.UseWaitCursor = false;
                 }
+
+                Application.UseWaitCursor = false;
             }
         }
 
@@ -339,8 +329,9 @@ namespace WindowsClient
 
                 try
                 {
-                    var sims = database.CreateApsimFile(path);
-                    sims.SaveApsimFile(save.FileName);
+                    // TODO: Get the export working again
+                    //var sims = context.CreateApsimFile(path);
+                    //sims.SaveApsimFile(save.FileName);
 
                     Application.UseWaitCursor = false;
                     MessageBox.Show($"Export Complete.");

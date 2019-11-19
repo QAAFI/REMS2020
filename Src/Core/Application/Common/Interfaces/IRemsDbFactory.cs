@@ -9,6 +9,7 @@ namespace Rems.Application.Common.Interfaces
         public IRemsDbContext Context { get; set; }
 
         public void Create(string filename);
+
         public void Open(string filename);
 
         public DataTable getDataTable(string name);

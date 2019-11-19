@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
+
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +18,9 @@ namespace Rems.Application.Common.Interfaces
 
         Task<int> SaveChangesAsync(CancellationToken token);
 
-        public IEnumerable<string> Names { get; set; }      
+        public IEnumerable<string> Names { get; set; }
+
+        public IEnumerable<IPropertyMap> Mappings { get; set; }
 
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 

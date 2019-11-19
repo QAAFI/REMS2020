@@ -20,11 +20,11 @@ namespace Rems.Persistence
 
             Context = holder;
         }
+
         public void Open(string filename)
         {
             FileName = filename;
             Context = new RemsDbContext(filename);
-
         }
 
         public DataTable getDataTable(string name)
