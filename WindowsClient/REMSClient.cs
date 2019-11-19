@@ -15,7 +15,6 @@ namespace WindowsClient
     public partial class REMSClient : Form
     {
         private IREMSDatabase database = REMSDataFactory.Create();
-        private IREMSDatabase testdatabase = REMSDataFactory.Create();
         private string _importFolder = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly Settings settings = Settings.Instance;
@@ -247,9 +246,6 @@ namespace WindowsClient
 
                     if (database.IsOpen) database.Close();
                     database.Open(open.FileName);
-
-                    if (testdatabase.IsOpen) testdatabase.Close();
-                    testdatabase.Open(open.FileName + "test");
 
                     LoadSettings();
                     UpdateListView();
