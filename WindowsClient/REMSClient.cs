@@ -9,6 +9,9 @@ using Rems.Application.Tables.Queries.GetTableList;
 using Rems.Application.Common.Mappings;
 using Rems.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Rems.Application.DB.Commands.CreateDB;
+using Rems.Application.DB.Commands.OpenDB;
+using Rems.Application.DB.Queries.GetDataTable;
 
 namespace WindowsClient
 {
@@ -130,18 +133,18 @@ namespace WindowsClient
             var tables = await Mediator.Send(new GetTableListQuery());
 
             relationsListBox.Items.Clear();
-            foreach (string table in database.Tables)
+            foreach (string table in tables)
             {
                 relationsListBox.Items.Add(table);
             }            
         }
 
-        private void UpdateGridData()
+        private async void UpdateGridData()
         {
             try
             {
-                var table = relationsListBox.SelectedItem.ToString();
-                dataGridView.DataSource = database[table];
+                var tableName = relationsListBox.SelectedItem.ToString();
+                dataGridView.DataSource = await Mediator.Send(new GetDataTableQuery() { TableName = tableName });
             }
             catch (Exception error)
             {
@@ -194,7 +197,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to create a new blank database
         /// </summary>
-        private void MenuNewClicked(object sender, EventArgs e)
+        private async void MenuNewClicked(object sender, EventArgs e)
         {
             SaveFileDialog save = new SaveFileDialog()
             {
@@ -210,9 +213,7 @@ namespace WindowsClient
                     Application.DoEvents();
                     try
                     {
-                        if (database.IsOpen) database.Close();
-                        database.Create(save.FileName);
-                        database.Open(save.FileName);
+                        await Mediator.Send(new CreateDBCommand() { FileName = save.FileName });
 
                         LoadSettings();
                         UpdateListView();
@@ -230,7 +231,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to open an existing database
         /// </summary>
-        private void MenuOpenClicked(object sender, EventArgs e)
+        private async void MenuOpenClicked(object sender, EventArgs e)
         {
             OpenFileDialog open = new OpenFileDialog()
             {
@@ -243,6 +244,8 @@ namespace WindowsClient
                 {
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
+
+                    await Mediator.Send(new OpenDBCommand() { FileName = open.FileName });
 
                     if (database.IsOpen) database.Close();
                     database.Open(open.FileName);

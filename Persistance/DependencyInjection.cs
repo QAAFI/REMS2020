@@ -10,10 +10,10 @@ namespace Rems.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
 
-            services.AddDbContext<RemsDbContext>(options =>
-            options.UseSqlite("Data Source=Data\\Database.db"));//  $"Data Source={file};");
-            
-            services.AddScoped<IRemsDbContext>(provider => provider.GetService<RemsDbContext>());
+            //services.AddDbContext<RemsDbContext>(options =>
+            //options.UseSqlite("Data Source=Data\\Database.db"));//  $"Data Source={file};");
+
+            services.AddScoped<IRemsDbFactory, RemsDbFactory>(); // (provider => provider.GetService<RemsDbFactory>());
 
             return services;
         }
