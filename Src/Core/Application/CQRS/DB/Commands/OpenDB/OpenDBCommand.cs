@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rems.Application.DB.Commands.CreateDB
+namespace Rems.Application.DB.Commands
 {
-    public class CreateDBCommand : IRequest
+    public class OpenDBCommand : IRequest<IRemsDbContext>
     {
         public string FileName { get; set; }
 
-        public class Handler : IRequestHandler<CreateDBCommand>
+        public class Handler : IRequestHandler<OpenDBCommand, IRemsDbContext>
         {
             private readonly IRemsDbFactory _factory;
 
@@ -21,10 +21,10 @@ namespace Rems.Application.DB.Commands.CreateDB
                 _factory = factory;
             }
 
-            public async Task<Unit> Handle(CreateDBCommand request, CancellationToken cancellationToken)
+            public async Task<IRemsDbContext> Handle(OpenDBCommand request, CancellationToken cancellationToken)
             {
-                _factory.Create(request.FileName);
-                return Unit.Value;
+                _factory.Open(request.FileName);
+                return _factory.Context;
             }
         }
     }
