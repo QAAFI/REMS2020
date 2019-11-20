@@ -9,7 +9,7 @@ namespace Rems.Infrastructure
     {
         public static string ReadRawText(string file)
         {
-            var filePath = Path.Combine("Data", "apsimx", file);
+            var filePath = Path.Combine("DataFiles", "apsimx", file);
             StringBuilder builder = new StringBuilder();
             using var reader = new StreamReader(filePath);
             while (!reader.EndOfStream)
