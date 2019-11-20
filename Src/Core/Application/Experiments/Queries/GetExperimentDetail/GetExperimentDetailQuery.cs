@@ -7,6 +7,6 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
 {
     public class GetExperimentDetailQuery : IRequest<ExperimentDetailVm>
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
     }
 }
