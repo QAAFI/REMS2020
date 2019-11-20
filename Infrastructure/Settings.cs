@@ -33,13 +33,18 @@ namespace Rems.Infrastructure
         public static Settings Instance => instance;
 
         private Settings()
-        {
-            mappings = new HashSet<IPropertyMap>();
+        {            
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\REMS2020";
 
             Directory.CreateDirectory(folder);
 
             file = folder + "\\settings.json";
+
+            mappings = new HashSet<IPropertyMap>()
+            {
+                new PropertyMap("TABLES"),
+                new PropertyMap("TRAITS")
+            };
         }
 
         public IPropertyMap this[string name]

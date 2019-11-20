@@ -27,6 +27,11 @@ namespace Rems.Application.Common.Mappings
         void AddMapping(string property);
 
         /// <summary>
+        /// Add a new property with a value to the mapping
+        /// </summary>
+        void AddMapping(string property, string value);
+
+        /// <summary>
         /// Remove a property from the mapping
         /// </summary>
         bool RemoveMapping(string property);

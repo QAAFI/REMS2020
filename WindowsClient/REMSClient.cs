@@ -61,15 +61,14 @@ namespace WindowsClient
             if (!settings.Loaded)
             {
                 // Track the tables
-                var tables = new PropertyMap("TABLES");
+                var tables = Settings.Instance["TABLES"];
                 foreach (var table in context.Names)
                 {
                     tables.AddMapping(table);
                 }
-                settings.TrackProperty(tables);
 
                 // Track the traits
-                var traits = new PropertyMap("TRAITS");
+                var traits = Settings.Instance["TRAITS"];
 
                 // TEMPORARY
                 traits.AddMapping("AirDry", "air_dry");
@@ -93,6 +92,7 @@ namespace WindowsClient
                 //traits.AddMapping("", "no3ppm");
                 traits.AddMapping("OC", "oc");
                 traits.AddMapping("Radn", "radn");
+                traits.AddMapping("Rain", "rain");
                 //traits.AddMapping("", "root_cn");
                 //traits.AddMapping("", "root_wt");
                 traits.AddMapping("Salb", "salb");
