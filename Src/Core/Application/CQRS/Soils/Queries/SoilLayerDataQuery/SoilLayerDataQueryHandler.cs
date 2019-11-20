@@ -11,7 +11,7 @@ using Rems.Domain.Entities;
 
 namespace Rems.Application.Soils.Queries
 {
-    public class SoilLayerDataQueryHandler : IRequestHandler<SoilLayerDataQuery, IEnumerable<double>>
+    public class SoilLayerDataQueryHandler : IRequestHandler<SoilLayerDataQuery, double[]>
     {
         private readonly IRemsDbContext _context;
 
@@ -20,13 +20,13 @@ namespace Rems.Application.Soils.Queries
             _context = context;
         }
 
-        public async Task<IEnumerable<double>> Handle(SoilLayerDataQuery request, CancellationToken cancellationToken)
+        public async Task<double[]> Handle(SoilLayerDataQuery request, CancellationToken cancellationToken)
         {
-            return from data in _context.SoilLayerDatas
+            return (from data in _context.SoilLayerDatas
                    where data.PlotId == request.PlotId
-                   where data.TraitId == request.TraitId
+                   where data.Trait.Name == request.TraitName
                    orderby data.DepthFrom
-                   select data.Value ?? 0.0;
+                   select data.Value ?? 0.0).ToArray();
         }
     }
 }

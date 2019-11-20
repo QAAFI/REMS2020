@@ -11,10 +11,10 @@ using Rems.Domain.Entities;
 
 namespace Rems.Application.Soils.Queries
 {
-    public class SoilLayerDataQuery : IRequest<IEnumerable<double>>
+    public class SoilLayerDataQuery : IRequest<double[]>
     {
         public int PlotId { get; set; }
 
-        public int TraitId { get; set; }
+        public string TraitName { get; set; }
     }
 }
