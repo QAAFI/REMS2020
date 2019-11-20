@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rems.Application.Tables.Queries.GetTableList
+namespace Rems.Application.Tables.Queries
 {
-    class GetTableListQueryHandler : IRequestHandler<GetTableListQuery, IEnumerable<string> >
+    public class GetTableListQueryHandler : IRequestHandler<GetTableListQuery, IEnumerable<string> >
     {
         private readonly IRemsDbFactory _factory;
         public GetTableListQueryHandler(IRemsDbFactory factory)

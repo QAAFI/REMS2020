@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 
-namespace Rems.Application.Entities.Commands.InsertEntity
+namespace Rems.Application.Entities.Commands
 {
     public class CreateEntityCommand : IRequest
     {

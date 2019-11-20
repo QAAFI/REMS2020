@@ -15,4 +15,10 @@
     <ProjectReference Include="..\Src\Core\Application\Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Models">
+      <HintPath>..\..\ApsimX\Models\Bin\Debug\netcoreapp3.0\Models.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

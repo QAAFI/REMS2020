@@ -9,8 +9,10 @@ using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
 using Rems.Application.DB.Commands;
 using Rems.Application.DB.Queries.GetDataTable;
-using Rems.Application.Tables.Queries.GetTableList;
+using Rems.Application.Entities.Commands;
+using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;
+using Rems.Infrastructure.Excel;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -279,7 +281,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, imports data from the selected file
         /// </summary>
-        private void MenuImportClicked(object sender, EventArgs e)
+        private async void MenuImportClicked(object sender, EventArgs e)
         {            
             if (context == null)
             {
@@ -287,7 +289,7 @@ namespace WindowsClient
                 return;
             }
 
-            OpenFileDialog open = new OpenFileDialog()
+            using var open = new OpenFileDialog()
             {
                 InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
@@ -297,9 +299,9 @@ namespace WindowsClient
                 Application.UseWaitCursor = true;
                 Application.DoEvents();
                 try
-                {     
-                    // TODO: Get the import working again
-                    //context.ImportExcelDataFast(open.FileName);
+                {
+                    using var excel = ExcelImporter.ReadRawData(open.FileName);
+                    await Mediator.Send(new BulkInsertCommand() { Data = excel, TableMap = Settings.Instance["TABLES"] });
 
                     UpdateListView();
                     
@@ -316,7 +318,7 @@ namespace WindowsClient
 
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            SaveFileDialog save = new SaveFileDialog()
+            using var save = new SaveFileDialog()
             {
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "ApsimNG (*.apsimx)|*.apsimx"
