@@ -1,40 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 using MediatR;
 
 using Models;
 using Models.Core;
-using Models.Core.ApsimFile;
-using Models.Core.Run;
-using Models.Graph;
-using Models.PMF;
-using Models.PostSimulationTools;
-using Models.Report;
-using Models.Soils;
-using Models.Soils.Arbitrator;
-using Models.Storage;
-using Models.Surface;
+
+using Rems.Application.Queries;
+using Rems.Infrastructure.Met;
 
 namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public static Folder BuildValidations(IMediator mediator, string path)
+        public async Task<Folder> BuildValidations(string path)
         {
             var validations = new Folder() { Name = "Validations" };
 
             validations.Children.Add(BuildCombinedResults());
 
-            foreach (var experiment in dbContext.Experiments)
+            foreach (var experiment in await _mediator.Send(new ExperimentsQuery()))
             {
-                var simulations = experiment.Treatments.Select(t => NewSorghumSimulation(t, dbContext));
                 var folder = new Folder() { Name = experiment.Name };
-                folder.Children.AddRange(simulations);
+
+                foreach (var treatment in experiment.Treatments)
+                {
+                    var simulation = await BuildSorghumSimulation(treatment);
+                    folder.Children.Add(simulation);
+                }                
                 validations.Children.Add(folder);
 
-                GenerateMetFile(dbContext, experiment.MetStation, path);
+                MetWriter.GenerateMetFile(_mediator, experiment.MetStationId, path);
             }
 
             var predictedObserved = new Dictionary<string, IEnumerable<string>>()

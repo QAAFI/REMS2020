@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
-using Rems.Application.Common.Models;
 using Rems.Application.Common.Mappings;
-
-using Rems.Infrastructure.Json;
 
 namespace Rems.Infrastructure
 {
