@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 
 using Newtonsoft.Json;
@@ -11,16 +12,13 @@ namespace Rems.Infrastructure
     public sealed class Settings
     {
         [JsonRequired]
-        private static HashSet<IPropertyMap> mappings;
+        private HashSet<IPropertyMap> mappings;
 
         [JsonIgnore]
         private readonly string file;
 
         [JsonIgnore]
-        private static bool loaded = false;
-
-        [JsonIgnore]
-        public bool Loaded => loaded;
+        public bool Loaded { get; set; } = false;
 
         [JsonIgnore]
         private static Settings instance = new Settings();
@@ -47,8 +45,10 @@ namespace Rems.Infrastructure
         {
             get
             {
-                if (mappings.TryGetValue(new PropertyMap(name), out IPropertyMap result))
-                    return result;
+                var map = mappings.FirstOrDefault(m => m.Name == name);
+
+                if (map != null)
+                    return map;
                 else
                     throw new Exception($"No mapping \"{name}\" exists.");
             }
@@ -63,7 +63,7 @@ namespace Rems.Infrastructure
 
             instance = JsonTools.LoadJson<Settings>(file);
 
-            loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
