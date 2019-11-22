@@ -16,6 +16,8 @@ namespace Rems.Application.Common.Interfaces
 
         void AddRange(params object[] entities);
 
+        int SaveChanges();
+
         Task<int> SaveChangesAsync(CancellationToken token);
 
         public IEnumerable<string> Names { get; set; }

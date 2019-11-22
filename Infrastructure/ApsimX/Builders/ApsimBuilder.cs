@@ -8,5 +8,10 @@ namespace Rems.Infrastructure
     {
         private readonly IMediator _mediator;
         private readonly IPropertyMap _map = Settings.Instance["TRAITS"];
+
+        public ApsimBuilder(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public static Replacements BuildReplacements()
+        public Replacements BuildReplacements()
         {
             var replacements = new Replacements() { Name = "Replacements" };
 

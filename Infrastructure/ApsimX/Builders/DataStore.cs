@@ -5,7 +5,7 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public static DataStore BuildDataStore()
+        public DataStore BuildDataStore()
         {
             var store = new DataStore();
 

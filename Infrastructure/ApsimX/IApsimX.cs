@@ -1,4 +1,5 @@
-﻿using Models.Core.ApsimFile;
+﻿using Models.Core;
+using Models.Core.ApsimFile;
 using Models.Core.Run;
 
 using System.IO;
@@ -7,6 +8,9 @@ namespace Rems.Infrastructure.ApsimX
 {
     public interface IApsimX
     {
+        ApsimBuilder Builder { get; set; }
+
+        Simulations Simulations { get; set; }
     }
 
     public static class ApsimXExtensions
@@ -16,6 +20,13 @@ namespace Rems.Infrastructure.ApsimX
             ApsimX apsim = apsimx as ApsimX;
             var runner = new Runner(apsim.Simulations);
             runner.Run();
+        }
+
+        public static async void CreateApsimModel(this IApsimX apsimx, string path)
+        {
+            apsimx.Simulations.Children.Add(apsimx.Builder.BuildDataStore());
+            apsimx.Simulations.Children.Add(apsimx.Builder.BuildReplacements());
+            apsimx.Simulations.Children.Add(await apsimx.Builder.BuildValidations(path));
         }
 
         public static void SaveApsimFile(this IApsimX apsimx, string filename)
