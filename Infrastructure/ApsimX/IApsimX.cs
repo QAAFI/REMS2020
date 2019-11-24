@@ -3,6 +3,7 @@ using Models.Core.ApsimFile;
 using Models.Core.Run;
 
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.ApsimX
 {
@@ -22,7 +23,7 @@ namespace Rems.Infrastructure.ApsimX
             runner.Run();
         }
 
-        public static async void CreateApsimModel(this IApsimX apsimx, string path)
+        public static async Task CreateApsimModel(this IApsimX apsimx, string path)
         {
             apsimx.Simulations.Children.Add(apsimx.Builder.BuildDataStore());
             apsimx.Simulations.Children.Add(apsimx.Builder.BuildReplacements());

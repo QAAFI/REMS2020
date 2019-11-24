@@ -54,6 +54,14 @@ namespace Rems.Infrastructure
             }
         }
 
+        public bool IsMapped(string name)
+        {
+            if (mappings.Any(m => m.Name == name)) 
+                return true;
+            else
+                return false;
+        }
+
         /// <summary>
         /// Loads the last saved settings
         /// </summary>

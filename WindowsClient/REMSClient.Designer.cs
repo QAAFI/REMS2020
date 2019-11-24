@@ -172,7 +172,7 @@
             this.relationsListBox.Name = "relationsListBox";
             this.relationsListBox.Size = new System.Drawing.Size(143, 654);
             this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.ListBoxIndexChanged);
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.UpdatePageDisplay);
             // 
             // notebook
             // 
