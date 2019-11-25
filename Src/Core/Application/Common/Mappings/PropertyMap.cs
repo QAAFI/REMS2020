@@ -45,6 +45,19 @@ namespace Rems.Application.Common.Mappings
                 return false;
         }
 
+        public bool HasMapping(string value)
+        {
+            if (maps.ContainsValue(value))
+                return true;
+            else
+                return false;
+        }
+
+        public string MappedFrom(string value)
+        {
+            return maps.Single(kvp => kvp.Value == value).Key;
+        }
+
         public bool RemoveMapping(string property)
         {
             return maps.Remove(property);
@@ -81,5 +94,6 @@ namespace Rems.Application.Common.Mappings
         {
             return GetEnumerator();
         }
+        
     }
 }
