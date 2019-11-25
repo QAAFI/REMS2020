@@ -69,7 +69,7 @@ namespace Rems.Infrastructure
         {
             if (!File.Exists(file)) return;
 
-            instance = JsonTools.LoadJson<Settings>(file);
+            mappings = JsonTools.LoadJson<HashSet<IPropertyMap>>(file);
 
             Loaded = true;
         }
@@ -79,7 +79,7 @@ namespace Rems.Infrastructure
         /// </summary>
         public void Save()
         {
-            JsonTools.SaveJson(file, this);
+            JsonTools.SaveJson(file, mappings);
         }
 
         public void TrackProperty(IPropertyMap mapping)
