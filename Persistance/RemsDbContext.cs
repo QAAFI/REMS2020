@@ -91,7 +91,7 @@ namespace Rems.Persistence
 
         public DbSet<Soil> Soils { get; set; }
 
-        public DbSet<Sowing> Sowing { get; set; }
+        public DbSet<Sowing> Sowings { get; set; }
 
         public DbSet<Stat> Stats { get; set; }
 

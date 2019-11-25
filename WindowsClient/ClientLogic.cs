@@ -9,7 +9,7 @@ using MediatR;
 
 using Rems.Application.Common.Interfaces;
 using Rems.Application.DB.Commands;
-using Rems.Application.DB.Queries.GetDataTable;
+using Rems.Application.DB.Queries;
 using Rems.Application.Entities.Commands;
 using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;

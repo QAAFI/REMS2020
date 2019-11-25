@@ -28,7 +28,7 @@ namespace Rems.Application.Queries
 
         public async Task<SowingQueryDto> Handle(SowingQuery request, CancellationToken token)
         {
-            return _context.Sowing
+            return _context.Sowings
                 .Where(s => s.SowingId == request.Id)
                 .ProjectTo<SowingQueryDto>(_mapper.ConfigurationProvider)
                 .Single();

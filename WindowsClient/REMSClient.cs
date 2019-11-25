@@ -58,6 +58,7 @@ namespace WindowsClient
                 if (sender is TextBox) 
                     item = ((TextBox)sender).Text;
                 else
+                    // Remove trailing 's'
                     item = item.Remove(item.Length - 1);
 
                 pageProperties.Controls.Clear();
