@@ -6,7 +6,7 @@ using Rems.Application.Common.Interfaces;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Rems.Application.DB.Queries.GetDataTable
+namespace Rems.Application.DB.Queries
 {
     public class GetDataTableQuery : IRequest<DataTable>
     {

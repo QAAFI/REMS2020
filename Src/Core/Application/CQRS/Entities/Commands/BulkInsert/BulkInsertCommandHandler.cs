@@ -3,7 +3,6 @@
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
-using Rems.Domain;
 using Rems.Domain.Entities;
 
 using System;
@@ -12,61 +11,68 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text;
 
 namespace Rems.Application.Entities.Commands
 {
     public class BulkInsertCommandHandler : IRequestHandler<BulkInsertCommand>
     {
-        private readonly IRemsDbContext _context;
+        private readonly IRemsDbFactory _factory;
 
-        public BulkInsertCommandHandler(IRemsDbContext context)
+        public BulkInsertCommandHandler(IRemsDbFactory factory)
         {
-            _context = context;
+            _factory = factory;
         }
 
         public async Task<MediatR.Unit> Handle(BulkInsertCommand request, CancellationToken token)
         {
             foreach (DataTable table in request.Data.Tables)
             {
-                IEnumerable<IEntity> entities;
+               IEntity[] entities;
 
                 if (table.TableName == "PlotData")
                     entities = ImportPlotData(table);
                 else
                     entities = ImportTableData(table, request.TableMap);
 
-                _context.AddRange(entities);
-                await _context.SaveChangesAsync(token);
+                _factory.Context.AddRange(entities);
+                //await _context.SaveChangesAsync(token);
+                _factory.Context.SaveChanges();
             }
 
             return MediatR.Unit.Value;
         }
 
-        private IEnumerable<IEntity> ImportTableData(DataTable table, IPropertyMap map)
+        private IEntity[] ImportTableData(DataTable table, IPropertyMap map)
         {
             var rows = table.Rows.Cast<DataRow>();
             var columns = table.Columns.Cast<DataColumn>();
 
             var pairs = rows.Select(r =>
                         new Dictionary<string, object>(columns.Select(c =>
-                            new KeyValuePair<string, object>(c.ColumnName, r.Field<object>(c)))));
+                            new KeyValuePair<string, object>(c.ColumnName, r[c]))));
+            // TODO: Look into r.Field<object>(c) method to replace r[c]. It may eliminate the need for the ConvertNullableObject 
+            // function used later in the import process, simplifying the procedure / debugging.
 
-            var type = Type.GetType(map[table.TableName]);
-
-            return pairs.Select(d =>
-            {
-                //CreateInstance is likely to cause an exception on any typo - use northwind example for error handling 
-                IEntity entity = Activator.CreateInstance(type) as IEntity;
-                entity.Update(d);
-                return entity;
-            });
+            if (!map.HasMapping(table.TableName)) throw new Exception("The imported table is not mapped to any known destination.");
+            var tableName = map.MappedFrom(table.TableName);
+            var typeName = "Rems.Domain.Entities." + tableName.Remove(tableName.Length - 1) + ", Rems.Domain";
+            var type = Type.GetType(typeName);
+            var result = pairs.Select(d => Test(d, type));
+            return result.ToArray();
         }
 
-        private IEnumerable<IEntity> ImportPlotData(DataTable table)
+        private IEntity Test(Dictionary<string, object> d, Type type)
+        {
+            //CreateInstance is likely to cause an exception on any typo - use northwind example for error handling
+            IEntity entity = Activator.CreateInstance(type) as IEntity;
+            entity.Update(d);
+            return entity;
+        }
+
+        private IEntity[] ImportPlotData(DataTable table)
         {
             var kvps = table.Columns.Cast<DataColumn>().Select(c =>
-                new KeyValuePair<DataColumn, Trait>(c, _context.Traits.FirstOrDefault(t => t.Name == c.ColumnName)));
+                new KeyValuePair<DataColumn, Trait>(c, _factory.Context.Traits.FirstOrDefault(t => t.Name == c.ColumnName)));
 
             var map = new Dictionary<DataColumn, Trait>(kvps);
 
@@ -90,7 +96,7 @@ namespace Rems.Application.Entities.Commands
                 };
             }));
 
-            return data.Where(d => d != null && d.Value != null);
+            return data.Where(d => d != null && d.Value != null).ToArray();
         }
     }
 }
