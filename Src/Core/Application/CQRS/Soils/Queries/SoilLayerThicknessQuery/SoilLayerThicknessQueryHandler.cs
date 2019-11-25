@@ -1,13 +1,11 @@
 ﻿using MediatR;
 
-using System.Collections.Generic;
+using Rems.Application.Common.Interfaces;
+
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-
-using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
 
 namespace Rems.Application.Soils.Queries
 {
@@ -15,9 +13,9 @@ namespace Rems.Application.Soils.Queries
     {
         private readonly IRemsDbContext _context;
 
-        public SoilLayerThicknessQueryHandler(IRemsDbContext context)
+        public SoilLayerThicknessQueryHandler(IRemsDbFactory factory)
         {
-            _context = context;
+            _context = factory.Context;
         }
 
         public async Task<double[]> Handle(SoilLayerThicknessQuery request, CancellationToken cancellationToken)

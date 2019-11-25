@@ -1,17 +1,14 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
-using System.Collections.Generic;
+using Rems.Application.Common.Interfaces;
+
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-
-using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
 
 namespace Rems.Application.Queries
 {
@@ -20,9 +17,9 @@ namespace Rems.Application.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public SowingQueryHandler(IRemsDbContext context, IMapper mapper)
+        public SowingQueryHandler(IRemsDbFactory factory, IMapper mapper)
         {
-            _context = context;
+            _context = factory.Context;
             _mapper = mapper;
         }
 

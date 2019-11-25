@@ -40,6 +40,7 @@ namespace Rems.Infrastructure.Met
             {                  
                 writer.Write($"{row.Year,-7}{row.Day,3}{row.TMax,8}{row.TMin,8}{row.Radn,8}{row.Rain,8}\n");
             }
+            writer.Close();
         }
 
     }

@@ -12,7 +12,7 @@ namespace Rems.Infrastructure
         {
             var replacements = new Replacements() { Name = "Replacements" };
 
-            var sorghumModel = Path.Combine("Data", "apsimx", "Sorghum.json");
+            var sorghumModel = Path.Combine("DataFiles", "apsimx", "Sorghum.json");
             var sorghum = JsonTools.LoadJson<Plant>(sorghumModel);
             replacements.Children.Add(sorghum);
 

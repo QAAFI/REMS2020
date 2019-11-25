@@ -1,17 +1,16 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
-using System.Collections.Generic;
+using Rems.Application.Common.Interfaces;
+
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 
-using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
+
 
 namespace Rems.Application.Met.Queries
 {
@@ -20,9 +19,9 @@ namespace Rems.Application.Met.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public MetStationQueryHandler(IRemsDbContext context, IMapper mapper)
+        public MetStationQueryHandler(IRemsDbFactory factory, IMapper mapper)
         {
-            _context = context;
+            _context = factory.Context;
             _mapper = mapper;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -52,39 +53,60 @@ namespace WindowsClient
                 // Track the traits
                 var traits = Settings.Instance["TRAITS"];
 
-                // TEMPORARY
-                traits.AddMapping("AirDry", "air_dry");
+                // TEMPORARY MAPPINGS
+
+                // Unknown
                 traits.AddMapping("CN2Bare", "cn2_bare");
                 traits.AddMapping("CNCov", "cn_cov");
                 traits.AddMapping("CNRed", "cn_red");
                 traits.AddMapping("SummerCona", "cona");
                 traits.AddMapping("DiffusConst", "diffus_const");
                 traits.AddMapping("DiffusSlope", "diffus_slope");
-                traits.AddMapping("DUL", "dul");
                 //traits.AddMapping("", "enr_a_coeff");
                 //traits.AddMapping("", "enr_b_coeff");
-                traits.AddMapping("FBiom", "fbiom");
-                traits.AddMapping("FInert", "finert");
-                traits.AddMapping("KL", "kl");
-                traits.AddMapping("LL", "ll");
-                traits.AddMapping("LL15", "ll15");
                 traits.AddMapping("MaxT", "maxt");
                 traits.AddMapping("MinT", "mint");
                 //traits.AddMapping("", "nh4ppm");
                 //traits.AddMapping("", "no3ppm");
                 traits.AddMapping("OC", "oc");
                 traits.AddMapping("Radn", "radn");
-                traits.AddMapping("Rain", "rain");
+                traits.AddMapping("Rain", "RAIN");
                 //traits.AddMapping("", "root_cn");
                 //traits.AddMapping("", "root_wt");
-                traits.AddMapping("Salb", "salb");
-                traits.AddMapping("SAT", "sat");
-                traits.AddMapping("SoilCNRatio", "soil_cn");
-                traits.AddMapping("SW", "sw");
-                traits.AddMapping("SWCON", "swcon");
+                traits.AddMapping("Salb", "salb");               
+                traits.AddMapping("SW", "sw");                
                 //traits.AddMapping("", "u");
-                //traits.AddMapping("", "ureappm");
+                //traits.AddMapping("", "ureappm");              
+                
+                // Chemical
+                traits.AddMapping("NO3N", "NO3N");
+                traits.AddMapping("NH4N", "NH4N");
+                traits.AddMapping("PH", "PH");
+
+                // Organic
+                traits.AddMapping("Carbon", "Carbon");
+                traits.AddMapping("SoilCNRatio", "soil_cn");
+                traits.AddMapping("FBiom", "fbiom");
+                traits.AddMapping("FInert", "finert");
+                traits.AddMapping("FOM", "FOM");
+
+                // Physical
+                traits.AddMapping("BD", "BD");
+                traits.AddMapping("AirDry", "air_dry");
+                traits.AddMapping("LL15", "ll15");
+                traits.AddMapping("DUL", "dul");
+                traits.AddMapping("SAT", "sat");
+                traits.AddMapping("KS", "KS");
+
+                // SoilCrop                
+                traits.AddMapping("LL", "ll");
+                traits.AddMapping("KL", "kl");
                 traits.AddMapping("XF", "xf");
+
+                // SoilWater
+                traits.AddMapping("SWCON", "swcon");
+                traits.AddMapping("KLAT", "KLAT");
+
 
                 // Track the entities
                 foreach (var map in context.Mappings)
@@ -194,7 +216,7 @@ namespace WindowsClient
             try
             {
                 Settings.Instance.Save();
-                await mediator.Send(new SaveDBCommand() { Context = context });
+                await mediator.Send(new SaveDBCommand());
                 return true;
             }
             catch (Exception error)
@@ -208,7 +230,7 @@ namespace WindowsClient
         {
             try
             {
-                await mediator.Send(new CloseDBCommand() { Context = context });
+                await mediator.Send(new CloseDBCommand());
                 return true;
             }
             catch
@@ -237,13 +259,13 @@ namespace WindowsClient
             }
         }
 
-        public async Task<bool> TryDataExport(string path)
+        public async Task<bool> TryDataExport(string file)
         {
             try
             {
                 IApsimX apsim = new ApsimX(mediator);
-                await apsim.CreateApsimModel(path);
-                apsim.SaveApsimFile(path);
+                await apsim.CreateApsimModel(Path.GetDirectoryName(file));
+                apsim.SaveApsimFile(file);
 
                 MessageBox.Show($"Export Complete.");
                 return true;

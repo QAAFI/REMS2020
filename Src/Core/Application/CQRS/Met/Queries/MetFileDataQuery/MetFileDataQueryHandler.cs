@@ -1,17 +1,16 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 
 using MediatR;
+
+using Rems.Application.Common.Interfaces;
+using Rems.Domain.Entities;
 
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-
-using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
 
 namespace Rems.Application.Met.Queries
 {
@@ -20,15 +19,15 @@ namespace Rems.Application.Met.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public MetFileDataQueryHandler(IRemsDbContext context, IMapper mapper)
+        public MetFileDataQueryHandler(IRemsDbFactory factory, IMapper mapper)
         {
-            _context = context;
+            _context = factory.Context;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<MetFileDataVm>> Handle(MetFileDataQuery request, CancellationToken token)
         {
-            var mets = _context.MetDatas
+            var mets = _context.MetDatas.ToList()
                     .GroupBy(d => d.Date)
                     .Where(g => g.Count() == 4)
                     .ToList()

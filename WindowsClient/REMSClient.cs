@@ -125,7 +125,7 @@ namespace WindowsClient
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 Filter = "ApsimNG (*.apsimx)|*.apsimx"
             };
-            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataExport, Path.GetDirectoryName(save.FileName));            
+            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataExport, save.FileName);            
         }
 
         private TResult ProcessUserAction<TResult>(Func<TResult> logic)
