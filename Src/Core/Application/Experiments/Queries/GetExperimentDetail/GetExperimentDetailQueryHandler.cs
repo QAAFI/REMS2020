@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rems.Application.Common.Exceptions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -25,14 +26,24 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
         public async Task<ExperimentDetailVm> Handle(GetExperimentDetailQuery request, CancellationToken cancellationToken)
         {
             var entity = await _factory.Context.Experiments
-                .FindAsync(request.Id);
+                .Include(i => i.Treatments)
+                .ThenInclude(t=>t.Designs)
+                .ThenInclude(d=>d.Level)
+                .ThenInclude(l=>l.Factor)
+                .SingleOrDefaultAsync(x => x.ExperimentId == request.Id);
+
+            //entity.Treatments.Include(i => i.Treatments);
+            //entity.Entry(entity).Collection(i => i.Treatments).Load();
 
             if (entity == null)
             {
                 throw new NotFoundException(nameof(Experiment), request.Id);
             }
 
-            return _mapper.Map<ExperimentDetailVm>(entity);
+            var vm = _mapper.Map<ExperimentDetailVm>(entity);
+
+            
+            return vm;
         }
     }
 }

@@ -9,6 +9,10 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
 {
     public class ExperimentDetailVm : IMapFrom<Experiment>
     {
+        public ExperimentDetailVm()
+        {
+            Treatments = new List<TreatmentDto>();
+        }
         public string ExperimentId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -23,6 +27,7 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
         public string Field { get; set; }
         public string MetStation { get; set; }
 
+        public List<TreatmentDto> Treatments { get; set; }
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Experiment, ExperimentDetailVm>()
@@ -36,7 +41,6 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
                 .ForMember(d => d.Crop, opt => opt.MapFrom(s => s.Crop != null ? s.Crop.Name : ""))
                 .ForMember(d => d.Field, opt => opt.MapFrom(s => s.Field != null ? s.Field.Name : ""))
                 .ForMember(d => d.MetStation, opt => opt.MapFrom(s => s.MetStation != null ? s.MetStation.Name : ""));
-
         }
 
 
