@@ -138,7 +138,7 @@ namespace WindowsClient
             return result;
         }
 
-        private TResult ProcessUserAction<Value, TResult>(Func<Value, TResult> logic, Value value)
+        private TResult ProcessUserAction<TValue, TResult>(Func<TValue, TResult> logic, TValue value)
         {
             Application.UseWaitCursor = true;
             Application.DoEvents();

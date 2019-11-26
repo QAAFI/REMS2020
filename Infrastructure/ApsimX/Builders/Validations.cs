@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using MediatR;
-
-using Models;
 using Models.Core;
 
 using Rems.Application.Queries;
+using Rems.Application.Treatments.Queries;
 using Rems.Infrastructure.Met;
 
 namespace Rems.Infrastructure
@@ -25,8 +21,9 @@ namespace Rems.Infrastructure
             {
                 var folder = new Folder() { Name = experiment.Name };
 
-                foreach (var treatment in experiment.Treatments)
+                foreach (var id in experiment.Treatments)
                 {
+                    var treatment = await _mediator.Send(new TreatmentDetailQuery() { Id = id });
                     var simulation = await BuildSorghumSimulation(treatment);
                     folder.Children.Add(simulation);
                 }                

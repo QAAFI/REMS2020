@@ -1,37 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Models;
 using Models.Core;
-using Models.Core.ApsimFile;
-using Models.Core.Run;
-using Models.Graph;
-using Models.PMF;
-using Models.PostSimulationTools;
-using Models.Report;
-using Models.Soils;
 using Models.Soils.Arbitrator;
-using Models.Storage;
 using Models.Surface;
+
+using Rems.Application.Treatments.Queries;
 
 namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<Simulation> BuildSorghumSimulation(int treatmentId)
+        public async Task<Simulation> BuildSorghumSimulation(TreatmentDetailVm treatment)
         {
             var simulation = new Simulation()
             {
-                //Name = $"{treatment.Experiment.Crop.Name}_{treatment.Experiment.Name}_{treatment.TreatmentId}"
+                Name = $"{treatment.CropName}_{treatment.ExperimentName}_{treatment.Id}"
             };
 
             simulation.Children.Add(new Clock()
             {
                 Name = "Clock",
-                //StartDate = (DateTime)treatment.Experiment.BeginDate,
-                //EndDate = (DateTime)treatment.Experiment.EndDate
+                StartDate = treatment.Start,
+                EndDate = treatment.End
             });
 
             simulation.Children.Add(new Summary()
@@ -42,7 +33,7 @@ namespace Rems.Infrastructure
             simulation.Children.Add(new Weather()
             {
                 Name = "Weather",
-                //FileName = treatment.Experiment.MetStation?.Name + ".met"
+                FileName = treatment.MetFileName
             });
 
             simulation.Children.Add(new SurfaceOrganicMatter()
@@ -55,7 +46,7 @@ namespace Rems.Infrastructure
 
             simulation.Children.Add(new SoilArbitrator() { Name = "SoilArbitrator" });
 
-            simulation.Children.Add(await BuildField(1));
+            simulation.Children.Add(await BuildField(treatment));
 
             return simulation;
         }

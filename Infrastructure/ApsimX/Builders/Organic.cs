@@ -8,17 +8,17 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<Organic> BuildSoilOrganicMatter(int plotId)
+        public async Task<Organic> BuildSoilOrganicMatter(int soilId)
         {
             return new Organic()
             {
                 Name = "Organic",
-                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = 1 }),
-                Carbon = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["Carbon"] }),
-                SoilCNRatio = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["SoilCNRatio"] }),
-                FBiom = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["FBiom"] }),
-                FInert = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["FInert"] }),
-                FOM = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["FOM"] })
+                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
+                Carbon = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["Carbon"] }),
+                SoilCNRatio = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["SoilCNRatio"] }),
+                FBiom = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FBiom"] }),
+                FInert = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FInert"] }),
+                FOM = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FOM"] })
             };
         }
     }

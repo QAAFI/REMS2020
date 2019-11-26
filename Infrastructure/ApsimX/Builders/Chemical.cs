@@ -8,16 +8,16 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<Chemical> BuildChemicalAnalysis(int plotId)
+        public async Task<Chemical> BuildChemicalAnalysis(int soilId)
         {
             return new Chemical()
             {
                 Name = "Organic",
-                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = 1 }),
-                Depth = await _mediator.Send(new SoilLayerDepthQuery() { SoilId = 1 }),
-                NO3N = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["NO3N"] }),
-                NH4N = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["NH4N"] }),
-                PH = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["PH"] })
+                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
+                Depth = await _mediator.Send(new SoilLayerDepthQuery() { SoilId = soilId }),
+                NO3N = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["NO3N"] }),
+                NH4N = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["NH4N"] }),
+                PH = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["PH"] })
             };
         }
     }

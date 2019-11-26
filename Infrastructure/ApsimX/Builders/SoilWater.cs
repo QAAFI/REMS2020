@@ -8,17 +8,24 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<SoilWater> BuildSoilWater(int plotId)
+        public async Task<SoilWater> BuildSoilWater(int soilId)
         {
             return new SoilWater()
             {
                 Name = "SoilWater",
-                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = 1 }),
-                SWCON = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["SWCON"] }),
-                KLAT = await _mediator.Send(new SoilLayerDataQuery() { PlotId = plotId, TraitName = _map["KLAT"] })
+                Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
+                SWCON = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["SWCON"] }),
+                KLAT = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["KLAT"] }),
+                SummerDate = "1-Nov",
+                SummerU = 6.0,
+                SummerCona = 3.5,
+                WinterDate = "1-Apr",
+                WinterU = 6.0,
+                WinterCona = 3.5,
+                Salb = 0.11
             };
 
-            // TODO: Single parameters?
+            /// TODO: Dynamically assign single parameters
         }
     }
 }

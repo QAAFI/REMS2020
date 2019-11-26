@@ -1,35 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Models;
 using Models.Core;
-using Models.Core.ApsimFile;
-using Models.Core.Run;
-using Models.Graph;
 using Models.PMF;
-using Models.PostSimulationTools;
 using Models.Report;
-using Models.Soils;
-using Models.Soils.Arbitrator;
-using Models.Storage;
-using Models.Surface;
 
 using Rems.Application.Queries;
+using Rems.Application.Treatments.Queries;
 
 namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<Zone> BuildField(int treatmentId)
+        public async Task<Zone> BuildField(TreatmentDetailVm treatment)
         {
-            // TODO: Fix this to use variables
             var zone = new Zone()
             {
-                Name = "",
-                Slope = 0,
-                Area = 1
+                Name = "Paddock",
+                Slope = treatment.FieldSlope,
+                Area = treatment.FieldArea
             };
 
             var daily = new Report()
@@ -47,16 +36,12 @@ namespace Rems.Infrastructure
             };            
             zone.Children.Add(harvest);
 
-            var sowing = await _mediator.Send(new SowingQuery() { Id = 1 });
+            var sowing = await _mediator.Send(new SowingQuery() { Id = treatment.SowingId });
             zone.Children.Add(BuildManagers(sowing));
-
-            zone.Children.Add(await BuildOperations(treatmentId));
+            zone.Children.Add(await BuildOperations(treatment.Id));
             zone.Children.Add(new Irrigation() { Name = "Irrigation" });
-            zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });
-            
-            // TODO: Fix this to use variables not constants
-            zone.Children.Add(await BuildSoil(1, 0, 0));
-
+            zone.Children.Add(new Fertiliser() { Name = "Fertiliser" });            
+            zone.Children.Add(await BuildSoil(treatment));
             zone.Children.Add(new Plant()
             {
                 CropType = "name",
