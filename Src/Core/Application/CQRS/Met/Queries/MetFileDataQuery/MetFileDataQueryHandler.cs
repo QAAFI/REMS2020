@@ -29,6 +29,7 @@ namespace Rems.Application.Met.Queries
         {
             var mets = _context.MetDatas.ToList()
                     .GroupBy(d => d.Date)
+                    .OrderBy(d => d.Key)
                     .Where(g => g.Count() == 4)
                     .ToList()
                     .Select(g =>

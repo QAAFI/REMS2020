@@ -13,13 +13,13 @@ namespace Rems.Application.Met.Queries
 
         public string Day { get; set; }
 
-        public string TMax { get; set; }
+        public double TMax { get; set; }
 
-        public string TMin { get; set; }
+        public double TMin { get; set; }
 
-        public string Radn { get; set; }
+        public double Radn { get; set; }
 
-        public string Rain { get; set; }
+        public double Rain { get; set; }
 
         public void Mapping(Profile profile)
         {

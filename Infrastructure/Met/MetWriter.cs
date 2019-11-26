@@ -38,7 +38,12 @@ namespace Rems.Infrastructure.Met
 
             foreach (var row in data)
             {                  
-                writer.Write($"{row.Year,-7}{row.Day,3}{row.TMax,8}{row.TMin,8}{row.Radn,8}{row.Rain,8}\n");
+                writer.Write($"{row.Year,-7}" +
+                             $"{row.Day,3}" +
+                             $"{Math.Round(row.TMax, 2), 8}" +
+                             $"{Math.Round(row.TMin, 2), 8}" +
+                             $"{Math.Round(row.Radn, 2), 8}" +
+                             $"{Math.Round(row.Rain, 2), 8}\n");
             }
             writer.Close();
         }
