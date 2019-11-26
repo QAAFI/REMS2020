@@ -10,12 +10,14 @@ namespace Rems.Application.Common.Extensions
     {
         public static void Close(this IRemsDbContext context)
         {
-            throw new NotImplementedException();
+            /// TODO: Implement this
+            //throw new NotImplementedException();
         }
 
         public static void Save(this IRemsDbContext context)
         {
-            throw new NotImplementedException();
+            /// TODO: Implement this
+            //throw new NotImplementedException();
         }
     }
 }
