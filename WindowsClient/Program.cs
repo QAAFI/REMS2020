@@ -1,7 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+
 using Rems.Application;
 using Rems.Persistence;
+
 using System;
 using System.Windows.Forms;
 
@@ -23,15 +24,15 @@ namespace WindowsClient
 
             Application.Run(new REMSClient(ServiceProvider));            
         }
-       // public static Container Container { get; set; }
+
         public static IServiceProvider ServiceProvider { get; set; }
 
         static void ConfigureServices()
         {
-            var services = new ServiceCollection();
-            services.AddPersistence();
-            services.AddApplication();
-            ServiceProvider = services.BuildServiceProvider();
+            ServiceProvider = new ServiceCollection()
+                .AddPersistence()
+                .AddApplication()               
+                .BuildServiceProvider();            
         }
     }
 }

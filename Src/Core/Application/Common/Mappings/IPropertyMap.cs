@@ -17,14 +17,29 @@ namespace Rems.Application.Common.Mappings
         string Name { get; }
 
         /// <summary>
-        /// Check if the property is mapped
+        /// Test if a property is mapped to a value
         /// </summary>
         bool IsMapped(string property);
+
+        /// <summary>
+        /// Test if there is a property mapped to a value 
+        /// </summary>
+        bool HasMapping(string value);
+
+        /// <summary>
+        /// Find the property which is mapped to the value
+        /// </summary>
+        string MappedFrom(string value);
 
         /// <summary>
         /// Add a new property to the mapping
         /// </summary>
         void AddMapping(string property);
+
+        /// <summary>
+        /// Add a new property with a value to the mapping
+        /// </summary>
+        void AddMapping(string property, string value);
 
         /// <summary>
         /// Remove a property from the mapping

@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
-using Rems.Application.Common.Models;
 using Rems.Application.Common.Mappings;
-
-using Rems.Infrastructure.Json;
 
 namespace Rems.Infrastructure
 {
     public sealed class Settings
     {
         [JsonRequired]
-        private static HashSet<IPropertyMap> mappings;
+        private HashSet<IPropertyMap> mappings;
 
         [JsonIgnore]
         private readonly string file;
 
         [JsonIgnore]
-        private static bool loaded = false;
-
-        [JsonIgnore]
-        public bool Loaded => loaded;
+        public bool Loaded { get; set; } = false;
 
         [JsonIgnore]
         private static Settings instance = new Settings();
@@ -33,24 +27,39 @@ namespace Rems.Infrastructure
         public static Settings Instance => instance;
 
         private Settings()
-        {
-            mappings = new HashSet<IPropertyMap>();
+        {            
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\REMS2020";
 
             Directory.CreateDirectory(folder);
 
             file = folder + "\\settings.json";
+
+            mappings = new HashSet<IPropertyMap>()
+            {
+                new PropertyMap("TABLES"),
+                new PropertyMap("TRAITS")
+            };
         }
 
         public IPropertyMap this[string name]
         {
             get
             {
-                if (mappings.TryGetValue(new PropertyMap(name), out IPropertyMap result))
-                    return result;
+                var map = mappings.FirstOrDefault(m => m.Name == name);
+
+                if (map != null)
+                    return map;
                 else
                     throw new Exception($"No mapping \"{name}\" exists.");
             }
+        }
+
+        public bool IsMapped(string name)
+        {
+            if (mappings.Any(m => m.Name == name)) 
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -60,9 +69,9 @@ namespace Rems.Infrastructure
         {
             if (!File.Exists(file)) return;
 
-            instance = JsonTools.LoadJson<Settings>(file);
+            mappings = JsonTools.LoadJson<HashSet<IPropertyMap>>(file);
 
-            loaded = true;
+            Loaded = true;
         }
 
         /// <summary>
@@ -70,7 +79,7 @@ namespace Rems.Infrastructure
         /// </summary>
         public void Save()
         {
-            JsonTools.SaveJson(file, this);
+            JsonTools.SaveJson(file, mappings);
         }
 
         public void TrackProperty(IPropertyMap mapping)

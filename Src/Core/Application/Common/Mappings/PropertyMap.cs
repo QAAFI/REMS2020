@@ -12,7 +12,7 @@ namespace Rems.Application.Common.Mappings
     {
         public string Name { get; }
 
-        private readonly DistinctDictionary<string, string> maps;
+        private readonly DistinctDictionary<string, string> maps = new DistinctDictionary<string, string>();
 
         public PropertyMap(string name)
         {
@@ -22,8 +22,6 @@ namespace Rems.Application.Common.Mappings
         public PropertyMap(object item)
         {
             Name = item.GetType().Name;
-
-            maps = new DistinctDictionary<string, string>();
 
             foreach (var property in item.GetType().GetProperties())
             {
@@ -45,6 +43,19 @@ namespace Rems.Application.Common.Mappings
                 return true;
             else
                 return false;
+        }
+
+        public bool HasMapping(string value)
+        {
+            if (maps.ContainsValue(value))
+                return true;
+            else
+                return false;
+        }
+
+        public string MappedFrom(string value)
+        {
+            return maps.Single(kvp => kvp.Value == value).Key;
         }
 
         public bool RemoveMapping(string property)
@@ -83,5 +94,6 @@ namespace Rems.Application.Common.Mappings
         {
             return GetEnumerator();
         }
+        
     }
 }

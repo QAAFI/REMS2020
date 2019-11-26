@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
+
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +16,13 @@ namespace Rems.Application.Common.Interfaces
 
         void AddRange(params object[] entities);
 
+        int SaveChanges();
+
         Task<int> SaveChangesAsync(CancellationToken token);
 
-        public IEnumerable<string> Names { get; set; }      
+        public IEnumerable<string> Names { get; set; }
+
+        public IEnumerable<IPropertyMap> Mappings { get; set; }
 
         public DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
@@ -77,7 +84,7 @@ namespace Rems.Application.Common.Interfaces
 
         public DbSet<Soil> Soils { get; set; }
 
-        public DbSet<Sowing> Sowing { get; set; }
+        public DbSet<Sowing> Sowings { get; set; }
 
         public DbSet<Stat> Stats { get; set; }
 
