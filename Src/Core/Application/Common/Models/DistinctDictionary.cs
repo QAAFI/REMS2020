@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 namespace Rems.Application.Common.Models
 {
     /// <summary>
@@ -8,6 +10,7 @@ namespace Rems.Application.Common.Models
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
+    [JsonDictionary]
     public class DistinctDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     {
         public new void Add(TKey key, TValue value)
