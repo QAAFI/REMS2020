@@ -1,18 +1,27 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
+using Newtonsoft.Json;
 
 using Rems.Application.Common.Models;
 
 namespace Rems.Application.Common.Mappings
 {
+    [JsonObject]
     public class PropertyMap : IPropertyMap
     {
-        public string Name { get; }
-
+        [JsonProperty]
+        public string Name { get; private set; }        
+        
+        [JsonProperty]
         private readonly DistinctDictionary<string, string> maps = new DistinctDictionary<string, string>();
+
+        [JsonConstructor]
+        private PropertyMap()
+        {
+
+        }
 
         public PropertyMap(string name)
         {
