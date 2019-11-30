@@ -7,6 +7,11 @@ namespace Rems.Persistence
 {
     public class RemsDbFactory : IRemsDbFactory
     {
+        public RemsDbFactory(IRemsDbContext context)
+        {
+            //webUI will add RemsDBContext to DI
+            Context = context;
+        }
         public string FileName { get; set; }
         public IRemsDbContext Context { get; set; }
 
