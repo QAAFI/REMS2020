@@ -4,10 +4,13 @@ using System.Text;
 
 namespace Rems.Domain.Entities
 {
-    class TreatmentGroupItem : IEntity
+    public class TreatmentGroupItem : IEntity
     {
         public int TreatmentGroupId { get; set; }
         public int TreatmentId { get; set; }
+
+        public Treatment Treatment { get; set; }
+        public TreatmentGroup TreatmentGroup { get; set; }
 
     }
 }

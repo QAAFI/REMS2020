@@ -4,9 +4,14 @@ using System.Text;
 
 namespace Rems.Domain.Entities
 {
-    class TreatmentView : IEntity
+    public class TreatmentView : IEntity
     {
         public int TreatmentViewId { get; set; }
         public string Name { get; set; }
+
+        public int ExperimentId { get; set; }
+        public int? TreatmentProfileId { get; set; }
+        public TreatmentProfile TreatmentProfile { get; set; }
+        public Experiment Experiment { get; set; }
     }
 }
