@@ -9,8 +9,8 @@ namespace Rems.Domain.Entities
         public int TreatmentGroupId { get; set; }
         public int TreatmentId { get; set; }
 
-        public Treatment Treatment { get; set; }
-        public TreatmentGroup TreatmentGroup { get; set; }
+        public virtual Treatment Treatment { get; set; }
+        public virtual TreatmentGroup TreatmentGroup { get; set; }
 
     }
 }

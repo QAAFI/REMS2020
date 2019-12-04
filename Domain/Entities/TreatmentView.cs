@@ -11,7 +11,7 @@ namespace Rems.Domain.Entities
 
         public int ExperimentId { get; set; }
         public int? TreatmentProfileId { get; set; }
-        public TreatmentProfile TreatmentProfile { get; set; }
-        public Experiment Experiment { get; set; }
+        public virtual TreatmentProfile TreatmentProfile { get; set; }
+        public virtual Experiment Experiment { get; set; }
     }
 }

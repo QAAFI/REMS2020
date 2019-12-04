@@ -15,8 +15,8 @@ namespace Rems.Persistence.Configurations
                 .HasName("PrimaryKey");
 
             builder.HasOne(d => d.TreatmentGroup)
-                .WithMany(p => p.Treatments)
-                .HasForeignKey<TreatmentGroup>(d => d.TreatmentGroupId);
+                .WithMany(p => p.TreatmentGroupItems)
+                .HasForeignKey(d => d.TreatmentGroupId);
         }
     }
 }

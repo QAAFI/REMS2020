@@ -10,7 +10,7 @@ namespace Rems.Domain.Entities
         public string Name { get; set; }
         public int TreatmentProfileId { get; set; }
 
-        public virtual ICollection<Treatment> Treatments { get; set; }
+        public virtual ICollection<TreatmentGroupItem> TreatmentGroupItems { get; set; }
         public virtual TreatmentProfile TreatmentProfile { get; set; }
     }
 }
