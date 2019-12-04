@@ -13,6 +13,7 @@ namespace Rems.Persistence
             //services.AddDbContext<RemsDbContext>(options =>
             //options.UseSqlite("Data Source=Data\\Database.db"));//  $"Data Source={file};");
 
+            services.AddScoped<IRemsDbContext, RemsDbContext>(); // (provider => provider.GetService<RemsDbFactory>());
             services.AddScoped<IRemsDbFactory, RemsDbFactory>(); // (provider => provider.GetService<RemsDbFactory>());
 
             return services;
