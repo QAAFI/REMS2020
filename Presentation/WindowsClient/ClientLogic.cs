@@ -5,9 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using MediatR;
-
 using Rems.Application.Common.Interfaces;
 using Rems.Application.DB.Commands;
 using Rems.Application.DB.Queries;

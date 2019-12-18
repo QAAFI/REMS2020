@@ -1,7 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Rems.Infrastructure</AssemblyName>
+    <RootNamespace>Rems.Infrastructure</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,12 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Src\Core\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Core\Application\Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Models">
-      <HintPath>..\..\ApsimX\Models\Bin\Debug\netcoreapp3.0\Models.dll</HintPath>
+      <HintPath>..\..\..\ApsimX\Models\bin\Debug\netcoreapp3.0\Models.dll</HintPath>
     </Reference>
   </ItemGroup>
 
