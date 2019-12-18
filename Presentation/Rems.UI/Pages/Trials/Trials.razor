@@ -2,3 +2,8 @@
 @inherits TrialsBase
 <h3>Trials</h3>
 
+@foreach (var exp in ViewModel.Experiments)
+{
+    @exp.Name
+}
+

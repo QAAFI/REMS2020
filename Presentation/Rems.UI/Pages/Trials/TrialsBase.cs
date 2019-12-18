@@ -13,9 +13,10 @@ namespace Rems.UI.Pages.Trials
         [Inject]
         public IMediator Mediator { get; set; }
 
+        public ExperimentsListVm ViewModel { get; private set; }
         protected override async Task OnInitializedAsync()
         {
-            var selections = await this.Mediator.Send(new GetExperimentsListQuery());
+            ViewModel = await this.Mediator.Send(new GetExperimentsListQuery());
             //this.Model = new WebApiStyleViewModel(selections.Roles, selections.Names);
         }
 
