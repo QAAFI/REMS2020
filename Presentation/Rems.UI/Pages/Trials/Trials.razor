@@ -4,6 +4,6 @@
 
 @foreach (var exp in ViewModel.Experiments)
 {
-    @exp.Name
+    <NavLink href=@($"/trials/{exp.ExperimentId}") Match=NavLinkMatch.All>@exp.Name</NavLink> 
 }
 
