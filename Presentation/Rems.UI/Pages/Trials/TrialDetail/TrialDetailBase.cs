@@ -14,10 +14,10 @@ namespace Rems.UI.Pages.Trials.TrialDetail
         [Parameter] public int TrialId { get; set; }
         public ExperimentDetailVm Experiment { get; set; }
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnParametersSetAsync()
         {
             Experiment = await this.Mediator.Send(new GetExperimentDetailQuery { Id = TrialId });
-            //this.Model = new WebApiStyleViewModel(selections.Roles, selections.Names);
         }
+
     }
 }

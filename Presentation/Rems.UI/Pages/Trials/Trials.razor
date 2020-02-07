@@ -2,8 +2,16 @@
 @inherits TrialsBase
 <h3>Trials</h3>
 
-@foreach (var exp in ViewModel.Experiments)
+@if (LoadingData)
 {
-    <NavLink href=@($"/trials/{exp.ExperimentId}") Match=NavLinkMatch.All>@exp.Name</NavLink> 
+    <p >loading...</p>
+}
+else
+{
+    <p> notloadng</p>
+    @foreach (var exp in ViewModel.Experiments)
+    {
+        <NavLink href=@($"/trials/{exp.ExperimentId}") Match=NavLinkMatch.All>@exp.Name</NavLink> 
+    }
 }
 
