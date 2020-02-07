@@ -4,11 +4,10 @@
 
 @if (LoadingData)
 {
-    <p >loading...</p>
+    <Chase />
 }
 else
 {
-    <p> notloadng</p>
     @foreach (var exp in ViewModel.Experiments)
     {
         <NavLink href=@($"/trials/{exp.ExperimentId}") Match=NavLinkMatch.All>@exp.Name</NavLink> 
