@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "WindowsClient": {
+      "commandName": "Executable",
+      "executablePath": "bin\\Debug\\netcoreapp3.1\\WindowsClient.exe",
+      "workingDirectory": "C:\\Users\\uqmstow1\\Documents\\GitHub\\REMS2020\\Presentation\\WindowsClient"
+    }
+  }
+}

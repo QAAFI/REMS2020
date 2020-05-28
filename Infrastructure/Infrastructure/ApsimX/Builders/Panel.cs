@@ -12,8 +12,7 @@ namespace Rems.Infrastructure
             var panel = new GraphPanel()
             {
                 NumCols = 3,
-                Name = "PredictedObserved",
-                SameAxes = true
+                Name = "PredictedObserved"
             };
 
             var manager = new Manager()

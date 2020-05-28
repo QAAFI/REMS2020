@@ -10,17 +10,12 @@
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\ApsimX\Models\Models.csproj" />
     <ProjectReference Include="..\..\Core\Application\Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Models">
-      <HintPath>..\..\..\ApsimX\Models\bin\Debug\netcoreapp3.0\Models.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
