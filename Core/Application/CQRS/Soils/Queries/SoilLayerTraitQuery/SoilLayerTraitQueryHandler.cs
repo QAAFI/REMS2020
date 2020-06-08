@@ -6,6 +6,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using Rems.Domain.Entities;
+using Rems.Application.Common.Extensions;
 
 namespace Rems.Application.Soils.Queries
 {
@@ -23,6 +25,24 @@ namespace Rems.Application.Soils.Queries
         public async Task<double[]> Handle(SoilLayerTraitQuery request, CancellationToken cancellationToken)
         {
             var trait = _context.Traits.FirstOrDefault(t => t.Name == request.TraitName);
+
+            if (trait == null) 
+            {
+                // TODO: Similar block of code is used in MetFileDataQueryHandler GetData(), should
+                // find a way to reuse not repeat (might be needed in other places down the line as well)
+
+                var args = new EntityNotFoundArgs()
+                {
+                    Options = _context.Traits.Select(t => t.Name).ToArray(),
+                    Name = request.TraitName
+                };
+
+                string name = EventManager.InvokeEntityNotFound(null, args);
+                
+                trait = _context.Traits.FirstOrDefault(t => t.Name == name);                
+                trait.Name = request.TraitName;
+                _context.SaveChanges();
+            }
 
             var layers = from layer in _context.SoilLayers
                          where layer.SoilId == request.SoilId       // Find the layers of the soil

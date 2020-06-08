@@ -15,7 +15,7 @@ namespace Rems.Infrastructure
                 Name = name,
                 Depth = await _mediator.Send(new SoilLayerDepthQuery() { SoilId = soilId}),
                 Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
-                SW = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["SW"]})
+                SW = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "SW" })
             };
         }
     }

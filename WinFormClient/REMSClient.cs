@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
+using Rems.Application;
 using Rems.Infrastructure;
 
 namespace WindowsClient
@@ -24,6 +26,15 @@ namespace WindowsClient
             tablesBox.Click += UpdatePageDisplay;
             notebook.SelectedIndexChanged += UpdatePageDisplay;
             Logic.ListViewOutdated += UpdateListView;
+
+            EventManager.EntityNotFound += OnEntityNotFound;
+        }
+
+        private string OnEntityNotFound(object sender, EntityNotFoundArgs args)
+        {
+            var selector = new EntitySelector(args.Name, args.Options);
+            selector.ShowDialog();
+            return selector.Selection;
         }
 
         /// <summary>
@@ -44,6 +55,11 @@ namespace WindowsClient
         {
             Settings.Instance.Save();
             ProcessUserAction(Logic.TryCloseDatabase);
+
+            FormClosed -= REMSClientFormClosed;
+            tablesBox.Click -= UpdatePageDisplay;
+            notebook.SelectedIndexChanged -= UpdatePageDisplay;
+            Logic.ListViewOutdated -= UpdateListView;
         }
 
         private void UpdatePageDisplay(object sender, EventArgs e)

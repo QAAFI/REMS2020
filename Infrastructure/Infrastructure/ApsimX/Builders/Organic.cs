@@ -14,11 +14,11 @@ namespace Rems.Infrastructure
             {
                 Name = "Organic",
                 Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
-                Carbon = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["Carbon"] }),
-                SoilCNRatio = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["SoilCNRatio"] }),
-                FBiom = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FBiom"] }),
-                FInert = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FInert"] }),
-                FOM = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["FOM"] })
+                Carbon = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "Carbon" }),
+                SoilCNRatio = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "SoilCNRatio" }),
+                FBiom = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "FBiom" }),
+                FInert = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "FInert" }),
+                FOM = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "FOM" })
             };
         }
     }

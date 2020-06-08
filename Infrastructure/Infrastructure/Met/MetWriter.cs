@@ -34,17 +34,17 @@ namespace Rems.Infrastructure.Met
             writer.Write($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"Rain",8}\n");
             writer.Write($"{" () ",-7}{" ()",3}{" ()",8}{" ()",8}{" ()",8}{" ()",8}\n");
 
-            var data = await mediator.Send(new MetFileDataQuery() { Id = id, Map = Settings.Instance["TRAITS"] });
+            //var data = await mediator.Send(new MetFileDataQuery() { Id = id, Map = Settings.Instance["TRAITS"] });
 
-            foreach (var row in data)
-            {                  
-                writer.Write($"{row.Year,-7}" +
-                             $"{row.Day,3}" +
-                             $"{Math.Round(row.TMax, 2), 8}" +
-                             $"{Math.Round(row.TMin, 2), 8}" +
-                             $"{Math.Round(row.Radn, 2), 8}" +
-                             $"{Math.Round(row.Rain, 2), 8}\n");
-            }
+            //foreach (var row in data)
+            //{                  
+            //    writer.Write($"{row.Year,-7}" +
+            //                 $"{row.Day,3}" +
+            //                 $"{Math.Round(row.TMax, 2), 8}" +
+            //                 $"{Math.Round(row.TMin, 2), 8}" +
+            //                 $"{Math.Round(row.Radn, 2), 8}" +
+            //                 $"{Math.Round(row.Rain, 2), 8}\n");
+            //}
             writer.Close();
         }
 

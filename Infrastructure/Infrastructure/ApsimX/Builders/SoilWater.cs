@@ -14,8 +14,8 @@ namespace Rems.Infrastructure
             {
                 Name = "SoilWater",
                 Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),
-                SWCON = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["SWCON"] }),
-                KLAT = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["KLAT"] }),
+                SWCON = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "SWCON" }),
+                KLAT = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "KLAT" }),
                 SummerDate = "1-Nov",
                 SummerU = 6.0,
                 SummerCona = 3.5,

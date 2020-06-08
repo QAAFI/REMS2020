@@ -53,9 +53,10 @@ namespace Rems.Application.Entities.Commands
             // TODO: Look into r.Field<object>(c) method to replace r[c]. It may eliminate the need for the ConvertNullableObject 
             // function used later in the import process, simplifying the procedure / debugging.
 
-            if (!map.HasMapping(table.TableName)) throw new Exception("The imported table is not mapped to any known destination.");
-            var tableName = map.MappedFrom(table.TableName);
-            var typeName = "Rems.Domain.Entities." + tableName.Remove(tableName.Length - 1) + ", Rems.Domain";
+            //if (!map.HasMapping(table.TableName)) throw new Exception("The imported table is not mapped to any known destination.");
+            //var tableName = map.MappedFrom(table.TableName);
+            
+            var typeName = "Rems.Domain.Entities." + table.TableName.Remove(table.TableName.Length - 1) + ", Rems.Domain";
             var type = Type.GetType(typeName);
             var result = pairs.Select(d => Test(d, type));
             return result.ToArray();

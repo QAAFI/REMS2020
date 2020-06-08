@@ -13,9 +13,9 @@ namespace Rems.Infrastructure
             return new SoilCrop()
             {
                 Name = "SorghumSoil",
-                LL = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["LL"] }),
-                KL = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["KL"] }),
-                XF = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = _map["XF"] })
+                LL = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "LL" }),
+                KL = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "KL" }),
+                XF = await _mediator.Send(new SoilLayerTraitQuery() { SoilId = soilId, TraitName = "XF" })
             };
         }
     }
