@@ -19,14 +19,14 @@ namespace Rems.Infrastructure
             var daily = new Report()
             {
                 Name = "DailyReport",
-                VariableNames = DataFiles.ReadRawText("Daily.txt").Split("\n"),
+                VariableNames = DataFiles.ReadRawText("Daily.txt").Split('\n'),
                 EventNames = new string[] { "[Clock].DoReport" }
             };
 
             var harvest = new Report()
             {
                 Name = "HarvestReport",
-                VariableNames = DataFiles.ReadRawText("Harvest.txt").Split("\n"),
+                VariableNames = DataFiles.ReadRawText("Harvest.txt").Split('\n'),
                 EventNames = new string[] { "[Sorghum].Harvesting" }
             };
 

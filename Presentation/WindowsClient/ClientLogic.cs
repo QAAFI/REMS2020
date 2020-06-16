@@ -242,8 +242,7 @@ namespace WindowsClient
         {
             try
             {
-                using var excel = ExcelImporter.ReadRawData(path);
-                await mediator.Send(new BulkInsertCommand() { Data = excel, TableMap = Settings.Instance["TABLES"] });
+                await mediator.Send(new BulkInsertCommand() { Data = ExcelImporter.ReadRawData(path), TableMap = Settings.Instance["TABLES"] });
 
                 ListViewOutdated?.Invoke(null, EventArgs.Empty);
 

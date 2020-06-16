@@ -1,8 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
+using Steema.TeeChart;
+
+using Rems.Application;
 using Rems.Infrastructure;
 
 namespace WindowsClient
@@ -11,7 +15,7 @@ namespace WindowsClient
     {        
         private string _importFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
 
-        private readonly ClientLogic Logic;
+        private readonly ClientLogic Logic;    
 
         public REMSClient(IServiceProvider provider)
         {
@@ -24,6 +28,15 @@ namespace WindowsClient
             tablesBox.Click += UpdatePageDisplay;
             notebook.SelectedIndexChanged += UpdatePageDisplay;
             Logic.ListViewOutdated += UpdateListView;
+
+            EventManager.EntityNotFound += OnEntityNotFound;
+        }
+
+        private string OnEntityNotFound(object sender, EntityNotFoundArgs args)
+        {
+            var selector = new EntitySelector(args.Name, args.Options);
+            selector.ShowDialog();
+            return selector.Selection;
         }
 
         /// <summary>
@@ -44,6 +57,11 @@ namespace WindowsClient
         {
             Settings.Instance.Save();
             ProcessUserAction(Logic.TryCloseDatabase);
+
+            FormClosed -= REMSClientFormClosed;
+            tablesBox.Click -= UpdatePageDisplay;
+            notebook.SelectedIndexChanged -= UpdatePageDisplay;
+            Logic.ListViewOutdated -= UpdateListView;
         }
 
         private void UpdatePageDisplay(object sender, EventArgs e)
@@ -71,14 +89,15 @@ namespace WindowsClient
         /// </summary>
         private void MenuNewClicked(object sender, EventArgs e)
         {
-            using var save = new SaveFileDialog()
+            using (var save = new SaveFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                AddExtension = true,
-                Filter = "SQLite (*.db)|*.db",
-                RestoreDirectory = true
-            };            
-            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryCreateDatabase, save.FileName);
+                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                save.AddExtension = true;
+                save.Filter = "SQLite (*.db)|*.db";
+                save.RestoreDirectory = true;
+
+                if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryCreateDatabase, save.FileName);
+            }
         }
 
         /// <summary>
@@ -86,12 +105,13 @@ namespace WindowsClient
         /// </summary>
         private void MenuOpenClicked(object sender, EventArgs e)
         {
-            using var open = new OpenFileDialog()
+            using (var open = new OpenFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "SQLite (*.db)|*.db"
-            };
-            if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryOpenDatabase, open.FileName);            
+                open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.Filter = "SQLite (*.db)|*.db";
+                
+                if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryOpenDatabase, open.FileName);
+            }                        
         }
 
         /// <summary>
@@ -106,13 +126,14 @@ namespace WindowsClient
         /// On click, imports data from the selected file
         /// </summary>
         private void MenuImportClicked(object sender, EventArgs e)
-        {            
-            using var open = new OpenFileDialog()
+        {
+            using (var open = new OpenFileDialog())
             {
-                InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
-            };
-            if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataImport, open.FileName);            
+                open.InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+
+                if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataImport, open.FileName);
+            }
         }
 
         /// <summary>
@@ -120,12 +141,14 @@ namespace WindowsClient
         /// </summary>
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            using var save = new SaveFileDialog()
+            using (var save = new SaveFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "ApsimNG (*.apsimx)|*.apsimx"
-            };
-            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataExport, save.FileName);            
+                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+
+                if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataExport, save.FileName);
+            }
+                        
         }
 
         private TResult ProcessUserAction<TResult>(Func<TResult> logic)
