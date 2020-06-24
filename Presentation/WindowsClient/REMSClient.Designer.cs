@@ -45,15 +45,15 @@
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
             this.pageProperties = new System.Windows.Forms.TabPage();
-            this.tablesBox = new System.Windows.Forms.TextBox();
             this.pageGraph = new System.Windows.Forms.TabPage();
-            this.tChart = new Steema.TeeChart.TChart();
-            this.comboItem = new System.Windows.Forms.ComboBox();
-            this.labelItem = new System.Windows.Forms.Label();
-            this.comboXData = new System.Windows.Forms.ComboBox();
-            this.comboYData = new System.Windows.Forms.ComboBox();
-            this.labelXData = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.labelXData = new System.Windows.Forms.Label();
+            this.comboYData = new System.Windows.Forms.ComboBox();
+            this.comboXData = new System.Windows.Forms.ComboBox();
+            this.labelItem = new System.Windows.Forms.Label();
+            this.comboItem = new System.Windows.Forms.ComboBox();
+            this.tChart = new Steema.TeeChart.TChart();
+            this.tablesBox = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.pageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
@@ -207,15 +207,6 @@
             this.pageProperties.Text = "Properties";
             this.pageProperties.UseVisualStyleBackColor = true;
             // 
-            // tablesBox
-            // 
-            this.tablesBox.Location = new System.Drawing.Point(12, 27);
-            this.tablesBox.Name = "tablesBox";
-            this.tablesBox.Size = new System.Drawing.Size(143, 20);
-            this.tablesBox.TabIndex = 4;
-            this.tablesBox.Text = "TABLES";
-            this.tablesBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // pageGraph
             // 
             this.pageGraph.BackColor = System.Drawing.Color.DarkGray;
@@ -232,6 +223,57 @@
             this.pageGraph.Size = new System.Drawing.Size(632, 653);
             this.pageGraph.TabIndex = 2;
             this.pageGraph.Text = "Graphs";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(379, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Y Data:";
+            // 
+            // labelXData
+            // 
+            this.labelXData.AutoSize = true;
+            this.labelXData.Location = new System.Drawing.Point(186, 9);
+            this.labelXData.Name = "labelXData";
+            this.labelXData.Size = new System.Drawing.Size(43, 13);
+            this.labelXData.TabIndex = 7;
+            this.labelXData.Text = "X Data:";
+            // 
+            // comboYData
+            // 
+            this.comboYData.FormattingEnabled = true;
+            this.comboYData.Location = new System.Drawing.Point(428, 6);
+            this.comboYData.Name = "comboYData";
+            this.comboYData.Size = new System.Drawing.Size(138, 21);
+            this.comboYData.TabIndex = 6;
+            // 
+            // comboXData
+            // 
+            this.comboXData.FormattingEnabled = true;
+            this.comboXData.Location = new System.Drawing.Point(235, 6);
+            this.comboXData.Name = "comboXData";
+            this.comboXData.Size = new System.Drawing.Size(138, 21);
+            this.comboXData.TabIndex = 5;
+            // 
+            // labelItem
+            // 
+            this.labelItem.AutoSize = true;
+            this.labelItem.Location = new System.Drawing.Point(6, 9);
+            this.labelItem.Name = "labelItem";
+            this.labelItem.Size = new System.Drawing.Size(30, 13);
+            this.labelItem.TabIndex = 4;
+            this.labelItem.Text = "Item:";
+            // 
+            // comboItem
+            // 
+            this.comboItem.FormattingEnabled = true;
+            this.comboItem.Location = new System.Drawing.Point(42, 6);
+            this.comboItem.Name = "comboItem";
+            this.comboItem.Size = new System.Drawing.Size(138, 21);
+            this.comboItem.TabIndex = 3;
             // 
             // tChart
             // 
@@ -1106,6 +1148,8 @@
             this.tChart.Legend.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Legend.Title.Shadow.Brush.Solid = true;
             this.tChart.Legend.Title.Shadow.Brush.Visible = true;
+            this.tChart.Location = new System.Drawing.Point(9, 33);
+            this.tChart.Name = "tChart";
             // 
             // 
             // 
@@ -1137,6 +1181,7 @@
             this.tChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Panel.Shadow.Brush.Solid = true;
             this.tChart.Panel.Shadow.Brush.Visible = true;
+            this.tChart.Size = new System.Drawing.Size(617, 614);
             // 
             // 
             // 
@@ -1241,6 +1286,7 @@
             this.tChart.SubHeader.Shadow.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.tChart.SubHeader.Shadow.Brush.Solid = true;
             this.tChart.SubHeader.Shadow.Brush.Visible = true;
+            this.tChart.TabIndex = 9;
             // 
             // 
             // 
@@ -1378,56 +1424,14 @@
             this.tChart.Zoom.Brush.Solid = true;
             this.tChart.Zoom.Brush.Visible = true;
             // 
-            // comboItem
+            // tablesBox
             // 
-            this.comboItem.FormattingEnabled = true;
-            this.comboItem.Location = new System.Drawing.Point(42, 6);
-            this.comboItem.Name = "comboItem";
-            this.comboItem.Size = new System.Drawing.Size(138, 21);
-            this.comboItem.TabIndex = 3;
-            // 
-            // labelItem
-            // 
-            this.labelItem.AutoSize = true;
-            this.labelItem.Location = new System.Drawing.Point(6, 9);
-            this.labelItem.Name = "labelItem";
-            this.labelItem.Size = new System.Drawing.Size(30, 13);
-            this.labelItem.TabIndex = 4;
-            this.labelItem.Text = "Item:";
-            // 
-            // comboXData
-            // 
-            this.comboXData.FormattingEnabled = true;
-            this.comboXData.Location = new System.Drawing.Point(235, 6);
-            this.comboXData.Name = "comboXData";
-            this.comboXData.Size = new System.Drawing.Size(138, 21);
-            this.comboXData.TabIndex = 5;
-            // 
-            // comboYData
-            // 
-            this.comboYData.FormattingEnabled = true;
-            this.comboYData.Location = new System.Drawing.Point(428, 6);
-            this.comboYData.Name = "comboYData";
-            this.comboYData.Size = new System.Drawing.Size(138, 21);
-            this.comboYData.TabIndex = 6;
-            // 
-            // labelXData
-            // 
-            this.labelXData.AutoSize = true;
-            this.labelXData.Location = new System.Drawing.Point(186, 9);
-            this.labelXData.Name = "labelXData";
-            this.labelXData.Size = new System.Drawing.Size(43, 13);
-            this.labelXData.TabIndex = 7;
-            this.labelXData.Text = "X Data:";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(379, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(43, 13);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Y Data:";
+            this.tablesBox.Location = new System.Drawing.Point(12, 27);
+            this.tablesBox.Name = "tablesBox";
+            this.tablesBox.Size = new System.Drawing.Size(143, 20);
+            this.tablesBox.TabIndex = 4;
+            this.tablesBox.Text = "TABLES";
+            this.tablesBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // REMSClient
             // 
