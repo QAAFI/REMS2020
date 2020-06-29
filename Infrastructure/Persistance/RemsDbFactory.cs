@@ -40,14 +40,14 @@ namespace Rems.Persistence
             using (var connection = new SqliteConnection("Data Source=" + FileName))
             {
                 connection.Open();
-                using var command = new SqliteCommand(text, connection);
-                using var reader = command.ExecuteReader();
-
-                table = new DataTable(name);
-
-                table.BeginLoadData();
-                table.Load(reader);
-                table.EndLoadData();
+                using (var command = new SqliteCommand(text, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    table = new DataTable(name);
+                    table.BeginLoadData();
+                    table.Load(reader);
+                    table.EndLoadData();
+                }
             };
 
             return table;

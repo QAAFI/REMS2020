@@ -44,14 +44,15 @@ namespace Rems.Application.Entities.Commands
 
         private IEntity[] ImportTableData(DataTable table, IPropertyMap map)
         {
-            var rows = table.Rows.Cast<DataRow>();
-            var columns = table.Columns.Cast<DataColumn>();
+            var rows = table.Rows.Cast<DataRow>();              // The rows in the data table
+            var columns = table.Columns.Cast<DataColumn>();     // The columns in the data table
 
-            var pairs = rows.Select(r =>
-                        new Dictionary<string, object>(columns.Select(c =>
-                            new KeyValuePair<string, object>(c.ColumnName, r[c]))));
-            // TODO: Look into r.Field<object>(c) method to replace r[c]. It may eliminate the need for the ConvertNullableObject 
-            // function used later in the import process, simplifying the procedure / debugging.
+            var pairs = rows.Select(r => columns.ToDictionary(c => c.ColumnName, c => r[c]));
+
+            foreach (var r in rows)
+            {
+                var items = columns.ToDictionary(c => c.ColumnName, c => r[c]);
+            }
 
             //if (!map.HasMapping(table.TableName)) throw new Exception("The imported table is not mapped to any known destination.");
             //var tableName = map.MappedFrom(table.TableName);
@@ -72,10 +73,7 @@ namespace Rems.Application.Entities.Commands
 
         private IEntity[] ImportPlotData(DataTable table)
         {
-            var kvps = table.Columns.Cast<DataColumn>().Select(c =>
-                new KeyValuePair<DataColumn, Trait>(c, _factory.Context.Traits.FirstOrDefault(t => t.Name == c.ColumnName)));
-
-            var map = new Dictionary<DataColumn, Trait>(kvps);
+            var map = table.Columns.Cast<DataColumn>().ToDictionary(c => c, c => _factory.Context.Traits.FirstOrDefault(t => t.Name == c.ColumnName));
 
             var rows = table.Rows.Cast<DataRow>();
 
@@ -84,15 +82,15 @@ namespace Rems.Application.Entities.Commands
                 var trait = k.Value;
                 var column = k.Key;
 
-                if (trait == null) return null;
+                if (trait == null) return null;            
 
                 return new PlotData()
                 {
-                    PlotId = Convert.ToInt32(r.Field<double>("Plot")),
-                    PlotDataDate = r.Field<DateTime>("date"),
-                    Sample = r.Field<string>("Sample"),
+                    PlotId = Convert.ToInt32(r["Plot"]),
+                    PlotDataDate = (DateTime?)r["date"],
+                    Sample = (string)r["Sample"],
                     TraitId = trait.TraitId,
-                    Value = (double?)r.Field<object>(column),
+                    Value = (double?)r[column],
                     UnitId = trait.UnitId
                 };
             }));

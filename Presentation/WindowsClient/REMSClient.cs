@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
+using Rems.Application;
 using Rems.Infrastructure;
+using Steema.TeeChart.Styles;
 
 namespace WindowsClient
 {
@@ -13,6 +17,8 @@ namespace WindowsClient
 
         private readonly ClientLogic Logic;
 
+        private DataTable graphTable = new DataTable();
+
         public REMSClient(IServiceProvider provider)
         {
             Logic = new ClientLogic(provider);
@@ -21,9 +27,18 @@ namespace WindowsClient
             InitializeControls();            
 
             FormClosed += REMSClientFormClosed;
-            tablesBox.Click += UpdatePageDisplay;
+            //tablesBox.Click += UpdatePageDisplay;
             notebook.SelectedIndexChanged += UpdatePageDisplay;
             Logic.ListViewOutdated += UpdateListView;
+
+            EventManager.EntityNotFound += OnEntityNotFound;
+        }
+
+        private string OnEntityNotFound(object sender, EntityNotFoundArgs args)
+        {
+            var selector = new EntitySelector(args.Name, args.Options);
+            selector.ShowDialog();
+            return selector.Selection;
         }
 
         /// <summary>
@@ -37,48 +52,62 @@ namespace WindowsClient
         private void UpdateListView(object sender, EventArgs e)
         {
             relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(ProcessUserAction(Logic.GetListItems).Result);
+            relationsListBox.Items.AddRange(ProcessAction(Logic.GetListItems).Result);
         }
 
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             Settings.Instance.Save();
-            ProcessUserAction(Logic.TryCloseDatabase);
+            ProcessAction(Logic.TryCloseDatabase);
+
+            FormClosed -= REMSClientFormClosed;
+            //tablesBox.Click -= UpdatePageDisplay;
+            notebook.SelectedIndexChanged -= UpdatePageDisplay;
+            Logic.ListViewOutdated -= UpdateListView;
         }
 
         private void UpdatePageDisplay(object sender, EventArgs e)
         {
+            // TODO: Clean up this mess
+
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
 
             if (notebook.SelectedTab == pageData)
-                dataGridView.DataSource = ProcessUserAction(Logic.TryGetGridData, item).Result;
+                dataGridView.DataSource = ProcessAction(Logic.TryGetDataTable, item).Result;
             else if (notebook.SelectedTab == pageProperties)
             {
-                if (sender is TextBox) 
-                    item = ((TextBox)sender).Text;
-                else
+                //if (sender is TextBox) 
+                //    item = ((TextBox)sender).Text;
+                //else
                     // Remove trailing 's'
                     item = item.Remove(item.Length - 1);
 
                 pageProperties.Controls.Clear();
-                pageProperties.Controls.AddRange(ProcessUserAction(Logic.GetProperties, item));
-            };
+                pageProperties.Controls.AddRange(ProcessAction(Logic.GetProperties, item));
+            }
+            else if (notebook.SelectedTab == pageGraph)
+            {
+
+            }
         }
+
+        #region Taskbar
 
         /// <summary>
         /// On click, prompt the user to create a new blank database
         /// </summary>
         private void MenuNewClicked(object sender, EventArgs e)
         {
-            using var save = new SaveFileDialog()
+            using (var save = new SaveFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                AddExtension = true,
-                Filter = "SQLite (*.db)|*.db",
-                RestoreDirectory = true
-            };            
-            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryCreateDatabase, save.FileName);
+                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                save.AddExtension = true;
+                save.Filter = "SQLite (*.db)|*.db";
+                save.RestoreDirectory = true;
+
+                if (save.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryCreateDatabase, save.FileName);
+            }
         }
 
         /// <summary>
@@ -86,12 +115,13 @@ namespace WindowsClient
         /// </summary>
         private void MenuOpenClicked(object sender, EventArgs e)
         {
-            using var open = new OpenFileDialog()
+            using (var open = new OpenFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "SQLite (*.db)|*.db"
-            };
-            if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryOpenDatabase, open.FileName);            
+                open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.Filter = "SQLite (*.db)|*.db";
+                
+                if (open.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryOpenDatabase, open.FileName);
+            }                        
         }
 
         /// <summary>
@@ -99,20 +129,21 @@ namespace WindowsClient
         /// </summary>
         private void MenuSaveClicked(object sender, EventArgs e)
         {
-            ProcessUserAction(Logic.TrySaveDatabase);
+            ProcessAction(Logic.TrySaveDatabase);
         }
 
         /// <summary>
         /// On click, imports data from the selected file
         /// </summary>
         private void MenuImportClicked(object sender, EventArgs e)
-        {            
-            using var open = new OpenFileDialog()
+        {
+            using (var open = new OpenFileDialog())
             {
-                InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls"
-            };
-            if (open.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataImport, open.FileName);            
+                open.InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+
+                if (open.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryDataImport, open.FileName);
+            }
         }
 
         /// <summary>
@@ -120,15 +151,83 @@ namespace WindowsClient
         /// </summary>
         private void MenuExportClicked(object sender, EventArgs e)
         {
-            using var save = new SaveFileDialog()
+            using (var save = new SaveFileDialog())
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Filter = "ApsimNG (*.apsimx)|*.apsimx"
-            };
-            if (save.ShowDialog() == DialogResult.OK) ProcessUserAction(Logic.TryDataExport, save.FileName);            
+                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+
+                if (save.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryDataExport, save.FileName);
+            }
+                        
         }
 
-        private TResult ProcessUserAction<TResult>(Func<TResult> logic)
+        #endregion
+
+        #region Graph
+
+        private void GraphTableChanged(object sender, EventArgs e)
+        {
+            //var items = ProcessAction(Logic.TryGetDataTable, comboTable.SelectedItem.ToString());
+            //graphTable = items.Result;
+
+            //var ids = Logic.GetUniqueTraitIds(graphTable);
+            var table = comboTable.SelectedItem.ToString();
+            var names = ProcessAction(Logic.TryGetTraitNamesById, table.Remove(table.Length - 1));
+
+            comboTrait.Items.Clear();
+            comboTrait.Items.AddRange(names.Result);
+
+            var items = ProcessAction(Logic.TryGetGraphableItems, table.Remove(table.Length - 1));
+
+            comboXData.Items.Clear();
+            comboXData.Items.AddRange(items.Result);
+
+            comboYData.Items.Clear();
+            comboYData.Items.AddRange(items.Result);
+        }
+
+        private void GraphTraitChanged(object sender, EventArgs e)
+        {
+            UpdateGraph();
+        }
+
+        private void UpdateGraph()
+        {
+            var names = new string[4];
+            names[0] = comboTable.SelectedItem?.ToString();
+            names[1] = comboTrait.SelectedItem?.ToString();
+            names[2] = comboXData.SelectedItem?.ToString();
+            names[3] = comboYData.SelectedItem?.ToString();
+
+            if (!names.Any(n => n == null))
+            {
+                names[0] = names[0].Remove(names[0].Length - 1);
+
+                var data = ProcessAction(Logic.TryGetGraphData, names);
+                data.Wait();
+
+                var p = new Points();
+                var l = new Line();
+                foreach(var t in data.Result) CastAdd(p, t.Item1, t.Item2);
+                foreach(var t in data.Result) CastAdd(l, t.Item1, t.Item2);
+
+                graph.Series.Clear();
+                graph.Series.Add(p);
+                graph.Series.Add(l);
+            }
+        }
+
+        private void CastAdd(CustomPoint point, object x, object y)
+        {
+            if (x is DateTime && y is DateTime) point.Add((DateTime)x, (DateTime)y);
+            else if (x is double && y is DateTime) point.Add((double)x, (DateTime)y);
+            else if (x is DateTime && y is double) point.Add((DateTime)x, (double)y);
+            else point.Add(Convert.ToDouble(x), Convert.ToDouble(y));
+        }
+
+        #endregion
+
+        private TResult ProcessAction<TResult>(Func<TResult> logic)
         {
             Application.UseWaitCursor = true;
             Application.DoEvents();
@@ -138,7 +237,7 @@ namespace WindowsClient
             return result;
         }
 
-        private TResult ProcessUserAction<TValue, TResult>(Func<TValue, TResult> logic, TValue value)
+        private TResult ProcessAction<TValue, TResult>(Func<TValue, TResult> logic, TValue value)
         {
             Application.UseWaitCursor = true;
             Application.DoEvents();
@@ -147,5 +246,7 @@ namespace WindowsClient
 
             return result;
         }
+
+        
     }
 }
