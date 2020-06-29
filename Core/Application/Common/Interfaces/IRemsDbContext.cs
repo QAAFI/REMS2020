@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
-
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -97,5 +98,9 @@ namespace Rems.Application.Common.Interfaces
         DbSet<Treatment> Treatments { get; set; }
 
         DbSet<Unit> Units { get; set; }
+
+        IQueryable Query(string entity);
+
+        IQueryable Query(Type entity);
     }
 }

@@ -124,10 +124,10 @@ namespace WindowsClient
             return (await mediator.Send(new GetTableListQuery())).ToArray();
         }
 
-        public async Task<DataTable> TryGetGridData(string table)
+        public async Task<DataTable> TryGetDataTable(string table)
         {
             try
-            {                
+            {           
                 return await mediator.Send(new GetDataTableQuery() { TableName = table });
             }
             catch (Exception error)
@@ -271,6 +271,56 @@ namespace WindowsClient
             {
                 ErrorMessage(error.Message);
                 return false;
+            }
+        }
+
+        public async Task<string[]> TryGetTraitNamesById(string table)
+        {
+            try
+            {
+                return await mediator.Send(new GetTraitNamesByIdQuery() { TraitIds = table });
+            }
+            catch (Exception error)
+            {
+                ErrorMessage(error.Message);
+                return new string[0];
+            }
+        }
+
+        public async Task<string[]> TryGetGraphableItems(string table)
+        {
+            try
+            {
+                return await mediator.Send(new GetGraphableItemsQuery() { TableName = table });
+            }
+            catch (Exception error)
+            {
+                ErrorMessage(error.Message);
+                return new string[0];
+            }
+        }
+
+        public async Task<IEnumerable<Tuple<object, object>>> TryGetGraphData(string[] names)
+        {
+            // TODO: using a string array because RemsClient.ProcessAction is currently limited
+            // to methods with single parameters, need to fix
+
+            try
+            {
+                var query = new GetGraphDataQuery()
+                {
+                    TableName = names[0],
+                    TraitName = names[1],
+                    XColumn = names[2],
+                    YColumn = names[3]
+                };
+
+                return await mediator.Send(query);
+            }
+            catch (Exception error)
+            {
+                ErrorMessage(error.Message);
+                return null;
             }
         }
 

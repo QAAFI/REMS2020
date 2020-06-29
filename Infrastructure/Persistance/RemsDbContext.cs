@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using Microsoft.EntityFrameworkCore.Internal;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
@@ -110,6 +110,7 @@ namespace Rems.Persistence
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RemsDbContext).Assembly);
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -120,6 +121,16 @@ namespace Rems.Persistence
                 optionsBuilder.EnableDetailedErrors(true);
             }
         }
+        
+        public IQueryable Query(string entity)
+        {
+            string name = "Rems.Domain.Entities." + entity;
+            return Query(Model.FindEntityType(name).ClrType);
+        }
 
+        public IQueryable Query(Type entity)
+        {
+            return (IQueryable)((IDbSetCache)this).GetOrAddSet(this.GetDependencies().SetSource, entity);
+        }
     }
 }
