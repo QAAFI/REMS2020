@@ -6,7 +6,13 @@ using System.Reflection;
 using System.Windows.Forms;
 
 using Rems.Application;
+using Rems.Application.Common.Interfaces;
+using Rems.Application.DB.Commands;
+using Rems.Application.DB.Queries;
+using Rems.Application.Entities.Commands;
+using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;
+using Rems.Infrastructure.Excel;
 using Steema.TeeChart.Styles;
 
 namespace WindowsClient
@@ -16,8 +22,6 @@ namespace WindowsClient
         private string _importFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly ClientLogic Logic;
-
-        private DataTable graphTable = new DataTable();
 
         public REMSClient(IServiceProvider provider)
         {
@@ -51,14 +55,16 @@ namespace WindowsClient
 
         private void UpdateListView(object sender, EventArgs e)
         {
+            var items = Logic.TryQueryREMS(new GetTableListQuery());
+
             relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(ProcessAction(Logic.GetListItems).Result);
+            relationsListBox.Items.AddRange(items.ToArray());
         }
 
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             Settings.Instance.Save();
-            ProcessAction(Logic.TryCloseDatabase);
+            Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
 
             FormClosed -= REMSClientFormClosed;
             //tablesBox.Click -= UpdatePageDisplay;
@@ -74,17 +80,15 @@ namespace WindowsClient
             if (item == null) return;
 
             if (notebook.SelectedTab == pageData)
-                dataGridView.DataSource = ProcessAction(Logic.TryGetDataTable, item).Result;
+            {
+                dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item});
+            }
             else if (notebook.SelectedTab == pageProperties)
             {
-                //if (sender is TextBox) 
-                //    item = ((TextBox)sender).Text;
-                //else
-                    // Remove trailing 's'
-                    item = item.Remove(item.Length - 1);
+                item = item.Remove(item.Length - 1);
 
                 pageProperties.Controls.Clear();
-                pageProperties.Controls.AddRange(ProcessAction(Logic.GetProperties, item));
+                pageProperties.Controls.AddRange(Logic.GetProperties(item));
             }
             else if (notebook.SelectedTab == pageGraph)
             {
@@ -106,7 +110,12 @@ namespace WindowsClient
                 save.Filter = "SQLite (*.db)|*.db";
                 save.RestoreDirectory = true;
 
-                if (save.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryCreateDatabase, save.FileName);
+                if (save.ShowDialog() == DialogResult.OK)
+                {
+                    Logic.TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
+                    //Logic.LoadSettings();
+                    UpdateListView(null, EventArgs.Empty);
+                }
             }
         }
 
@@ -119,8 +128,13 @@ namespace WindowsClient
             {
                 open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 open.Filter = "SQLite (*.db)|*.db";
-                
-                if (open.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryOpenDatabase, open.FileName);
+
+                if (open.ShowDialog() == DialogResult.OK)
+                {
+                    Logic.TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
+                    //Logic.LoadSettings();
+                    UpdateListView(null, EventArgs.Empty);
+                }
             }                        
         }
 
@@ -129,7 +143,8 @@ namespace WindowsClient
         /// </summary>
         private void MenuSaveClicked(object sender, EventArgs e)
         {
-            ProcessAction(Logic.TrySaveDatabase);
+            Settings.Instance.Save();
+            Logic.TryQueryREMS(new SaveDBCommand());
         }
 
         /// <summary>
@@ -142,7 +157,17 @@ namespace WindowsClient
                 open.InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
-                if (open.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryDataImport, open.FileName);
+                if (open.ShowDialog() == DialogResult.OK)
+                {
+                    var command = new BulkInsertCommand()
+                    {
+                        Data = ExcelImporter.ReadRawData(open.FileName),
+                        TableMap = Settings.Instance["TABLES"]
+                    };
+
+                    if (Logic.TryQueryREMS(command)) MessageBox.Show("Import complete.\n");
+                    else MessageBox.Show("Import failed.\n");                    
+                }
             }
         }
 
@@ -156,9 +181,8 @@ namespace WindowsClient
                 save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
-                if (save.ShowDialog() == DialogResult.OK) ProcessAction(Logic.TryDataExport, save.FileName);
-            }
-                        
+                if (save.ShowDialog() == DialogResult.OK) Logic.TryDataExport(save.FileName).Wait();                
+            }                        
         }
 
         #endregion
@@ -167,23 +191,19 @@ namespace WindowsClient
 
         private void GraphTableChanged(object sender, EventArgs e)
         {
-            //var items = ProcessAction(Logic.TryGetDataTable, comboTable.SelectedItem.ToString());
-            //graphTable = items.Result;
-
-            //var ids = Logic.GetUniqueTraitIds(graphTable);
             var table = comboTable.SelectedItem.ToString();
-            var names = ProcessAction(Logic.TryGetTraitNamesById, table.Remove(table.Length - 1));
+            var names = Logic.TryQueryREMS(new GetTraitNamesByIdQuery() { TraitIds = table });
 
             comboTrait.Items.Clear();
-            comboTrait.Items.AddRange(names.Result);
+            comboTrait.Items.AddRange(names);
 
-            var items = ProcessAction(Logic.TryGetGraphableItems, table.Remove(table.Length - 1));
+            var items = Logic.TryQueryREMS(new GetGraphableItemsQuery() { TableName = table });
 
             comboXData.Items.Clear();
-            comboXData.Items.AddRange(items.Result);
+            comboXData.Items.AddRange(items);
 
             comboYData.Items.Clear();
-            comboYData.Items.AddRange(items.Result);
+            comboYData.Items.AddRange(items);
         }
 
         private void GraphTraitChanged(object sender, EventArgs e)
@@ -193,23 +213,28 @@ namespace WindowsClient
 
         private void UpdateGraph()
         {
-            var names = new string[4];
-            names[0] = comboTable.SelectedItem?.ToString();
-            names[1] = comboTrait.SelectedItem?.ToString();
-            names[2] = comboXData.SelectedItem?.ToString();
-            names[3] = comboYData.SelectedItem?.ToString();
+            var items = new string[4];
+            items[0] = comboTable.SelectedItem?.ToString();
+            items[1] = comboTrait.SelectedItem?.ToString();
+            items[2] = comboXData.SelectedItem?.ToString();
+            items[3] = comboYData.SelectedItem?.ToString();
 
-            if (!names.Any(n => n == null))
+            if (!items.Any(n => n == null))
             {
-                names[0] = names[0].Remove(names[0].Length - 1);
+                var query = new GetGraphDataQuery()
+                {
+                    TableName = items[0],
+                    TraitName = items[1],
+                    XColumn = items[2],
+                    YColumn = items[3]
+                };
 
-                var data = ProcessAction(Logic.TryGetGraphData, names);
-                data.Wait();
+                var data = Logic.TryQueryREMS(query);
 
                 var p = new Points();
                 var l = new Line();
-                foreach(var t in data.Result) CastAdd(p, t.Item1, t.Item2);
-                foreach(var t in data.Result) CastAdd(l, t.Item1, t.Item2);
+                foreach(var t in data) CastAdd(p, t.Item1, t.Item2);
+                foreach(var t in data) CastAdd(l, t.Item1, t.Item2);
 
                 graph.Series.Clear();
                 graph.Series.Add(p);
@@ -219,34 +244,12 @@ namespace WindowsClient
 
         private void CastAdd(CustomPoint point, object x, object y)
         {
-            if (x is DateTime && y is DateTime) point.Add((DateTime)x, (DateTime)y);
-            else if (x is double && y is DateTime) point.Add((double)x, (DateTime)y);
-            else if (x is DateTime && y is double) point.Add((DateTime)x, (double)y);
+            if (x is DateTime a && y is DateTime b) point.Add(a, b);
+            else if (x is double c && y is DateTime d) point.Add(c, d);
+            else if (x is DateTime e && y is double f) point.Add(e, f);
             else point.Add(Convert.ToDouble(x), Convert.ToDouble(y));
         }
 
         #endregion
-
-        private TResult ProcessAction<TResult>(Func<TResult> logic)
-        {
-            Application.UseWaitCursor = true;
-            Application.DoEvents();
-            var result = logic();
-            Application.UseWaitCursor = false;
-
-            return result;
-        }
-
-        private TResult ProcessAction<TValue, TResult>(Func<TValue, TResult> logic, TValue value)
-        {
-            Application.UseWaitCursor = true;
-            Application.DoEvents();
-            var result = logic(value);
-            Application.UseWaitCursor = false;
-
-            return result;
-        }
-
-        
     }
 }

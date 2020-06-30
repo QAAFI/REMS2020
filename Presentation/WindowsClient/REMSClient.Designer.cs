@@ -302,10 +302,10 @@
             this.comboTable.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboTable.FormattingEnabled = true;
             this.comboTable.Items.AddRange(new object[] {
-            "MetDatas",
-            "PlotDatas",
-            "SoilDatas",
-            "SoilLayerDatas"});
+            "MetData",
+            "PlotData",
+            "SoilData",
+            "SoilLayerData"});
             this.comboTable.Location = new System.Drawing.Point(49, 6);
             this.comboTable.Name = "comboTable";
             this.comboTable.Size = new System.Drawing.Size(138, 21);
