@@ -34,7 +34,7 @@ namespace WindowsClient
             mediator = provider.GetRequiredService<IMediator>();
         }
 
-        private void LoadSettings()
+        public void LoadSettings()
         {
             settings.Load();
 
@@ -116,27 +116,6 @@ namespace WindowsClient
             }
         }
 
-        /// <summary>
-        /// Populates the listview with the tables in the database
-        /// </summary>
-        public async Task<object[]> GetListItems()
-        {
-            return (await mediator.Send(new GetTableListQuery())).ToArray();
-        }
-
-        public async Task<DataTable> TryGetDataTable(string table)
-        {
-            try
-            {           
-                return await mediator.Send(new GetDataTableQuery() { TableName = table });
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return null;
-            }
-        }
-
         public Control[] GetProperties(string table)
         {
             var controls = new List<Control>();
@@ -177,85 +156,6 @@ namespace WindowsClient
             }
         }
 
-        public async Task<bool> TryCreateDatabase(string file)
-        {
-            try
-            {
-                context = await mediator.Send(new CreateDBCommand() { FileName = file });
-                LoadSettings();
-                ListViewOutdated?.Invoke(null, EventArgs.Empty);
-                return true;
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return false;
-            }
-        }
-
-        public async Task<bool> TryOpenDatabase(string file)
-        {
-            try
-            {
-                context = await mediator.Send(new OpenDBCommand() { FileName = file });
-                LoadSettings();
-                ListViewOutdated?.Invoke(null, EventArgs.Empty);
-                return true;
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return false;
-            }
-        }
-
-        public async Task<bool> TrySaveDatabase()
-        {
-            try
-            {
-                Settings.Instance.Save();
-                await mediator.Send(new SaveDBCommand());
-                return true;
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return false;
-            }
-        }
-
-        public async Task<bool> TryCloseDatabase()
-        {
-            try
-            {
-                await mediator.Send(new CloseDBCommand());
-                return true;
-            }
-            catch
-            {
-                ErrorMessage("The database did not close correctly.");
-                return false;
-            }
-        }
-
-        public async Task<bool> TryDataImport(string path)
-        {
-            try
-            {
-                await mediator.Send(new BulkInsertCommand() { Data = ExcelImporter.ReadRawData(path), TableMap = Settings.Instance["TABLES"] });
-
-                ListViewOutdated?.Invoke(null, EventArgs.Empty);
-
-                MessageBox.Show($"Import Complete.\n");
-                return true;
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return false;
-            }
-        }
-
         public async Task<bool> TryDataExport(string file)
         {
             try
@@ -274,53 +174,28 @@ namespace WindowsClient
             }
         }
 
-        public async Task<string[]> TryGetTraitNamesById(string table)
+        public T TryQueryREMS<T>(IRequest<T> request, string message = null)
         {
-            try
-            {
-                return await mediator.Send(new GetTraitNamesByIdQuery() { TraitIds = table });
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return new string[0];
-            }
-        }
-
-        public async Task<string[]> TryGetGraphableItems(string table)
-        {
-            try
-            {
-                return await mediator.Send(new GetGraphableItemsQuery() { TableName = table });
-            }
-            catch (Exception error)
-            {
-                ErrorMessage(error.Message);
-                return new string[0];
-            }
-        }
-
-        public async Task<IEnumerable<Tuple<object, object>>> TryGetGraphData(string[] names)
-        {
-            // TODO: using a string array because RemsClient.ProcessAction is currently limited
-            // to methods with single parameters, need to fix
+            Application.UseWaitCursor = true;
+            Application.DoEvents();
 
             try
             {
-                var query = new GetGraphDataQuery()
-                {
-                    TableName = names[0],
-                    TraitName = names[1],
-                    XColumn = names[2],
-                    YColumn = names[3]
-                };
+                var task = mediator.Send(request);
+                task.Wait();
 
-                return await mediator.Send(query);
+                Application.UseWaitCursor = false;
+                return task.Result;
             }
             catch (Exception error)
             {
-                ErrorMessage(error.Message);
-                return null;
+                if (message == null) 
+                    ErrorMessage(error.Message);
+                else 
+                    ErrorMessage(message);
+
+                Application.UseWaitCursor = false;
+                return default;
             }
         }
 

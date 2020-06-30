@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Entities.Commands
 {
-    public class BulkInsertCommandHandler : IRequestHandler<BulkInsertCommand>
+    public class BulkInsertCommandHandler : IRequestHandler<BulkInsertCommand, bool>
     {
         private readonly IRemsDbFactory _factory;
 
@@ -23,7 +23,7 @@ namespace Rems.Application.Entities.Commands
             _factory = factory;
         }
 
-        public async Task<MediatR.Unit> Handle(BulkInsertCommand request, CancellationToken token)
+        public async Task<bool> Handle(BulkInsertCommand request, CancellationToken token)
         {
             foreach (DataTable table in request.Data.Tables)
             {
@@ -39,7 +39,7 @@ namespace Rems.Application.Entities.Commands
                 _factory.Context.SaveChanges();
             }
 
-            return MediatR.Unit.Value;
+            return true;
         }
 
         private IEntity[] ImportTableData(DataTable table, IPropertyMap map)
