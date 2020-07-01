@@ -225,6 +225,7 @@
     <Compile Include="REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <Compile Include="RemsSeries.cs" />
     <EmbeddedResource Include="EntitySelector.resx">
       <DependentUpon>EntitySelector.cs</DependentUpon>
     </EmbeddedResource>

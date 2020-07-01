@@ -287,6 +287,7 @@
             this.comboXData.Name = "comboXData";
             this.comboXData.Size = new System.Drawing.Size(138, 21);
             this.comboXData.TabIndex = 5;
+            this.comboXData.SelectedIndexChanged += new System.EventHandler(this.XDataChanged);
             // 
             // labelTable
             // 
@@ -314,6 +315,9 @@
             // 
             // graph
             // 
+            this.graph.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // 
             // 
@@ -965,6 +969,7 @@
             this.graph.Axes.Top.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.graph.Axes.Top.Title.Shadow.Brush.Solid = true;
             this.graph.Axes.Top.Title.Shadow.Brush.Visible = true;
+            this.graph.Cursor = System.Windows.Forms.Cursors.Arrow;
             // 
             // 
             // 

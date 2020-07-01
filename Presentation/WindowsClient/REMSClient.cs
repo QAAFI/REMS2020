@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,6 +14,7 @@ using Rems.Application.Entities.Commands;
 using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;
 using Rems.Infrastructure.Excel;
+using Steema.TeeChart.Drawing;
 using Steema.TeeChart.Styles;
 
 namespace WindowsClient
@@ -211,6 +213,16 @@ namespace WindowsClient
             UpdateGraph();
         }
 
+        private void XDataChanged(object sender, EventArgs e)
+        {
+            UpdateGraph();
+        }
+
+        private void YDataChanged(object sender, EventArgs e)
+        {
+            UpdateGraph();
+        }
+
         private void UpdateGraph()
         {
             var items = new string[4];
@@ -232,9 +244,20 @@ namespace WindowsClient
                 var data = Logic.TryQueryREMS(query);
 
                 var p = new Points();
+                p.Color = Color.SkyBlue;
+                p.Legend.Visible = false;
+                p.Pointer.Style = PointerStyles.Circle;
+
                 var l = new Line();
-                foreach(var t in data) CastAdd(p, t.Item1, t.Item2);
-                foreach(var t in data) CastAdd(l, t.Item1, t.Item2);
+                l.Color = Color.LightSkyBlue;
+                l.Legend.Visible = false;
+                l.LinePen.Width = 2;
+
+                foreach (var t in data)
+                {
+                    CastAdd(p, t.Item1, t.Item2);
+                    CastAdd(l, t.Item1, t.Item2);
+                }
 
                 graph.Series.Clear();
                 graph.Series.Add(p);
@@ -251,5 +274,7 @@ namespace WindowsClient
         }
 
         #endregion
+
+        
     }
 }
