@@ -56,13 +56,14 @@ namespace Rems.Application.Met.Queries
                 return group.Single(d => d.Trait.Name == name);
             else
             {
-                var args = new EntityNotFoundArgs()
+                var args = new ItemNotFoundArgs()
                 {
                     Options = _context.Traits.Select(t => t.Name).ToArray(),
                     Name = name
                 };
+                EventManager.InvokeItemNotFound(null, args);
 
-                var trait = _context.Traits.FirstOrDefault(t => t.Name == EventManager.InvokeEntityNotFound(null, args));
+                var trait = _context.Traits.FirstOrDefault(t => t.Name == args.Selection);
                 trait.Name = name;
                 _context.SaveChanges();
 

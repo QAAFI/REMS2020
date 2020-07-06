@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-
+using Microsoft.EntityFrameworkCore.Metadata;
 using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
 using System;
@@ -24,6 +24,8 @@ namespace Rems.Application.Common.Interfaces
         IEnumerable<string> Names { get; set; }
 
         IEnumerable<IPropertyMap> Mappings { get; set; }
+
+        IModel Model { get; }
 
         DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 

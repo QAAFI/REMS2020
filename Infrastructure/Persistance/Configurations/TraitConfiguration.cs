@@ -25,7 +25,7 @@ namespace Rems.Persistence.Configurations
                 .HasMaxLength(10);
 
             // Define constraints
-            builder.HasOne(d => d.DefaultUnit)
+            builder.HasOne(d => d.DefaultUnits)
                 .WithMany(p => p.Traits)
                 .HasForeignKey(d => d.UnitId)
                 .OnDelete(DeleteBehavior.Cascade)

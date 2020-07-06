@@ -1,6 +1,6 @@
 ﻿namespace WindowsClient
 {
-    partial class EntitySelector
+    partial class ItemSelector
     {
         /// <summary>
         /// Required designer variable.

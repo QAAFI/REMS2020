@@ -35,14 +35,13 @@ namespace WindowsClient
             notebook.SelectedIndexChanged += UpdatePageDisplay;
             Logic.ListViewOutdated += UpdateListView;
 
-            EventManager.EntityNotFound += OnEntityNotFound;
+            EventManager.ItemNotFound += OnEntityNotFound;
         }
 
-        private string OnEntityNotFound(object sender, EntityNotFoundArgs args)
+        private void OnEntityNotFound(object sender, ItemNotFoundArgs args)
         {
-            var selector = new EntitySelector(args.Name, args.Options);
+            var selector = new ItemSelector(args);
             selector.ShowDialog();
-            return selector.Selection;
         }
 
         /// <summary>

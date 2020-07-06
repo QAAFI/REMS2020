@@ -1,14 +1,17 @@
 ﻿using MediatR;
-
+using Microsoft.EntityFrameworkCore.Metadata;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,23 +29,134 @@ namespace Rems.Application.Entities.Commands
         public async Task<bool> Handle(BulkInsertCommand request, CancellationToken token)
         {
             foreach (DataTable table in request.Data.Tables)
-            {
-               IEntity[] entities;
+            {               
+                if (table.TableName == "Notes") continue;
 
-                if (table.TableName == "PlotData")
-                    entities = ImportPlotData(table);
+                var types = _factory.Context.Model.GetEntityTypes();
+                var filtered = types.Where(e => table.TableName.Contains(e.ClrType.Name));
+
+                if (filtered.Count() == 1)
+                {
+                    AddToTable(filtered.Single(), table);
+                }
                 else
-                    entities = ImportTableData(table, request.TableMap);
+                {
+                    var args = new ItemNotFoundArgs() { Name = table.TableName };
 
-                _factory.Context.AddRange(entities);
-                //await _context.SaveChangesAsync(token);
-                _factory.Context.SaveChanges();
+                    if (filtered.Count() == 0) 
+                        args.Options = types.Select(t => t.Name).ToArray();
+                    else
+                        args.Options = filtered.Select(t => t.Name).ToArray();
+
+                    EventManager.InvokeItemNotFound(null, args);
+
+                    if (args.Cancelled) continue;
+
+                    AddToTable(filtered.First(t => t.Name == args.Selection), table);
+                }                
             }
 
             return true;
         }
 
-        private IEntity[] ImportTableData(DataTable table, IPropertyMap map)
+        private void AddToTable(IEntityType entity, DataTable data)
+        {
+            var infos = data.Columns.Cast<DataColumn>().Select(c => GetColumnInfo(entity, c)).ToList();
+
+            var entities = data.Rows.Cast<DataRow>().Select(r => DataRowToEntity(r, entity.ClrType, infos)).ToArray();            
+
+            //if (data.TableName == "PlotData")
+            //    entities = ImportPlotData(data);
+            //else
+            //    entities = ImportTableData(data);
+            
+            _factory.Context.AddRange(entities);
+            _factory.Context.SaveChanges();
+        }
+
+        private PropertyInfo GetColumnInfo(IEntityType entity, DataColumn col)
+        {
+            if (entity.ClrType.GetProperty(col.ColumnName) is PropertyInfo i && i != null)
+            {
+                return i;
+            }
+            else if (col.ColumnName == entity.ClrType.Name)
+            {
+                // Guess that there is a column/property called Name.
+                // If not, defer back to user selection
+                col.ColumnName = "Name";
+                return GetColumnInfo(entity, col);
+            }
+            else
+            {
+                var options = entity.ClrType.GetProperties()
+                    .Where(p => !(p.PropertyType is ICollection))
+                    .Select(e => e.Name)
+                    .ToList();
+
+                col.ColumnName = GetColumnName(col, options.ToArray());
+                
+                if (col.ColumnName == null) 
+                    return null;
+                else
+                    return GetColumnInfo(entity, col);
+            }
+        }
+
+        private string GetColumnName(DataColumn col, string[] options)
+        {
+            var args = new ItemNotFoundArgs()
+            {
+                Name = col.ColumnName,
+                Options = options
+            };
+            EventManager.InvokeItemNotFound(null, args);
+
+            if (args.Cancelled) return null;
+            else return args.Selection;
+        }
+
+        private IEntity DataRowToEntity(DataRow row, Type type, IEnumerable<PropertyInfo> props)
+        {           
+            IEntity entity = Activator.CreateInstance(type) as IEntity;
+
+            foreach (var prop in props)
+            {
+                var value = row[prop.Name];
+
+                // Entity will use default values for null entries
+                if (value is DBNull) continue;
+
+                // Check if the property is owned by a different entity type,
+                // if yes, search the context for the DbSet which owns it
+                var t = prop.PropertyType;
+                if (t.IsClass && t != typeof(string))
+                {
+                    var ps = t.GetProperties();
+                    var query = _factory.Context.Query(t);//.Cast<IEntity>();
+                    //var result = query.FirstOrDefault(e => e.HasValue(value, ps));
+
+                    foreach(IEntity e in query)
+                    {
+                        if (e.HasValue(value, ps))
+                        {
+                            prop.SetValue(entity, e);
+                            break;
+                        }
+                    }
+
+                    //prop.SetValue(entity, result);
+                }
+                else
+                {
+                    prop.SetValue(entity, value);
+                }                
+            }
+
+            return entity;
+        }
+
+        private IEntity[] ImportTableData(DataTable table)
         {
             var rows = table.Rows.Cast<DataRow>();              // The rows in the data table
             var columns = table.Columns.Cast<DataColumn>();     // The columns in the data table

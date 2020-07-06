@@ -8,19 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Rems.Application;
+
 namespace WindowsClient
 {
-    public partial class EntitySelector : Form
+    public partial class ItemSelector : Form
     {
-        public string Selection => combo.SelectedItem.ToString();
+        private ItemNotFoundArgs args;
 
-        public EntitySelector(string name, string[] options)
+        public ItemSelector(ItemNotFoundArgs args)
         {
+            this.args = args;
+
             InitializeComponent();
 
-            instructions.Text = "Could not find \"" + name + "\", please select an alternative:";
+            instructions.Text = "Could not find \"" + args.Name + "\", please select an alternative:";
 
-            combo.Items.AddRange(options);
+            combo.Items.AddRange(args.Options);
 
             FormClosed += OnFormClosed;
             confirmBtn.Click += OnConfirmClick;
@@ -29,12 +33,14 @@ namespace WindowsClient
 
         private void OnConfirmClick(object sender, EventArgs e)
         {
+            args.Selection = combo.SelectedItem.ToString();
             Close();
         }
 
         private void OnCancelClick(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (e is ItemNotFoundArgs args) args.Cancelled = true;
+            Close();
         }
 
         private void OnFormClosed(object sender, FormClosedEventArgs e)

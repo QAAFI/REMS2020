@@ -31,15 +31,15 @@ namespace Rems.Application.Soils.Queries
                 // TODO: Similar block of code is used in MetFileDataQueryHandler GetData(), should
                 // find a way to reuse not repeat (might be needed in other places down the line as well)
 
-                var args = new EntityNotFoundArgs()
+                var args = new ItemNotFoundArgs()
                 {
                     Options = _context.Traits.Select(t => t.Name).ToArray(),
                     Name = request.TraitName
                 };
 
-                string name = EventManager.InvokeEntityNotFound(null, args);
+                EventManager.InvokeItemNotFound(null, args);
                 
-                trait = _context.Traits.FirstOrDefault(t => t.Name == name);                
+                trait = _context.Traits.FirstOrDefault(t => t.Name == args.Selection);                
                 trait.Name = request.TraitName;
                 _context.SaveChanges();
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Rems.Domain.Entities;
 
 namespace Rems.Persistence.Configurations
@@ -11,11 +12,17 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.RegionId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.RegionId)
                 .HasName("RegionId")
                 .IsUnique();
 
-            builder.Property(e => e.Name).HasMaxLength(20);
+            builder.Property(e => e.RegionId)
+                .ValueGeneratedOnAdd();
+                //.HasValueGenerator(typeof(ValueGenerator));
+
+            builder.Property(e => e.Name)
+                .HasMaxLength(20);            
         }
     }
 }
