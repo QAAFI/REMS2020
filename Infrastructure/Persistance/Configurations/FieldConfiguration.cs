@@ -11,9 +11,13 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.FieldId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.FieldId)
                 .HasName("FieldId")
                 .IsUnique();
+
+            builder.Property(e => e.FieldId)
+                .ValueGeneratedOnAdd();
 
             builder.Property(e => e.Name)
                 .HasColumnName("Name")

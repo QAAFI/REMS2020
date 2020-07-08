@@ -11,9 +11,13 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.SoilLayerTraitId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.SoilLayerTraitId)
                 .HasName("SoilLayerTraitId")
                 .IsUnique();
+
+            builder.Property(e => e.SoilLayerTraitId)
+                .ValueGeneratedOnAdd();
 
             builder.Property(e => e.SoilLayerId)
                 .HasDefaultValueSql("0");

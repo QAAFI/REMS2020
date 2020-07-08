@@ -11,9 +11,13 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.TraitId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.TraitId)
                 .HasName("TraitId")
                 .IsUnique();
+
+            builder.Property(e => e.TraitId)
+                .ValueGeneratedOnAdd();
 
             builder.Property(e => e.Description)
                 .HasMaxLength(60);
@@ -28,7 +32,7 @@ namespace Rems.Persistence.Configurations
             builder.HasOne(d => d.DefaultUnits)
                 .WithMany(p => p.Traits)
                 .HasForeignKey(d => d.UnitId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("TraitUnitId");
         }
     }

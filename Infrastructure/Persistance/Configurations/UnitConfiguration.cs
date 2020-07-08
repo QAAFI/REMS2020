@@ -11,11 +11,13 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.UnitId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.UnitId)
                 .HasName("UnitId")
                 .IsUnique();
 
-            builder.Property(e => e.Name).HasMaxLength(10);
+            builder.Property(e => e.Name)
+                .HasMaxLength(10);
         }
     }
 }

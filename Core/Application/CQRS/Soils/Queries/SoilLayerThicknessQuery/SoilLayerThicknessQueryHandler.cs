@@ -22,8 +22,8 @@ namespace Rems.Application.Soils.Queries
         {
             return (from layer in _context.SoilLayers
                    where layer.SoilId == request.SoilId
-                   orderby layer.DepthFrom
-                   select (double)((layer.DepthTo ?? 0) - (layer.DepthFrom ?? 0))).ToArray();
+                   orderby layer.FromDepth
+                   select (double)((layer.ToDepth ?? 0) - (layer.FromDepth ?? 0))).ToArray();
         }
     }
 }

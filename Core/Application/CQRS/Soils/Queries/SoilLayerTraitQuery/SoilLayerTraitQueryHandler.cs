@@ -46,7 +46,7 @@ namespace Rems.Application.Soils.Queries
 
             var layers = from layer in _context.SoilLayers
                          where layer.SoilId == request.SoilId       // Find the layers of the soil
-                         orderby layer.DepthFrom                    // Sort the layers by depth
+                         orderby layer.FromDepth                    // Sort the layers by depth
                          select (
                             from traits in layer.SoilLayerTraits    // Find all the traits in the soil layer
                             where traits.Trait == trait             // Filter by the requested trait

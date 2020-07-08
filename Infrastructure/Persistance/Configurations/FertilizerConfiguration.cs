@@ -11,11 +11,10 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.FertilizerId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.FertilizerId)
                 .HasName("FertilizerId")
                 .IsUnique();
-
-            builder.Property(e => e.Name).HasMaxLength(20);
 
             builder.Property(e => e.Name)
                 .HasColumnName("Name")
@@ -41,12 +40,12 @@ namespace Rems.Persistence.Configurations
                 .HasColumnName("Sulfur")
                 .HasDefaultValueSql("0");
 
-            builder.Property(e => e.Other)
-                .HasColumnName("Other")
+            builder.Property(e => e.OtherPercent)
+                .HasColumnName("OtherPercent")
                 .HasDefaultValueSql("0");
 
-            builder.Property(e => e.OtherElements)
-                .HasColumnName("OtherElements")
+            builder.Property(e => e.Other)
+                .HasColumnName("Other")
                 .HasMaxLength(20);
 
             builder.Property(e => e.Notes)

@@ -23,9 +23,9 @@ namespace Rems.Domain.Entities
 
         public double? Sulfur { get; set; }
 
-        public double? Other { get; set; }
+        public double? OtherPercent { get; set; }
 
-        public string OtherElements { get; set; }
+        public string Other { get; set; }
 
         public string Notes { get; set; }
 

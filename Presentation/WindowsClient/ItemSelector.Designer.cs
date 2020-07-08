@@ -38,10 +38,13 @@
             // 
             this.combo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo.FormattingEnabled = true;
+            this.combo.Items.AddRange(new object[] {
+            "None"});
             this.combo.Location = new System.Drawing.Point(12, 40);
             this.combo.Name = "combo";
             this.combo.Size = new System.Drawing.Size(387, 21);
             this.combo.TabIndex = 0;
+            this.combo.Tag = "";
             // 
             // instructions
             // 
@@ -70,7 +73,7 @@
             this.confirmBtn.Text = "Confirm";
             this.confirmBtn.UseVisualStyleBackColor = true;
             // 
-            // EntitySelector
+            // ItemSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -79,7 +82,7 @@
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.instructions);
             this.Controls.Add(this.combo);
-            this.Name = "EntitySelector";
+            this.Name = "ItemSelector";
             this.ResumeLayout(false);
             this.PerformLayout();
 

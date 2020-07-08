@@ -11,15 +11,22 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.SoilLayerId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.SoilLayerId)
                 .HasName("SoilLayerId")
                 .IsUnique();
 
-            builder.Property(e => e.SoilId).HasDefaultValueSql("0");
+            builder.Property(e => e.SoilLayerId)
+                .ValueGeneratedOnAdd();
 
-            builder.Property(e => e.DepthFrom).HasDefaultValueSql("0");
+            builder.Property(e => e.SoilId)
+                .HasDefaultValueSql("0");
 
-            builder.Property(e => e.DepthTo).HasDefaultValueSql("0");
+            builder.Property(e => e.FromDepth)
+                .HasDefaultValueSql("0");
+
+            builder.Property(e => e.ToDepth)
+                .HasDefaultValueSql("0");
 
             // Define constraints
             builder.HasOne(d => d.Soil)
