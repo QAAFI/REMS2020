@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Trait : IEntity
+    public class Trait : INamed
     {
         public Trait()
         {

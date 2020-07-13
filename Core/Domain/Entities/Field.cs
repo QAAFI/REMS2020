@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Field : IEntity
+    public class Field : INamed
     {
         public Field()
         {

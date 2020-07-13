@@ -38,7 +38,7 @@ namespace Rems.Application.Entities.Commands
                 var entity = FindEntity(table.TableName);
                 
                 if (entity == null) continue;
-                
+
                 ImportTable(entity, table);          
             }
 
@@ -66,15 +66,19 @@ namespace Rems.Application.Entities.Commands
             return filtered.First(t => t.ClrType.Name == args.Selection);
         }
 
-        private void ImportTable(IEntityType entity, DataTable data)
+        private void ImportTable(IEntityType entity, DataTable table)
         {
+            var rows = table.DistinctRows().Select(r => r.ItemArray).ToArray();
+            table.Rows.Clear();
+            foreach (var row in rows) table.Rows.Add(row);
+
             // Anything this catches will definitely be a trait table, but it may miss
             // tables with small numbers of additional traits.
             // TODO: Find a better solution
-            if(entity.ClrType.GetProperties().Count() < data.Columns.Count)
-                AddTableWithTraitsToContext(entity, data);
+            if(entity.ClrType.GetProperties().Count() < table.Columns.Count)
+                AddTableWithTraitsToContext(entity, table);
             else
-                AddTableToContext(entity, data);
+                AddTableToContext(entity, table);
             
             context.SaveChanges();
         }
@@ -86,7 +90,8 @@ namespace Rems.Application.Entities.Commands
                 .Where(c => c != null)
                 .ToList();
 
-            foreach (DataRow r in data.Rows) AddDataRowToContext(r, entity.ClrType, infos);
+            foreach (DataRow r in data.Rows)
+                AddDataRowToContext(r, entity.ClrType, infos);
         }
 
         private void AddTableWithTraitsToContext(IEntityType entity, DataTable data)
@@ -214,6 +219,8 @@ namespace Rems.Application.Entities.Commands
             var name = col.ColumnName;
             var props = type.GetProperties();
 
+            if (props.SingleOrDefault(p => p.Name == name) is PropertyInfo i && i != null) return i;
+
             var ps = props.Where(p => p.Name.Contains(name) || name.Contains(p.Name));
 
             if (ps.Count() <= 1) return ps.SingleOrDefault();
@@ -236,7 +243,7 @@ namespace Rems.Application.Entities.Commands
             // Entity will use default values for null or 0 entries
             if (value is DBNull) return;
             if (value is double d && d == 0) return;
-            
+
             /* 
              * TODO: Fix this line.
              * 
@@ -247,7 +254,11 @@ namespace Rems.Application.Entities.Commands
              * This may cause issues down the line if attempting to add an IEntity value that is not
              * already guaranteed to have a matching property on the entity.
             */
-            if (value is IEntity) info.SetValue(entity, value);
+            if (value is IEntity)
+            {
+                info.SetValue(entity, value);
+                return;
+            }
 
             // Check if the property is an entity, if yes, search the context for the DbSet
             // which owns it, and search to see if there is a matching item in the table
@@ -257,6 +268,7 @@ namespace Rems.Application.Entities.Commands
             if (type == typeof(string))
             {
                 info.SetValue(entity, value);
+                return;
             }
             // Handle entities
             else if (type.IsClass)
@@ -269,13 +281,21 @@ namespace Rems.Application.Entities.Commands
                     if (e.HasValue(value, ps))
                     {
                         info.SetValue(entity, e);
-                        break;
-                    }
-                    else
-                    {
-                        // TODO: Implement handling for when the depedent entity does not exist
+                        return;
                     }
                 }
+
+                // If the entity was not found in the query
+
+                // Assume that the entity was referred to by name, and create
+                // a new entity using that value
+                INamed item = Activator.CreateInstance(type) as INamed;
+                item.Name = value.ToString();
+
+                context.Add(item);
+                context.SaveChanges();
+
+                info.SetValue(entity, item);
             }
             // Handle nullable numerics
             else if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))

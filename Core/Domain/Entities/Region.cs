@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Region : IEntity
+    public class Region : INamed
     {
         public Region()
         {
@@ -11,9 +11,9 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
-        public string Name { get; set; } = null;
+        public string Name { get; set; }
 
-        public string Notes { get; set; } = null;
+        public string Notes { get; set; }
 
 
         public virtual ICollection<Site> Sites { get; set; }

@@ -24,7 +24,7 @@ namespace Rems.Application.Met.Queries
                 .ForMember(d => d.Latitude, opts => opts.MapFrom(s => s.Latitude))
                 .ForMember(d => d.Longitude, opts => opts.MapFrom(s => s.Longitude))
                 .ForMember(d => d.TemperatureAverage, opts => opts.MapFrom(s => s.TemperatureAverage))
-                .ForMember(d => d.Amp, opts => opts.MapFrom(s => s.Amp));
+                .ForMember(d => d.Amp, opts => opts.MapFrom(s => s.Amplitude));
         }
     }
 }

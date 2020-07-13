@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Rems.Domain.Entities
 {
-    public class TreatmentGroup : IEntity
+    public class TreatmentGroup : INamed
     {
         public int TreatmentGroupId { get; set; }
         public string Name { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Factor : IEntity
+    public class Factor : INamed
     {
         public Factor()
         {
