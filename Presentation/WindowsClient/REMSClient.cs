@@ -158,9 +158,21 @@ namespace WindowsClient
 
                 if (open.ShowDialog() == DialogResult.OK)
                 {
+                    DataSet data;
+
+                    try
+                    {
+                        data = ExcelImporter.ReadRawData(open.FileName);
+                    }
+                    catch (Exception error)
+                    {
+                        MessageBox.Show("Import could not be processed, the chosen file was in use.");
+                        return;
+                    }
+
                     var command = new BulkInsertCommand()
                     {
-                        Data = ExcelImporter.ReadRawData(open.FileName),
+                        Data = data,
                         TableMap = Settings.Instance["TABLES"]
                     };
 
