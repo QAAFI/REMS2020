@@ -15,9 +15,9 @@ namespace Rems.Persistence.Configurations
                 .HasName("PlotId")
                 .IsUnique();
 
-            builder.Property(e => e.Columns).HasDefaultValueSql("0");
+            builder.Property(e => e.Column).HasDefaultValueSql("0");
 
-            builder.Property(e => e.RepetitionNumber).HasDefaultValueSql("0");
+            builder.Property(e => e.Repetition).HasDefaultValueSql("0");
 
             builder.Property(e => e.Rows).HasDefaultValueSql("0");
 

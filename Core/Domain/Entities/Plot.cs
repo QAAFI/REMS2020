@@ -15,9 +15,9 @@ namespace Rems.Domain.Entities
 
         public int TreatmentId { get; set; }
 
-        public int? RepetitionNumber { get; set; }
+        public int? Repetition { get; set; }
 
-        public int? Columns { get; set; }
+        public int? Column { get; set; }
 
         public int? Rows { get; set; }
 

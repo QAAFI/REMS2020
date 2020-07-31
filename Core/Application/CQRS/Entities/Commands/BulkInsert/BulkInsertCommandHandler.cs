@@ -31,10 +31,18 @@ namespace Rems.Application.Entities.Commands
 
         public async Task<bool> Handle(BulkInsertCommand request, CancellationToken token)
         {
+            // TODO: This handler has grown larger than originally planned, structurally
+            // it might be better to try reorganise some of the methods into other classes
+
             foreach (DataTable table in request.Data.Tables)
             {               
-                if (table.TableName == "Notes") continue;
-                
+                // These IF statements are awful code, but my hand has been forced since the data is
+                // coming from poorly designed excel templates. Devising a better solution is currently
+                // not worth the effort.
+
+                if (table.TableName == "Notes") continue;                
+                if (table.TableName == "Design") { ImportDesignTable(table); continue; }
+
                 var entity = FindEntity(table.TableName);
                 
                 if (entity == null) continue;
@@ -56,14 +64,80 @@ namespace Rems.Application.Entities.Commands
 
             if (filtered.Count() == 0)
                 args.Options = types.Select(t => t.ClrType.Name).ToArray();
+            else if (filtered.FirstOrDefault(t => t.ClrType.Name == name) is IEntityType e)
+                return e;
             else
                 args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
 
             EventManager.InvokeItemNotFound(null, args);
 
-            if (args.Cancelled) return null;
+            if (args.Cancelled || args.Selection == "None") return null;
 
             return filtered.First(t => t.ClrType.Name == args.Selection);
+        }
+
+        private void ImportDesignTable(DataTable table)
+        {
+            // This method is hardcoded because I decided it wasn't worth the time
+            // to develop a stable general solution for a single badly designed excel table.
+            // Apologies to whoever has to fix it when it eventually breaks.
+            foreach (DataRow row in table.Rows)
+            {
+                var treatment = new Treatment()
+                {
+                    ExperimentId = (int)ConvertDBValue(row[0], typeof(int)),
+                    Name = row[1].ToString()
+                };
+                context.Add(treatment);
+                context.SaveChanges();
+
+                var plot = new Plot()
+                {
+                    TreatmentId = treatment.TreatmentId,
+                    Repetition = (int)ConvertDBValue(row[2], typeof(int)),
+                    Column = (int)ConvertDBValue(row[3], typeof(int))
+                };
+                context.Add(plot);
+                context.SaveChanges();
+
+                for (int i = 4; i < 8; i++)
+                {
+                    if (row[i] is DBNull) continue;
+
+                    var level = context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
+                    if (level == null)
+                    {
+                        var factor = context.Factors.FirstOrDefault(f => f.Name == table.Columns[i].ColumnName);
+
+                        if (factor == null)
+                        {
+                            factor = new Factor()
+                            {
+                                Name = table.Columns[i].ColumnName
+                            };
+                            context.Add(factor);
+                            context.SaveChanges();
+                        }
+
+                        level = new Level() 
+                        { 
+                            Name = row[i].ToString(),
+                            FactorId = factor.FactorId
+                        };
+                        context.Add(level);
+                        context.SaveChanges();
+                    }
+
+                    var design = new Design()
+                    {
+                        TreatmentId = treatment.TreatmentId,
+                        LevelId = level.LevelId
+                    };
+                    context.Add(design);
+                    context.SaveChanges();
+                }
+            }
+            
         }
 
         private void ImportTable(IEntityType entity, DataTable table)
@@ -72,10 +146,13 @@ namespace Rems.Application.Entities.Commands
             table.Rows.Clear();
             foreach (var row in rows) table.Rows.Add(row);
 
-            // Anything this catches will definitely be a trait table, but it may miss
-            // tables with small numbers of additional traits.
-            // TODO: Find a better solution
-            if(entity.ClrType.GetProperties().Count() < table.Columns.Count)
+            // TODO: Find a better catch for treatment tables
+            // Sheet names are not a good way of identifying anything.
+            if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
+                AddTableWithTreatmentsToContext(entity, table);
+            // TODO: Find a better catch for trait tables
+            // This only prevents true negatives, not false positives or false negatives
+            else if (entity.ClrType.GetProperties().Count() < table.Columns.Count)
                 AddTableWithTraitsToContext(entity, table);
             else
                 AddTableToContext(entity, table);
@@ -90,8 +167,8 @@ namespace Rems.Application.Entities.Commands
                 .Where(c => c != null)
                 .ToList();
 
-            foreach (DataRow r in data.Rows)
-                AddDataRowToContext(r, entity.ClrType, infos);
+            foreach (DataRow row in data.Rows)
+                AddDataRowToContext(row, entity.ClrType, infos);
         }
 
         private void AddTableWithTraitsToContext(IEntityType entity, DataTable data)
@@ -108,6 +185,42 @@ namespace Rems.Application.Entities.Commands
 
             foreach (DataRow r in data.Rows) 
                 AddTraitDataRowToContext(r, columns, type, foreignInfo, traitInfo, valueInfo);
+        }
+
+        private void AddTableWithTreatmentsToContext(IEntityType entity, DataTable data)
+        {
+            var infos = data.Columns.Cast<DataColumn>()
+                .Skip(2)
+                .Select(c => GetColumnInfo(entity, c))
+                .Where(c => c != null)
+                .ToList();
+
+            foreach (DataRow row in data.Rows)
+            {
+                // Assume that in a 'treatment' row, the first column is the experiment ID
+                // and the second column is the treatment name
+
+                var id = (int)ConvertDBValue(row[0], typeof(int));
+                var name = row[1].ToString();
+
+                if (name == "ALL" || name == "All" || name == "all") // Blame the spreadsheet, I don't like it either
+                {
+                    var treatments = context.Treatments.Where(t => t.ExperimentId == id);
+
+                    foreach(var treatment in treatments)
+                        AddTreatmentDataRowToContext(row, entity.ClrType, infos, treatment.TreatmentId);
+                }
+                else
+                {
+                    var treatment = context.Treatments.FirstOrDefault(t => t.ExperimentId == id && t.Name == name);
+
+                    // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
+                    if (treatment == null) continue;
+
+                    AddTreatmentDataRowToContext(row, entity.ClrType, infos, treatment.TreatmentId);
+                }
+                
+            }             
         }
 
         private PropertyInfo GetColumnInfo(IEntityType entity, DataColumn col)
@@ -131,12 +244,13 @@ namespace Rems.Application.Entities.Commands
                     .Where(n => !n.Contains("Id"))
                     .ToList();
 
-                col.ColumnName = GetColumnName(col, options.ToArray());
-                
-                if (col.ColumnName == null || col.ColumnName == "None") 
-                    return null;
-                else
-                    return GetColumnInfo(entity, col);
+                var name = GetColumnName(col, options.ToArray());                
+                if (name == null || name == "None") return null;
+
+                col.ColumnName = name;
+
+                // TODO: Rather than use recursion, this method can probably be separated into smaller methods
+                return GetColumnInfo(entity, col);
             }
         }
 
@@ -149,8 +263,10 @@ namespace Rems.Application.Entities.Commands
             };
             EventManager.InvokeItemNotFound(null, args);
 
-            if (args.Cancelled) return null;
-            else return args.Selection;
+            if (args.Cancelled) 
+                return null;
+            else 
+                return args.Selection;
         }
 
         private void AddDataRowToContext(DataRow row, Type type, IEnumerable<PropertyInfo> infos)
@@ -212,6 +328,20 @@ namespace Rems.Application.Entities.Commands
                 SetEntityValue(entity, value, valueInfo);
                 context.SaveChanges();                
             }
+        }
+
+        private void AddTreatmentDataRowToContext(DataRow row, Type type, IEnumerable<PropertyInfo> infos, int treatmentId)
+        {
+            ITreatment entity = Activator.CreateInstance(type) as ITreatment;
+
+            entity.TreatmentId = treatmentId;
+
+            foreach (var info in infos)
+            {
+                SetEntityValue(entity, row[info.Name], info);
+            }
+
+            context.Add(entity);
         }
 
         private PropertyInfo FindMatchingProperties(Type type, DataColumn col)
@@ -297,19 +427,24 @@ namespace Rems.Application.Entities.Commands
 
                 info.SetValue(entity, item);
             }
-            // Handle nullable numerics
-            else if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
-            {
-                var underlying = Nullable.GetUnderlyingType(type);
-                var v = Convert.ChangeType(value, underlying);
-                info.SetValue(entity, v);
-            }
-            // Handle numerics
             else
             {
-                var v = Convert.ChangeType(value, type);
+                var v = ConvertDBValue(value, type);
                 info.SetValue(entity, v);
             }
+        }
+
+        private object ConvertDBValue(object value, Type type)
+        {
+            // Convert nullable numerics
+            if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            {
+                var underlying = Nullable.GetUnderlyingType(type);
+                return Convert.ChangeType(value, underlying);
+            }
+            
+            // Convert normal numerics
+            return Convert.ChangeType(value, type);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Irrigation : IEntity
+    public class Irrigation : ITreatment
     {
         public Irrigation()
         {
@@ -14,7 +14,7 @@ namespace Rems.Domain.Entities
 
         public int? MethodId { get; set; }
 
-        public int? TreatmentId { get; set; }
+        public int TreatmentId { get; set; }
 
         public DateTime? Date { get; set; }        
 
