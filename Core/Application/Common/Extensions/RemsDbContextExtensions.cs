@@ -19,5 +19,11 @@ namespace Rems.Application.Common.Extensions
             /// TODO: Implement this
             //throw new NotImplementedException();
         }
+
+        public static void SaveAs(this IRemsDbContext context, string file)
+        {
+            /// TODO: Implement this
+            //throw new NotImplementedException();
+        }
     }
 }

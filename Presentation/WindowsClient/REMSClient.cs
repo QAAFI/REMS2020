@@ -146,6 +146,13 @@ namespace WindowsClient
             Logic.TryQueryREMS(new SaveDBCommand());
         }
 
+        private void MenuSaveAsClicked(object sender, EventArgs e)
+        {
+            // TODO: Implement
+            // string file = ?
+            // Logic.TryQueryREMS(new SaveAsDbCommand() { FileName = file });
+        }
+
         /// <summary>
         /// On click, imports data from the selected file
         /// </summary>
@@ -164,7 +171,7 @@ namespace WindowsClient
                     {
                         data = ExcelImporter.ReadRawData(open.FileName);
                     }
-                    catch (Exception error)
+                    catch
                     {
                         MessageBox.Show("Import could not be processed, the chosen file was in use.");
                         return;
@@ -261,6 +268,6 @@ namespace WindowsClient
             else point.Add(Convert.ToDouble(x), Convert.ToDouble(y));
         }
 
-        #endregion
+        #endregion        
     }
 }
