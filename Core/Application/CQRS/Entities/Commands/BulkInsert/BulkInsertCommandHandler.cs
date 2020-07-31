@@ -265,7 +265,7 @@ namespace Rems.Application.Entities.Commands
                     {
                         PlotId = plot.PlotId,
                         TraitId = traits[i - 5].TraitId,
-                        Date = ConvertDBValue<DateTime>(row[1]),
+                        Date = ConvertDBValue<DateTime>(row[2]),
                         DepthFrom = ConvertDBValue<int>(row[3]),
                         DepthTo = ConvertDBValue<int>(row[4]),
                         Value = ConvertDBValue<double>(row[i])
