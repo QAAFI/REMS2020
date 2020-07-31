@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
@@ -35,22 +36,46 @@ namespace Rems.Application.Entities.Commands
             // it might be better to try reorganise some of the methods into other classes
 
             foreach (DataTable table in request.Data.Tables)
-            {               
-                // These IF statements are awful code, but my hand has been forced since the data is
-                // coming from poorly designed excel templates. Devising a better solution is currently
-                // not worth the effort.
-
-                if (table.TableName == "Notes") continue;                
-                if (table.TableName == "Design") { ImportDesignTable(table); continue; }
-
-                var entity = FindEntity(table.TableName);
-                
-                if (entity == null) continue;
-
-                ImportTable(entity, table);          
+            {
+                if (table.Rows.Count == 0) continue;
+                ImportTable(table);
             }
-
             return true;
+        }
+
+        private void ImportTable(DataTable table)
+        {
+            // These IF statements are awful code, but my hand has been forced since the data is
+            // coming from poorly designed excel templates. I decided devising a better solution 
+            // is currently not worth the effort.
+
+            if (table.TableName == "Notes") return;
+            if (table.TableName == "Design") { ImportDesignTable(table); return; }
+
+            // TODO: Refactor these three functions into one ImportDataTable
+            if (table.TableName == "PlotData") { ImportPlotDataTable(table); return; }
+            if (table.TableName == "MetData") { ImportMetDataTable(table); return; }
+            if (table.TableName == "SoilLayerData") { ImportSoilLayerDataTable(table); return; }
+
+            var entity = FindEntity(table.TableName);
+            if (entity == null) return;
+
+            var rows = table.DistinctRows().Select(r => r.ItemArray).ToArray();
+            table.Rows.Clear();
+            foreach (var row in rows) table.Rows.Add(row);
+
+            // TODO: Find a better catch for treatment tables
+            // Sheet names are not a good way of identifying anything.
+            if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
+                AddTableWithTreatmentsToContext(entity, table);
+            // TODO: Find a better catch for trait tables
+            // This only prevents true negatives, not false positives or false negatives
+            else if (entity.ClrType.GetProperties().Count() < table.Columns.Count)
+                AddTableWithTraitsToContext(entity, table);
+            else
+                AddTableToContext(entity, table);
+
+            context.SaveChanges();
         }
 
         private IEntityType FindEntity(string name)
@@ -85,7 +110,7 @@ namespace Rems.Application.Entities.Commands
             {
                 var treatment = new Treatment()
                 {
-                    ExperimentId = (int)ConvertDBValue(row[0], typeof(int)),
+                    ExperimentId = ConvertDBValue<int>(row[0]),
                     Name = row[1].ToString()
                 };
                 context.Add(treatment);
@@ -94,8 +119,8 @@ namespace Rems.Application.Entities.Commands
                 var plot = new Plot()
                 {
                     TreatmentId = treatment.TreatmentId,
-                    Repetition = (int)ConvertDBValue(row[2], typeof(int)),
-                    Column = (int)ConvertDBValue(row[3], typeof(int))
+                    Repetition = ConvertDBValue<int>(row[2]),
+                    Column = ConvertDBValue<int>(row[3])
                 };
                 context.Add(plot);
                 context.SaveChanges();
@@ -140,23 +165,114 @@ namespace Rems.Application.Entities.Commands
             
         }
 
-        private void ImportTable(IEntityType entity, DataTable table)
+        private void ImportPlotDataTable(DataTable table)
         {
-            var rows = table.DistinctRows().Select(r => r.ItemArray).ToArray();
-            table.Rows.Clear();
-            foreach (var row in rows) table.Rows.Add(row);
+            var traits = table.Columns.Cast<DataColumn>()
+                .Skip(4)
+                .Select(c => GetTrait(c.ColumnName, "PlotData"))
+                .ToArray();
 
-            // TODO: Find a better catch for treatment tables
-            // Sheet names are not a good way of identifying anything.
-            if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
-                AddTableWithTreatmentsToContext(entity, table);
-            // TODO: Find a better catch for trait tables
-            // This only prevents true negatives, not false positives or false negatives
-            else if (entity.ClrType.GetProperties().Count() < table.Columns.Count)
-                AddTableWithTraitsToContext(entity, table);
-            else
-                AddTableToContext(entity, table);
-            
+            context.SaveChanges();
+
+            foreach (DataRow row in table.Rows)
+            {
+                // Assume that the first column is the experiment ID and the second column is the plot column
+
+                var id = ConvertDBValue<int>(row[0]);
+                var col = ConvertDBValue<int>(row[1]);
+
+                var plot = context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
+
+                // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
+                if (plot == null) continue;
+
+                for (int i = 4; i < table.Columns.Count; i++)
+                {
+                    if (row.ItemArray[i] is DBNull) continue;
+
+                    var data = new PlotData()
+                    {
+                        PlotId = plot.PlotId,
+                        TraitId = traits[i - 4].TraitId,
+                        Date = ConvertDBValue<DateTime>(row[2]),
+                        Sample = row[3].ToString(),
+                        Value = ConvertDBValue<double>(row[i]),
+                        UnitId = traits[i - 4].UnitId
+                    };
+                    context.Add(data);
+                }                
+            }
+            context.SaveChanges();
+        }
+
+        private void ImportMetDataTable(DataTable table)
+        {
+            var traits = table.Columns.Cast<DataColumn>()
+                .Skip(2)
+                .Select(c => GetTrait(c.ColumnName, "MetData"))
+                .ToArray();
+
+            foreach (DataRow row in table.Rows)
+            {
+                var station = context.MetStations.FirstOrDefault(m => m.Name == row[0].ToString());
+
+                if (station is null)
+                {
+                    station = new MetStation() { Name = row[0].ToString() };
+                    context.Add(station);
+                    context.SaveChanges();
+                }
+
+                for (int i = 2; i < table.Columns.Count; i++)
+                {
+                    if (row.ItemArray[i] is DBNull) continue;
+                                        
+                    var data = new MetData()
+                    {
+                        MetStationId = station.MetStationId,
+                        TraitId = traits[i - 2].TraitId,
+                        Date = ConvertDBValue<DateTime>(row[1]),
+                        Value = ConvertDBValue<double>(row[i])
+                    };
+                    context.Add(data);
+                }
+            }
+            context.SaveChanges();
+        }
+
+        private void ImportSoilLayerDataTable(DataTable table)
+        {
+            var traits = table.Columns.Cast<DataColumn>()
+                .Skip(5)
+                .Select(c => GetTrait(c.ColumnName, "MetData"))
+                .ToArray();
+
+            foreach (DataRow row in table.Rows)
+            {
+                var id = ConvertDBValue<int>(row[0]);
+                var col = ConvertDBValue<int>(row[1]);
+
+                var plot = context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
+
+                // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
+                if (plot == null) continue;
+
+                for (int i = 5; i < table.Columns.Count; i++)
+                {
+                    if (row.ItemArray[i] is DBNull) continue;
+
+                    var data = new SoilLayerData()
+                    {
+                        PlotId = plot.PlotId,
+                        TraitId = traits[i - 5].TraitId,
+                        Date = ConvertDBValue<DateTime>(row[1]),
+                        DepthFrom = ConvertDBValue<int>(row[3]),
+                        DepthTo = ConvertDBValue<int>(row[4]),
+                        Value = ConvertDBValue<double>(row[i])
+                    };
+                    context.Add(data);
+                }
+            }
             context.SaveChanges();
         }
 
@@ -200,7 +316,7 @@ namespace Rems.Application.Entities.Commands
                 // Assume that in a 'treatment' row, the first column is the experiment ID
                 // and the second column is the treatment name
 
-                var id = (int)ConvertDBValue(row[0], typeof(int));
+                var id = ConvertDBValue<int>(row[0]);
                 var name = row[1].ToString();
 
                 if (name == "ALL" || name == "All" || name == "all") // Blame the spreadsheet, I don't like it either
@@ -306,20 +422,7 @@ namespace Rems.Application.Entities.Commands
 
                 // If the column is not a property, it must be a trait
                 // Search the database for the corresponding trait
-                Trait trait = context.Traits.FirstOrDefault(t => t.Name == col.ColumnName);
-
-                // If it does not exist, add it
-                if (trait == null)
-                {
-                    trait = new Trait()
-                    {
-                        Name = col.ColumnName,
-                        Type = type.Name
-                    };
-
-                    context.Traits.Add(trait);                    
-                }
-                context.SaveChanges();
+                Trait trait = GetTrait(col.ColumnName, type.Name);
 
                 var entity = Activator.CreateInstance(foreignInfo.DeclaringType) as IEntity;
                 context.Add(entity);
@@ -328,6 +431,42 @@ namespace Rems.Application.Entities.Commands
                 SetEntityValue(entity, value, valueInfo);
                 context.SaveChanges();                
             }
+        }
+
+        /// <summary>
+        /// Looks for a trait in the database, and creates one if it cannot be found
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private Trait GetTrait(string name, string type = "")
+        {
+            Trait trait = context.Traits.FirstOrDefault(t => t.Name == name);
+
+            // If it does not exist, add it
+            if (trait == null)
+            {
+                var unit = context.Units.FirstOrDefault(u => u.Name == "-");
+
+                if (unit is null)
+                {
+                    unit = new Domain.Entities.Unit() { Name = "-" };
+                    context.Add(unit);
+                    context.SaveChanges();
+                }
+
+                trait = new Trait()
+                {
+                    Name = name,
+                    Type = type,
+                    UnitId = unit.UnitId
+                };
+
+                context.Traits.Add(trait);
+            }
+            context.SaveChanges();
+
+            return trait;
         }
 
         private void AddTreatmentDataRowToContext(DataRow row, Type type, IEnumerable<PropertyInfo> infos, int treatmentId)
@@ -445,6 +584,21 @@ namespace Rems.Application.Entities.Commands
             
             // Convert normal numerics
             return Convert.ChangeType(value, type);
+        }
+
+        private T ConvertDBValue<T>(object value)
+        {
+            Type type = typeof(T);
+
+            // Convert nullable numerics
+            if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            {
+                var underlying = Nullable.GetUnderlyingType(type);
+                return (T)Convert.ChangeType(value, underlying);
+            }
+
+            // Convert normal numerics
+            return (T)Convert.ChangeType(value, type);
         }
     }
 }

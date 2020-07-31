@@ -12,7 +12,7 @@ namespace Rems.Domain.Entities
         public int TraitId { get; set; }
 
         [Graphable]
-        public DateTime? PlotDataDate { get; set; }
+        public DateTime? Date { get; set; }
 
         public string Sample { get; set; }
 
