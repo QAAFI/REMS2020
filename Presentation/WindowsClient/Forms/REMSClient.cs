@@ -14,6 +14,7 @@ using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;
 using Rems.Infrastructure.Excel;
 using Steema.TeeChart.Styles;
+using WindowsClient.Forms;
 
 namespace WindowsClient
 {
@@ -158,36 +159,14 @@ namespace WindowsClient
         /// </summary>
         private void MenuImportClicked(object sender, EventArgs e)
         {
-            using (var open = new OpenFileDialog())
-            {
-                open.InitialDirectory = _importFolder != "" ? _importFolder : _importFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+            var selector = new FileSelector();
 
-                if (open.ShowDialog() == DialogResult.OK)
-                {
-                    DataSet data;
+            if (selector.ShowDialog() != DialogResult.OK) return;
 
-                    try
-                    {
-                        data = ExcelImporter.ReadRawData(open.FileName);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Import could not be processed, the chosen file was in use.");
-                        return;
-                    }
-
-                    var command = new BulkInsertCommand()
-                    {
-                        Data = data,
-                        TableMap = Settings.Instance["TABLES"]
-                    };
-
-                    if (Logic.TryQueryREMS(command)) MessageBox.Show("Import complete.\n");
-                    else MessageBox.Show("Import failed.\n");                    
-                }
-            }
-        }
+            Logic.TryDataImport(selector.InfoTables);
+            Logic.TryDataImport(selector.ExpsTables);
+            Logic.TryDataImport(selector.DataTables);
+        }        
 
         /// <summary>
         /// 

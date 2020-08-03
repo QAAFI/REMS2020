@@ -83,6 +83,7 @@
             this.Controls.Add(this.instructions);
             this.Controls.Add(this.combo);
             this.Name = "ItemSelector";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.ResumeLayout(false);
             this.PerformLayout();
 

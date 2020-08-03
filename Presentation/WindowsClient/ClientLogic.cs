@@ -156,6 +156,20 @@ namespace WindowsClient
             }
         }
 
+        public void TryDataImport(DataSet data)
+        {
+            var command = new BulkInsertCommand()
+            {
+                Data = data,
+                TableMap = Settings.Instance["TABLES"]
+            };
+
+            if (TryQueryREMS(command))
+                MessageBox.Show("Import complete.\n");
+            else
+                MessageBox.Show("Import failed.\n");
+        }
+
         public async Task<bool> TryDataExport(string file)
         {
             try
