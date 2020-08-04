@@ -64,9 +64,12 @@
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.notebook = new System.Windows.Forms.TabControl();
+            this.cropChart = new Steema.TeeChart.TChart();
+            this.cropTraitsBox = new System.Windows.Forms.CheckedListBox();
             this.menuStrip1.SuspendLayout();
             this.pageExps.SuspendLayout();
             this.experimentsTab.SuspendLayout();
+            this.pageCrop.SuspendLayout();
             this.pageDesign.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
             this.pageGraph.SuspendLayout();
@@ -83,7 +86,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(813, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(947, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -168,7 +171,7 @@
             this.pageExps.Location = new System.Drawing.Point(4, 22);
             this.pageExps.Name = "pageExps";
             this.pageExps.Padding = new System.Windows.Forms.Padding(3);
-            this.pageExps.Size = new System.Drawing.Size(805, 667);
+            this.pageExps.Size = new System.Drawing.Size(939, 665);
             this.pageExps.TabIndex = 4;
             this.pageExps.Text = "Experiments";
             this.pageExps.UseVisualStyleBackColor = true;
@@ -186,7 +189,7 @@
             this.experimentsTab.Location = new System.Drawing.Point(156, 3);
             this.experimentsTab.Name = "experimentsTab";
             this.experimentsTab.SelectedIndex = 0;
-            this.experimentsTab.Size = new System.Drawing.Size(646, 658);
+            this.experimentsTab.Size = new System.Drawing.Size(780, 656);
             this.experimentsTab.TabIndex = 1;
             // 
             // pageSoil
@@ -194,20 +197,22 @@
             this.pageSoil.Location = new System.Drawing.Point(4, 22);
             this.pageSoil.Name = "pageSoil";
             this.pageSoil.Padding = new System.Windows.Forms.Padding(3);
-            this.pageSoil.Size = new System.Drawing.Size(638, 632);
+            this.pageSoil.Size = new System.Drawing.Size(772, 630);
             this.pageSoil.TabIndex = 6;
             this.pageSoil.Text = "Soil";
             this.pageSoil.UseVisualStyleBackColor = true;
             // 
             // pageCrop
             // 
+            this.pageCrop.BackColor = System.Drawing.Color.LightGray;
+            this.pageCrop.Controls.Add(this.cropTraitsBox);
+            this.pageCrop.Controls.Add(this.cropChart);
             this.pageCrop.Location = new System.Drawing.Point(4, 22);
             this.pageCrop.Name = "pageCrop";
             this.pageCrop.Padding = new System.Windows.Forms.Padding(3);
-            this.pageCrop.Size = new System.Drawing.Size(638, 632);
+            this.pageCrop.Size = new System.Drawing.Size(772, 630);
             this.pageCrop.TabIndex = 5;
             this.pageCrop.Text = "Crop";
-            this.pageCrop.UseVisualStyleBackColor = true;
             // 
             // pageOperation
             // 
@@ -257,7 +262,7 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.experimentsTree.Location = new System.Drawing.Point(6, 6);
             this.experimentsTree.Name = "experimentsTree";
-            this.experimentsTree.Size = new System.Drawing.Size(144, 654);
+            this.experimentsTree.Size = new System.Drawing.Size(144, 649);
             this.experimentsTree.TabIndex = 2;
             // 
             // pageGraph
@@ -1578,14 +1583,1177 @@
             this.notebook.Location = new System.Drawing.Point(0, 27);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(813, 693);
+            this.notebook.Size = new System.Drawing.Size(947, 691);
             this.notebook.TabIndex = 2;
+            // 
+            // cropChart
+            // 
+            this.cropChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.Bottom.Labels.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.Bottom.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Bottom.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Bottom.Labels.Font.Size = 9;
+            this.cropChart.Axes.Bottom.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Bottom.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Bottom.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Angle = 0;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.Bottom.Title.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.Bottom.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Bottom.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Bottom.Title.Font.Size = 11;
+            this.cropChart.Axes.Bottom.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Bottom.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Bottom.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Bottom.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Bottom.Title.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.Depth.Labels.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.Depth.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Depth.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Depth.Labels.Font.Size = 9;
+            this.cropChart.Axes.Depth.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Depth.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Depth.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Angle = 0;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.Depth.Title.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.Depth.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Depth.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Depth.Title.Font.Size = 11;
+            this.cropChart.Axes.Depth.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Depth.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Depth.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Depth.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Depth.Title.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.DepthTop.Labels.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.DepthTop.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.DepthTop.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.DepthTop.Labels.Font.Size = 9;
+            this.cropChart.Axes.DepthTop.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.DepthTop.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.DepthTop.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Angle = 0;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.DepthTop.Title.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.DepthTop.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.DepthTop.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.DepthTop.Title.Font.Size = 11;
+            this.cropChart.Axes.DepthTop.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.DepthTop.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.DepthTop.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.DepthTop.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.DepthTop.Title.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.Left.Labels.Brush.Solid = true;
+            this.cropChart.Axes.Left.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.Left.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.Left.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Left.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Left.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Left.Labels.Font.Size = 9;
+            this.cropChart.Axes.Left.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Left.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Left.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Left.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Left.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Angle = 90;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.Left.Title.Brush.Solid = true;
+            this.cropChart.Axes.Left.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.Left.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.Left.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Left.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Left.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Left.Title.Font.Size = 11;
+            this.cropChart.Axes.Left.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Left.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Left.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Left.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Left.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Left.Title.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.Right.Labels.Brush.Solid = true;
+            this.cropChart.Axes.Right.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.Right.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.Right.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Right.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Right.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Right.Labels.Font.Size = 9;
+            this.cropChart.Axes.Right.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Right.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Right.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Right.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Right.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Angle = 270;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.Right.Title.Brush.Solid = true;
+            this.cropChart.Axes.Right.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.Right.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.Right.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Right.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Right.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Right.Title.Font.Size = 11;
+            this.cropChart.Axes.Right.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Right.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Right.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Right.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Right.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Right.Title.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Axes.Top.Labels.Brush.Solid = true;
+            this.cropChart.Axes.Top.Labels.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Axes.Top.Labels.Font.Brush.Solid = true;
+            this.cropChart.Axes.Top.Labels.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Top.Labels.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Top.Labels.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Top.Labels.Font.Size = 9;
+            this.cropChart.Axes.Top.Labels.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Top.Labels.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Top.Labels.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Labels.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Top.Labels.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Top.Labels.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Angle = 0;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Axes.Top.Title.Brush.Solid = true;
+            this.cropChart.Axes.Top.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Axes.Top.Title.Font.Brush.Solid = true;
+            this.cropChart.Axes.Top.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Top.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Top.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Axes.Top.Title.Font.Size = 11;
+            this.cropChart.Axes.Top.Title.Font.SizeFloat = 11F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Axes.Top.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Axes.Top.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Axes.Top.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Axes.Top.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Axes.Top.Title.Shadow.Brush.Visible = true;
+            this.cropChart.Cursor = System.Windows.Forms.Cursors.Arrow;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Footer.Brush.Solid = true;
+            this.cropChart.Footer.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Font.Brush.Color = System.Drawing.Color.Red;
+            this.cropChart.Footer.Font.Brush.Solid = true;
+            this.cropChart.Footer.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Footer.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Footer.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Footer.Font.Size = 8;
+            this.cropChart.Footer.Font.SizeFloat = 8F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Footer.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Footer.ImageBevel.Brush.Solid = true;
+            this.cropChart.Footer.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Footer.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Footer.Shadow.Brush.Solid = true;
+            this.cropChart.Footer.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Header.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Header.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.cropChart.Header.Brush.Solid = true;
+            this.cropChart.Header.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Header.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Header.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.Header.Font.Brush.Solid = true;
+            this.cropChart.Header.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Header.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Header.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Header.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Header.Font.Size = 12;
+            this.cropChart.Header.Font.SizeFloat = 12F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Header.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Header.ImageBevel.Brush.Solid = true;
+            this.cropChart.Header.ImageBevel.Brush.Visible = true;
+            this.cropChart.Header.Lines = new string[] {
+        ""};
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Header.Shadow.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.cropChart.Header.Shadow.Brush.Solid = true;
+            this.cropChart.Header.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Legend.Brush.Solid = true;
+            this.cropChart.Legend.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cropChart.Legend.Font.Brush.Solid = true;
+            this.cropChart.Legend.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Legend.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Legend.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Legend.Font.Size = 9;
+            this.cropChart.Legend.Font.SizeFloat = 9F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Legend.ImageBevel.Brush.Solid = true;
+            this.cropChart.Legend.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Shadow.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cropChart.Legend.Shadow.Brush.Solid = true;
+            this.cropChart.Legend.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Symbol.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Legend.Symbol.Shadow.Brush.Solid = true;
+            this.cropChart.Legend.Symbol.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Legend.Title.Brush.Solid = true;
+            this.cropChart.Legend.Title.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Font.Bold = true;
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Font.Brush.Color = System.Drawing.Color.Black;
+            this.cropChart.Legend.Title.Font.Brush.Solid = true;
+            this.cropChart.Legend.Title.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Legend.Title.Font.Shadow.Brush.Solid = true;
+            this.cropChart.Legend.Title.Font.Shadow.Brush.Visible = true;
+            this.cropChart.Legend.Title.Font.Size = 8;
+            this.cropChart.Legend.Title.Font.SizeFloat = 8F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Legend.Title.ImageBevel.Brush.Solid = true;
+            this.cropChart.Legend.Title.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Legend.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Legend.Title.Shadow.Brush.Solid = true;
+            this.cropChart.Legend.Title.Shadow.Brush.Visible = true;
+            this.cropChart.Location = new System.Drawing.Point(6, 6);
+            this.cropChart.Name = "cropChart";
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Panel.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Panel.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.cropChart.Panel.Brush.Solid = true;
+            this.cropChart.Panel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Panel.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Panel.ImageBevel.Brush.Solid = true;
+            this.cropChart.Panel.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Panel.Shadow.Brush.Solid = true;
+            this.cropChart.Panel.Shadow.Brush.Visible = true;
+            this.cropChart.Size = new System.Drawing.Size(611, 618);
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.SubFooter.Brush.Solid = true;
+            this.cropChart.SubFooter.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Font.Brush.Color = System.Drawing.Color.Red;
+            this.cropChart.SubFooter.Font.Brush.Solid = true;
+            this.cropChart.SubFooter.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.SubFooter.Font.Shadow.Brush.Solid = true;
+            this.cropChart.SubFooter.Font.Shadow.Brush.Visible = true;
+            this.cropChart.SubFooter.Font.Size = 8;
+            this.cropChart.SubFooter.Font.SizeFloat = 8F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.SubFooter.ImageBevel.Brush.Solid = true;
+            this.cropChart.SubFooter.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubFooter.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.SubFooter.Shadow.Brush.Solid = true;
+            this.cropChart.SubFooter.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.cropChart.SubHeader.Brush.Solid = true;
+            this.cropChart.SubHeader.Brush.Visible = true;
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Font.Bold = false;
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Font.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.cropChart.SubHeader.Font.Brush.Solid = true;
+            this.cropChart.SubHeader.Font.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Font.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.SubHeader.Font.Shadow.Brush.Solid = true;
+            this.cropChart.SubHeader.Font.Shadow.Brush.Visible = true;
+            this.cropChart.SubHeader.Font.Size = 12;
+            this.cropChart.SubHeader.Font.SizeFloat = 12F;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.SubHeader.ImageBevel.Brush.Solid = true;
+            this.cropChart.SubHeader.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.SubHeader.Shadow.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.cropChart.SubHeader.Shadow.Brush.Solid = true;
+            this.cropChart.SubHeader.Shadow.Brush.Visible = true;
+            this.cropChart.TabIndex = 10;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Back.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Back.Brush.Color = System.Drawing.Color.Silver;
+            this.cropChart.Walls.Back.Brush.Solid = true;
+            this.cropChart.Walls.Back.Brush.Visible = false;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Back.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Walls.Back.ImageBevel.Brush.Solid = true;
+            this.cropChart.Walls.Back.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Back.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Walls.Back.Shadow.Brush.Solid = true;
+            this.cropChart.Walls.Back.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Bottom.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Bottom.Brush.Color = System.Drawing.Color.White;
+            this.cropChart.Walls.Bottom.Brush.Solid = true;
+            this.cropChart.Walls.Bottom.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Bottom.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Walls.Bottom.ImageBevel.Brush.Solid = true;
+            this.cropChart.Walls.Bottom.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Bottom.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Walls.Bottom.Shadow.Brush.Solid = true;
+            this.cropChart.Walls.Bottom.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Left.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Left.Brush.Color = System.Drawing.Color.LightYellow;
+            this.cropChart.Walls.Left.Brush.Solid = true;
+            this.cropChart.Walls.Left.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Left.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Walls.Left.ImageBevel.Brush.Solid = true;
+            this.cropChart.Walls.Left.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Left.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Walls.Left.Shadow.Brush.Solid = true;
+            this.cropChart.Walls.Left.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Right.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Right.Brush.Color = System.Drawing.Color.LightYellow;
+            this.cropChart.Walls.Right.Brush.Solid = true;
+            this.cropChart.Walls.Right.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Right.ImageBevel.Brush.Color = System.Drawing.Color.LightGray;
+            this.cropChart.Walls.Right.ImageBevel.Brush.Solid = true;
+            this.cropChart.Walls.Right.ImageBevel.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Walls.Right.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
+            this.cropChart.Walls.Right.Shadow.Brush.Solid = true;
+            this.cropChart.Walls.Right.Shadow.Brush.Visible = true;
+            // 
+            // 
+            // 
+            // 
+            // 
+            // 
+            this.cropChart.Zoom.Brush.Color = System.Drawing.Color.LightBlue;
+            this.cropChart.Zoom.Brush.Solid = true;
+            this.cropChart.Zoom.Brush.Visible = true;
+            // 
+            // cropTraitsBox
+            // 
+            this.cropTraitsBox.FormattingEnabled = true;
+            this.cropTraitsBox.Location = new System.Drawing.Point(623, 6);
+            this.cropTraitsBox.Name = "cropTraitsBox";
+            this.cropTraitsBox.Size = new System.Drawing.Size(143, 619);
+            this.cropTraitsBox.TabIndex = 11;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(813, 721);
+            this.ClientSize = new System.Drawing.Size(947, 719);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1596,6 +2764,7 @@
             this.menuStrip1.PerformLayout();
             this.pageExps.ResumeLayout(false);
             this.experimentsTab.ResumeLayout(false);
+            this.pageCrop.ResumeLayout(false);
             this.pageDesign.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
             this.pageGraph.ResumeLayout(false);
@@ -1645,6 +2814,8 @@
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
+        private System.Windows.Forms.CheckedListBox cropTraitsBox;
+        private Steema.TeeChart.TChart cropChart;
     }
 }
 

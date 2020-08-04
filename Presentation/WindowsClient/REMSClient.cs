@@ -208,7 +208,11 @@ namespace WindowsClient
 
         private void UpdateCropTab()
         {
+            var traits = Logic.TryQueryREMS(new TraitsByTypeQuery() { Type = "Crop" });
 
+            cropTraitsBox.Items.AddRange(traits);
+
+            cropTraitsBox.Refresh();
         }
 
         private void UpdateSoilTab()
