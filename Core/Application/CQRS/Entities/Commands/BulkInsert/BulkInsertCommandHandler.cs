@@ -106,6 +106,38 @@ namespace Rems.Application.Entities.Commands
             // This method is hardcoded because I decided it wasn't worth the time
             // to develop a stable general solution for a single badly designed excel table.
             // Apologies to whoever has to fix it when it eventually breaks.
+
+            //var plots = table.Rows.Cast<DataRow>()
+            //    .GroupBy(row => ConvertDBValue<int>(row[0])) // Group the experiment rows together
+            //    .SelectMany(eRows =>    // For each group of experiment rows
+            //    {
+            //        var tRows = eRows.GroupBy(row => row[1].ToString()); // Sub-group the experiment rows by treatment
+
+            //        return tRows.SelectMany(t =>
+            //        {
+            //            var treatment = new Treatment()
+            //            {
+            //                ExperimentId = eRows.Key,
+            //                Name = t.Key
+            //            };
+
+            //            context.Add(treatment);
+            //            context.SaveChanges();
+
+            //            foreach (var row in t) AddDesignRowToContext(row, treatment.TreatmentId);
+
+            //            return t.Select(p => new Plot()
+            //            {
+            //                TreatmentId = treatment.TreatmentId,
+            //                Repetition = ConvertDBValue<int>(p[2]),
+            //                Column = ConvertDBValue<int>(p[3])
+            //            });
+            //        });
+            //    });
+
+            //context.AddRange(plots);
+            //context.SaveChanges();
+
             foreach (DataRow row in table.Rows)
             {
                 var treatment = new Treatment()
@@ -125,44 +157,50 @@ namespace Rems.Application.Entities.Commands
                 context.Add(plot);
                 context.SaveChanges();
 
-                for (int i = 4; i < 8; i++)
+                AddDesignRowToContext(row, treatment.TreatmentId);
+            }
+        }
+
+        private void AddDesignRowToContext(DataRow row, int treatmentId)
+        {
+            var columns = row.Table.Columns;
+
+            for (int i = 4; i < 8; i++)
+            {
+                if (row[i] is DBNull) continue;
+
+                var level = context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
+                if (level == null)
                 {
-                    if (row[i] is DBNull) continue;
+                    var factor = context.Factors.FirstOrDefault(f => f.Name == columns[i].ColumnName);
 
-                    var level = context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
-                    if (level == null)
+                    if (factor == null)
                     {
-                        var factor = context.Factors.FirstOrDefault(f => f.Name == table.Columns[i].ColumnName);
-
-                        if (factor == null)
+                        factor = new Factor()
                         {
-                            factor = new Factor()
-                            {
-                                Name = table.Columns[i].ColumnName
-                            };
-                            context.Add(factor);
-                            context.SaveChanges();
-                        }
-
-                        level = new Level() 
-                        { 
-                            Name = row[i].ToString(),
-                            FactorId = factor.FactorId
+                            Name = columns[i].ColumnName
                         };
-                        context.Add(level);
+                        context.Add(factor);
                         context.SaveChanges();
                     }
 
-                    var design = new Design()
+                    level = new Level()
                     {
-                        TreatmentId = treatment.TreatmentId,
-                        LevelId = level.LevelId
+                        Name = row[i].ToString(),
+                        FactorId = factor.FactorId
                     };
-                    context.Add(design);
+                    context.Add(level);
                     context.SaveChanges();
                 }
+
+                var design = new Design()
+                {
+                    TreatmentId = treatmentId,
+                    LevelId = level.LevelId
+                };
+                context.Add(design);
+                context.SaveChanges();
             }
-            
         }
 
         private void ImportPlotDataTable(DataTable table)

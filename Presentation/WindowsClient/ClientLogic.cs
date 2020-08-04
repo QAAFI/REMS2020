@@ -156,7 +156,7 @@ namespace WindowsClient
             }
         }
 
-        public void TryDataImport(DataSet data)
+        public bool TryDataImport(DataSet data)
         {
             var command = new BulkInsertCommand()
             {
@@ -165,9 +165,9 @@ namespace WindowsClient
             };
 
             if (TryQueryREMS(command))
-                MessageBox.Show("Import complete.\n");
+                return true;
             else
-                MessageBox.Show("Import failed.\n");
+                return false;
         }
 
         public async Task<bool> TryDataExport(string file)

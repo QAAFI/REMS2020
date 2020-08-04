@@ -163,9 +163,23 @@ namespace WindowsClient
 
             if (selector.ShowDialog() != DialogResult.OK) return;
 
-            Logic.TryDataImport(selector.InfoTables);
-            Logic.TryDataImport(selector.ExpsTables);
-            Logic.TryDataImport(selector.DataTables);
+            if (!Logic.TryDataImport(selector.InfoTables))
+            {
+                MessageBox.Show("Information import failed");
+                return;
+            }
+
+            if (!Logic.TryDataImport(selector.ExpsTables))
+            {
+                MessageBox.Show("Experiments import failed");
+                return;
+            }
+
+            if (!Logic.TryDataImport(selector.DataTables))
+            {
+                MessageBox.Show("Data import failed");
+                return;
+            }
         }        
 
         /// <summary>
