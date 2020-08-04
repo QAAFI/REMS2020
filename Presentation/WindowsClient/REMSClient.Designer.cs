@@ -40,26 +40,39 @@
             this.menuImport = new System.Windows.Forms.ToolStripMenuItem();
             this.menuExport = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pageData = new System.Windows.Forms.TabPage();
-            this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.relationsListBox = new System.Windows.Forms.ListBox();
-            this.notebook = new System.Windows.Forms.TabControl();
-            this.pageProperties = new System.Windows.Forms.TabPage();
+            this.pageExps = new System.Windows.Forms.TabPage();
+            this.experimentsTab = new System.Windows.Forms.TabControl();
+            this.pageSoil = new System.Windows.Forms.TabPage();
+            this.pageCrop = new System.Windows.Forms.TabPage();
+            this.pageOperation = new System.Windows.Forms.TabPage();
+            this.pageDesign = new System.Windows.Forms.TabPage();
+            this.designData = new System.Windows.Forms.DataGridView();
+            this.pageSummary = new System.Windows.Forms.TabPage();
+            this.experimentsTree = new System.Windows.Forms.TreeView();
             this.pageGraph = new System.Windows.Forms.TabPage();
-            this.labelTrait = new System.Windows.Forms.Label();
-            this.comboTrait = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.labelXData = new System.Windows.Forms.Label();
-            this.comboYData = new System.Windows.Forms.ComboBox();
-            this.comboXData = new System.Windows.Forms.ComboBox();
-            this.labelTable = new System.Windows.Forms.Label();
-            this.comboTable = new System.Windows.Forms.ComboBox();
             this.graph = new Steema.TeeChart.TChart();
+            this.comboTable = new System.Windows.Forms.ComboBox();
+            this.labelTable = new System.Windows.Forms.Label();
+            this.comboXData = new System.Windows.Forms.ComboBox();
+            this.comboYData = new System.Windows.Forms.ComboBox();
+            this.labelXData = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboTrait = new System.Windows.Forms.ComboBox();
+            this.labelTrait = new System.Windows.Forms.Label();
+            this.pageProperties = new System.Windows.Forms.TabPage();
+            this.pageInfo = new System.Windows.Forms.TabPage();
+            this.relationsListBox = new System.Windows.Forms.ListBox();
+            this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.notebook = new System.Windows.Forms.TabControl();
             this.menuStrip1.SuspendLayout();
-            this.pageData.SuspendLayout();
+            this.pageExps.SuspendLayout();
+            this.experimentsTab.SuspendLayout();
+            this.pageDesign.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
+            this.pageGraph.SuspendLayout();
+            this.pageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
-            this.pageGraph.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -148,66 +161,104 @@
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
             // 
-            // pageData
+            // pageExps
             // 
-            this.pageData.BackColor = System.Drawing.Color.Transparent;
-            this.pageData.Controls.Add(this.dataGridView);
-            this.pageData.Controls.Add(this.relationsListBox);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(805, 666);
-            this.pageData.TabIndex = 0;
-            this.pageData.Text = "Data";
+            this.pageExps.Controls.Add(this.experimentsTree);
+            this.pageExps.Controls.Add(this.experimentsTab);
+            this.pageExps.Location = new System.Drawing.Point(4, 22);
+            this.pageExps.Name = "pageExps";
+            this.pageExps.Padding = new System.Windows.Forms.Padding(3);
+            this.pageExps.Size = new System.Drawing.Size(805, 667);
+            this.pageExps.TabIndex = 4;
+            this.pageExps.Text = "Experiments";
+            this.pageExps.UseVisualStyleBackColor = true;
             // 
-            // dataGridView
+            // experimentsTab
             // 
-            this.dataGridView.AllowUserToAddRows = false;
-            this.dataGridView.AllowUserToDeleteRows = false;
-            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.experimentsTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(148, 0);
-            this.dataGridView.Name = "dataGridView";
-            this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(657, 670);
-            this.dataGridView.TabIndex = 1;
+            this.experimentsTab.Controls.Add(this.pageSummary);
+            this.experimentsTab.Controls.Add(this.pageDesign);
+            this.experimentsTab.Controls.Add(this.pageOperation);
+            this.experimentsTab.Controls.Add(this.pageCrop);
+            this.experimentsTab.Controls.Add(this.pageSoil);
+            this.experimentsTab.Location = new System.Drawing.Point(156, 3);
+            this.experimentsTab.Name = "experimentsTab";
+            this.experimentsTab.SelectedIndex = 0;
+            this.experimentsTab.Size = new System.Drawing.Size(646, 658);
+            this.experimentsTab.TabIndex = 1;
             // 
-            // relationsListBox
+            // pageSoil
             // 
-            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.pageSoil.Location = new System.Drawing.Point(4, 22);
+            this.pageSoil.Name = "pageSoil";
+            this.pageSoil.Padding = new System.Windows.Forms.Padding(3);
+            this.pageSoil.Size = new System.Drawing.Size(638, 632);
+            this.pageSoil.TabIndex = 6;
+            this.pageSoil.Text = "Soil";
+            this.pageSoil.UseVisualStyleBackColor = true;
+            // 
+            // pageCrop
+            // 
+            this.pageCrop.Location = new System.Drawing.Point(4, 22);
+            this.pageCrop.Name = "pageCrop";
+            this.pageCrop.Padding = new System.Windows.Forms.Padding(3);
+            this.pageCrop.Size = new System.Drawing.Size(638, 632);
+            this.pageCrop.TabIndex = 5;
+            this.pageCrop.Text = "Crop";
+            this.pageCrop.UseVisualStyleBackColor = true;
+            // 
+            // pageOperation
+            // 
+            this.pageOperation.Location = new System.Drawing.Point(4, 22);
+            this.pageOperation.Name = "pageOperation";
+            this.pageOperation.Padding = new System.Windows.Forms.Padding(3);
+            this.pageOperation.Size = new System.Drawing.Size(638, 632);
+            this.pageOperation.TabIndex = 3;
+            this.pageOperation.Text = "Operations";
+            this.pageOperation.UseVisualStyleBackColor = true;
+            // 
+            // pageDesign
+            // 
+            this.pageDesign.Controls.Add(this.designData);
+            this.pageDesign.Location = new System.Drawing.Point(4, 22);
+            this.pageDesign.Name = "pageDesign";
+            this.pageDesign.Padding = new System.Windows.Forms.Padding(3);
+            this.pageDesign.Size = new System.Drawing.Size(638, 632);
+            this.pageDesign.TabIndex = 2;
+            this.pageDesign.Text = "Design";
+            this.pageDesign.UseVisualStyleBackColor = true;
+            // 
+            // designData
+            // 
+            this.designData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.designData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.designData.Location = new System.Drawing.Point(0, 0);
+            this.designData.Name = "designData";
+            this.designData.Size = new System.Drawing.Size(638, 631);
+            this.designData.TabIndex = 0;
+            // 
+            // pageSummary
+            // 
+            this.pageSummary.Location = new System.Drawing.Point(4, 22);
+            this.pageSummary.Name = "pageSummary";
+            this.pageSummary.Padding = new System.Windows.Forms.Padding(3);
+            this.pageSummary.Size = new System.Drawing.Size(638, 632);
+            this.pageSummary.TabIndex = 7;
+            this.pageSummary.Text = "Summary";
+            this.pageSummary.UseVisualStyleBackColor = true;
+            // 
+            // experimentsTree
+            // 
+            this.experimentsTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.relationsListBox.FormattingEnabled = true;
-            this.relationsListBox.Location = new System.Drawing.Point(0, 1);
-            this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(149, 667);
-            this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.UpdatePageDisplay);
-            // 
-            // notebook
-            // 
-            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.notebook.Controls.Add(this.pageData);
-            this.notebook.Controls.Add(this.pageProperties);
-            this.notebook.Controls.Add(this.pageGraph);
-            this.notebook.Location = new System.Drawing.Point(0, 27);
-            this.notebook.Name = "notebook";
-            this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(813, 692);
-            this.notebook.TabIndex = 2;
-            // 
-            // pageProperties
-            // 
-            this.pageProperties.Location = new System.Drawing.Point(4, 22);
-            this.pageProperties.Name = "pageProperties";
-            this.pageProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.pageProperties.Size = new System.Drawing.Size(805, 666);
-            this.pageProperties.TabIndex = 1;
-            this.pageProperties.Text = "Properties";
-            this.pageProperties.UseVisualStyleBackColor = true;
+            this.experimentsTree.Location = new System.Drawing.Point(6, 6);
+            this.experimentsTree.Name = "experimentsTree";
+            this.experimentsTree.Size = new System.Drawing.Size(144, 654);
+            this.experimentsTree.TabIndex = 2;
             // 
             // pageGraph
             // 
@@ -224,94 +275,9 @@
             this.pageGraph.Location = new System.Drawing.Point(4, 22);
             this.pageGraph.Name = "pageGraph";
             this.pageGraph.Padding = new System.Windows.Forms.Padding(3);
-            this.pageGraph.Size = new System.Drawing.Size(805, 666);
+            this.pageGraph.Size = new System.Drawing.Size(805, 667);
             this.pageGraph.TabIndex = 2;
             this.pageGraph.Text = "Graphs";
-            // 
-            // labelTrait
-            // 
-            this.labelTrait.AutoSize = true;
-            this.labelTrait.Location = new System.Drawing.Point(193, 9);
-            this.labelTrait.Name = "labelTrait";
-            this.labelTrait.Size = new System.Drawing.Size(31, 13);
-            this.labelTrait.TabIndex = 11;
-            this.labelTrait.Text = "Trait:";
-            // 
-            // comboTrait
-            // 
-            this.comboTrait.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboTrait.FormattingEnabled = true;
-            this.comboTrait.Items.AddRange(new object[] {
-            "MetDatas",
-            "PlotData",
-            "SoilDatas",
-            "SoilLayerDatas"});
-            this.comboTrait.Location = new System.Drawing.Point(230, 6);
-            this.comboTrait.Name = "comboTrait";
-            this.comboTrait.Size = new System.Drawing.Size(138, 21);
-            this.comboTrait.TabIndex = 10;
-            this.comboTrait.SelectedIndexChanged += new System.EventHandler(this.GraphTraitChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(567, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(43, 13);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Y Data:";
-            // 
-            // labelXData
-            // 
-            this.labelXData.AutoSize = true;
-            this.labelXData.Location = new System.Drawing.Point(374, 9);
-            this.labelXData.Name = "labelXData";
-            this.labelXData.Size = new System.Drawing.Size(43, 13);
-            this.labelXData.TabIndex = 7;
-            this.labelXData.Text = "X Data:";
-            // 
-            // comboYData
-            // 
-            this.comboYData.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboYData.FormattingEnabled = true;
-            this.comboYData.Location = new System.Drawing.Point(616, 6);
-            this.comboYData.Name = "comboYData";
-            this.comboYData.Size = new System.Drawing.Size(138, 21);
-            this.comboYData.TabIndex = 6;
-            // 
-            // comboXData
-            // 
-            this.comboXData.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboXData.FormattingEnabled = true;
-            this.comboXData.Location = new System.Drawing.Point(423, 6);
-            this.comboXData.Name = "comboXData";
-            this.comboXData.Size = new System.Drawing.Size(138, 21);
-            this.comboXData.TabIndex = 5;
-            this.comboXData.SelectedIndexChanged += new System.EventHandler(this.XDataChanged);
-            // 
-            // labelTable
-            // 
-            this.labelTable.AutoSize = true;
-            this.labelTable.Location = new System.Drawing.Point(6, 9);
-            this.labelTable.Name = "labelTable";
-            this.labelTable.Size = new System.Drawing.Size(37, 13);
-            this.labelTable.TabIndex = 4;
-            this.labelTable.Text = "Table:";
-            // 
-            // comboTable
-            // 
-            this.comboTable.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboTable.FormattingEnabled = true;
-            this.comboTable.Items.AddRange(new object[] {
-            "MetData",
-            "PlotData",
-            "SoilData",
-            "SoilLayerData"});
-            this.comboTable.Location = new System.Drawing.Point(49, 6);
-            this.comboTable.Name = "comboTable";
-            this.comboTable.Size = new System.Drawing.Size(138, 21);
-            this.comboTable.TabIndex = 3;
-            this.comboTable.SelectedIndexChanged += new System.EventHandler(this.GraphTableChanged);
             // 
             // graph
             // 
@@ -1225,7 +1191,7 @@
             this.graph.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.graph.Panel.Shadow.Brush.Solid = true;
             this.graph.Panel.Shadow.Brush.Visible = true;
-            this.graph.Size = new System.Drawing.Size(788, 627);
+            this.graph.Size = new System.Drawing.Size(788, 628);
             // 
             // 
             // 
@@ -1468,6 +1434,153 @@
             this.graph.Zoom.Brush.Solid = true;
             this.graph.Zoom.Brush.Visible = true;
             // 
+            // comboTable
+            // 
+            this.comboTable.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboTable.FormattingEnabled = true;
+            this.comboTable.Items.AddRange(new object[] {
+            "MetData",
+            "PlotData",
+            "SoilData",
+            "SoilLayerData"});
+            this.comboTable.Location = new System.Drawing.Point(49, 6);
+            this.comboTable.Name = "comboTable";
+            this.comboTable.Size = new System.Drawing.Size(138, 21);
+            this.comboTable.TabIndex = 3;
+            this.comboTable.SelectedIndexChanged += new System.EventHandler(this.GraphTableChanged);
+            // 
+            // labelTable
+            // 
+            this.labelTable.AutoSize = true;
+            this.labelTable.Location = new System.Drawing.Point(6, 9);
+            this.labelTable.Name = "labelTable";
+            this.labelTable.Size = new System.Drawing.Size(37, 13);
+            this.labelTable.TabIndex = 4;
+            this.labelTable.Text = "Table:";
+            // 
+            // comboXData
+            // 
+            this.comboXData.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboXData.FormattingEnabled = true;
+            this.comboXData.Location = new System.Drawing.Point(423, 6);
+            this.comboXData.Name = "comboXData";
+            this.comboXData.Size = new System.Drawing.Size(138, 21);
+            this.comboXData.TabIndex = 5;
+            this.comboXData.SelectedIndexChanged += new System.EventHandler(this.XDataChanged);
+            // 
+            // comboYData
+            // 
+            this.comboYData.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboYData.FormattingEnabled = true;
+            this.comboYData.Location = new System.Drawing.Point(616, 6);
+            this.comboYData.Name = "comboYData";
+            this.comboYData.Size = new System.Drawing.Size(138, 21);
+            this.comboYData.TabIndex = 6;
+            // 
+            // labelXData
+            // 
+            this.labelXData.AutoSize = true;
+            this.labelXData.Location = new System.Drawing.Point(374, 9);
+            this.labelXData.Name = "labelXData";
+            this.labelXData.Size = new System.Drawing.Size(43, 13);
+            this.labelXData.TabIndex = 7;
+            this.labelXData.Text = "X Data:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(567, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Y Data:";
+            // 
+            // comboTrait
+            // 
+            this.comboTrait.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboTrait.FormattingEnabled = true;
+            this.comboTrait.Items.AddRange(new object[] {
+            "MetDatas",
+            "PlotData",
+            "SoilDatas",
+            "SoilLayerDatas"});
+            this.comboTrait.Location = new System.Drawing.Point(230, 6);
+            this.comboTrait.Name = "comboTrait";
+            this.comboTrait.Size = new System.Drawing.Size(138, 21);
+            this.comboTrait.TabIndex = 10;
+            this.comboTrait.SelectedIndexChanged += new System.EventHandler(this.GraphTraitChanged);
+            // 
+            // labelTrait
+            // 
+            this.labelTrait.AutoSize = true;
+            this.labelTrait.Location = new System.Drawing.Point(193, 9);
+            this.labelTrait.Name = "labelTrait";
+            this.labelTrait.Size = new System.Drawing.Size(31, 13);
+            this.labelTrait.TabIndex = 11;
+            this.labelTrait.Text = "Trait:";
+            // 
+            // pageProperties
+            // 
+            this.pageProperties.Location = new System.Drawing.Point(4, 22);
+            this.pageProperties.Name = "pageProperties";
+            this.pageProperties.Padding = new System.Windows.Forms.Padding(3);
+            this.pageProperties.Size = new System.Drawing.Size(805, 667);
+            this.pageProperties.TabIndex = 1;
+            this.pageProperties.Text = "Properties";
+            this.pageProperties.UseVisualStyleBackColor = true;
+            // 
+            // pageInfo
+            // 
+            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
+            this.pageInfo.Controls.Add(this.dataGridView);
+            this.pageInfo.Controls.Add(this.relationsListBox);
+            this.pageInfo.Location = new System.Drawing.Point(4, 22);
+            this.pageInfo.Name = "pageInfo";
+            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.pageInfo.Size = new System.Drawing.Size(805, 667);
+            this.pageInfo.TabIndex = 0;
+            this.pageInfo.Text = "Information";
+            // 
+            // relationsListBox
+            // 
+            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.relationsListBox.FormattingEnabled = true;
+            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
+            this.relationsListBox.Name = "relationsListBox";
+            this.relationsListBox.Size = new System.Drawing.Size(143, 654);
+            this.relationsListBox.TabIndex = 3;
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.UpdatePageDisplay);
+            // 
+            // dataGridView
+            // 
+            this.dataGridView.AllowUserToAddRows = false;
+            this.dataGridView.AllowUserToDeleteRows = false;
+            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.Location = new System.Drawing.Point(152, 3);
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
+            this.dataGridView.Size = new System.Drawing.Size(650, 655);
+            this.dataGridView.TabIndex = 1;
+            // 
+            // notebook
+            // 
+            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.notebook.Controls.Add(this.pageInfo);
+            this.notebook.Controls.Add(this.pageProperties);
+            this.notebook.Controls.Add(this.pageGraph);
+            this.notebook.Controls.Add(this.pageExps);
+            this.notebook.Location = new System.Drawing.Point(0, 27);
+            this.notebook.Name = "notebook";
+            this.notebook.SelectedIndex = 0;
+            this.notebook.Size = new System.Drawing.Size(813, 693);
+            this.notebook.TabIndex = 2;
+            // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1481,11 +1594,15 @@
             this.Text = "REMS 2020";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.pageData.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
-            this.notebook.ResumeLayout(false);
+            this.pageExps.ResumeLayout(false);
+            this.experimentsTab.ResumeLayout(false);
+            this.pageDesign.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
             this.pageGraph.ResumeLayout(false);
             this.pageGraph.PerformLayout();
+            this.pageInfo.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
+            this.notebook.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1504,12 +1621,18 @@
         private System.Windows.Forms.ToolStripMenuItem menuSave;
         private System.Windows.Forms.ToolStripMenuItem menuSaveAs;
         private System.Windows.Forms.ToolStripMenuItem menuRecent;
-        private System.Windows.Forms.TabPage pageData;
-        private System.Windows.Forms.ListBox relationsListBox;
-        private System.Windows.Forms.DataGridView dataGridView;
-        private System.Windows.Forms.TabControl notebook;
-        private System.Windows.Forms.TabPage pageProperties;
+        private System.Windows.Forms.TabPage pageExps;
+        private System.Windows.Forms.TreeView experimentsTree;
+        private System.Windows.Forms.TabControl experimentsTab;
+        private System.Windows.Forms.TabPage pageSummary;
+        private System.Windows.Forms.TabPage pageDesign;
+        private System.Windows.Forms.DataGridView designData;
+        private System.Windows.Forms.TabPage pageOperation;
+        private System.Windows.Forms.TabPage pageCrop;
+        private System.Windows.Forms.TabPage pageSoil;
         private System.Windows.Forms.TabPage pageGraph;
+        private System.Windows.Forms.Label labelTrait;
+        private System.Windows.Forms.ComboBox comboTrait;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label labelXData;
         private System.Windows.Forms.ComboBox comboYData;
@@ -1517,8 +1640,11 @@
         private System.Windows.Forms.Label labelTable;
         private System.Windows.Forms.ComboBox comboTable;
         private Steema.TeeChart.TChart graph;
-        private System.Windows.Forms.Label labelTrait;
-        private System.Windows.Forms.ComboBox comboTrait;
+        private System.Windows.Forms.TabPage pageProperties;
+        private System.Windows.Forms.TabPage pageInfo;
+        private System.Windows.Forms.DataGridView dataGridView;
+        private System.Windows.Forms.ListBox relationsListBox;
+        private System.Windows.Forms.TabControl notebook;
     }
 }
 

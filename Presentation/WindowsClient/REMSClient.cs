@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 using Rems.Application;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS.Experiments.Queries.Experiments;
 using Rems.Application.DB.Commands;
 using Rems.Application.DB.Queries;
 using Rems.Application.Entities.Commands;
@@ -37,6 +38,8 @@ namespace WindowsClient
             notebook.SelectedIndexChanged += UpdatePageDisplay;
             Logic.ListViewOutdated += UpdateListView;
 
+            experimentsTree.AfterSelect += ExperimentNodeChanged;            
+
             EventManager.EntityNotFound += OnEntityNotFound;
         }
 
@@ -55,14 +58,6 @@ namespace WindowsClient
             pageProperties.AutoScroll = true;
         }
 
-        private void UpdateListView(object sender, EventArgs e)
-        {
-            var items = Logic.TryQueryREMS(new GetTableListQuery());
-
-            relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(items.ToArray());
-        }
-
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             Settings.Instance.Save();
@@ -72,7 +67,11 @@ namespace WindowsClient
             //tablesBox.Click -= UpdatePageDisplay;
             notebook.SelectedIndexChanged -= UpdatePageDisplay;
             Logic.ListViewOutdated -= UpdateListView;
+
+            experimentsTree.NodeMouseClick -= ExperimentNodeChanged;
         }
+
+        #region Tabs
 
         private void UpdatePageDisplay(object sender, EventArgs e)
         {
@@ -81,9 +80,9 @@ namespace WindowsClient
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
 
-            if (notebook.SelectedTab == pageData)
+            if (notebook.SelectedTab == pageInfo)
             {
-                dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item});
+                dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
             }
             else if (notebook.SelectedTab == pageProperties)
             {
@@ -96,7 +95,138 @@ namespace WindowsClient
             {
 
             }
+            else if (notebook.SelectedTab == pageExps)
+            {
+                UpdateTreeView();
+                UpdateExperimentsTab();
+            }
         }
+
+        #region Information
+
+        private void UpdateListView(object sender, EventArgs e)
+        {
+            var items = Logic.TryQueryREMS(new GetTableListQuery());
+
+            relationsListBox.Items.Clear();
+            relationsListBox.Items.AddRange(items.ToArray());
+        }
+
+        #endregion
+
+        #region Experiments
+
+        private struct ExperimentTag
+        {
+            public int ID { get; set; }
+        }
+
+        private struct TreatmentTag
+        {
+            public int ID { get; set; }
+        }
+
+        /// <summary>
+        /// Update the experiments tree view
+        /// </summary>
+        private void UpdateTreeView()
+        {
+            var exps = Logic.TryQueryREMS(new ExperimentsQuery());
+
+            foreach (var exp in exps)
+            {
+                var treatments = Logic.TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
+
+                TreeNode node = new TreeNode(exp.Value) { Tag = new ExperimentTag() { ID = exp.Key } };
+
+                var nodes = treatments.Select(t => new TreeNode(t.Value) { Tag = new TreatmentTag() { ID = t.Key } }).ToArray();
+                node.Nodes.AddRange(nodes);
+
+                experimentsTree.Nodes.Add(node);
+            }
+            experimentsTree.SelectedNode = experimentsTree.TopNode;
+            experimentsTree.Refresh();
+        }
+
+        private void ExperimentNodeChanged(object sender, EventArgs e)
+        {
+            switch (experimentsTab.SelectedTab.Text)
+            {
+                case "Summary":
+                    UpdateSummaryTab();
+                    return;
+
+                case "Design":
+                    UpdateDesignTab();
+                    return;
+
+                case "Operations":
+                    UpdateOperationsTab();
+                    return;
+
+                case "Crop":
+                    UpdateCropTab();
+                    return;
+
+                case "Soil":
+                    UpdateSoilTab();
+                    return;
+
+                default:
+                    return;
+            }
+        }
+
+        private void UpdateSummaryTab()
+        {
+
+        }
+
+        private void UpdateDesignTab()
+        {
+            var query = new DesignsTableQuery();
+
+            var node = experimentsTree.SelectedNode;
+
+            if (node.Tag is TreatmentTag treatment)
+            {
+                query.TreatmentIds = new int[1] { treatment.ID };
+            }
+            else if (node.Tag is ExperimentTag experiment)
+            {
+                var tags = node.Nodes.Cast<TreeNode>().Select(n => n.Tag);
+                query.TreatmentIds = tags.Cast<TreatmentTag>().Select(t => t.ID).ToArray();
+            }
+
+            designData.DataSource = Logic.TryQueryREMS(query);
+        }
+
+        private void UpdateOperationsTab()
+        {
+
+        }
+
+        private void UpdateCropTab()
+        {
+
+        }
+
+        private void UpdateSoilTab()
+        {
+
+        }
+
+        /// <summary>
+        /// Process the currently selected experiments tab
+        /// </summary>
+        private void UpdateExperimentsTab()
+        {
+
+        }
+
+        #endregion
+
+        #endregion
 
         #region Taskbar
 
@@ -275,6 +405,5 @@ namespace WindowsClient
 
         #endregion
 
-        
     }
 }
