@@ -107,58 +107,64 @@ namespace Rems.Application.Entities.Commands
             // to develop a stable general solution for a single badly designed excel table.
             // Apologies to whoever has to fix it when it eventually breaks.
 
-            //var plots = table.Rows.Cast<DataRow>()
-            //    .GroupBy(row => ConvertDBValue<int>(row[0])) // Group the experiment rows together
-            //    .SelectMany(eRows =>    // For each group of experiment rows
-            //    {
-            //        var tRows = eRows.GroupBy(row => row[1].ToString()); // Sub-group the experiment rows by treatment
+            var eGroup = table.Rows.Cast<DataRow>().GroupBy(row => ConvertDBValue<int>(row[0])); // Group the experiment rows together
 
-            //        return tRows.SelectMany(t =>
-            //        {
-            //            var treatment = new Treatment()
-            //            {
-            //                ExperimentId = eRows.Key,
-            //                Name = t.Key
-            //            };
+            var plots = new List<Plot>();
 
-            //            context.Add(treatment);
-            //            context.SaveChanges();
-
-            //            foreach (var row in t) AddDesignRowToContext(row, treatment.TreatmentId);
-
-            //            return t.Select(p => new Plot()
-            //            {
-            //                TreatmentId = treatment.TreatmentId,
-            //                Repetition = ConvertDBValue<int>(p[2]),
-            //                Column = ConvertDBValue<int>(p[3])
-            //            });
-            //        });
-            //    });
-
-            //context.AddRange(plots);
-            //context.SaveChanges();
-
-            foreach (DataRow row in table.Rows)
+            foreach (var e in eGroup)
             {
-                var treatment = new Treatment()
-                {
-                    ExperimentId = ConvertDBValue<int>(row[0]),
-                    Name = row[1].ToString()
-                };
-                context.Add(treatment);
-                context.SaveChanges();
+                var tGroup = e.GroupBy(row => row[1].ToString()); // Sub-group the experiment rows by treatment
 
-                var plot = new Plot()
+                foreach (var t in tGroup)
                 {
-                    TreatmentId = treatment.TreatmentId,
-                    Repetition = ConvertDBValue<int>(row[2]),
-                    Column = ConvertDBValue<int>(row[3])
-                };
-                context.Add(plot);
-                context.SaveChanges();
+                    var treatment = new Treatment()
+                    {
+                        ExperimentId = e.Key,
+                        Name = t.Key
+                    };
 
-                AddDesignRowToContext(row, treatment.TreatmentId);
+                    context.Add(treatment);
+                    context.SaveChanges();
+
+                    AddDesignRowToContext(t.First(), treatment.TreatmentId);
+
+                    foreach (var row in t)
+                    {
+                        var p = new Plot()
+                        {
+                            TreatmentId = treatment.TreatmentId,
+                            Repetition = ConvertDBValue<int>(row[2]),
+                            Column = ConvertDBValue<int>(row[3])
+                        };
+                        plots.Add(p);
+                    }
+                }
             }
+
+            context.AddRange(plots);
+            context.SaveChanges();
+
+            //foreach (DataRow row in table.Rows)
+            //{
+            //    var treatment = new Treatment()
+            //    {
+            //        ExperimentId = ConvertDBValue<int>(row[0]),
+            //        Name = row[1].ToString()
+            //    };
+            //    context.Add(treatment);
+            //    context.SaveChanges();
+
+            //    var plot = new Plot()
+            //    {
+            //        TreatmentId = treatment.TreatmentId,
+            //        Repetition = ConvertDBValue<int>(row[2]),
+            //        Column = ConvertDBValue<int>(row[3])
+            //    };
+            //    context.Add(plot);
+            //    context.SaveChanges();
+
+            //    AddDesignRowToContext(row, treatment.TreatmentId);
+            //}
         }
 
         private void AddDesignRowToContext(DataRow row, int treatmentId)
