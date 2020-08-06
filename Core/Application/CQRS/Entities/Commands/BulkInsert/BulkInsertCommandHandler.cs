@@ -141,30 +141,8 @@ namespace Rems.Application.Entities.Commands
                 }
             }
 
-            context.AddRange(plots);
+            context.AddRange(plots.ToArray());
             context.SaveChanges();
-
-            //foreach (DataRow row in table.Rows)
-            //{
-            //    var treatment = new Treatment()
-            //    {
-            //        ExperimentId = ConvertDBValue<int>(row[0]),
-            //        Name = row[1].ToString()
-            //    };
-            //    context.Add(treatment);
-            //    context.SaveChanges();
-
-            //    var plot = new Plot()
-            //    {
-            //        TreatmentId = treatment.TreatmentId,
-            //        Repetition = ConvertDBValue<int>(row[2]),
-            //        Column = ConvertDBValue<int>(row[3])
-            //    };
-            //    context.Add(plot);
-            //    context.SaveChanges();
-
-            //    AddDesignRowToContext(row, treatment.TreatmentId);
-            //}
         }
 
         private void AddDesignRowToContext(DataRow row, int treatmentId)
