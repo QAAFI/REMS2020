@@ -11,13 +11,12 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.PlotId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.PlotId)
                 .HasName("PlotId")
                 .IsUnique();
 
             builder.Property(e => e.Columns).HasDefaultValueSql("0");
-
-            builder.Property(e => e.RepetitionNumber).HasDefaultValueSql("0");
 
             builder.Property(e => e.Rows).HasDefaultValueSql("0");
 

@@ -126,23 +126,40 @@ namespace WindowsClient
             public int ID { get; set; }
         }
 
+        private struct PlotTag
+        {
+            public int ID { get; set; }
+        }
+
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
         private void UpdateTreeView()
         {
+            experimentsTree.Nodes.Clear();
+
             var exps = Logic.TryQueryREMS(new ExperimentsQuery());
 
             foreach (var exp in exps)
             {
+                TreeNode eNode = new TreeNode(exp.Value) { Tag = new ExperimentTag() { ID = exp.Key } };
+
                 var treatments = Logic.TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
 
-                TreeNode node = new TreeNode(exp.Value) { Tag = new ExperimentTag() { ID = exp.Key } };
+                foreach (var treatment in treatments)
+                {
+                    TreeNode tNode = new TreeNode(treatment.Value)
+                    {
+                        Tag = new TreatmentTag() { ID = treatment.Key }
+                    };
 
-                var nodes = treatments.Select(t => new TreeNode(t.Value) { Tag = new TreatmentTag() { ID = t.Key } }).ToArray();
-                node.Nodes.AddRange(nodes);
+                    var plots = Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
 
-                experimentsTree.Nodes.Add(node);
+                    tNode.Nodes.AddRange(plots.Select(p => new TreeNode(p.Value) { Tag = new PlotTag() { ID = p.Key } }).ToArray()) ;
+                    eNode.Nodes.Add(tNode);
+                }                
+
+                experimentsTree.Nodes.Add(eNode);
             }
             experimentsTree.SelectedNode = experimentsTree.TopNode;
             experimentsTree.Refresh();
@@ -197,6 +214,7 @@ namespace WindowsClient
                 var tags = node.Nodes.Cast<TreeNode>().Select(n => n.Tag);
                 query.TreatmentIds = tags.Cast<TreatmentTag>().Select(t => t.ID).ToArray();
             }
+            else return;
 
             designData.DataSource = Logic.TryQueryREMS(query);
         }
