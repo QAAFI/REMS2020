@@ -19,7 +19,11 @@ namespace Rems.Application.Tables.Queries
 
         public async Task<string[]> Handle(TraitsByTypeQuery request, CancellationToken cancellationToken)
         {            
-            return factory.Context.Traits.Where(t => t.Type == request.Type).Select(t => t.Name).ToArray();
+            return factory.Context.Traits
+                .Where(t => t.Type == request.Type)
+                .Select(t => t.Name)
+                .OrderBy(n => n)
+                .ToArray();
         }
     }
 

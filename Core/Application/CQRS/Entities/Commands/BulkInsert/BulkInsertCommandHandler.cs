@@ -87,7 +87,7 @@ namespace Rems.Application.Entities.Commands
                 return new PlotData()
                 {
                     PlotId = Convert.ToInt32(r["Plot"]),
-                    PlotDataDate = (DateTime?)r["date"],
+                    Date = (DateTime?)r["date"],
                     Sample = (string)r["Sample"],
                     TraitId = trait.TraitId,
                     Value = (double?)r[column],

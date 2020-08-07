@@ -34,9 +34,10 @@ namespace WindowsClient
             InitializeControls();
 
             experimentsTree.AfterSelect += ExperimentNodeChanged;
+            cropTraitsBox.SelectedIndexChanged += OnCropTraitsBoxIndexChanged;
 
             EventManager.EntityNotFound += OnEntityNotFound;
-        }
+        }        
 
         #region Form
 
@@ -210,7 +211,7 @@ namespace WindowsClient
             LoadTreeView();
             LoadSummaryTab();
             LoadDesignTab();
-            LoadCropTraitsBox();
+            LoadCropTab();
         }
 
         /// <summary>
@@ -254,9 +255,10 @@ namespace WindowsClient
 
         private void LoadDesignTab()
         {
-            var query = new DesignsTableQuery();
-
             var node = experimentsTree.SelectedNode;
+            if (node == null) return;
+
+            var query = new DesignsTableQuery();
 
             if (node.Tag is TreatmentTag treatment)
             {
@@ -272,14 +274,21 @@ namespace WindowsClient
             designData.DataSource = Logic.TryQueryREMS(query);
         }
 
-        private void LoadCropTraitsBox()
+        private void LoadCropTab()
         {
+            // Load the Traits Box
             var traits = Logic.TryQueryREMS(new TraitsByTypeQuery() { Type = "Crop" });
-
             cropTraitsBox.Items.AddRange(traits);
-
             cropTraitsBox.Refresh();
-        }        
+
+            // Select a node
+            experimentsTree.SelectedNode = experimentsTree.Nodes[0];
+        }
+
+        private void OnCropTraitsBoxIndexChanged(object sender, EventArgs e)
+        {
+            RefreshCropData();
+        }
 
         private void ExperimentNodeChanged(object sender, EventArgs e)
         {
@@ -295,7 +304,69 @@ namespace WindowsClient
 
         private void RefreshCropData()
         {
+            cropChart.Series.Clear();
 
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return;
+
+            foreach (string trait in cropTraitsBox.CheckedItems)
+            {
+                var query = new PlotDataByTraitQuery() { TraitName = trait };
+
+                if (node.Tag is TreatmentTag)
+                {
+                    PlotRepetitionData(node, query);
+                }
+                else if (node.Tag is PlotTag plot)
+                {
+                    query.PlotId = plot.ID;
+                    PlotSingleData(query);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Plot the mean of the repetitions of a treatment
+        /// </summary>
+        private void PlotMeanData()
+        {
+
+        }
+
+        /// <summary>
+        /// Plot all the repetitions of a treatment for a trait
+        /// </summary>
+        private void PlotRepetitionData(TreeNode treatment, PlotDataByTraitQuery query)
+        {
+            foreach (TreeNode plot in treatment.Nodes)
+            {
+                if (plot.Tag is PlotTag tag)
+                {
+                    query.PlotId = tag.ID;                    
+
+                    PlotSingleData(query);
+                }                
+            }
+        }
+
+        /// <summary>
+        /// Plot a single set of data
+        /// </summary>
+        private void PlotSingleData(PlotDataByTraitQuery query)
+        {
+            var data = Logic.TryQueryREMS(query);
+
+            var x = data.Select().Select(r => (DateTime)r[0]).ToArray();
+            var y = data.Select().Select(r => (double)r[1]).ToArray();
+
+            Points points = new Points();
+            Line line = new Line();
+
+            points.Add(x, y);
+            line.Add(x, y);
+
+            cropChart.Series.Add(points);
+            cropChart.Series.Add(line);
         }
 
         private void RefreshSoilData()
@@ -390,7 +461,7 @@ namespace WindowsClient
         }
 
         #endregion
-        
-        #endregion        
+
+        #endregion
     }
 }
