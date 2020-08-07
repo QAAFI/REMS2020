@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
+using MediatR;
+
 using Rems.Application;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS.Experiments.Queries.Experiments;
@@ -235,6 +237,7 @@ namespace WindowsClient
                     {
                         Tag = new TreatmentTag() { ID = treatment.Key }
                     };
+                    tNode.Nodes.Add(new TreeNode("Mean") { Tag = treatment.Key });
 
                     var plots = Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
 
@@ -313,7 +316,12 @@ namespace WindowsClient
             {
                 var query = new PlotDataByTraitQuery() { TraitName = trait };
 
-                if (node.Tag is TreatmentTag)
+                if (node.Tag is ExperimentTag)
+                {                    
+                    // TODO: Decide what to implement at experiment level
+                    // Simply disable crop tab?
+                }
+                else if (node.Tag is TreatmentTag)
                 {
                     PlotRepetitionData(node, query);
                 }
@@ -322,15 +330,17 @@ namespace WindowsClient
                     query.PlotId = plot.ID;
                     PlotSingleData(query);
                 }
+                else if (node.Text == "Mean")
+                {
+                    var mean = new MeanTreatmentDataByTraitQuery()
+                    {
+                        TraitName = trait,
+                        TreatmentId = (int)node.Tag
+                    };
+
+                    PlotMeanData(mean);
+                }
             }
-        }
-
-        /// <summary>
-        /// Plot the mean of the repetitions of a treatment
-        /// </summary>
-        private void PlotMeanData()
-        {
-
         }
 
         /// <summary>
@@ -352,10 +362,14 @@ namespace WindowsClient
         /// <summary>
         /// Plot a single set of data
         /// </summary>
-        private void PlotSingleData(PlotDataByTraitQuery query)
+        private void PlotMeanData(MeanTreatmentDataByTraitQuery query)
         {
             var data = Logic.TryQueryREMS(query);
 
+            if (data is null) return;
+
+            // TODO: It's bad practice to just assume that the data will be
+            // of this form, where the rows can be cast directly to DateTime/double. Find a fix?
             var x = data.Select().Select(r => (DateTime)r[0]).ToArray();
             var y = data.Select().Select(r => (double)r[1]).ToArray();
 
@@ -365,6 +379,30 @@ namespace WindowsClient
             points.Add(x, y);
             line.Add(x, y);
 
+            cropChart.Series.Add(points);
+            cropChart.Series.Add(line);
+        }
+
+        /// <summary>
+        /// Plot a single set of data
+        /// </summary>
+        private void PlotSingleData(IRequest<DataTable> query)
+        {
+            var data = Logic.TryQueryREMS(query);
+
+            if (data is null) return;
+
+            // TODO: It's bad practice to just assume that the data will be
+            // of this form, where the rows can be cast directly to DateTime/double. Find a fix?
+            var x = data.Select().Select(r => (DateTime)r[0]).ToArray();
+            var y = data.Select().Select(r => (double)r[1]).ToArray();
+
+            Points points = new Points();
+            Line line = new Line();
+
+            points.Add(x, y);
+            line.Add(x, y);
+            
             cropChart.Series.Add(points);
             cropChart.Series.Add(line);
         }
