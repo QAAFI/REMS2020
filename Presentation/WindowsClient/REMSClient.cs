@@ -338,7 +338,7 @@ namespace WindowsClient
                         TreatmentId = (int)node.Tag
                     };
 
-                    PlotMeanData(mean);
+                    PlotSingleData(mean);
                 }
             }
         }
@@ -357,30 +357,6 @@ namespace WindowsClient
                     PlotSingleData(query);
                 }                
             }
-        }
-
-        /// <summary>
-        /// Plot a single set of data
-        /// </summary>
-        private void PlotMeanData(MeanTreatmentDataByTraitQuery query)
-        {
-            var data = Logic.TryQueryREMS(query);
-
-            if (data is null) return;
-
-            // TODO: It's bad practice to just assume that the data will be
-            // of this form, where the rows can be cast directly to DateTime/double. Find a fix?
-            var x = data.Select().Select(r => (DateTime)r[0]).ToArray();
-            var y = data.Select().Select(r => (double)r[1]).ToArray();
-
-            Points points = new Points();
-            Line line = new Line();
-
-            points.Add(x, y);
-            line.Add(x, y);
-
-            cropChart.Series.Add(points);
-            cropChart.Series.Add(line);
         }
 
         /// <summary>
