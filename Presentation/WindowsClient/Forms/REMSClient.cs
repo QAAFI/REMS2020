@@ -1,25 +1,32 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
+using MediatR;
+
 using Rems.Application;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS.Experiments.Queries.Experiments;
 using Rems.Application.DB.Commands;
 using Rems.Application.DB.Queries;
 using Rems.Application.Entities.Commands;
 using Rems.Application.Tables.Queries;
 using Rems.Infrastructure;
 using Rems.Infrastructure.Excel;
+using Steema.TeeChart;
+using Steema.TeeChart.Drawing;
 using Steema.TeeChart.Styles;
 using WindowsClient.Forms;
 
 namespace WindowsClient
 {
     public partial class REMSClient : Form
-    {        
+    {
         private string _importFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly ClientLogic Logic;
@@ -28,16 +35,18 @@ namespace WindowsClient
         {
             Logic = new ClientLogic(provider);
 
+            WindowState = FormWindowState.Maximized;
+
             InitializeComponent();
-            InitializeControls();            
+            InitializeControls();
 
-            FormClosed += REMSClientFormClosed;
-            //tablesBox.Click += UpdatePageDisplay;
-            notebook.SelectedIndexChanged += UpdatePageDisplay;
-            Logic.ListViewOutdated += UpdateListView;
+            experimentsTree.AfterSelect += ExperimentNodeChanged;
+            traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
 
-            EventManager.ItemNotFound += OnEntityNotFound;
-        }
+            EventManager.EntityNotFound += OnEntityNotFound;
+        }        
+
+        #region Form
 
         private void OnEntityNotFound(object sender, ItemNotFoundArgs args)
         {
@@ -53,48 +62,17 @@ namespace WindowsClient
             pageProperties.AutoScroll = true;
         }
 
-        private void UpdateListView(object sender, EventArgs e)
-        {
-            var items = Logic.TryQueryREMS(new GetTableListQuery());
-
-            relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(items.ToArray());
-        }
-
-        private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
+        protected void Close()
         {
             Settings.Instance.Save();
             Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
 
-            FormClosed -= REMSClientFormClosed;
-            //tablesBox.Click -= UpdatePageDisplay;
-            notebook.SelectedIndexChanged -= UpdatePageDisplay;
-            Logic.ListViewOutdated -= UpdateListView;
+            experimentsTree.NodeMouseClick -= ExperimentNodeChanged;
+
+            base.Close();
         }
 
-        private void UpdatePageDisplay(object sender, EventArgs e)
-        {
-            // TODO: Clean up this mess
-
-            var item = (string)relationsListBox.SelectedItem;
-            if (item == null) return;
-
-            if (notebook.SelectedTab == pageData)
-            {
-                dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item});
-            }
-            else if (notebook.SelectedTab == pageProperties)
-            {
-                item = item.Remove(item.Length - 1);
-
-                pageProperties.Controls.Clear();
-                pageProperties.Controls.AddRange(Logic.GetProperties(item));
-            }
-            else if (notebook.SelectedTab == pageGraph)
-            {
-
-            }
-        }
+        #endregion
 
         #region Taskbar
 
@@ -113,8 +91,6 @@ namespace WindowsClient
                 if (save.ShowDialog() == DialogResult.OK)
                 {
                     Logic.TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
-                    //Logic.LoadSettings();
-                    UpdateListView(null, EventArgs.Empty);
                 }
             }
         }
@@ -132,10 +108,9 @@ namespace WindowsClient
                 if (open.ShowDialog() == DialogResult.OK)
                 {
                     Logic.TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
-                    //Logic.LoadSettings();
-                    UpdateListView(null, EventArgs.Empty);
+                    LoadTabs();
                 }
-            }                        
+            }
         }
 
         /// <summary>
@@ -192,75 +167,399 @@ namespace WindowsClient
                 save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
-                if (save.ShowDialog() == DialogResult.OK) Logic.TryDataExport(save.FileName).Wait();                
-            }                        
+                if (save.ShowDialog() == DialogResult.OK) Logic.TryDataExport(save.FileName).Wait();
+            }
+        }
+
+        #endregion       
+
+        #region Tabs
+
+        private void LoadTabs()
+        {
+            LoadListView();
+            
+            LoadExperimentsTab();
+        }
+
+        #region Information
+
+        private void OnRelationsIndexChanged(object sender, EventArgs e)
+        {
+            var item = (string)relationsListBox.SelectedItem;
+            if (item == null) return;
+            dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
+        }
+
+        private void LoadListView()
+        {
+            var items = Logic.TryQueryREMS(new GetTableListQuery());
+
+            relationsListBox.Items.Clear();
+            relationsListBox.Items.AddRange(items.ToArray());
         }
 
         #endregion
 
-        #region Graph
+        #region Experiments
 
-        private void GraphTableChanged(object sender, EventArgs e)
+        private struct ExperimentTag
         {
-            var table = comboTable.SelectedItem.ToString();
-            var names = Logic.TryQueryREMS(new GetTraitNamesByIdQuery() { TraitIds = table });
-
-            comboTrait.Items.Clear();
-            comboTrait.Items.AddRange(names);
-
-            var items = Logic.TryQueryREMS(new GetGraphableItemsQuery() { TableName = table });
-
-            comboXData.Items.Clear();
-            comboXData.Items.AddRange(items);
-
-            comboYData.Items.Clear();
-            comboYData.Items.AddRange(items);
+            public int ID { get; set; }
         }
 
-        private void GraphTraitChanged(object sender, EventArgs e)
+        private struct TreatmentTag
         {
-            UpdateGraph();
+            public int ID { get; set; }
         }
 
-        private void UpdateGraph()
+        private struct PlotTag
         {
-            var items = new string[4];
-            items[0] = comboTable.SelectedItem?.ToString();
-            items[1] = comboTrait.SelectedItem?.ToString();
-            items[2] = comboXData.SelectedItem?.ToString();
-            items[3] = comboYData.SelectedItem?.ToString();
+            public int ID { get; set; }
+        }
 
-            if (!items.Any(n => n == null))
+        /// <summary>
+        /// Process the currently selected experiments tab
+        /// </summary>
+        private void LoadExperimentsTab()
+        {
+            LoadTreeView();
+            LoadSummaryTab();
+            LoadDesignTab();
+            LoadCropTab();
+        }
+
+        /// <summary>
+        /// Update the experiments tree view
+        /// </summary>
+        private void LoadTreeView()
+        {
+            experimentsTree.Nodes.Clear();
+
+            var exps = Logic.TryQueryREMS(new ExperimentsQuery());
+
+            foreach (var exp in exps)
             {
-                var query = new GetGraphDataQuery()
+                TreeNode eNode = new TreeNode(exp.Value) { Tag = new ExperimentTag() { ID = exp.Key } };
+
+                var treatments = Logic.TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
+
+                foreach (var treatment in treatments)
                 {
-                    TableName = items[0],
-                    TraitName = items[1],
-                    XColumn = items[2],
-                    YColumn = items[3]
+                    TreeNode tNode = new TreeNode(treatment.Value)
+                    {
+                        Tag = new TreatmentTag() { ID = treatment.Key }
+                    };
+                    tNode.Nodes.Add(new TreeNode("Mean") { Tag = treatment.Key });
+
+                    var plots = Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
+
+                    tNode.Nodes.AddRange(plots.Select(p => new TreeNode(p.Value) { Tag = new PlotTag() { ID = p.Key } }).ToArray()) ;
+                    eNode.Nodes.Add(tNode);
+                }                
+
+                experimentsTree.Nodes.Add(eNode);
+            }
+            experimentsTree.SelectedNode = experimentsTree.TopNode;
+            experimentsTree.Refresh();
+        }
+        
+        private void LoadSummaryTab()
+        {
+
+        }
+
+        private void LoadDesignTab()
+        {
+            var node = experimentsTree.SelectedNode;
+            if (node == null) return;
+
+            var query = new DesignsTableQuery();
+
+            if (node.Tag is TreatmentTag treatment)
+            {
+                query.TreatmentIds = new int[1] { treatment.ID };
+            }
+            else if (node.Tag is ExperimentTag experiment)
+            {
+                var tags = node.Nodes.Cast<TreeNode>().Select(n => n.Tag);
+                query.TreatmentIds = tags.Cast<TreatmentTag>().Select(t => t.ID).ToArray();
+            }
+            else return;
+
+            designData.DataSource = Logic.TryQueryREMS(query);
+        }
+
+        private void LoadCropTab()
+        {
+            // Load the trait type box
+            traitTypeBox.Items.Clear();
+            var types = Logic.TryQueryREMS(new TraitTypesQuery());
+            traitTypeBox.Items.AddRange(types);
+            traitTypeBox.SelectedIndex = 0;
+
+            // Load the traits box
+            RefreshTraitsBox();
+
+            // Select a node
+            experimentsTree.SelectedNode = experimentsTree.Nodes[0];
+        }
+
+        private void OnTraitTypeBoxSelectionChanged(object sender, EventArgs e) => RefreshTraitsBox();
+
+        private void OnTraitsBoxIndexChanged(object sender, EventArgs e) => RefreshChart();
+
+        private void ExperimentNodeChanged(object sender, EventArgs e)
+        {
+            RefreshOperationsData();
+            RefreshChart();
+        }
+
+        private void RefreshOperationsData()
+        {
+
+        }
+
+        private void RefreshTraitsBox()
+        {
+            traitsBox.Items.Clear();
+            var traits = Logic.TryQueryREMS(new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() });
+            traitsBox.Items.AddRange(traits);
+            traitsBox.Refresh();
+        }
+
+        private void RefreshChart()
+        {
+            leftBtn.Visible = false;
+            rightBtn.Visible = false;
+
+            if (traitTypeBox.Text == "Crop") RefreshCropData();
+            if (traitTypeBox.Text == "SoilLayer") RefreshSoilControl();
+        }
+
+        private void RefreshCropData()
+        {
+            cropChart.Axes.Custom.Clear();
+            cropChart.Series.Clear();
+
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return;
+
+            Axis y = new Axis(cropChart.Chart)
+            {
+                Horizontal = false,
+                AutomaticMinimum = false,
+                AutomaticMaximum = false,
+                Minimum = 0,
+                Maximum = 0.00000001                
+            };
+
+            cropChart.Axes.Custom.Add(y);
+
+            foreach (string trait in traitsBox.CheckedItems)
+            {
+                var bounds = Logic.TryQueryREMS(new PlotDataTraitBoundsQuery() { TraitName = trait });
+
+                if (bounds.YMin < y.Minimum) y.Minimum = bounds.YMin - bounds.YMin / 10;
+                if (bounds.YMax > y.Maximum) y.Maximum = bounds.YMax + bounds.YMax / 10;
+
+                var query = new PlotDataByTraitQuery() { TraitName = trait };
+
+                if (node.Tag is ExperimentTag)
+                {                    
+                    // TODO: Decide what to implement at experiment level
+                    // Simply disable crop tab?
+                }
+                else if (node.Tag is TreatmentTag)
+                {
+                    foreach (TreeNode plot in node.Nodes)
+                    {
+                        if (plot.Tag is PlotTag tag)
+                        {
+                            query.PlotId = tag.ID;
+
+                            PlotSingleData(query, y);
+                        }
+                    }
+                }
+                else if (node.Tag is PlotTag plot)
+                {
+                    query.PlotId = plot.ID;
+                    PlotSingleData(query, y);
+                }
+                else if (node.Text == "Mean")
+                {
+                    var mean = new MeanTreatmentDataByTraitQuery()
+                    {
+                        TraitName = trait,
+                        TreatmentId = (int)node.Tag
+                    };
+
+                    PlotSingleData(mean, y);
+                }
+            }
+            
+        }
+
+        private void RefreshSoilData()
+        {
+            cropChart.Axes.Custom.Clear();
+            cropChart.Series.Clear();
+
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return;
+
+            Axis y = new Axis(cropChart.Chart)
+            {
+                Horizontal = false,
+                Inverted = true,
+                Minimum = 0
+            };
+
+            cropChart.Axes.Custom.Add(y);
+            cropChart.Text = dates[index].ToString();
+
+            foreach (string trait in traitsBox.CheckedItems)
+            {
+                var query = new TraitDataOnDateQuery()
+                {
+                    TraitName = trait,
+                    Date = dates[index]
                 };
 
-                var data = Logic.TryQueryREMS(query);
+                if (node.Tag is ExperimentTag)
+                {
+                    // TODO: Decide what to implement at experiment level
+                }
+                else if (node.Tag is TreatmentTag)
+                {
+                    foreach (TreeNode plot in node.Nodes)
+                    {
+                        if (plot.Tag is PlotTag tag)
+                        {
+                            query.PlotId = tag.ID;
 
-                var p = new Points();
-                var l = new Line();
-                foreach(var t in data) CastAdd(p, t.Item1, t.Item2);
-                foreach(var t in data) CastAdd(l, t.Item1, t.Item2);
+                            PlotSingleData(query, y);
+                        }
+                    }
+                }
+                else if (node.Tag is PlotTag plot)
+                {
+                    query.PlotId = plot.ID;
+                    PlotSingleData(query, y);
+                }
+                else if (node.Text == "Mean")
+                {
+                    //var mean = new MeanTreatmentDataByTraitQuery()
+                    //{
+                    //    TraitName = trait,
+                    //    TreatmentId = (int)node.Tag
+                    //};
 
-                graph.Series.Clear();
-                graph.Series.Add(p);
-                graph.Series.Add(l);
+                    //PlotSingleData(mean, y);
+                }
             }
         }
 
-        private void CastAdd(CustomPoint point, object x, object y)
+        /// <summary>
+        /// Plot a single set of data
+        /// </summary>
+        private void PlotSingleData(IRequest<SeriesData> query, Axis YAxis)
         {
-            if (x is DateTime a && y is DateTime b) point.Add(a, b);
-            else if (x is double c && y is DateTime d) point.Add(c, d);
-            else if (x is DateTime e && y is double f) point.Add(e, f);
-            else point.Add(Convert.ToDouble(x), Convert.ToDouble(y));
+            var data = Logic.TryQueryREMS(query);
+
+            if (data is null) return;
+            if (data.X.Length == 0) return;
+            
+            YAxis.Title.Text = data.YLabel;
+
+            Points points = new Points();
+            points.Legend.Text = data.Name;                        
+            points.CustomVertAxis = YAxis;
+
+            Line line = new Line();
+            line.Legend.Visible = false;
+            line.CustomVertAxis = YAxis;
+
+            if (data.X.GetValue(0) is DateTime)
+            {
+                points.XValues.DateTime = true;
+                points.DateTimeFormat = "dd-MM";
+
+                line.XValues.DateTime = true;
+                line.DateTimeFormat = "dd-MM";
+            }
+
+            line.Add(data.X, data.Y);
+            points.Add(data.X, data.Y);
+            
+            cropChart.Series.Add(line);
+            cropChart.Series.Add(points);
+
+            line.Color = points.Color;
         }
 
-        #endregion        
+        
+        private void RefreshSoilControl()
+        {
+            if (!RefreshSoilDataDates()) return;
+
+            leftBtn.Visible = true;
+            rightBtn.Visible = true;
+            
+            RefreshSoilData();            
+        }
+
+        
+
+        private DateTime[] dates;
+        private int index = 0;
+        private bool RefreshSoilDataDates()
+        {
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return false;
+
+
+            if (node.Tag is ExperimentTag)
+            {
+                return false;
+            }
+            else if (node.Tag is TreatmentTag tag)
+            {
+                dates = Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = tag.ID });
+            }
+            else
+            {
+                int id = ((TreatmentTag)node.Parent.Tag).ID;
+                dates = Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = id });
+            }
+            index = 0;
+
+            if (dates.Length > 0) return true;
+            
+            return false;
+        }
+
+        private void OnLeftBtnClicked(object sender, EventArgs e)
+        {
+            index--;
+            if (index < 0) index = dates.Length - 1;
+
+            RefreshSoilData();
+        }
+
+        private void OnRightBtnClicked(object sender, EventArgs e)
+        {
+            index++;
+            if (index > dates.Length - 1) index = 0;
+
+            RefreshSoilData();
+        }
+
+        #endregion
+
+        #endregion
+
+        
     }
 }

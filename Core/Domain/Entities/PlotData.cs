@@ -11,13 +11,11 @@ namespace Rems.Domain.Entities
 
         public int TraitId { get; set; }
 
-        [Graphable]
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         public string Sample { get; set; }
 
-        [Graphable]
-        public double? Value { get; set; }
+        public double Value { get; set; }
 
         public int? UnitId { get; set; }
 

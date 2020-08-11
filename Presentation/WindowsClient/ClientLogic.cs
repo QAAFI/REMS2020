@@ -27,8 +27,6 @@ namespace WindowsClient
 
         private readonly Settings settings = Settings.Instance;
 
-        public event EventHandler ListViewOutdated;
-
         public ClientLogic(IServiceProvider provider)
         {
             mediator = provider.GetRequiredService<IMediator>();

@@ -9,17 +9,12 @@ namespace Rems.Domain.Entities
 
         public int TraitId { get; set; }
 
-        [Graphable]
         public DateTime Date { get; set; }
 
-        [Graphable]
         public double? Value { get; set; }
 
 
         public virtual MetStation MetStation { get; set; }
-        public virtual Trait Trait { get; set; }
-
-
-        
+        public virtual Trait Trait { get; set; }        
     }
 }

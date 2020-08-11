@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Rems.Application.Queries
 {
-    public class ExperimentsQuery : IRequest<IEnumerable<ExperimentDetailVm>>
+    public class ExperimentDetailsQuery : IRequest<IEnumerable<ExperimentDetailVm>>
     {
     }
 }

@@ -17,7 +17,7 @@ namespace Rems.Infrastructure
 
             validations.Children.Add(BuildCombinedResults());
 
-            foreach (var experiment in await _mediator.Send(new ExperimentsQuery()))
+            foreach (var experiment in await _mediator.Send(new ExperimentDetailsQuery()))
             {
                 var folder = new Folder() { Name = experiment.Name };
 

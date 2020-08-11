@@ -231,6 +231,7 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <Compile Include="RemsSeries.cs" />
     <EmbeddedResource Include="Forms\FileSelector.resx">
       <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -293,6 +294,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\select-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\right.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />

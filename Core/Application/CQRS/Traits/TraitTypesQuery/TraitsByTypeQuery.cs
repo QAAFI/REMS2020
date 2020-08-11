@@ -5,8 +5,7 @@ using System.Text;
 
 namespace Rems.Application.Tables.Queries
 {
-    public class GetGraphableItemsQuery : IRequest<string[]> 
-    {
-        public string TableName { get; set; }
+    public class TraitTypesQuery : IRequest<string[]> 
+    {        
     }
 }
