@@ -43,7 +43,7 @@ namespace WindowsClient
             experimentsTree.AfterSelect += ExperimentNodeChanged;
             traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
 
-            EventManager.EntityNotFound += OnEntityNotFound;
+            EventManager.ItemNotFound += OnEntityNotFound;
         }        
 
         #region Form
@@ -355,6 +355,7 @@ namespace WindowsClient
             };
 
             cropChart.Axes.Custom.Add(y);
+            cropChart.Text = "Crop Traits";
 
             foreach (string trait in traitsBox.CheckedItems)
             {
