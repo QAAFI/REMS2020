@@ -11,11 +11,11 @@ namespace Rems.Domain.Entities
 
         public int TraitId { get; set; }
 
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         public string Sample { get; set; }
 
-        public double? Value { get; set; }
+        public double Value { get; set; }
 
         public int? UnitId { get; set; }
 

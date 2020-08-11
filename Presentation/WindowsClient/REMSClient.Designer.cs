@@ -47,10 +47,12 @@
             this.pageDesign = new System.Windows.Forms.TabPage();
             this.designData = new System.Windows.Forms.DataGridView();
             this.pageOperation = new System.Windows.Forms.TabPage();
-            this.pageCrop = new System.Windows.Forms.TabPage();
-            this.cropTraitsBox = new System.Windows.Forms.CheckedListBox();
+            this.pageData = new System.Windows.Forms.TabPage();
+            this.rightBtn = new System.Windows.Forms.Button();
+            this.leftBtn = new System.Windows.Forms.Button();
+            this.traitTypeBox = new System.Windows.Forms.ComboBox();
+            this.traitsBox = new System.Windows.Forms.CheckedListBox();
             this.cropChart = new Steema.TeeChart.TChart();
-            this.pageSoil = new System.Windows.Forms.TabPage();
             this.pageProperties = new System.Windows.Forms.TabPage();
             this.pageInfo = new System.Windows.Forms.TabPage();
             this.dataGridView = new System.Windows.Forms.DataGridView();
@@ -61,7 +63,7 @@
             this.experimentsTab.SuspendLayout();
             this.pageDesign.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
-            this.pageCrop.SuspendLayout();
+            this.pageData.SuspendLayout();
             this.pageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
@@ -75,7 +77,7 @@
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(947, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(938, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -160,7 +162,7 @@
             this.pageExps.Location = new System.Drawing.Point(4, 22);
             this.pageExps.Name = "pageExps";
             this.pageExps.Padding = new System.Windows.Forms.Padding(3);
-            this.pageExps.Size = new System.Drawing.Size(939, 665);
+            this.pageExps.Size = new System.Drawing.Size(930, 649);
             this.pageExps.TabIndex = 4;
             this.pageExps.Text = "Experiments";
             this.pageExps.UseVisualStyleBackColor = true;
@@ -171,7 +173,7 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.experimentsTree.Location = new System.Drawing.Point(6, 6);
             this.experimentsTree.Name = "experimentsTree";
-            this.experimentsTree.Size = new System.Drawing.Size(144, 649);
+            this.experimentsTree.Size = new System.Drawing.Size(144, 637);
             this.experimentsTree.TabIndex = 2;
             // 
             // experimentsTab
@@ -182,12 +184,11 @@
             this.experimentsTab.Controls.Add(this.pageSummary);
             this.experimentsTab.Controls.Add(this.pageDesign);
             this.experimentsTab.Controls.Add(this.pageOperation);
-            this.experimentsTab.Controls.Add(this.pageCrop);
-            this.experimentsTab.Controls.Add(this.pageSoil);
+            this.experimentsTab.Controls.Add(this.pageData);
             this.experimentsTab.Location = new System.Drawing.Point(156, 3);
             this.experimentsTab.Name = "experimentsTab";
             this.experimentsTab.SelectedIndex = 0;
-            this.experimentsTab.Size = new System.Drawing.Size(780, 656);
+            this.experimentsTab.Size = new System.Drawing.Size(771, 640);
             this.experimentsTab.TabIndex = 1;
             // 
             // pageSummary
@@ -195,7 +196,7 @@
             this.pageSummary.Location = new System.Drawing.Point(4, 22);
             this.pageSummary.Name = "pageSummary";
             this.pageSummary.Padding = new System.Windows.Forms.Padding(3);
-            this.pageSummary.Size = new System.Drawing.Size(772, 630);
+            this.pageSummary.Size = new System.Drawing.Size(763, 614);
             this.pageSummary.TabIndex = 7;
             this.pageSummary.Text = "Summary";
             this.pageSummary.UseVisualStyleBackColor = true;
@@ -206,7 +207,7 @@
             this.pageDesign.Location = new System.Drawing.Point(4, 22);
             this.pageDesign.Name = "pageDesign";
             this.pageDesign.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDesign.Size = new System.Drawing.Size(772, 630);
+            this.pageDesign.Size = new System.Drawing.Size(763, 614);
             this.pageDesign.TabIndex = 2;
             this.pageDesign.Text = "Design";
             this.pageDesign.UseVisualStyleBackColor = true;
@@ -219,7 +220,7 @@
             this.designData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.designData.Location = new System.Drawing.Point(0, 0);
             this.designData.Name = "designData";
-            this.designData.Size = new System.Drawing.Size(772, 629);
+            this.designData.Size = new System.Drawing.Size(763, 613);
             this.designData.TabIndex = 0;
             // 
             // pageOperation
@@ -227,32 +228,73 @@
             this.pageOperation.Location = new System.Drawing.Point(4, 22);
             this.pageOperation.Name = "pageOperation";
             this.pageOperation.Padding = new System.Windows.Forms.Padding(3);
-            this.pageOperation.Size = new System.Drawing.Size(772, 630);
+            this.pageOperation.Size = new System.Drawing.Size(763, 614);
             this.pageOperation.TabIndex = 3;
             this.pageOperation.Text = "Operations";
             this.pageOperation.UseVisualStyleBackColor = true;
             // 
-            // pageCrop
+            // pageData
             // 
-            this.pageCrop.BackColor = System.Drawing.Color.LightGray;
-            this.pageCrop.Controls.Add(this.cropTraitsBox);
-            this.pageCrop.Controls.Add(this.cropChart);
-            this.pageCrop.Location = new System.Drawing.Point(4, 22);
-            this.pageCrop.Name = "pageCrop";
-            this.pageCrop.Padding = new System.Windows.Forms.Padding(3);
-            this.pageCrop.Size = new System.Drawing.Size(772, 630);
-            this.pageCrop.TabIndex = 5;
-            this.pageCrop.Text = "Crop";
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.rightBtn);
+            this.pageData.Controls.Add(this.leftBtn);
+            this.pageData.Controls.Add(this.traitTypeBox);
+            this.pageData.Controls.Add(this.traitsBox);
+            this.pageData.Controls.Add(this.cropChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(763, 614);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
             // 
-            // cropTraitsBox
+            // rightBtn
             // 
-            this.cropTraitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.rightBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.rightBtn.BackgroundImage = global::WindowsClient.Properties.Resources.right;
+            this.rightBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.rightBtn.Location = new System.Drawing.Point(572, 17);
+            this.rightBtn.Name = "rightBtn";
+            this.rightBtn.Size = new System.Drawing.Size(24, 24);
+            this.rightBtn.TabIndex = 14;
+            this.rightBtn.UseVisualStyleBackColor = true;
+            this.rightBtn.Visible = false;
+            this.rightBtn.Click += new System.EventHandler(this.OnRightBtnClicked);
+            // 
+            // leftBtn
+            // 
+            this.leftBtn.BackgroundImage = global::WindowsClient.Properties.Resources.left;
+            this.leftBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.leftBtn.Location = new System.Drawing.Point(17, 17);
+            this.leftBtn.Name = "leftBtn";
+            this.leftBtn.Size = new System.Drawing.Size(24, 24);
+            this.leftBtn.TabIndex = 13;
+            this.leftBtn.UseVisualStyleBackColor = true;
+            this.leftBtn.Visible = false;
+            this.leftBtn.Click += new System.EventHandler(this.OnLeftBtnClicked);
+            // 
+            // traitTypeBox
+            // 
+            this.traitTypeBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cropTraitsBox.FormattingEnabled = true;
-            this.cropTraitsBox.Location = new System.Drawing.Point(623, 6);
-            this.cropTraitsBox.Name = "cropTraitsBox";
-            this.cropTraitsBox.Size = new System.Drawing.Size(143, 619);
-            this.cropTraitsBox.TabIndex = 11;
+            this.traitTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.traitTypeBox.FormattingEnabled = true;
+            this.traitTypeBox.Location = new System.Drawing.Point(614, 6);
+            this.traitTypeBox.Name = "traitTypeBox";
+            this.traitTypeBox.Size = new System.Drawing.Size(143, 21);
+            this.traitTypeBox.TabIndex = 12;
+            this.traitTypeBox.SelectedIndexChanged += new System.EventHandler(this.OnTraitTypeBoxSelectionChanged);
+            // 
+            // traitsBox
+            // 
+            this.traitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitsBox.CheckOnClick = true;
+            this.traitsBox.FormattingEnabled = true;
+            this.traitsBox.Location = new System.Drawing.Point(614, 32);
+            this.traitsBox.Name = "traitsBox";
+            this.traitsBox.Size = new System.Drawing.Size(143, 574);
+            this.traitsBox.TabIndex = 11;
             // 
             // cropChart
             // 
@@ -1166,7 +1208,7 @@
             this.cropChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.cropChart.Panel.Shadow.Brush.Solid = true;
             this.cropChart.Panel.Shadow.Brush.Visible = true;
-            this.cropChart.Size = new System.Drawing.Size(611, 618);
+            this.cropChart.Size = new System.Drawing.Size(600, 600);
             // 
             // 
             // 
@@ -1409,22 +1451,12 @@
             this.cropChart.Zoom.Brush.Solid = true;
             this.cropChart.Zoom.Brush.Visible = true;
             // 
-            // pageSoil
-            // 
-            this.pageSoil.Location = new System.Drawing.Point(4, 22);
-            this.pageSoil.Name = "pageSoil";
-            this.pageSoil.Padding = new System.Windows.Forms.Padding(3);
-            this.pageSoil.Size = new System.Drawing.Size(772, 630);
-            this.pageSoil.TabIndex = 6;
-            this.pageSoil.Text = "Soil";
-            this.pageSoil.UseVisualStyleBackColor = true;
-            // 
             // pageProperties
             // 
             this.pageProperties.Location = new System.Drawing.Point(4, 22);
             this.pageProperties.Name = "pageProperties";
             this.pageProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.pageProperties.Size = new System.Drawing.Size(939, 665);
+            this.pageProperties.Size = new System.Drawing.Size(930, 649);
             this.pageProperties.TabIndex = 1;
             this.pageProperties.Text = "Properties";
             this.pageProperties.UseVisualStyleBackColor = true;
@@ -1437,7 +1469,7 @@
             this.pageInfo.Location = new System.Drawing.Point(4, 22);
             this.pageInfo.Name = "pageInfo";
             this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(939, 665);
+            this.pageInfo.Size = new System.Drawing.Size(930, 649);
             this.pageInfo.TabIndex = 0;
             this.pageInfo.Text = "Information";
             // 
@@ -1452,7 +1484,7 @@
             this.dataGridView.Location = new System.Drawing.Point(152, 3);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(784, 654);
+            this.dataGridView.Size = new System.Drawing.Size(775, 638);
             this.dataGridView.TabIndex = 1;
             // 
             // relationsListBox
@@ -1462,7 +1494,7 @@
             this.relationsListBox.FormattingEnabled = true;
             this.relationsListBox.Location = new System.Drawing.Point(3, 3);
             this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(143, 654);
+            this.relationsListBox.Size = new System.Drawing.Size(143, 628);
             this.relationsListBox.TabIndex = 3;
             this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
             // 
@@ -1477,14 +1509,14 @@
             this.notebook.Location = new System.Drawing.Point(0, 27);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(947, 691);
+            this.notebook.Size = new System.Drawing.Size(938, 675);
             this.notebook.TabIndex = 2;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(947, 719);
+            this.ClientSize = new System.Drawing.Size(938, 703);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1497,7 +1529,7 @@
             this.experimentsTab.ResumeLayout(false);
             this.pageDesign.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
-            this.pageCrop.ResumeLayout(false);
+            this.pageData.ResumeLayout(false);
             this.pageInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
@@ -1526,15 +1558,17 @@
         private System.Windows.Forms.TabPage pageDesign;
         private System.Windows.Forms.DataGridView designData;
         private System.Windows.Forms.TabPage pageOperation;
-        private System.Windows.Forms.TabPage pageCrop;
-        private System.Windows.Forms.TabPage pageSoil;
+        private System.Windows.Forms.TabPage pageData;
         private System.Windows.Forms.TabPage pageProperties;
         private System.Windows.Forms.TabPage pageInfo;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
-        private System.Windows.Forms.CheckedListBox cropTraitsBox;
+        private System.Windows.Forms.CheckedListBox traitsBox;
         private Steema.TeeChart.TChart cropChart;
+        private System.Windows.Forms.ComboBox traitTypeBox;
+        private System.Windows.Forms.Button rightBtn;
+        private System.Windows.Forms.Button leftBtn;
     }
 }
 

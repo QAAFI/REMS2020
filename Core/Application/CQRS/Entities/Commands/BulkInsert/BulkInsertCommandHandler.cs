@@ -87,10 +87,10 @@ namespace Rems.Application.Entities.Commands
                 return new PlotData()
                 {
                     PlotId = Convert.ToInt32(r["Plot"]),
-                    Date = (DateTime?)r["date"],
+                    Date = (DateTime)r["date"],
                     Sample = (string)r["Sample"],
                     TraitId = trait.TraitId,
-                    Value = (double?)r[column],
+                    Value = (double)r[column],
                     UnitId = trait.UnitId
                 };
             }));

@@ -7,12 +7,13 @@ using System.Threading;
 
 using MediatR;
 using Rems.Domain.Entities;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System.Linq;
 
 namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
-    public class MeanTreatmentDataByTraitQueryHandler : IRequestHandler<MeanTreatmentDataByTraitQuery, DataTable>
+    public class MeanTreatmentDataByTraitQueryHandler : IRequestHandler<MeanTreatmentDataByTraitQuery, SeriesData>
     {
         private readonly IRemsDbFactory factory;
 
@@ -21,31 +22,35 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
             factory = _factory;
         }
 
-        public async Task<DataTable> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token)
+        public async Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token)
         {
             var data = factory.Context.PlotData
                 .Where(p => p.Plot.TreatmentId == request.TreatmentId)
                 .Where(p => p.Trait.Name == request.TraitName)
                 .ToArray() // Have to cast to an array to support the following GroupBy
                 .GroupBy(p => p.Date)
-                .OrderBy(g => g.Key);
+                .OrderBy(g => g.Key)
+                .ToArray();
 
-            var table = new DataTable(request.TraitName + " plot data");
-            table.Columns.Add(new DataColumn("Date", typeof(DateTime)));
-            table.Columns.Add(new DataColumn("Value", typeof(double)));
-
-            foreach (var item in data)
+            SeriesData series = new SeriesData()
             {
-                var value = item.Average(p => p.Value);
+                Name = request.TraitName,
+                X = Array.CreateInstance(typeof(DateTime), data.Count()),
+                Y = Array.CreateInstance(typeof(double), data.Count()),
+                XLabel = "Date",
+                YLabel = "Value"
+            };
 
-                var row = table.NewRow();
-                row["Date"] = item.Key;
-                row["Value"] = value;
+            for (int i = 0; i < data.Count(); i++)
+            {
+                var group = data[i];
+                var value = group.Average(p => p.Value);
 
-                table.Rows.Add(row);
+                series.X.SetValue(group.Key, i);
+                series.Y.SetValue(value, i);
             }
 
-            return table;
+            return series;
         }
     }
 }
