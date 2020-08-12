@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Models;
 using Models.Core;
-using Models.Graph;
 
 namespace Rems.Infrastructure
 {
@@ -57,7 +57,6 @@ namespace Rems.Infrastructure
                     MarkerSize = 0,
                     Line = LineType.None,
                     LineThickness = LineThicknessType.Normal,
-                    Checkpoint = "Current",
                     TableName = "PredictedObserved",
                     XFieldName = $"Observed.{variable}",
                     YFieldName = $"Predicted.{variable}",

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-using Models.Soils;
+using Models.WaterModel;
 
 using Rems.Application.Soils.Queries;
 
@@ -8,9 +8,9 @@ namespace Rems.Infrastructure
 {
     public partial class ApsimBuilder
     {
-        public async Task<SoilWater> BuildSoilWater(int soilId)
+        public async Task<WaterBalance> BuildSoilWater(int soilId)
         {
-            return new SoilWater()
+            return new WaterBalance()
             {
                 Name = "SoilWater",
                 Thickness = await _mediator.Send(new SoilLayerThicknessQuery() { SoilId = soilId }),

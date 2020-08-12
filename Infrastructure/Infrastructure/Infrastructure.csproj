@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ApsimX\Models\Models.csproj" />
+    <ProjectReference Include="..\..\..\..\ApsimX\Models\Models.csproj" />
     <ProjectReference Include="..\..\Core\Application\Application.csproj" />
   </ItemGroup>
 

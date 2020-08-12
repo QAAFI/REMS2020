@@ -3,7 +3,6 @@
 using Models;
 using Models.Core;
 using Models.PMF;
-using Models.Report;
 
 using Rems.Application.Queries;
 using Rems.Application.Treatments.Queries;

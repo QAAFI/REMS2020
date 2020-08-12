@@ -1,4 +1,5 @@
 ﻿using Models.Soils;
+using Models.WaterModel;
 
 namespace Rems.Infrastructure.DemoModels
 {
@@ -117,7 +118,7 @@ namespace Rems.Infrastructure.DemoModels
 
             phys.Children.Add(soilCrop);
 
-            var sw = new SoilWater()
+            var sw = new WaterBalance()
             {
                 SummerDate = "1-Nov",
                 SummerU = 6.0,

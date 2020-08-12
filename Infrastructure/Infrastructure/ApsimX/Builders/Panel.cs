@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 
 using Models;
-using Models.Graph;
 
 namespace Rems.Infrastructure
 {
@@ -65,7 +64,6 @@ namespace Rems.Infrastructure
                 Line = 0,
                 LineThickness = LineThicknessType.Normal,
                 FactorToVaryColours = "Graph series",
-                Checkpoint = "Current",
                 TableName = "DailyPredictedObserved",
                 XFieldName = $"Predicted.Date",
                 YFieldName = $"Predicted.{variable}",
@@ -86,7 +84,6 @@ namespace Rems.Infrastructure
                 Line = LineType.None,
                 LineThickness = LineThicknessType.Normal,
                 FactorToVaryColours = "Graph series",
-                Checkpoint = "Current",
                 TableName = "DailyPredictedObserved",
                 XFieldName = $"Observed.Date",
                 YFieldName = $"Observed.{variable}",

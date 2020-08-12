@@ -12,14 +12,14 @@ namespace Rems.Infrastructure
             var excelObserved = new ExcelInput()
             {
                 Name = "Observed",
-                FileName = "Observed.xlsx",
+                FileNames = new string[] { "Observed.xlsx" },
                 SheetNames = new string[] { "Observed" }
             };
 
             var excelDailyObserved = new ExcelInput()
             {
                 Name = "DailyObserved",
-                FileName = "DailyObserved.xlsx",
+                FileNames = new string[] { "DailyObserved.xlsx" },
                 SheetNames = new string[] { "DailyObserved" }
             };
 

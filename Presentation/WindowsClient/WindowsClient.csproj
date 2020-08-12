@@ -231,7 +231,6 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
-    <Compile Include="RemsSeries.cs" />
     <EmbeddedResource Include="Forms\FileSelector.resx">
       <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>

@@ -1,8 +1,7 @@
 ﻿using System.IO;
-
+using Models;
 using Models.Core;
 using Models.PMF;
-using Models.Report;
 
 namespace Rems.Infrastructure
 {
@@ -15,7 +14,7 @@ namespace Rems.Infrastructure
             var sorghumModel = Path.Combine("DataFiles", "apsimx", "Sorghum.json");
             var sorghum = JsonTools.LoadJson<Plant>(sorghumModel);
             replacements.Children.Add(sorghum);
-
+            
             var daily = new Report()
             {
                 Name = "DailyReport",
