@@ -35,12 +35,12 @@ namespace WindowsClient
         {
             Logic = new ClientLogic(provider);
 
-            WindowState = FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized;            
 
             InitializeComponent();
             InitializeControls();
 
-            experimentsTree.AfterSelect += ExperimentNodeChanged;
+            experimentsTree.AfterSelect += OnExperimentNodeChanged;
             traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
 
             EventManager.ItemNotFound += OnEntityNotFound;
@@ -67,7 +67,7 @@ namespace WindowsClient
             Settings.Instance.Save();
             Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
 
-            experimentsTree.NodeMouseClick -= ExperimentNodeChanged;
+            experimentsTree.NodeMouseClick -= OnExperimentNodeChanged;
 
             base.Close();
         }
@@ -309,15 +309,68 @@ namespace WindowsClient
 
         private void OnTraitsBoxIndexChanged(object sender, EventArgs e) => RefreshChart();
 
-        private void ExperimentNodeChanged(object sender, EventArgs e)
+        private void OnExperimentNodeChanged(object sender, EventArgs e)
         {
             RefreshOperationsData();
             RefreshChart();
         }
 
+        private void OnOperationsBoxSelectionChanged(object sender, EventArgs e)
+        {
+            RefreshOperationsData();
+        }
+
         private void RefreshOperationsData()
         {
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return;
 
+            int id;
+            if (node.Tag is TreatmentTag tag) 
+                id = tag.ID;
+            else if (node.Tag is PlotTag)
+                id = ((TreatmentTag)node.Parent.Tag).ID;
+            else return;
+
+            IRequest<SeriesData> query;
+
+            string item = operationsBox.SelectedItem?.ToString();
+            if (item == "Irrigations")
+                query = new IrrigationDataQuery() { TreatmentId = id };
+            else if (item == "Fertilizations")
+                query = new FertilizationDataQuery() { TreatmentId = id };
+            else if (item == "Tillages")
+                query = new TillagesDataQuery() { TreatmentId = id };
+            else
+                return;
+
+            var data = Logic.TryQueryREMS(query);
+
+            operationsChart.Series.Clear();
+            operationsChart.Text = item;
+
+            // Data
+            Bar bar = new Bar();
+            bar.CustomBarWidth = 8;
+            bar.Marks.Visible = false;
+
+            bar.Add(data.X, data.Y);
+
+            // X-Axis
+            bar.XValues.DateTime = true;
+            //operationsChart.Axes.Bottom.Labels.DateTimeFormat = "MMM-dd";
+            //operationsChart.Axes.Bottom.Labels.Angle = 90;
+            operationsChart.Axes.Bottom.Title.Text = data.XLabel;
+            //operationsChart.Axes.Bottom.Ticks.Visible = true;
+
+            // Y-Axis
+            operationsChart.Axes.Left.Title.Text = data.YLabel;
+
+            // Legend            
+            bar.Legend.Visible = false;
+
+
+            operationsChart.Series.Add(bar);
         }
 
         private void RefreshTraitsBox()
@@ -485,10 +538,9 @@ namespace WindowsClient
             if (data.X.GetValue(0) is DateTime)
             {
                 points.XValues.DateTime = true;
-                points.DateTimeFormat = "dd-MM";
-
                 line.XValues.DateTime = true;
-                line.DateTimeFormat = "dd-MM";
+
+                cropChart.Axes.Bottom.Labels.DateTimeFormat = "MMM-dd";
             }
 
             line.Add(data.X, data.Y);
@@ -556,6 +608,7 @@ namespace WindowsClient
 
             RefreshSoilData();
         }
+
 
         #endregion
 

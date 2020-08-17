@@ -1,9 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
 
 using System;
@@ -11,9 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,6 +38,9 @@ namespace Rems.Application.Entities.Commands
             return true;
         }
 
+        /// <summary>
+        /// Adds the given data table to the context
+        /// </summary>
         private void ImportTable(DataTable table)
         {
             // These IF statements are awful code, but my hand has been forced since the data is
@@ -52,7 +50,7 @@ namespace Rems.Application.Entities.Commands
             if (table.TableName == "Notes") return;
             if (table.TableName == "Design") { ImportDesignTable(table); return; }
 
-            // TODO: Refactor these three functions into one ImportDataTable
+            // TODO: Refactor these three functions into one ImportDataTable function
             if (table.TableName == "PlotData") { ImportPlotDataTable(table); return; }
             if (table.TableName == "MetData") { ImportMetDataTable(table); return; }
             if (table.TableName == "SoilLayerData") { ImportSoilLayerDataTable(table); return; }
@@ -60,6 +58,7 @@ namespace Rems.Application.Entities.Commands
             var entity = FindEntity(table.TableName);
             if (entity == null) return;
 
+            // Remove any duplicate rows from the table
             var rows = table.DistinctRows().Select(r => r.ItemArray).ToArray();
             table.Rows.Clear();
             foreach (var row in rows) table.Rows.Add(row);
@@ -68,8 +67,9 @@ namespace Rems.Application.Entities.Commands
             // Sheet names are not a good way of identifying anything.
             if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
                 AddTableWithTreatmentsToContext(entity, table);
+            
             // TODO: Find a better catch for trait tables
-            // This only prevents true negatives, not false positives or false negatives
+            // This only filters true negatives, not false positives or false negatives
             else if (entity.ClrType.GetProperties().Count() < table.Columns.Count)
                 AddTableWithTraitsToContext(entity, table);
             else
@@ -78,22 +78,32 @@ namespace Rems.Application.Entities.Commands
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Searches the context for an entity type by name
+        /// </summary>
         private IEntityType FindEntity(string name)
         {
             var types = context.Model.GetEntityTypes();
+            
+            // Names might not match exactly - look for contains, not equality
             var filtered = types.Where(e => name.Contains(e.ClrType.Name));
 
+            // Assume that if only a single result is returned, that is the matching entity
             if (filtered.Count() == 1) return filtered.Single();
 
             var args = new ItemNotFoundArgs() { Name = name };
 
+            // If there is no match, get a list of the possible types
             if (filtered.Count() == 0)
                 args.Options = types.Select(t => t.ClrType.Name).ToArray();
+            // If there is an exact name match, use that (TODO: This test should probably be run first)
             else if (filtered.FirstOrDefault(t => t.ClrType.Name == name) is IEntityType e)
                 return e;
+            // If there are multiple options left, get a list of those options
             else
                 args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
 
+            // Ask the user to pick an entity type from the list of options
             EventManager.InvokeItemNotFound(null, args);
 
             if (args.Cancelled || args.Selection == "None") return null;
@@ -101,13 +111,18 @@ namespace Rems.Application.Entities.Commands
             return filtered.First(t => t.ClrType.Name == args.Selection);
         }
 
+        /// <summary>
+        /// Import a table, assuming its schema matches the known design table layout
+        /// </summary>
+        /// <param name="table"></param>
         private void ImportDesignTable(DataTable table)
         {
             // This method is hardcoded because I decided it wasn't worth the time
             // to develop a stable general solution for a single badly designed excel table.
             // Apologies to whoever has to fix it when it eventually breaks.
 
-            var eGroup = table.Rows.Cast<DataRow>().GroupBy(row => ConvertDBValue<int>(row[0])); // Group the experiment rows together
+            var eGroup = table.Rows.Cast<DataRow>()
+                .GroupBy(row => ConvertDBValue<int>(row[0])); // Group the experiment rows together
 
             var plots = new List<Plot>();
 
@@ -145,19 +160,27 @@ namespace Rems.Application.Entities.Commands
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Add a row to the context, assuming it is a row belonging to the known 'Design' table
+        /// </summary>
         private void AddDesignRowToContext(DataRow row, int treatmentId)
         {
             var columns = row.Table.Columns;
 
-            for (int i = 4; i < 8; i++)
+            // Assume that every column after the 4th represents a factor, and 
+            // the value in that column is a level belonging to said factor
+            for (int i = 4; i < row.Table.Columns.Count; i++)
             {
                 if (row[i] is DBNull) continue;
 
                 var level = context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
+
+                // If we can't find the level in the context, add it
                 if (level == null)
                 {
                     var factor = context.Factors.FirstOrDefault(f => f.Name == columns[i].ColumnName);
 
+                    // If we can't find the factor in the context, add it
                     if (factor == null)
                     {
                         factor = new Factor()
@@ -177,6 +200,7 @@ namespace Rems.Application.Entities.Commands
                     context.SaveChanges();
                 }
 
+                // Add the design to the context
                 var design = new Design()
                 {
                     TreatmentId = treatmentId,
@@ -187,20 +211,23 @@ namespace Rems.Application.Entities.Commands
             }
         }
 
+        /// <summary>
+        /// Import a table to the context, assuming its schema matches the known PlotData layout
+        /// </summary>
         private void ImportPlotDataTable(DataTable table)
         {
+            // Assume that every column after the 4th is a trait column
             var traits = table.Columns.Cast<DataColumn>()
                 .Skip(4)
                 .Select(c => GetTrait(c.ColumnName, "PlotData"))
                 .ToArray();
 
-            context.SaveChanges();
-
             foreach (DataRow row in table.Rows)
             {
-                // Assume that the first column is the experiment ID and the second column is the plot column
-
+                // Assume that the first column is the experiment ID
                 var id = ConvertDBValue<int>(row[0]);
+
+                //  Assume the second column is the plot column
                 var col = ConvertDBValue<int>(row[1]);
 
                 var plot = context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
@@ -227,8 +254,12 @@ namespace Rems.Application.Entities.Commands
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Import a table to the context, assuming its schema matches the known MetData layout
+        /// </summary>
         private void ImportMetDataTable(DataTable table)
         {
+            // Assume every column after the 2nd is a trait column
             var traits = table.Columns.Cast<DataColumn>()
                 .Skip(2)
                 .Select(c => GetTrait(c.ColumnName, "MetData"))
@@ -236,8 +267,8 @@ namespace Rems.Application.Entities.Commands
 
             foreach (DataRow row in table.Rows)
             {
+                // Look for the station which sourced the data, create one if it isn't found
                 var station = context.MetStations.FirstOrDefault(m => m.Name == row[0].ToString());
-
                 if (station is null)
                 {
                     station = new MetStation() { Name = row[0].ToString() };
@@ -262,8 +293,13 @@ namespace Rems.Application.Entities.Commands
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Add a table to the context, assuming that its schema matches the known soil layer data layout
+        /// </summary>
+        /// <param name="table"></param>
         private void ImportSoilLayerDataTable(DataTable table)
         {
+            // Assume that every column after the 5th is a trait column
             var traits = table.Columns.Cast<DataColumn>()
                 .Skip(5)
                 .Select(c => GetTrait(c.ColumnName, "MetData"))
@@ -298,6 +334,13 @@ namespace Rems.Application.Entities.Commands
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Add a generic table to the context
+        /// </summary>
+        /// <remarks>
+        /// This assumes that the table is 1:1 with a table in the schema. There are tables that this does
+        /// not hold true for, which must be imported using a different method.
+        /// </remarks>
         private void AddTableToContext(IEntityType entity, DataTable data)
         {
             var infos = data.Columns.Cast<DataColumn>()
