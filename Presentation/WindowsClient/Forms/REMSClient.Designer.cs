@@ -42,34 +42,47 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pageExps = new System.Windows.Forms.TabPage();
             this.experimentsTree = new System.Windows.Forms.TreeView();
-            this.experimentsTab = new System.Windows.Forms.TabControl();
-            this.pageSummary = new System.Windows.Forms.TabPage();
-            this.pageDesign = new System.Windows.Forms.TabPage();
-            this.designData = new System.Windows.Forms.DataGridView();
-            this.pageOperation = new System.Windows.Forms.TabPage();
-            this.operationsBox = new System.Windows.Forms.ComboBox();
-            this.operationsChart = new Steema.TeeChart.TChart();
-            this.pageData = new System.Windows.Forms.TabPage();
-            this.rightBtn = new System.Windows.Forms.Button();
-            this.leftBtn = new System.Windows.Forms.Button();
-            this.traitTypeBox = new System.Windows.Forms.ComboBox();
-            this.traitsBox = new System.Windows.Forms.CheckedListBox();
-            this.cropChart = new Steema.TeeChart.TChart();
             this.pageProperties = new System.Windows.Forms.TabPage();
             this.pageInfo = new System.Windows.Forms.TabPage();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
+            this.pageData = new System.Windows.Forms.TabPage();
+            this.traitsBox = new System.Windows.Forms.CheckedListBox();
+            this.traitTypeBox = new System.Windows.Forms.ComboBox();
+            this.pageOperation = new System.Windows.Forms.TabPage();
+            this.operationsBox = new System.Windows.Forms.ComboBox();
+            this.pageSummary = new System.Windows.Forms.TabPage();
+            this.designData = new System.Windows.Forms.DataGridView();
+            this.experimentsTab = new System.Windows.Forms.TabControl();
+            this.notesBox = new System.Windows.Forms.RichTextBox();
+            this.experimentLabel = new System.Windows.Forms.Label();
+            this.operationsChart = new Steema.TeeChart.TChart();
+            this.rightBtn = new System.Windows.Forms.Button();
+            this.leftBtn = new System.Windows.Forms.Button();
+            this.cropChart = new Steema.TeeChart.TChart();
+            this.endBox = new WindowsClient.Controls.LabeledBox();
+            this.startBox = new WindowsClient.Controls.LabeledBox();
+            this.labeledBox1 = new WindowsClient.Controls.LabeledBox();
+            this.fieldBox = new WindowsClient.Controls.LabeledBox();
+            this.cropBox = new WindowsClient.Controls.LabeledBox();
+            this.designBox = new WindowsClient.Controls.LabeledBox();
+            this.replicatesBox = new WindowsClient.Controls.LabeledBox();
+            this.ratingBox = new WindowsClient.Controls.LabeledBox();
+            this.notesLabel = new System.Windows.Forms.Label();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.researchersLabel = new System.Windows.Forms.Label();
+            this.descriptionBox = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.pageExps.SuspendLayout();
-            this.experimentsTab.SuspendLayout();
-            this.pageDesign.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
-            this.pageOperation.SuspendLayout();
-            this.pageData.SuspendLayout();
             this.pageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
+            this.pageData.SuspendLayout();
+            this.pageOperation.SuspendLayout();
+            this.pageSummary.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
+            this.experimentsTab.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -181,52 +194,104 @@
             this.experimentsTree.Size = new System.Drawing.Size(144, 637);
             this.experimentsTree.TabIndex = 2;
             // 
-            // experimentsTab
+            // pageProperties
             // 
-            this.experimentsTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.pageProperties.Location = new System.Drawing.Point(4, 22);
+            this.pageProperties.Name = "pageProperties";
+            this.pageProperties.Padding = new System.Windows.Forms.Padding(3);
+            this.pageProperties.Size = new System.Drawing.Size(930, 649);
+            this.pageProperties.TabIndex = 1;
+            this.pageProperties.Text = "Properties";
+            this.pageProperties.UseVisualStyleBackColor = true;
+            // 
+            // pageInfo
+            // 
+            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
+            this.pageInfo.Controls.Add(this.dataGridView);
+            this.pageInfo.Controls.Add(this.relationsListBox);
+            this.pageInfo.Location = new System.Drawing.Point(4, 22);
+            this.pageInfo.Name = "pageInfo";
+            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.pageInfo.Size = new System.Drawing.Size(930, 649);
+            this.pageInfo.TabIndex = 0;
+            this.pageInfo.Text = "Information";
+            // 
+            // dataGridView
+            // 
+            this.dataGridView.AllowUserToAddRows = false;
+            this.dataGridView.AllowUserToDeleteRows = false;
+            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.experimentsTab.Controls.Add(this.pageSummary);
-            this.experimentsTab.Controls.Add(this.pageDesign);
-            this.experimentsTab.Controls.Add(this.pageOperation);
-            this.experimentsTab.Controls.Add(this.pageData);
-            this.experimentsTab.Location = new System.Drawing.Point(156, 3);
-            this.experimentsTab.Name = "experimentsTab";
-            this.experimentsTab.SelectedIndex = 0;
-            this.experimentsTab.Size = new System.Drawing.Size(771, 640);
-            this.experimentsTab.TabIndex = 1;
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.Location = new System.Drawing.Point(152, 3);
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
+            this.dataGridView.Size = new System.Drawing.Size(775, 638);
+            this.dataGridView.TabIndex = 1;
             // 
-            // pageSummary
+            // relationsListBox
             // 
-            this.pageSummary.Location = new System.Drawing.Point(4, 22);
-            this.pageSummary.Name = "pageSummary";
-            this.pageSummary.Padding = new System.Windows.Forms.Padding(3);
-            this.pageSummary.Size = new System.Drawing.Size(763, 614);
-            this.pageSummary.TabIndex = 7;
-            this.pageSummary.Text = "Summary";
-            this.pageSummary.UseVisualStyleBackColor = true;
+            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.relationsListBox.FormattingEnabled = true;
+            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
+            this.relationsListBox.Name = "relationsListBox";
+            this.relationsListBox.Size = new System.Drawing.Size(143, 628);
+            this.relationsListBox.TabIndex = 3;
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
             // 
-            // pageDesign
+            // notebook
             // 
-            this.pageDesign.Controls.Add(this.designData);
-            this.pageDesign.Location = new System.Drawing.Point(4, 22);
-            this.pageDesign.Name = "pageDesign";
-            this.pageDesign.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDesign.Size = new System.Drawing.Size(763, 614);
-            this.pageDesign.TabIndex = 2;
-            this.pageDesign.Text = "Design";
-            this.pageDesign.UseVisualStyleBackColor = true;
-            // 
-            // designData
-            // 
-            this.designData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.designData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.designData.Location = new System.Drawing.Point(0, 0);
-            this.designData.Name = "designData";
-            this.designData.Size = new System.Drawing.Size(763, 613);
-            this.designData.TabIndex = 0;
+            this.notebook.Controls.Add(this.pageInfo);
+            this.notebook.Controls.Add(this.pageProperties);
+            this.notebook.Controls.Add(this.pageExps);
+            this.notebook.Location = new System.Drawing.Point(0, 27);
+            this.notebook.Name = "notebook";
+            this.notebook.SelectedIndex = 0;
+            this.notebook.Size = new System.Drawing.Size(938, 675);
+            this.notebook.TabIndex = 2;
+            // 
+            // pageData
+            // 
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.rightBtn);
+            this.pageData.Controls.Add(this.leftBtn);
+            this.pageData.Controls.Add(this.traitTypeBox);
+            this.pageData.Controls.Add(this.traitsBox);
+            this.pageData.Controls.Add(this.cropChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(763, 614);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
+            // 
+            // traitsBox
+            // 
+            this.traitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitsBox.CheckOnClick = true;
+            this.traitsBox.FormattingEnabled = true;
+            this.traitsBox.Location = new System.Drawing.Point(614, 32);
+            this.traitsBox.Name = "traitsBox";
+            this.traitsBox.Size = new System.Drawing.Size(143, 574);
+            this.traitsBox.TabIndex = 11;
+            // 
+            // traitTypeBox
+            // 
+            this.traitTypeBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.traitTypeBox.FormattingEnabled = true;
+            this.traitTypeBox.Location = new System.Drawing.Point(614, 6);
+            this.traitTypeBox.Name = "traitTypeBox";
+            this.traitTypeBox.Size = new System.Drawing.Size(143, 21);
+            this.traitTypeBox.TabIndex = 12;
+            this.traitTypeBox.SelectedIndexChanged += new System.EventHandler(this.OnTraitTypeBoxSelectionChanged);
             // 
             // pageOperation
             // 
@@ -253,8 +318,75 @@
             this.operationsBox.Name = "operationsBox";
             this.operationsBox.Size = new System.Drawing.Size(145, 21);
             this.operationsBox.TabIndex = 1;
-            this.operationsBox.SelectedIndex = 0;
             this.operationsBox.SelectedIndexChanged += new System.EventHandler(this.OnOperationsBoxSelectionChanged);
+            // 
+            // pageSummary
+            // 
+            this.pageSummary.BackColor = System.Drawing.Color.LightGray;
+            this.pageSummary.Controls.Add(this.descriptionBox);
+            this.pageSummary.Controls.Add(this.researchersLabel);
+            this.pageSummary.Controls.Add(this.listBox1);
+            this.pageSummary.Controls.Add(this.notesLabel);
+            this.pageSummary.Controls.Add(this.ratingBox);
+            this.pageSummary.Controls.Add(this.replicatesBox);
+            this.pageSummary.Controls.Add(this.endBox);
+            this.pageSummary.Controls.Add(this.startBox);
+            this.pageSummary.Controls.Add(this.labeledBox1);
+            this.pageSummary.Controls.Add(this.fieldBox);
+            this.pageSummary.Controls.Add(this.cropBox);
+            this.pageSummary.Controls.Add(this.designBox);
+            this.pageSummary.Controls.Add(this.experimentLabel);
+            this.pageSummary.Controls.Add(this.notesBox);
+            this.pageSummary.Controls.Add(this.designData);
+            this.pageSummary.Location = new System.Drawing.Point(4, 22);
+            this.pageSummary.Name = "pageSummary";
+            this.pageSummary.Padding = new System.Windows.Forms.Padding(3);
+            this.pageSummary.Size = new System.Drawing.Size(763, 614);
+            this.pageSummary.TabIndex = 7;
+            this.pageSummary.Text = "Summary";
+            // 
+            // designData
+            // 
+            this.designData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.designData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.designData.Location = new System.Drawing.Point(384, 62);
+            this.designData.Name = "designData";
+            this.designData.Size = new System.Drawing.Size(372, 546);
+            this.designData.TabIndex = 0;
+            // 
+            // experimentsTab
+            // 
+            this.experimentsTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.experimentsTab.Controls.Add(this.pageSummary);
+            this.experimentsTab.Controls.Add(this.pageOperation);
+            this.experimentsTab.Controls.Add(this.pageData);
+            this.experimentsTab.Location = new System.Drawing.Point(156, 3);
+            this.experimentsTab.Name = "experimentsTab";
+            this.experimentsTab.SelectedIndex = 0;
+            this.experimentsTab.Size = new System.Drawing.Size(771, 640);
+            this.experimentsTab.TabIndex = 1;
+            // 
+            // notesBox
+            // 
+            this.notesBox.Location = new System.Drawing.Point(195, 305);
+            this.notesBox.Name = "notesBox";
+            this.notesBox.Size = new System.Drawing.Size(183, 303);
+            this.notesBox.TabIndex = 1;
+            this.notesBox.Text = "";
+            // 
+            // experimentLabel
+            // 
+            this.experimentLabel.AutoSize = true;
+            this.experimentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.experimentLabel.Location = new System.Drawing.Point(6, 3);
+            this.experimentLabel.Name = "experimentLabel";
+            this.experimentLabel.Size = new System.Drawing.Size(123, 24);
+            this.experimentLabel.TabIndex = 2;
+            this.experimentLabel.Text = "Experiment:";
             // 
             // operationsChart
             // 
@@ -1420,21 +1552,6 @@
             this.operationsChart.Zoom.Brush.Solid = true;
             this.operationsChart.Zoom.Brush.Visible = true;
             // 
-            // pageData
-            // 
-            this.pageData.BackColor = System.Drawing.Color.LightGray;
-            this.pageData.Controls.Add(this.rightBtn);
-            this.pageData.Controls.Add(this.leftBtn);
-            this.pageData.Controls.Add(this.traitTypeBox);
-            this.pageData.Controls.Add(this.traitsBox);
-            this.pageData.Controls.Add(this.cropChart);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(763, 614);
-            this.pageData.TabIndex = 5;
-            this.pageData.Text = "Data";
-            // 
             // rightBtn
             // 
             this.rightBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -1459,29 +1576,6 @@
             this.leftBtn.UseVisualStyleBackColor = true;
             this.leftBtn.Visible = false;
             this.leftBtn.Click += new System.EventHandler(this.OnLeftBtnClicked);
-            // 
-            // traitTypeBox
-            // 
-            this.traitTypeBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.traitTypeBox.FormattingEnabled = true;
-            this.traitTypeBox.Location = new System.Drawing.Point(614, 6);
-            this.traitTypeBox.Name = "traitTypeBox";
-            this.traitTypeBox.Size = new System.Drawing.Size(143, 21);
-            this.traitTypeBox.TabIndex = 12;
-            this.traitTypeBox.SelectedIndexChanged += new System.EventHandler(this.OnTraitTypeBoxSelectionChanged);
-            // 
-            // traitsBox
-            // 
-            this.traitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitsBox.CheckOnClick = true;
-            this.traitsBox.FormattingEnabled = true;
-            this.traitsBox.Location = new System.Drawing.Point(614, 32);
-            this.traitsBox.Name = "traitsBox";
-            this.traitsBox.Size = new System.Drawing.Size(143, 574);
-            this.traitsBox.TabIndex = 11;
             // 
             // cropChart
             // 
@@ -2638,66 +2732,112 @@
             this.cropChart.Zoom.Brush.Solid = true;
             this.cropChart.Zoom.Brush.Visible = true;
             // 
-            // pageProperties
+            // endBox
             // 
-            this.pageProperties.Location = new System.Drawing.Point(4, 22);
-            this.pageProperties.Name = "pageProperties";
-            this.pageProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.pageProperties.Size = new System.Drawing.Size(930, 649);
-            this.pageProperties.TabIndex = 1;
-            this.pageProperties.Text = "Properties";
-            this.pageProperties.UseVisualStyleBackColor = true;
+            this.endBox.Content = "";
+            this.endBox.Label = "End date:";
+            this.endBox.Location = new System.Drawing.Point(6, 254);
+            this.endBox.Name = "endBox";
+            this.endBox.Size = new System.Drawing.Size(372, 26);
+            this.endBox.TabIndex = 8;
             // 
-            // pageInfo
+            // startBox
             // 
-            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
-            this.pageInfo.Controls.Add(this.dataGridView);
-            this.pageInfo.Controls.Add(this.relationsListBox);
-            this.pageInfo.Location = new System.Drawing.Point(4, 22);
-            this.pageInfo.Name = "pageInfo";
-            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(930, 649);
-            this.pageInfo.TabIndex = 0;
-            this.pageInfo.Text = "Information";
+            this.startBox.Content = "";
+            this.startBox.Label = "Start date:";
+            this.startBox.Location = new System.Drawing.Point(6, 222);
+            this.startBox.Name = "startBox";
+            this.startBox.Size = new System.Drawing.Size(372, 26);
+            this.startBox.TabIndex = 7;
             // 
-            // dataGridView
+            // labeledBox1
             // 
-            this.dataGridView.AllowUserToAddRows = false;
-            this.dataGridView.AllowUserToDeleteRows = false;
-            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(152, 3);
-            this.dataGridView.Name = "dataGridView";
-            this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(775, 638);
-            this.dataGridView.TabIndex = 1;
+            this.labeledBox1.Content = "";
+            this.labeledBox1.Label = "Met Station:";
+            this.labeledBox1.Location = new System.Drawing.Point(6, 126);
+            this.labeledBox1.Name = "labeledBox1";
+            this.labeledBox1.Size = new System.Drawing.Size(372, 26);
+            this.labeledBox1.TabIndex = 6;
             // 
-            // relationsListBox
+            // fieldBox
             // 
-            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.relationsListBox.FormattingEnabled = true;
-            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
-            this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(143, 628);
-            this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
+            this.fieldBox.Content = "";
+            this.fieldBox.Label = "Field:";
+            this.fieldBox.Location = new System.Drawing.Point(6, 94);
+            this.fieldBox.Name = "fieldBox";
+            this.fieldBox.Size = new System.Drawing.Size(372, 26);
+            this.fieldBox.TabIndex = 5;
             // 
-            // notebook
+            // cropBox
             // 
-            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.notebook.Controls.Add(this.pageInfo);
-            this.notebook.Controls.Add(this.pageProperties);
-            this.notebook.Controls.Add(this.pageExps);
-            this.notebook.Location = new System.Drawing.Point(0, 27);
-            this.notebook.Name = "notebook";
-            this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(938, 675);
-            this.notebook.TabIndex = 2;
+            this.cropBox.Content = "";
+            this.cropBox.Label = "Crop:";
+            this.cropBox.Location = new System.Drawing.Point(6, 62);
+            this.cropBox.Name = "cropBox";
+            this.cropBox.Size = new System.Drawing.Size(372, 26);
+            this.cropBox.TabIndex = 4;
+            // 
+            // designBox
+            // 
+            this.designBox.Content = "";
+            this.designBox.Label = "Design:";
+            this.designBox.Location = new System.Drawing.Point(384, 30);
+            this.designBox.Name = "designBox";
+            this.designBox.Size = new System.Drawing.Size(372, 26);
+            this.designBox.TabIndex = 3;
+            // 
+            // replicatesBox
+            // 
+            this.replicatesBox.Content = "";
+            this.replicatesBox.Label = "Replicates:";
+            this.replicatesBox.Location = new System.Drawing.Point(6, 158);
+            this.replicatesBox.Name = "replicatesBox";
+            this.replicatesBox.Size = new System.Drawing.Size(372, 26);
+            this.replicatesBox.TabIndex = 9;
+            // 
+            // ratingBox
+            // 
+            this.ratingBox.Content = "";
+            this.ratingBox.Label = "Rating:";
+            this.ratingBox.Location = new System.Drawing.Point(6, 190);
+            this.ratingBox.Name = "ratingBox";
+            this.ratingBox.Size = new System.Drawing.Size(372, 26);
+            this.ratingBox.TabIndex = 10;
+            // 
+            // notesLabel
+            // 
+            this.notesLabel.AutoSize = true;
+            this.notesLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.notesLabel.Location = new System.Drawing.Point(195, 285);
+            this.notesLabel.Name = "notesLabel";
+            this.notesLabel.Size = new System.Drawing.Size(49, 17);
+            this.notesLabel.TabIndex = 12;
+            this.notesLabel.Text = "Notes:";
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.Location = new System.Drawing.Point(6, 305);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(183, 303);
+            this.listBox1.TabIndex = 13;
+            // 
+            // researchersLabel
+            // 
+            this.researchersLabel.AutoSize = true;
+            this.researchersLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.researchersLabel.Location = new System.Drawing.Point(7, 285);
+            this.researchersLabel.Name = "researchersLabel";
+            this.researchersLabel.Size = new System.Drawing.Size(93, 17);
+            this.researchersLabel.TabIndex = 14;
+            this.researchersLabel.Text = "Researchers:";
+            // 
+            // descriptionBox
+            // 
+            this.descriptionBox.Location = new System.Drawing.Point(6, 30);
+            this.descriptionBox.Name = "descriptionBox";
+            this.descriptionBox.Size = new System.Drawing.Size(372, 20);
+            this.descriptionBox.TabIndex = 15;
             // 
             // REMSClient
             // 
@@ -2713,14 +2853,15 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.pageExps.ResumeLayout(false);
-            this.experimentsTab.ResumeLayout(false);
-            this.pageDesign.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
-            this.pageOperation.ResumeLayout(false);
-            this.pageData.ResumeLayout(false);
             this.pageInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
+            this.pageData.ResumeLayout(false);
+            this.pageOperation.ResumeLayout(false);
+            this.pageSummary.ResumeLayout(false);
+            this.pageSummary.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
+            this.experimentsTab.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2741,24 +2882,37 @@
         private System.Windows.Forms.ToolStripMenuItem menuRecent;
         private System.Windows.Forms.TabPage pageExps;
         private System.Windows.Forms.TreeView experimentsTree;
-        private System.Windows.Forms.TabControl experimentsTab;
-        private System.Windows.Forms.TabPage pageSummary;
-        private System.Windows.Forms.TabPage pageDesign;
-        private System.Windows.Forms.DataGridView designData;
-        private System.Windows.Forms.TabPage pageOperation;
-        private System.Windows.Forms.TabPage pageData;
         private System.Windows.Forms.TabPage pageProperties;
         private System.Windows.Forms.TabPage pageInfo;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
-        private System.Windows.Forms.CheckedListBox traitsBox;
-        private Steema.TeeChart.TChart cropChart;
-        private System.Windows.Forms.ComboBox traitTypeBox;
-        private System.Windows.Forms.Button rightBtn;
-        private System.Windows.Forms.Button leftBtn;
+        private System.Windows.Forms.TabControl experimentsTab;
+        private System.Windows.Forms.TabPage pageSummary;
+        private System.Windows.Forms.DataGridView designData;
+        private System.Windows.Forms.TabPage pageOperation;
         private System.Windows.Forms.ComboBox operationsBox;
         private Steema.TeeChart.TChart operationsChart;
+        private System.Windows.Forms.TabPage pageData;
+        private System.Windows.Forms.Button rightBtn;
+        private System.Windows.Forms.Button leftBtn;
+        private System.Windows.Forms.ComboBox traitTypeBox;
+        private System.Windows.Forms.CheckedListBox traitsBox;
+        private Steema.TeeChart.TChart cropChart;
+        private System.Windows.Forms.RichTextBox notesBox;
+        private System.Windows.Forms.Label experimentLabel;
+        private Controls.LabeledBox endBox;
+        private Controls.LabeledBox startBox;
+        private Controls.LabeledBox labeledBox1;
+        private Controls.LabeledBox fieldBox;
+        private Controls.LabeledBox cropBox;
+        private Controls.LabeledBox designBox;
+        private Controls.LabeledBox replicatesBox;
+        private Controls.LabeledBox ratingBox;
+        private System.Windows.Forms.Label researchersLabel;
+        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Label notesLabel;
+        private System.Windows.Forms.TextBox descriptionBox;
     }
 }
 

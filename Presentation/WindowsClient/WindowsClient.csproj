@@ -205,6 +205,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientLogic.cs" />
+    <Compile Include="Controls\LabeledBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\LabeledBox.Designer.cs">
+      <DependentUpon>LabeledBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FileSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -231,6 +237,9 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\LabeledBox.resx">
+      <DependentUpon>LabeledBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FileSelector.resx">
       <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>

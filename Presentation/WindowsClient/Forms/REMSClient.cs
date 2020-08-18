@@ -33,9 +33,7 @@ namespace WindowsClient
 
         public REMSClient(IServiceProvider provider)
         {
-            Logic = new ClientLogic(provider);
-
-            WindowState = FormWindowState.Maximized;            
+            Logic = new ClientLogic(provider);          
 
             InitializeComponent();
             InitializeControls();
