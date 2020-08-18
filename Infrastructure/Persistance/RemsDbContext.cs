@@ -18,13 +18,11 @@ namespace Rems.Persistence
 
         public IEnumerable<string> Names { get; set; }
 
-        public IEnumerable<IPropertyMap> Mappings { get; set; }
         public RemsDbContext() { }
 
         public RemsDbContext(string filename) 
         {
             FileName = filename;
-            Mappings = Model.GetEntityTypes().Select(e => new PropertyMap(Activator.CreateInstance(e.ClrType)));
             Names = Model.GetEntityTypes().Select(e => e.GetTableName());
         }
 

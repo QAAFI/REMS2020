@@ -23,8 +23,6 @@ namespace Rems.Application.Common.Interfaces
 
         IEnumerable<string> Names { get; set; }
 
-        IEnumerable<IPropertyMap> Mappings { get; set; }
-
         IModel Model { get; }
 
         DbSet<ChemicalApplication> ChemicalApplications { get; set; }

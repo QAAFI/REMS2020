@@ -62,7 +62,6 @@ namespace WindowsClient
 
         protected void Close()
         {
-            Settings.Instance.Save();
             Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
 
             experimentsTree.NodeMouseClick -= OnExperimentNodeChanged;
@@ -116,7 +115,6 @@ namespace WindowsClient
         /// </summary>
         private void MenuSaveClicked(object sender, EventArgs e)
         {
-            Settings.Instance.Save();
             Logic.TryQueryREMS(new SaveDBCommand());
         }
 
