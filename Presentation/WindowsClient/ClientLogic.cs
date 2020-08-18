@@ -16,6 +16,7 @@ using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
 
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
 
 namespace WindowsClient
 {
@@ -149,7 +150,7 @@ namespace WindowsClient
             }
             catch
             {
-                ErrorMessage("That value is currently mapped to another property.", "Invalid name.");
+                MessageBox.Show("That value is currently mapped to another property.", "Invalid name.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ((PropertyControl)sender).Value = Settings.Instance[args.TableName][args.PropertyName];
             }
         }
@@ -181,7 +182,7 @@ namespace WindowsClient
             }
             catch (Exception error)
             {
-                ErrorMessage(error.Message);
+                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -190,6 +191,8 @@ namespace WindowsClient
         {
             Application.UseWaitCursor = true;
             Application.DoEvents();
+
+            List<Exception> errors = new List<Exception>();
 
             try
             {
@@ -201,19 +204,23 @@ namespace WindowsClient
             }
             catch (Exception error)
             {
-                if (message == null) 
-                    ErrorMessage(error.Message);
-                else 
-                    ErrorMessage(message);
-
-                Application.UseWaitCursor = false;
-                return default;
+                while (error.InnerException != null) error = error.InnerException;
+                errors.Add(error);
             }
+
+            var builder = new StringBuilder();
+
+            foreach (var error in errors)
+            {
+                builder.AppendLine(error.Message + "at\n" + error.StackTrace + "\n");
+            }
+
+            MessageBox.Show(builder.ToString(), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            Application.UseWaitCursor = false;
+
+            return default;
         }
 
-        private void ErrorMessage(string message, string caption = "Oops! Something went wrong.")
-        {
-            MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
     }
 }
