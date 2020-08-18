@@ -108,7 +108,7 @@ namespace Rems.Application.Entities.Commands
 
             if (args.Cancelled || args.Selection == "None") return null;
 
-            return filtered.First(t => t.ClrType.Name == args.Selection);
+            return types.First(t => t.ClrType.Name == args.Selection);
         }
 
         /// <summary>
