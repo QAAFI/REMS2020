@@ -29,19 +29,6 @@ namespace WindowsClient
             mediator = provider.GetRequiredService<IMediator>();
         }
 
-        public async Task<bool> TryDataImport(DataSet data)
-        {
-            var command = new BulkInsertCommand()
-            {
-                Data = data
-            };
-
-            if (await TryQueryREMS(command))
-                return true;
-            else
-                return false;
-        }
-
         public async Task<bool> TryDataExport(string file)
         {
             try

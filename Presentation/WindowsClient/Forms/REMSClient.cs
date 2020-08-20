@@ -129,35 +129,57 @@ namespace WindowsClient
             // Logic.TryQueryREMS(new SaveAsDbCommand() { FileName = file });
         }
 
-        /// <summary>
-        /// On click, imports data from the selected file
-        /// </summary>
-        private async void MenuImportClicked(object sender, EventArgs e)
+        #region Import
+
+        private void ImportInformationClicked(object sender, EventArgs e)
         {
-            var selector = new FileSelector();
+            // Even though the import operation is the same, we make a distinction between
+            // information, experiments and data for the users sake 
+            ImportFile();
+        }
 
-            if (selector.ShowDialog() != DialogResult.OK) return;
+        private void ImportExperimentsClicked(object sender, EventArgs e)
+        {
+            // Even though the import operation is the same, we make a distinction between
+            // information, experiments and data for the users sake 
+            ImportFile();
+        }
 
-            if (!await Logic.TryDataImport(selector.InfoTables))
+        private void ImportDataClicked(object sender, EventArgs e)
+        {
+            // Even though the import operation is the same, we make a distinction between
+            // information, experiments and data for the users sake 
+            ImportFile();
+        }
+
+        private async void ImportFile()
+        {
+            using (var open = new OpenFileDialog())
             {
-                MessageBox.Show("Information import failed");
-                return;
-            }
+                open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
-            if (!await Logic.TryDataImport(selector.ExpsTables))
-            {
-                MessageBox.Show("Experiments import failed");
-                return;
-            }
+                if (open.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        var data = ExcelImporter.ReadRawData(open.FileName);
 
-            if (!await Logic.TryDataImport(selector.DataTables))
-            {
-                MessageBox.Show("Data import failed");
-                return;
+                        await Logic.TryQueryREMS(new BulkInsertCommand() { Data = data });
+                    }
+                    catch (IOException error)
+                    {
+                        MessageBox.Show(error.Message);
+                    }
+                    catch (Exception error)
+                    {
+                        MessageBox.Show(error.Message);
+                    }
+                }
             }
+        }
 
-            LoadTabs();
-        }        
+        #endregion
 
         /// <summary>
         /// 
@@ -612,10 +634,10 @@ namespace WindowsClient
         }
 
 
-        #endregion
 
         #endregion
 
+        #endregion
         
     }
 }
