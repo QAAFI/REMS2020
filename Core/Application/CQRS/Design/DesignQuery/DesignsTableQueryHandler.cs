@@ -29,6 +29,8 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 
         private DataTable Handler(DesignsTableQuery request, CancellationToken token)
         {
+            var exp = _context.Experiments.Find(request.ExperimentId);
+
             var table = new DataTable("Designs");
 
             var names = _context.Factors.Select(f => f.Name);
@@ -38,16 +40,12 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 
             table.Columns.AddRange(columns);
 
-            foreach (var id in request.TreatmentIds)
+            foreach (var treatment in exp.Treatments)
             {
                 var row = table.NewRow();
-                var designs = _context.Designs.Where(d => d.TreatmentId == id);
 
-                foreach (var design in designs)
-                {
-                    row[design.Level.Factor.Name] = design.Level.Name;
-                }
-
+                foreach (var design in treatment.Designs) row[design.Level.Factor.Name] = design.Level.Name;
+                
                 table.Rows.Add(row);
             }
 

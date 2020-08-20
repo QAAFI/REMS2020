@@ -248,8 +248,6 @@ namespace WindowsClient
         private void LoadExperimentsTab()
         {
             LoadTreeView();
-            LoadSummaryTab();
-            LoadDesignTab();
             LoadCropTab();
         }
 
@@ -287,32 +285,6 @@ namespace WindowsClient
             experimentsTree.SelectedNode = experimentsTree.TopNode;
             experimentsTree.Refresh();
         }
-        
-        private void LoadSummaryTab()
-        {
-
-        }
-
-        private async void LoadDesignTab()
-        {
-            var node = experimentsTree.SelectedNode;
-            if (node == null) return;
-
-            var query = new DesignsTableQuery();
-
-            if (node.Tag is TreatmentTag treatment)
-            {
-                query.TreatmentIds = new int[1] { treatment.ID };
-            }
-            else if (node.Tag is ExperimentTag experiment)
-            {
-                var tags = node.Nodes.Cast<TreeNode>().Select(n => n.Tag);
-                query.TreatmentIds = tags.Cast<TreatmentTag>().Select(t => t.ID).ToArray();
-            }
-            else return;
-
-            designData.DataSource = await Logic.TryQueryREMS(query);
-        }
 
         private async void LoadCropTab()
         {
@@ -335,6 +307,7 @@ namespace WindowsClient
 
         private void OnExperimentNodeChanged(object sender, EventArgs e)
         {
+            RefreshSummary();
             RefreshOperationsData();
             RefreshChart();
         }
@@ -342,6 +315,45 @@ namespace WindowsClient
         private void OnOperationsBoxSelectionChanged(object sender, EventArgs e)
         {
             RefreshOperationsData();
+        }
+
+        private async void RefreshSummary()
+        {
+            var node = experimentsTree.SelectedNode;
+            if (node is null) return;
+
+            if (node.Tag is ExperimentTag tag)
+            {
+                var query = new ExperimentSummary() { ExperimentId = tag.ID };
+
+                var experiment = await Logic.TryQueryREMS(query);
+
+                descriptionBox.Text = experiment["Description"];
+                designBox.Text = experiment["Design"];
+                cropBox.Content = experiment["Crop"];
+                fieldBox.Content = experiment["Field"];
+                metBox.Content = experiment["Met"];
+                repsBox.Content = experiment["Reps"];
+                ratingBox.Content = experiment["Rating"];
+                startBox.Content = experiment["Start"];
+                endBox.Content = experiment["End"];
+
+                var items = experiment["List"].Split('\n');
+                researchersBox.Items.Clear();
+                researchersBox.Items.AddRange(items);
+
+                notesBox.Text = experiment["Notes"];
+
+                var sowing = await Logic.TryQueryREMS(new SowingSummary() { ExperimentId = tag.ID });
+                sowingMethodBox.Content = sowing["Method"];
+                sowingDateBox.Content = sowing["Date"];
+                sowingDepthBox.Content = sowing["Depth"];
+                sowingRowBox.Content = sowing["Row"];
+                sowingPopBox.Content = sowing["Pop"];
+
+                var design = new DesignsTableQuery() { ExperimentId = tag.ID };
+                designData.DataSource = await Logic.TryQueryREMS(design);
+            }
         }
 
         private async void RefreshOperationsData()
@@ -638,6 +650,5 @@ namespace WindowsClient
         #endregion
 
         #endregion
-        
     }
 }
