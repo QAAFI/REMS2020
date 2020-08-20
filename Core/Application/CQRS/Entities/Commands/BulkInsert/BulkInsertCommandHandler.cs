@@ -89,21 +89,21 @@ namespace Rems.Application.Entities.Commands
         private IEntityType FindEntity(string name)
         {
             var types = _context.Model.GetEntityTypes();
-            
+
+            // If there is an exact name match, use that
+            if (types.FirstOrDefault(t => t.ClrType.Name == name) is IEntityType et) return et;
+
             // Names might not match exactly - look for contains, not equality
             var filtered = types.Where(e => name.Contains(e.ClrType.Name));
 
             // Assume that if only a single result is returned, that is the matching entity
-            if (filtered.Count() == 1) return filtered.Single();
+            if (filtered.Count() == 1) return filtered.Single();            
 
             var args = new ItemNotFoundArgs() { Name = name };
 
             // If there is no match, get a list of the possible types
             if (filtered.Count() == 0)
-                args.Options = types.Select(t => t.ClrType.Name).ToArray();
-            // If there is an exact name match, use that (TODO: This test should probably be run first)
-            else if (filtered.FirstOrDefault(t => t.ClrType.Name == name) is IEntityType e)
-                return e;
+                args.Options = types.Select(t => t.ClrType.Name).ToArray();            
             // If there are multiple options left, get a list of those options
             else
                 args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
@@ -411,10 +411,12 @@ namespace Rems.Application.Entities.Commands
 
         private PropertyInfo GetColumnInfo(IEntityType entity, DataColumn col)
         {
-            if (entity.ClrType.GetProperty(col.ColumnName) is PropertyInfo i && i != null)
+            // Search for a property matching the column name
+            if (entity.ClrType.GetProperty(col.ColumnName) is PropertyInfo i)
             {
                 return i;
             }
+            // Test if the column name matches the entity name
             else if (col.ColumnName == entity.ClrType.Name)
             {
                 // Guess that there is a column/property called Name.

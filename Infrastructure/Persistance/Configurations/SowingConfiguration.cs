@@ -11,26 +11,26 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.SowingId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.SowingId)
                 .HasName("SowingId")
                 .IsUnique();
 
-            builder.Property(e => e.FTN)
-                .HasDefaultValueSql("0");
-
             builder.Property(e => e.Cultivar)
-                .HasMaxLength(30);
-
-            builder.Property(e => e.SkipConfig)
                 .HasMaxLength(30);
 
             builder.Property(e => e.Notes)
                 .HasMaxLength(50);
 
             // Define foreign key constraints
-            builder.HasOne(d => d.Treatment)
+            builder.HasOne(d => d.Method)
+                .WithMany(p => p.Sowings)
+                .HasForeignKey(p => p.MethodId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(d => d.Experiment)
                 .WithOne(p => p.Sowing)
-                .HasForeignKey<Sowing>(p => p.TreatmentId)
+                .HasForeignKey<Sowing>(p => p.ExperimentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

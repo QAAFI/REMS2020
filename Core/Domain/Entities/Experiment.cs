@@ -10,7 +10,6 @@ namespace Rems.Domain.Entities
             ExperimentInfo = new HashSet<ExperimentInfo>();
             ResearcherList = new HashSet<ResearcherList>();
             Treatments = new HashSet<Treatment>();
-            TreatmentProfiles = new HashSet<TreatmentProfile>();
         }
 
         public int ExperimentId { get; set; }
@@ -46,11 +45,10 @@ namespace Rems.Domain.Entities
         public virtual Field Field { get; set; }
         public virtual MetStation MetStation { get; set; }
         public virtual Method Method { get; set; }
+        public virtual Sowing Sowing { get; set; }
 
         public virtual ICollection<ExperimentInfo> ExperimentInfo { get; set; }
         public virtual ICollection<ResearcherList> ResearcherList { get; set; }
         public virtual ICollection<Treatment> Treatments { get; set; }
-        public virtual ICollection<TreatmentProfile> TreatmentProfiles { get; set; }
-        public virtual ICollection<TreatmentView> TreatmentViews { get; set; }
     }
 }

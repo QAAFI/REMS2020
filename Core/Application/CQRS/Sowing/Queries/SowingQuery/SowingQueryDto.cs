@@ -31,8 +31,7 @@ namespace Rems.Application.Queries
                 .ForMember(d => d.Depth, opts => opts.MapFrom(s => s.Depth))
                 .ForMember(d => d.Cultivar, opts => opts.MapFrom(s => s.Cultivar))
                 .ForMember(d => d.RowSpacing, opts => opts.MapFrom(s => s.RowSpace))
-                .ForMember(d => d.RowConfiguration, opts => opts.MapFrom(s => "solid"))
-                .ForMember(d => d.Ftn, opts => opts.MapFrom(s => s.FTN));
+                .ForMember(d => d.RowConfiguration, opts => opts.MapFrom(s => "solid"));
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Rems.Domain.Entities
         public string Notes { get; set; }
 
 
-        public virtual Method IrrigationMethod { get; set; }
+        public virtual Method Method { get; set; }
         public virtual Treatment Treatment { get; set; }
         public virtual ICollection<IrrigationInfo> IrrigationInfo { get; set; }
 

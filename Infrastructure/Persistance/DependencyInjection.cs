@@ -15,18 +15,16 @@ namespace Rems.Persistence
             return services;
         }
 
-
-
-        public static IServiceCollection AddWebPersistence(this IServiceCollection services)
-        {
+        //public static IServiceCollection AddWebPersistence(this IServiceCollection services)
+        //{
             
-            services.AddDbContext<RemsDbContext>(options =>
-            options.UseSqlite("Data Source=Data\\Database.db"));//  $"Data Source={file};");
-            services.AddScoped<IRemsDbContext>(provider => provider.GetService<RemsDbContext>());
+        //    services.AddDbContext<RemsDbContext>(options =>
+        //    options.UseSqlite("Data Source=Data\\Database.db"));//  $"Data Source={file};");
+        //    services.AddScoped<IRemsDbContext>(provider => provider.GetService<RemsDbContext>());
 
-            services.AddScoped<IRemsDbFactory, RemsDbFactory>();// (provider => new RemsDbFactory() { FileName = "Data\\Database.db" });
+        //    services.AddScoped<IRemsDbFactory, RemsDbFactory>();// (provider => new RemsDbFactory() { FileName = "Data\\Database.db" });
 
-            return services;
-        }
+        //    return services;
+        //}
     }
 }

@@ -89,6 +89,9 @@ namespace WindowsClient
                 if (save.ShowDialog() == DialogResult.OK)
                 {
                     await Logic.TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
+                    await Logic.TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
+
+                    LoadListView();
                 }
             }
         }
