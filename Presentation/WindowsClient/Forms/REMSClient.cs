@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using MediatR;
@@ -60,9 +61,9 @@ namespace WindowsClient
             pageProperties.AutoScroll = true;
         }
 
-        protected void Close()
+        protected new async void Close()
         {
-            Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
+            await Logic.TryQueryREMS(new CloseDBCommand(), "The database did not close correctly.");
 
             experimentsTree.NodeMouseClick -= OnExperimentNodeChanged;
 
@@ -76,7 +77,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to create a new blank database
         /// </summary>
-        private void MenuNewClicked(object sender, EventArgs e)
+        private async void MenuNewClicked(object sender, EventArgs e)
         {
             using (var save = new SaveFileDialog())
             {
@@ -87,7 +88,7 @@ namespace WindowsClient
 
                 if (save.ShowDialog() == DialogResult.OK)
                 {
-                    Logic.TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
+                    await Logic.TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
                 }
             }
         }
@@ -95,7 +96,7 @@ namespace WindowsClient
         /// <summary>
         /// On click, prompt the user to open an existing database
         /// </summary>
-        private void MenuOpenClicked(object sender, EventArgs e)
+        private async void MenuOpenClicked(object sender, EventArgs e)
         {
             using (var open = new OpenFileDialog())
             {
@@ -104,7 +105,7 @@ namespace WindowsClient
 
                 if (open.ShowDialog() == DialogResult.OK)
                 {
-                    Logic.TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
+                    await Logic.TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
                     LoadTabs();
                 }
             }
@@ -113,9 +114,9 @@ namespace WindowsClient
         /// <summary>
         /// On click, saves changes made to the database
         /// </summary>
-        private void MenuSaveClicked(object sender, EventArgs e)
+        private async void MenuSaveClicked(object sender, EventArgs e)
         {
-            Logic.TryQueryREMS(new SaveDBCommand());
+            await Logic.TryQueryREMS(new SaveDBCommand());
         }
 
         private void MenuSaveAsClicked(object sender, EventArgs e)
@@ -128,42 +129,44 @@ namespace WindowsClient
         /// <summary>
         /// On click, imports data from the selected file
         /// </summary>
-        private void MenuImportClicked(object sender, EventArgs e)
+        private async void MenuImportClicked(object sender, EventArgs e)
         {
             var selector = new FileSelector();
 
             if (selector.ShowDialog() != DialogResult.OK) return;
 
-            if (!Logic.TryDataImport(selector.InfoTables))
+            if (!await Logic.TryDataImport(selector.InfoTables))
             {
                 MessageBox.Show("Information import failed");
                 return;
             }
 
-            if (!Logic.TryDataImport(selector.ExpsTables))
+            if (!await Logic.TryDataImport(selector.ExpsTables))
             {
                 MessageBox.Show("Experiments import failed");
                 return;
             }
 
-            if (!Logic.TryDataImport(selector.DataTables))
+            if (!await Logic.TryDataImport(selector.DataTables))
             {
                 MessageBox.Show("Data import failed");
                 return;
             }
+
+            LoadTabs();
         }        
 
         /// <summary>
         /// 
         /// </summary>
-        private void MenuExportClicked(object sender, EventArgs e)
+        private async void MenuExportClicked(object sender, EventArgs e)
         {
             using (var save = new SaveFileDialog())
             {
                 save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
-                if (save.ShowDialog() == DialogResult.OK) Logic.TryDataExport(save.FileName).Wait();
+                if (save.ShowDialog() == DialogResult.OK) await Logic.TryDataExport(save.FileName);
             }
         }
 
@@ -180,16 +183,16 @@ namespace WindowsClient
 
         #region Information
 
-        private void OnRelationsIndexChanged(object sender, EventArgs e)
+        private async void OnRelationsIndexChanged(object sender, EventArgs e)
         {
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
-            dataGridView.DataSource = Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
+            dataGridView.DataSource = await Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
         }
 
-        private void LoadListView()
+        private async void LoadListView()
         {
-            var items = Logic.TryQueryREMS(new GetTableListQuery());
+            var items = await Logic.TryQueryREMS(new GetTableListQuery());
 
             relationsListBox.Items.Clear();
             relationsListBox.Items.AddRange(items.ToArray());
@@ -228,17 +231,17 @@ namespace WindowsClient
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        private void LoadTreeView()
+        private async void LoadTreeView()
         {
             experimentsTree.Nodes.Clear();
 
-            var exps = Logic.TryQueryREMS(new ExperimentsQuery());
+            var exps = await Logic.TryQueryREMS(new ExperimentsQuery());
 
             foreach (var exp in exps)
             {
                 TreeNode eNode = new TreeNode(exp.Value) { Tag = new ExperimentTag() { ID = exp.Key } };
 
-                var treatments = Logic.TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
+                var treatments = await Logic.TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
 
                 foreach (var treatment in treatments)
                 {
@@ -248,7 +251,7 @@ namespace WindowsClient
                     };
                     tNode.Nodes.Add(new TreeNode("Mean") { Tag = treatment.Key });
 
-                    var plots = Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
+                    var plots = await Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
 
                     tNode.Nodes.AddRange(plots.Select(p => new TreeNode(p.Value) { Tag = new PlotTag() { ID = p.Key } }).ToArray()) ;
                     eNode.Nodes.Add(tNode);
@@ -265,7 +268,7 @@ namespace WindowsClient
 
         }
 
-        private void LoadDesignTab()
+        private async void LoadDesignTab()
         {
             var node = experimentsTree.SelectedNode;
             if (node == null) return;
@@ -283,22 +286,22 @@ namespace WindowsClient
             }
             else return;
 
-            designData.DataSource = Logic.TryQueryREMS(query);
+            designData.DataSource = await Logic.TryQueryREMS(query);
         }
 
-        private void LoadCropTab()
+        private async void LoadCropTab()
         {
             // Load the trait type box
             traitTypeBox.Items.Clear();
-            var types = Logic.TryQueryREMS(new TraitTypesQuery());
+            var types = await Logic.TryQueryREMS(new TraitTypesQuery());
+
+            if (types.Length == 0) return;
+
             traitTypeBox.Items.AddRange(types);
             traitTypeBox.SelectedIndex = 0;
 
             // Load the traits box
             RefreshTraitsBox();
-
-            // Select a node
-            experimentsTree.SelectedNode = experimentsTree.Nodes[0];
         }
 
         private void OnTraitTypeBoxSelectionChanged(object sender, EventArgs e) => RefreshTraitsBox();
@@ -316,7 +319,7 @@ namespace WindowsClient
             RefreshOperationsData();
         }
 
-        private void RefreshOperationsData()
+        private async void RefreshOperationsData()
         {
             var node = experimentsTree.SelectedNode;
             if (node is null) return;
@@ -340,7 +343,7 @@ namespace WindowsClient
             else
                 return;
 
-            var data = Logic.TryQueryREMS(query);
+            var data = await Logic.TryQueryREMS(query);
 
             operationsChart.Series.Clear();
             operationsChart.Text = item;
@@ -369,10 +372,10 @@ namespace WindowsClient
             operationsChart.Series.Add(bar);
         }
 
-        private void RefreshTraitsBox()
+        private async void RefreshTraitsBox()
         {
             traitsBox.Items.Clear();
-            var traits = Logic.TryQueryREMS(new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() });
+            var traits = await Logic.TryQueryREMS(new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() });
             traitsBox.Items.AddRange(traits);
             traitsBox.Refresh();
         }
@@ -386,7 +389,7 @@ namespace WindowsClient
             if (traitTypeBox.Text == "SoilLayer") RefreshSoilControl();
         }
 
-        private void RefreshCropData()
+        private async void RefreshCropData()
         {
             cropChart.Axes.Custom.Clear();
             cropChart.Series.Clear();
@@ -408,7 +411,7 @@ namespace WindowsClient
 
             foreach (string trait in traitsBox.CheckedItems)
             {
-                var bounds = Logic.TryQueryREMS(new PlotDataTraitBoundsQuery() { TraitName = trait });
+                var bounds = await Logic.TryQueryREMS(new PlotDataTraitBoundsQuery() { TraitName = trait });
 
                 if (bounds.YMin < y.Minimum) y.Minimum = bounds.YMin - bounds.YMin / 10;
                 if (bounds.YMax > y.Maximum) y.Maximum = bounds.YMax + bounds.YMax / 10;
@@ -428,14 +431,16 @@ namespace WindowsClient
                         {
                             query.PlotId = tag.ID;
 
-                            PlotSingleData(query, y);
+                            var data = await Logic.TryQueryREMS(query);
+                            PlotSingleData(data, y);
                         }
                     }
                 }
                 else if (node.Tag is PlotTag plot)
                 {
                     query.PlotId = plot.ID;
-                    PlotSingleData(query, y);
+                    var data = await Logic.TryQueryREMS(query);
+                    PlotSingleData(data, y);
                 }
                 else if (node.Text == "Mean")
                 {
@@ -444,14 +449,14 @@ namespace WindowsClient
                         TraitName = trait,
                         TreatmentId = (int)node.Tag
                     };
-
-                    PlotSingleData(mean, y);
+                    var data = await Logic.TryQueryREMS(mean);
+                    PlotSingleData(data, y);
                 }
             }
             
         }
 
-        private void RefreshSoilData()
+        private async void RefreshSoilData()
         {
             cropChart.Axes.Custom.Clear();
             cropChart.Series.Clear();
@@ -489,14 +494,16 @@ namespace WindowsClient
                         {
                             query.PlotId = tag.ID;
 
-                            PlotSingleData(query, y);
+                            var data = await Logic.TryQueryREMS(query);
+                            PlotSingleData(data, y);
                         }
                     }
                 }
                 else if (node.Tag is PlotTag plot)
                 {
                     query.PlotId = plot.ID;
-                    PlotSingleData(query, y);
+                    var data = await Logic.TryQueryREMS(query);
+                    PlotSingleData(data, y);
                 }
                 else if (node.Text == "Mean")
                 {
@@ -514,10 +521,8 @@ namespace WindowsClient
         /// <summary>
         /// Plot a single set of data
         /// </summary>
-        private void PlotSingleData(IRequest<SeriesData> query, Axis YAxis)
+        private void PlotSingleData(SeriesData data, Axis YAxis)
         {
-            var data = Logic.TryQueryREMS(query);
-
             if (data is null) return;
             if (data.X.Length == 0) return;
             
@@ -549,25 +554,23 @@ namespace WindowsClient
         }
 
         
-        private void RefreshSoilControl()
+        private async void RefreshSoilControl()
         {
-            if (!RefreshSoilDataDates()) return;
+            if (!(await RefreshSoilDataDates())) return;
 
             leftBtn.Visible = true;
             rightBtn.Visible = true;
             
             RefreshSoilData();            
         }
-
         
 
         private DateTime[] dates;
         private int index = 0;
-        private bool RefreshSoilDataDates()
+        private async Task<bool> RefreshSoilDataDates()
         {
             var node = experimentsTree.SelectedNode;
             if (node is null) return false;
-
 
             if (node.Tag is ExperimentTag)
             {
@@ -575,12 +578,12 @@ namespace WindowsClient
             }
             else if (node.Tag is TreatmentTag tag)
             {
-                dates = Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = tag.ID });
+                dates = await Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = tag.ID });
             }
             else
             {
                 int id = ((TreatmentTag)node.Parent.Tag).ID;
-                dates = Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = id });
+                dates = await Logic.TryQueryREMS(new SoilLayerDatesQuery() { TreatmentId = id });
             }
             index = 0;
 

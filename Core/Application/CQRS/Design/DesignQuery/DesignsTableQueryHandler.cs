@@ -15,28 +15,33 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class DesignsTableQueryHandler : IRequestHandler<DesignsTableQuery, DataTable>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public DesignsTableQueryHandler(IRemsDbFactory _factory)
+        public DesignsTableQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token)
+        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token)
+        {
+            return Task.Run(() => Handler(request, token));            
+        }
+
+        private DataTable Handler(DesignsTableQuery request, CancellationToken token)
         {
             var table = new DataTable("Designs");
 
-            var names = factory.Context.Factors.Select(f => f.Name);
+            var names = _context.Factors.Select(f => f.Name);
             var type = "".GetType();
 
-            var columns = names.Select(n => new DataColumn(n, type)).ToArray();           
+            var columns = names.Select(n => new DataColumn(n, type)).ToArray();
 
             table.Columns.AddRange(columns);
 
             foreach (var id in request.TreatmentIds)
             {
                 var row = table.NewRow();
-                var designs = factory.Context.Designs.Where(d => d.TreatmentId == id);
+                var designs = _context.Designs.Where(d => d.TreatmentId == id);
 
                 foreach (var design in designs)
                 {

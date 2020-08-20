@@ -29,14 +29,14 @@ namespace WindowsClient
             mediator = provider.GetRequiredService<IMediator>();
         }
 
-        public bool TryDataImport(DataSet data)
+        public async Task<bool> TryDataImport(DataSet data)
         {
             var command = new BulkInsertCommand()
             {
                 Data = data
             };
 
-            if (TryQueryREMS(command))
+            if (await TryQueryREMS(command))
                 return true;
             else
                 return false;
@@ -60,20 +60,19 @@ namespace WindowsClient
             }
         }
 
-        public T TryQueryREMS<T>(IRequest<T> request, string message = null)
+        public async Task<T> TryQueryREMS<T>(IRequest<T> request, string message = null)
         {
             Application.UseWaitCursor = true;
-            Application.DoEvents();
+            //Application.DoEvents();
 
             List<Exception> errors = new List<Exception>();
 
             try
             {
-                var task = mediator.Send(request);
-                task.Wait();
-
+                var task = mediator.Send(request);                
+                
                 Application.UseWaitCursor = false;
-                return task.Result;
+                return await task;
             }
             catch (Exception error)
             {
@@ -92,7 +91,7 @@ namespace WindowsClient
 
             Application.UseWaitCursor = false;
 
-            return default;
+            return await Task.Run(() => default(T));
         }
 
     }

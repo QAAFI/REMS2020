@@ -13,19 +13,23 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class PlotsQueryHandler : IRequestHandler<PlotsQuery, IEnumerable<KeyValuePair<int, string>>>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public PlotsQueryHandler(IRemsDbFactory _factory)
+        public PlotsQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<IEnumerable<KeyValuePair<int, string>>> Handle(PlotsQuery request, CancellationToken token)
+        public Task<IEnumerable<KeyValuePair<int, string>>> Handle(PlotsQuery request, CancellationToken token)
         {
-            return factory.Context.Plots
+            return Task.Run(() =>
+            {
+                return _context.Plots
                 .Where(p => p.TreatmentId == request.TreatmentId)
                 .OrderBy(p => p.Repetition)
-                .Select(p => new KeyValuePair<int, string>(p.PlotId, p.Repetition.ToString()));
+                .Select(p => new KeyValuePair<int, string>(p.PlotId, p.Repetition.ToString()))
+                .AsEnumerable();
+            });
         }
     }
 }

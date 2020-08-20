@@ -14,18 +14,18 @@ namespace Rems.Application.Experiments.Queries.GetExperimentDetail
 {
     public class GetExperimentDetailQueryHandler : IRequestHandler<GetExperimentDetailQuery, ExperimentDetailVm>
     {
-        private readonly IRemsDbFactory _factory;
+        private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public GetExperimentDetailQueryHandler(IRemsDbFactory factory, IMapper mapper)
+        public GetExperimentDetailQueryHandler(IRemsDbContext context, IMapper mapper)
         {
-            _factory = factory;
+            _context = context;
             _mapper = mapper;
         }
 
         public async Task<ExperimentDetailVm> Handle(GetExperimentDetailQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _factory.Context.Experiments
+            var entity = await _context.Experiments
                 .Include(i => i.Treatments)
                 .ThenInclude(t=>t.Designs)
                 .ThenInclude(d=>d.Level)

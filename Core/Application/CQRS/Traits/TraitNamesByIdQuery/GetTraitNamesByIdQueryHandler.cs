@@ -10,25 +10,29 @@ namespace Rems.Application.Tables.Queries
 {
     public class GetTraitByIdQueryHandler : IRequestHandler<GetTraitNamesByIdQuery, string[]>
     {
-        private readonly IRemsDbFactory _factory;
+        private readonly IRemsDbContext _context;
 
-        public GetTraitByIdQueryHandler(IRemsDbFactory factory)
+        public GetTraitByIdQueryHandler(IRemsDbContext context)
         {
-            _factory = factory;
+            _context = context;
         }
 
-        public async Task<string[]> Handle(GetTraitNamesByIdQuery request, CancellationToken cancellationToken)
+        public Task<string[]> Handle(GetTraitNamesByIdQuery request, CancellationToken token)
         {
-            if (_factory.Context == null) return null;
+            return Task.Run(() => Handler(request, token));
+        }
 
-            var query = _factory.Context.Query(request.TraitIds);
+        private string[] Handler(GetTraitNamesByIdQuery request, CancellationToken token)
+        {
+            var query = _context.Query(request.TraitIds);
+
             var ids = query.Cast<ITrait>().Select(t => t.TraitId).Distinct();
 
-            var names = _factory.Context.Traits.Where(t => ids.Contains(t.TraitId)).Select(t => t.Name);
-            return names.ToArray();
-            //var traits = request.TraitIds.Select(id => _factory.Context.Traits.First(t => t.TraitId == id));
+            var names = _context.Traits
+                .Where(t => ids.Contains(t.TraitId))
+                .Select(t => t.Name);
 
-            //return traits.Select(t => t.Name).ToArray();
+            return names.ToArray();
         }
     }
 

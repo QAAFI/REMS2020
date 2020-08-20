@@ -12,18 +12,23 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class FertilizationDataQueryHandler : IRequestHandler<FertilizationDataQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public FertilizationDataQueryHandler(IRemsDbFactory _factory)
+        public FertilizationDataQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(FertilizationDataQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(FertilizationDataQuery request, CancellationToken token)
         {
-            var fertilizations = factory.Context.Fertilizations
-                .Where(i => i.TreatmentId == request.TreatmentId)                
-                .ToArray();
+            return Task.Run(() => Handler(request, token));
+        }
+
+        private SeriesData Handler(FertilizationDataQuery request, CancellationToken token)
+        {
+            var fertilizations = _context.Fertilizations
+                 .Where(i => i.TreatmentId == request.TreatmentId)
+                 .ToArray();
 
             var data = new SeriesData()
             {

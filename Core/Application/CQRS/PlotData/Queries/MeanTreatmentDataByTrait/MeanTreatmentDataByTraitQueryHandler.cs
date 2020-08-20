@@ -15,16 +15,21 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class MeanTreatmentDataByTraitQueryHandler : IRequestHandler<MeanTreatmentDataByTraitQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public MeanTreatmentDataByTraitQueryHandler(IRemsDbFactory _factory)
+        public MeanTreatmentDataByTraitQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token)
         {
-            var data = factory.Context.PlotData
+           return Task.Run(() => Handler(request, token));
+        }
+
+        private SeriesData Handler(MeanTreatmentDataByTraitQuery request, CancellationToken token)
+        {
+            var data = _context.PlotData
                 .Where(p => p.Plot.TreatmentId == request.TreatmentId)
                 .Where(p => p.Trait.Name == request.TraitName)
                 .ToArray() // Have to cast to an array to support the following GroupBy

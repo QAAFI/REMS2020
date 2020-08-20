@@ -16,26 +16,31 @@ namespace Rems.Application.Entities.Commands
 {
     public class BulkInsertCommandHandler : IRequestHandler<BulkInsertCommand, bool>
     {
-        private readonly IRemsDbFactory _factory;
-        private readonly IRemsDbContext context;
+        private readonly IRemsDbContext _context;
 
-        public BulkInsertCommandHandler(IRemsDbFactory factory)
+        private CancellationToken _token;
+
+        public BulkInsertCommandHandler(IRemsDbContext context)
         {
-            _factory = factory;
-            context = _factory.Context;
+            _context = context;
         }
 
-        public async Task<bool> Handle(BulkInsertCommand request, CancellationToken token)
+        public Task<bool> Handle(BulkInsertCommand request, CancellationToken token)
         {
+            _token = token;
+
             // TODO: This handler has grown larger than originally planned, structurally
             // it might be better to try reorganise some of the methods into other classes
-
-            foreach (DataTable table in request.Data.Tables)
+            return Task.Run(() =>
             {
-                if (table.Rows.Count == 0) continue;
-                ImportTable(table);
-            }
-            return true;
+                foreach (DataTable table in request.Data.Tables)
+                {
+                    if (table.Rows.Count == 0) continue;
+                    ImportTable(table);
+                }
+
+                return true;
+            });
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace Rems.Application.Entities.Commands
             else
                 AddTableToContext(entity, table);
 
-            context.SaveChanges();
+            _context.SaveChangesAsync(_token);
         }
 
         /// <summary>
@@ -83,7 +88,7 @@ namespace Rems.Application.Entities.Commands
         /// </summary>
         private IEntityType FindEntity(string name)
         {
-            var types = context.Model.GetEntityTypes();
+            var types = _context.Model.GetEntityTypes();
             
             // Names might not match exactly - look for contains, not equality
             var filtered = types.Where(e => name.Contains(e.ClrType.Name));
@@ -138,8 +143,8 @@ namespace Rems.Application.Entities.Commands
                         Name = t.Key
                     };
 
-                    context.Add(treatment);
-                    context.SaveChanges();
+                    _context.Add(treatment);
+                    _context.SaveChanges();
 
                     AddDesignRowToContext(t.First(), treatment.TreatmentId);
 
@@ -156,8 +161,8 @@ namespace Rems.Application.Entities.Commands
                 }
             }
 
-            context.AddRange(plots.ToArray());
-            context.SaveChanges();
+            _context.AddRange(plots.ToArray());
+            _context.SaveChangesAsync(_token);
         }
 
         /// <summary>
@@ -173,12 +178,12 @@ namespace Rems.Application.Entities.Commands
             {
                 if (row[i] is DBNull) continue;
 
-                var level = context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
+                var level = _context.Levels.FirstOrDefault(l => l.Name == row[i].ToString());
 
                 // If we can't find the level in the context, add it
                 if (level == null)
                 {
-                    var factor = context.Factors.FirstOrDefault(f => f.Name == columns[i].ColumnName);
+                    var factor = _context.Factors.FirstOrDefault(f => f.Name == columns[i].ColumnName);
 
                     // If we can't find the factor in the context, add it
                     if (factor == null)
@@ -187,8 +192,8 @@ namespace Rems.Application.Entities.Commands
                         {
                             Name = columns[i].ColumnName
                         };
-                        context.Add(factor);
-                        context.SaveChanges();
+                        _context.Add(factor);
+                        _context.SaveChangesAsync(_token);
                     }
 
                     level = new Level()
@@ -196,8 +201,8 @@ namespace Rems.Application.Entities.Commands
                         Name = row[i].ToString(),
                         FactorId = factor.FactorId
                     };
-                    context.Add(level);
-                    context.SaveChanges();
+                    _context.Add(level);
+                    _context.SaveChangesAsync(_token);
                 }
 
                 // Add the design to the context
@@ -206,8 +211,8 @@ namespace Rems.Application.Entities.Commands
                     TreatmentId = treatmentId,
                     LevelId = level.LevelId
                 };
-                context.Add(design);
-                context.SaveChanges();
+                _context.Add(design);
+                _context.SaveChangesAsync(_token);
             }
         }
 
@@ -230,7 +235,7 @@ namespace Rems.Application.Entities.Commands
                 //  Assume the second column is the plot column
                 var col = ConvertDBValue<int>(row[1]);
 
-                var plot = context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
+                var plot = _context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
 
                 // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
                 if (plot == null) continue;
@@ -248,10 +253,10 @@ namespace Rems.Application.Entities.Commands
                         Value = ConvertDBValue<double>(row[i]),
                         UnitId = traits[i - 4].UnitId
                     };
-                    context.Add(data);
+                    _context.Add(data);
                 }                
             }
-            context.SaveChanges();
+            _context.SaveChangesAsync(_token);
         }
 
         /// <summary>
@@ -268,12 +273,12 @@ namespace Rems.Application.Entities.Commands
             foreach (DataRow row in table.Rows)
             {
                 // Look for the station which sourced the data, create one if it isn't found
-                var station = context.MetStations.FirstOrDefault(m => m.Name == row[0].ToString());
+                var station = _context.MetStations.FirstOrDefault(m => m.Name == row[0].ToString());
                 if (station is null)
                 {
                     station = new MetStation() { Name = row[0].ToString() };
-                    context.Add(station);
-                    context.SaveChanges();
+                    _context.Add(station);
+                    _context.SaveChangesAsync(_token);
                 }
 
                 for (int i = 2; i < table.Columns.Count; i++)
@@ -287,10 +292,10 @@ namespace Rems.Application.Entities.Commands
                         Date = ConvertDBValue<DateTime>(row[1]),
                         Value = ConvertDBValue<double>(row[i])
                     };
-                    context.Add(data);
+                    _context.Add(data);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChangesAsync(_token);
         }
 
         /// <summary>
@@ -310,7 +315,7 @@ namespace Rems.Application.Entities.Commands
                 var id = ConvertDBValue<int>(row[0]);
                 var col = ConvertDBValue<int>(row[1]);
 
-                var plot = context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
+                var plot = _context.Plots.FirstOrDefault(p => p.Treatment.ExperimentId == id && p.Column == col);
 
                 // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
                 if (plot == null) continue;
@@ -328,10 +333,10 @@ namespace Rems.Application.Entities.Commands
                         DepthTo = ConvertDBValue<int>(row[4]),
                         Value = ConvertDBValue<double>(row[i])
                     };
-                    context.Add(data);
+                    _context.Add(data);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChangesAsync(_token);
         }
 
         /// <summary>
@@ -386,14 +391,14 @@ namespace Rems.Application.Entities.Commands
 
                 if (name == "ALL" || name == "All" || name == "all") // Blame the spreadsheet, I don't like it either
                 {
-                    var treatments = context.Treatments.Where(t => t.ExperimentId == id);
+                    var treatments = _context.Treatments.Where(t => t.ExperimentId == id);
 
                     foreach(var treatment in treatments)
                         AddTreatmentDataRowToContext(row, entity.ClrType, infos, treatment.TreatmentId);
                 }
                 else
                 {
-                    var treatment = context.Treatments.FirstOrDefault(t => t.ExperimentId == id && t.Name == name);
+                    var treatment = _context.Treatments.FirstOrDefault(t => t.ExperimentId == id && t.Name == name);
 
                     // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
                     if (treatment == null) continue;
@@ -459,7 +464,7 @@ namespace Rems.Application.Entities.Commands
                 SetEntityValue(entity, row[info.Name], info);     
             }
 
-            context.Add(entity);
+            _context.Add(entity);
         }
 
         private void AddTraitDataRowToContext(
@@ -472,7 +477,7 @@ namespace Rems.Application.Entities.Commands
         )
         {
             IEntity result = Activator.CreateInstance(type) as IEntity;
-            context.Add(result);            
+            _context.Add(result);            
 
             foreach (DataColumn col in cols)
             {
@@ -490,11 +495,11 @@ namespace Rems.Application.Entities.Commands
                 Trait trait = GetTrait(col.ColumnName, type.Name);
 
                 var entity = Activator.CreateInstance(foreignInfo.DeclaringType) as IEntity;
-                context.Add(entity);
+                _context.Add(entity);
                 SetEntityValue(entity, result, foreignInfo);
                 SetEntityValue(entity, trait, traitInfo);
                 SetEntityValue(entity, value, valueInfo);
-                context.SaveChanges();                
+                _context.SaveChangesAsync(_token);                
             }
         }
 
@@ -506,18 +511,18 @@ namespace Rems.Application.Entities.Commands
         /// <returns></returns>
         private Trait GetTrait(string name, string type = "")
         {
-            Trait trait = context.Traits.FirstOrDefault(t => t.Name == name);
+            Trait trait = _context.Traits.FirstOrDefault(t => t.Name == name);
 
             // If it does not exist, add it
             if (trait == null)
             {
-                var unit = context.Units.FirstOrDefault(u => u.Name == "-");
+                var unit = _context.Units.FirstOrDefault(u => u.Name == "-");
 
                 if (unit is null)
                 {
                     unit = new Domain.Entities.Unit() { Name = "-" };
-                    context.Add(unit);
-                    context.SaveChanges();
+                    _context.Add(unit);
+                    _context.SaveChanges();
                 }
 
                 trait = new Trait()
@@ -527,9 +532,9 @@ namespace Rems.Application.Entities.Commands
                     UnitId = unit.UnitId
                 };
 
-                context.Traits.Add(trait);
+                _context.Traits.Add(trait);
             }
-            context.SaveChanges();
+            _context.SaveChangesAsync(_token);
 
             return trait;
         }
@@ -545,7 +550,7 @@ namespace Rems.Application.Entities.Commands
                 SetEntityValue(entity, row[info.Name], info);
             }
 
-            context.Add(entity);
+            _context.Add(entity);
         }
 
         private PropertyInfo FindMatchingProperties(Type type, DataColumn col)
@@ -608,7 +613,7 @@ namespace Rems.Application.Entities.Commands
             else if (type.IsClass)
             {
                 var ps = type.GetProperties();
-                var query = context.Query(type);
+                var query = _context.Query(type);
 
                 foreach (IEntity e in query)
                 {
@@ -626,8 +631,8 @@ namespace Rems.Application.Entities.Commands
                 INamed item = Activator.CreateInstance(type) as INamed;
                 item.Name = value.ToString();
 
-                context.Add(item);
-                context.SaveChanges();
+                _context.Add(item);
+                _context.SaveChangesAsync(_token);
 
                 info.SetValue(entity, item);
             }

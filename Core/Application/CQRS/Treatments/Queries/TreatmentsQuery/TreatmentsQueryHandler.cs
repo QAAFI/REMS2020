@@ -11,20 +11,22 @@ using System.Linq;
 
 namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
-    public class TreatmentsQueryHandler : IRequestHandler<TreatmentsQuery, IEnumerable<KeyValuePair<int, string>>>
+    public class TreatmentsQueryHandler : IRequestHandler<TreatmentsQuery, KeyValuePair<int, string>[]>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public TreatmentsQueryHandler(IRemsDbFactory _factory)
+        public TreatmentsQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<IEnumerable<KeyValuePair<int, string>>> Handle(TreatmentsQuery request, CancellationToken token)
+        public Task<KeyValuePair<int, string>[]> Handle(TreatmentsQuery request, CancellationToken token)
         {
-            return factory.Context.Treatments
+            return Task.Run(() => _context.Treatments
                 .Where(t => t.ExperimentId == request.ExperimentId)
-                .Select(t => new KeyValuePair<int, string>(t.TreatmentId, t.Name));
+                .Select(t => new KeyValuePair<int, string>(t.TreatmentId, t.Name))
+                .ToArray()
+            );
         }
     }
 }

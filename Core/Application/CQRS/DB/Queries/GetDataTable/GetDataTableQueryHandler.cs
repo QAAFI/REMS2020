@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Data.Sqlite;
 
 using Rems.Application.Common.Interfaces;
 
@@ -17,10 +18,30 @@ namespace Rems.Application.DB.Queries
             _factory = factory;
         }
 
-        public async Task<DataTable> Handle(GetDataTableQuery request, CancellationToken cancellationToken)
+        public Task<DataTable> Handle(GetDataTableQuery request, CancellationToken cancellationToken)
         {
-            if (_factory == null) return null;
-            return _factory.getDataTable(request.TableName);
+            return Task.Run(() => GetDataTable(request.TableName));
+        }
+
+        private DataTable GetDataTable(string name)
+        {
+            string text = $"SELECT * FROM {name}";
+            DataTable table = null;
+
+            using (var connection = new SqliteConnection("Data Source=" + _factory.Connection))
+            {
+                connection.Open();
+                using (var command = new SqliteCommand(text, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    table = new DataTable(name);
+                    table.BeginLoadData();
+                    table.Load(reader);
+                    table.EndLoadData();
+                }
+            };
+
+            return table;
         }
     }
 }

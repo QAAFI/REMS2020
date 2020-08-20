@@ -10,20 +10,21 @@ namespace Rems.Application.Tables.Queries
 {
     public class TraitTypesQueryHandler : IRequestHandler<TraitTypesQuery, string[]>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public TraitTypesQueryHandler(IRemsDbFactory _factory)
+        public TraitTypesQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<string[]> Handle(TraitTypesQuery request, CancellationToken cancellationToken)
-        {            
-            return factory.Context.Traits
+        public Task<string[]> Handle(TraitTypesQuery request, CancellationToken token)
+        {
+            return Task.Run(() => _context.Traits
                 .Select(t => t.Type)
                 .Distinct()
                 .OrderBy(n => n)
-                .ToArray();
+                .ToArray()
+            );
         }
     }
 

@@ -18,17 +18,19 @@ namespace Rems.Application.Treatments.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public FertilizationsQueryHandler(IRemsDbFactory factory, IMapper mapper)
+        public FertilizationsQueryHandler(IRemsDbContext context, IMapper mapper)
         {
-            _context = factory.Context;
+            _context = context;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<FertilizationDto>> Handle(FertilizationsQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<FertilizationDto>> Handle(FertilizationsQuery request, CancellationToken cancellationToken)
         {
-            return _context.Fertilizations
+            return Task.Run(() => _context.Fertilizations
                 .Where(f => f.TreatmentId == request.TreatmentId)
-                .ProjectTo<FertilizationDto>(_mapper.ConfigurationProvider);                    
+                .ProjectTo<FertilizationDto>(_mapper.ConfigurationProvider)
+                .AsEnumerable()
+            );                  
         }
     }    
 }

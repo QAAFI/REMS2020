@@ -12,17 +12,22 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class TillagesDataQueryHandler : IRequestHandler<TillagesDataQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public TillagesDataQueryHandler(IRemsDbFactory _factory)
+        public TillagesDataQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(TillagesDataQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(TillagesDataQuery request, CancellationToken token)
         {
-            var tillages = factory.Context.Tillages
-                .Where(i => i.TreatmentId == request.TreatmentId)                
+            return Task.Run(() => Handler(request, token));
+        }
+
+        private SeriesData Handler(TillagesDataQuery request, CancellationToken token)
+        {
+            var tillages = _context.Tillages
+                .Where(i => i.TreatmentId == request.TreatmentId)
                 .ToArray();
 
             var data = new SeriesData()

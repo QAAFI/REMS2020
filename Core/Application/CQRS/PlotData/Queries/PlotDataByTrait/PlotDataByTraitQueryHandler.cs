@@ -12,22 +12,30 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class PlotDataByTraitQueryHandler : IRequestHandler<PlotDataByTraitQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public PlotDataByTraitQueryHandler(IRemsDbFactory _factory)
+        public PlotDataByTraitQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token)
         {
-            var data = factory.Context.PlotData
+            return Task.Run(() =>
+            {
+                return Handler(request, token);
+            });
+        }
+
+        private SeriesData Handler(PlotDataByTraitQuery request, CancellationToken token)
+        {
+            var data = _context.PlotData
                 .Where(p => p.Plot.PlotId == request.PlotId)
                 .Where(p => p.Trait.Name == request.TraitName)
                 .OrderBy(p => p.Date)
                 .ToArray();
 
-            var rep = factory.Context.Plots.Where(p => p.PlotId == request.PlotId);
+            var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
             var x = rep.Select(p => p.Repetition).First();
             string name = request.TraitName + " " + x;
 
@@ -46,7 +54,7 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
                 series.Y.SetValue(data[i].Value, i);
             }
 
-            return series;            
+            return series;
         }
     }
 }

@@ -10,17 +10,20 @@ namespace Rems.Application.DB.Commands
 {
     public class SaveAsDBCommandHandler : IRequestHandler<SaveAsDBCommand>
     {
-        IRemsDbFactory _factory;
+        IRemsDbContext _context;
 
-        public SaveAsDBCommandHandler(IRemsDbFactory factory)
+        public SaveAsDBCommandHandler(IRemsDbContext context)
         {
-            _factory = factory;
+            _context = context;
         }
 
-        public async Task<Unit> Handle(SaveAsDBCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(SaveAsDBCommand request, CancellationToken cancellationToken)
         {
-            _factory.Context.SaveAs(request.FileName);
-            return Unit.Value;
+            return Task.Run(() =>
+            {
+                _context.SaveAs(request.FileName);
+                return Unit.Value;
+            });            
         }
     }
 }

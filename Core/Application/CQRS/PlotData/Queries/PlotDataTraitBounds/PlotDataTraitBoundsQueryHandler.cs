@@ -11,25 +11,28 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class PlotDataTraitBoundsQueryHandler : IRequestHandler<PlotDataTraitBoundsQuery, PlotDataBounds>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public PlotDataTraitBoundsQueryHandler(IRemsDbFactory _factory)
+        public PlotDataTraitBoundsQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<PlotDataBounds> Handle(PlotDataTraitBoundsQuery request, CancellationToken token)
+        public Task<PlotDataBounds> Handle(PlotDataTraitBoundsQuery request, CancellationToken token)
         {
-            var data = factory.Context.PlotData
+            return Task.Run(() =>
+            {
+                var data = _context.PlotData
                 .Where(p => p.Trait.Name == request.TraitName);
 
-            return new PlotDataBounds()
-            {
-                YMin = data.Min(p => p.Value),
-                YMax = data.Max(p => p.Value),
-                XMin = data.Min(p => p.Date),
-                XMax = data.Max(p => p.Date)
-            };
+                return new PlotDataBounds()
+                {
+                    YMin = data.Min(p => p.Value),
+                    YMax = data.Max(p => p.Value),
+                    XMin = data.Min(p => p.Date),
+                    XMax = data.Max(p => p.Date)
+                };
+            });
         }
     }
 }

@@ -6,13 +6,10 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IRemsDbFactory
     {
-        IRemsDbContext Context { get; set; }
+        string Connection { get; set; }
 
-        void Create(string filename);
+        IRemsDbContext Create();
 
-        void Open(string filename);
-
-        DataTable getDataTable(string name);
-
+        IRemsDbContext Create(string filename);
     }
 }

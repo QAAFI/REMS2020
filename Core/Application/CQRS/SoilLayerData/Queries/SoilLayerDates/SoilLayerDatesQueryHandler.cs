@@ -11,22 +11,21 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class SoilLayerDatesQueryHandler : IRequestHandler<SoilLayerDatesQuery, DateTime[]>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public SoilLayerDatesQueryHandler(IRemsDbFactory _factory)
+        public SoilLayerDatesQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<DateTime[]> Handle(SoilLayerDatesQuery request, CancellationToken token)
+        public Task<DateTime[]> Handle(SoilLayerDatesQuery request, CancellationToken token)
         {
-            var dates = factory.Context.SoilLayerDatas
+            return Task.Run(() =>_context.SoilLayerDatas
                 .Where(d => d.Plot.TreatmentId == request.TreatmentId)
                 .Select(d => d.Date)
                 .Distinct()
-                .ToArray();
-
-            return dates;
+                .ToArray()
+            );
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
-    public class ExperimentsQuery : IRequest<IEnumerable<KeyValuePair<int, string>>>
+    public class ExperimentsQuery : IRequest<KeyValuePair<int, string>[]>
     {
     }
 }

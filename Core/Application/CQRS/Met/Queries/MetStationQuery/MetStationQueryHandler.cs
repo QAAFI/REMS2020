@@ -19,18 +19,19 @@ namespace Rems.Application.Met.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public MetStationQueryHandler(IRemsDbFactory factory, IMapper mapper)
+        public MetStationQueryHandler(IRemsDbContext context, IMapper mapper)
         {
-            _context = factory.Context;
+            _context = context;
             _mapper = mapper;
         }
 
-        public async Task<MetStationDto> Handle(MetStationQuery request, CancellationToken cancellationToken)
+        public Task<MetStationDto> Handle(MetStationQuery request, CancellationToken cancellationToken)
         {
-            return _context.MetStations
+            return Task.Run(() => _context.MetStations
                 .Where(m => m.MetStationId == request.Id)
                 .ProjectTo<MetStationDto>(_mapper.ConfigurationProvider)
-                .Single();
+                .Single()
+            );
         }
     }
 }

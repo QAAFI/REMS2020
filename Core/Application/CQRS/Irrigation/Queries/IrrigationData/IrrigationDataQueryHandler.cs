@@ -12,17 +12,25 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class IrrigationDataQueryHandler : IRequestHandler<IrrigationDataQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public IrrigationDataQueryHandler(IRemsDbFactory _factory)
+        public IrrigationDataQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(IrrigationDataQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(IrrigationDataQuery request, CancellationToken token)
         {
-            var irrigations = factory.Context.Irrigations
-                .Where(i => i.TreatmentId == request.TreatmentId)                
+            return Task.Run(() =>
+            {
+                return Handler(request, token);
+            });           
+        }
+
+        private SeriesData Handler(IrrigationDataQuery request, CancellationToken token)
+        {
+            var irrigations = _context.Irrigations
+                .Where(i => i.TreatmentId == request.TreatmentId)
                 .ToArray();
 
             var data = new SeriesData()

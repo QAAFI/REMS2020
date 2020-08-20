@@ -10,17 +10,20 @@ namespace Rems.Application.DB.Commands
 {
     public class CloseDBCommandHandler : IRequestHandler<CloseDBCommand>
     {
-        IRemsDbFactory _factory;
+        IRemsDbContext _context;
 
-        public CloseDBCommandHandler(IRemsDbFactory factory)
+        public CloseDBCommandHandler(IRemsDbContext context)
         {
-            _factory = factory;
+            _context = context;
         }
 
-        public async Task<Unit> Handle(CloseDBCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(CloseDBCommand request, CancellationToken cancellationToken)
         {
-            _factory.Context.Close();
-            return Unit.Value;
+            return Task.Run(() =>
+            {
+                _context.Close();
+                return Unit.Value;
+            });            
         }
     }
 }

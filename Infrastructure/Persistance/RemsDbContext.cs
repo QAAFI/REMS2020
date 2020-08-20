@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,14 +18,19 @@ namespace Rems.Persistence
     {
         public string FileName { get; set; }
 
-        public IEnumerable<string> Names { get; set; }
+        public IEnumerable<string> Names
+        {
+            get
+            {
+                return Model.GetEntityTypes().Select(e => e.GetTableName());
+            }
+        }
 
         public RemsDbContext() { }
 
         public RemsDbContext(string filename) 
         {
-            FileName = filename;
-            Names = Model.GetEntityTypes().Select(e => e.GetTableName());
+            FileName = filename;       
         }
 
         public RemsDbContext(DbContextOptions<RemsDbContext> options)
@@ -112,7 +119,7 @@ namespace Rems.Persistence
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-            {
+            {                
                 optionsBuilder.UseSqlite("Data Source=" + FileName);
                 optionsBuilder.UseLazyLoadingProxies(true);
                 optionsBuilder.EnableSensitiveDataLogging(true);
@@ -130,5 +137,7 @@ namespace Rems.Persistence
         {
             return (IQueryable)((IDbSetCache)this).GetOrAddSet(this.GetDependencies().SetSource, entity);
         }
+
+        
     }
 }

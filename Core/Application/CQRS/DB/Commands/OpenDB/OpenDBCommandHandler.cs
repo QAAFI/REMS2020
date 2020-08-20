@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.DB.Commands
 {
-    public class OpenDBCommandHandler : IRequestHandler<OpenDBCommand, IRemsDbContext>
+    public class OpenDBCommandHandler : IRequestHandler<OpenDBCommand, Unit>
     {
         private readonly IRemsDbFactory _factory;
 
@@ -16,10 +16,10 @@ namespace Rems.Application.DB.Commands
             _factory = factory;
         }
 
-        public async Task<IRemsDbContext> Handle(OpenDBCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(OpenDBCommand request, CancellationToken cancellationToken)
         {
-            _factory.Open(request.FileName);
-            return _factory.Context;
+            _factory.Connection = request.FileName;
+            return Task.Run(() => Unit.Value);
         }
     }
 }

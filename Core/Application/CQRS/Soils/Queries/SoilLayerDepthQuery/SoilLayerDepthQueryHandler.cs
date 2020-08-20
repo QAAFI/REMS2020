@@ -13,17 +13,19 @@ namespace Rems.Application.Soils.Queries.x
     {
         private readonly IRemsDbContext _context;
 
-        public SoilLayerDepthQueryHandler(IRemsDbFactory factory)
+        public SoilLayerDepthQueryHandler(IRemsDbContext context)
         {
-            _context = factory.Context;
+            _context = context;
         }
 
-        public async Task<string[]> Handle(SoilLayerDepthQuery request, CancellationToken cancellationToken)
+        public Task<string[]> Handle(SoilLayerDepthQuery request, CancellationToken cancellationToken)
         {
-            return (from layer in _context.SoilLayers
-                   where layer.SoilId == request.SoilId
-                   orderby layer.FromDepth
-                   select $"{layer.FromDepth ?? 0}-{layer.ToDepth ?? 0}").ToArray();
+            return Task.Run(() => _context.SoilLayers
+                .Where(l => l.SoilId == request.SoilId)
+                .OrderBy(l => l.FromDepth)
+                .Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}")
+                .ToArray()
+            );
         }
     }
 }

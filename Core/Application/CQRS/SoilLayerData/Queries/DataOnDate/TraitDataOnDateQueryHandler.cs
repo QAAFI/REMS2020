@@ -12,23 +12,28 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
 {
     public class TraitDataOnDateQueryHandler : IRequestHandler<TraitDataOnDateQuery, SeriesData>
     {
-        private readonly IRemsDbFactory factory;
+        private readonly IRemsDbContext _context;
 
-        public TraitDataOnDateQueryHandler(IRemsDbFactory _factory)
+        public TraitDataOnDateQueryHandler(IRemsDbContext context)
         {
-            factory = _factory;
+            _context = context;
         }
 
-        public async Task<SeriesData> Handle(TraitDataOnDateQuery request, CancellationToken token)
+        public Task<SeriesData> Handle(TraitDataOnDateQuery request, CancellationToken token)
         {
-            var data = factory.Context.SoilLayerDatas
+            return Task.Run(() => Handler(request, token));
+        }
+
+        private SeriesData Handler(TraitDataOnDateQuery request, CancellationToken token)
+        {
+            var data = _context.SoilLayerDatas
                 .Where(d => d.PlotId == request.PlotId)
                 .Where(d => d.Date == request.Date)
                 .Where(d => d.Trait.Name == request.TraitName)
                 .OrderBy(d => d.DepthFrom)
                 .ToArray();
 
-            var rep = factory.Context.Plots.Where(p => p.PlotId == request.PlotId);
+            var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
             var x = rep.Select(p => p.Repetition).First();
             string name = request.TraitName + " " + x;
 
