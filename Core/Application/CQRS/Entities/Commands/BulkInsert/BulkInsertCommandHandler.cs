@@ -224,7 +224,7 @@ namespace Rems.Application.Entities.Commands
             // Assume that every column after the 4th is a trait column
             var traits = table.Columns.Cast<DataColumn>()
                 .Skip(4)
-                .Select(c => GetTrait(c.ColumnName, "PlotData"))
+                .Select(c => GetTrait(c.ColumnName, "Crop"))
                 .ToArray();
 
             foreach (DataRow row in table.Rows)
@@ -267,7 +267,7 @@ namespace Rems.Application.Entities.Commands
             // Assume every column after the 2nd is a trait column
             var traits = table.Columns.Cast<DataColumn>()
                 .Skip(2)
-                .Select(c => GetTrait(c.ColumnName, "MetData"))
+                .Select(c => GetTrait(c.ColumnName, "Climate"))
                 .ToArray();
 
             foreach (DataRow row in table.Rows)

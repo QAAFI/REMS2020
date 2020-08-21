@@ -37,6 +37,7 @@ namespace WindowsClient
             Logic = new ClientLogic(provider);          
 
             InitializeComponent();
+            operationsBox.SelectedIndex = 0;
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
             traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
@@ -282,9 +283,6 @@ namespace WindowsClient
 
             traitTypeBox.Items.AddRange(types);
             traitTypeBox.SelectedIndex = 0;
-
-            // Load the traits box
-            RefreshTraitsBox();
         }
 
         private void OnTraitTypeBoxSelectionChanged(object sender, EventArgs e) => RefreshTraitsBox();

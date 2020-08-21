@@ -403,8 +403,7 @@
             this.operationsBox.Items.AddRange(new object[] {
             "Irrigations",
             "Fertilizations",
-            "Tillages",
-            "Planting"});
+            "Tillages"});
             this.operationsBox.Location = new System.Drawing.Point(6, 6);
             this.operationsBox.Name = "operationsBox";
             this.operationsBox.Size = new System.Drawing.Size(145, 21);
