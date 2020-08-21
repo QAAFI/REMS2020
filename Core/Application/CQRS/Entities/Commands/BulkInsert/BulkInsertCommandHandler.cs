@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Extensions;
 using Rems.Domain.Entities;
 
 using System;
