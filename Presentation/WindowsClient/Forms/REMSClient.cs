@@ -37,7 +37,6 @@ namespace WindowsClient
             Logic = new ClientLogic(provider);          
 
             InitializeComponent();
-            InitializeControls();
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
             traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
@@ -51,14 +50,6 @@ namespace WindowsClient
         {
             var selector = new ItemSelector(args);
             selector.ShowDialog();
-        }
-
-        /// <summary>
-        /// For initializing any control properties that cannot be done through the designer
-        /// </summary>
-        private void InitializeControls()
-        {
-            pageProperties.AutoScroll = true;
         }
 
         protected new async void Close()
@@ -109,7 +100,9 @@ namespace WindowsClient
                 if (open.ShowDialog() == DialogResult.OK)
                 {
                     await Logic.TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
-                    LoadTabs();
+                    LoadListView();
+
+                    LoadExperimentsTab();
                 }
             }
         }
@@ -199,13 +192,6 @@ namespace WindowsClient
 
         #region Tabs
 
-        private void LoadTabs()
-        {
-            LoadListView();
-            
-            LoadExperimentsTab();
-        }
-
         #region Information
 
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
@@ -272,7 +258,7 @@ namespace WindowsClient
                     {
                         Tag = new TreatmentTag() { ID = treatment.Key }
                     };
-                    tNode.Nodes.Add(new TreeNode("Mean") { Tag = treatment.Key });
+                    tNode.Nodes.Add(new TreeNode("All"));
 
                     var plots = await Logic.TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
 
@@ -460,13 +446,23 @@ namespace WindowsClient
                     // TODO: Decide what to implement at experiment level
                     // Simply disable crop tab?
                 }
-                else if (node.Tag is TreatmentTag)
+                else if (node.Tag is TreatmentTag tag)
                 {
-                    foreach (TreeNode plot in node.Nodes)
+                    var mean = new MeanTreatmentDataByTraitQuery()
                     {
-                        if (plot.Tag is PlotTag tag)
+                        TraitName = trait,
+                        TreatmentId = tag.ID
+                    };
+                    var data = await Logic.TryQueryREMS(mean);
+                    PlotSingleData(data, y);                    
+                }
+                else if (node.Text == "All")
+                {
+                    foreach (TreeNode plot in node.Parent.Nodes)
+                    {
+                        if (plot.Tag is PlotTag t)
                         {
-                            query.PlotId = tag.ID;
+                            query.PlotId = t.ID;
 
                             var data = await Logic.TryQueryREMS(query);
                             PlotSingleData(data, y);
@@ -479,16 +475,7 @@ namespace WindowsClient
                     var data = await Logic.TryQueryREMS(query);
                     PlotSingleData(data, y);
                 }
-                else if (node.Text == "Mean")
-                {
-                    var mean = new MeanTreatmentDataByTraitQuery()
-                    {
-                        TraitName = trait,
-                        TreatmentId = (int)node.Tag
-                    };
-                    var data = await Logic.TryQueryREMS(mean);
-                    PlotSingleData(data, y);
-                }
+                
             }
             
         }
