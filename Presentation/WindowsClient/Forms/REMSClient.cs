@@ -43,7 +43,8 @@ namespace WindowsClient
             traitsBox.SelectedIndexChanged += OnTraitsBoxIndexChanged;
 
             EventManager.ItemNotFound += OnEntityNotFound;
-        }        
+            EventManager.ProgressTracking += OnProgressTrackingActivated;
+        }
 
         #region Form
 
@@ -51,6 +52,17 @@ namespace WindowsClient
         {
             var selector = new ItemSelector(args);
             selector.ShowDialog();
+        }
+
+        private void OnProgressTrackingActivated(object sender, ProgressTrackingArgs args)
+        {
+            // TODO: Data import needs to be refactored before we can disable the main client during import.
+            // This is due to threading issues
+
+            //Enabled = false;
+
+            var tracker = new ProgressDialog(args.Title, args.Items);
+            tracker.Show();
         }
 
         protected new async void Close()

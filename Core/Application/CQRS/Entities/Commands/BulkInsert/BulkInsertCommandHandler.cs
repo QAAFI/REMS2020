@@ -30,15 +30,31 @@ namespace Rems.Application.Entities.Commands
         {
             _token = token;
 
-            // TODO: This handler has grown larger than originally planned, structurally
-            // it might be better to try reorganise some of the methods into other classes
+            // TODO: This handler has grown larger than originally planned, at some point it needs to be
+            // refactored into a separate class in an intermediary layer between the UI and the database
             return Task.Run(() =>
             {
+                var args1 = new ProgressTrackingArgs()
+                {
+                    Items = request.Data.Tables.Count,
+                    Title = "Importing..."
+                };
+
+                EventManager.InvokeProgressTracking(null, args1);
+
                 foreach (DataTable table in request.Data.Tables)
                 {
+                    var args2 = new StartProgressArgs()
+                    {
+                        Maximum = table.Rows.Count,
+                        Item = table.TableName
+                    };
+                    EventManager.InvokeStartProgress(null, args2);
+
                     if (table.Rows.Count == 0) continue;
-                    ImportTable(table);
+                    ImportTable(table);                    
                 }
+                EventManager.InvokeStopProgress(null, EventArgs.Empty);
 
                 return true;
             });
@@ -215,6 +231,8 @@ namespace Rems.Application.Entities.Commands
                 _context.Add(design);
                 _context.SaveChangesAsync(_token);
             }
+
+            EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
         }
 
         /// <summary>
@@ -255,7 +273,9 @@ namespace Rems.Application.Entities.Commands
                         UnitId = traits[i - 4].UnitId
                     };
                     _context.Add(data);
-                }                
+                }
+
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChangesAsync(_token);
         }
@@ -295,6 +315,8 @@ namespace Rems.Application.Entities.Commands
                     };
                     _context.Add(data);
                 }
+
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChangesAsync(_token);
         }
@@ -336,6 +358,8 @@ namespace Rems.Application.Entities.Commands
                     };
                     _context.Add(data);
                 }
+
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChangesAsync(_token);
         }
@@ -468,6 +492,8 @@ namespace Rems.Application.Entities.Commands
             }
 
             _context.Add(entity);
+
+            EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
         }
 
         private void AddTraitDataRowToContext(
@@ -504,6 +530,8 @@ namespace Rems.Application.Entities.Commands
                 SetEntityValue(entity, value, valueInfo);
                 _context.SaveChangesAsync(_token);                
             }
+
+            EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
         }
 
         /// <summary>
@@ -554,6 +582,8 @@ namespace Rems.Application.Entities.Commands
             }
 
             _context.Add(entity);
+
+            EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
         }
 
         private PropertyInfo FindMatchingProperties(Type type, DataColumn col)
