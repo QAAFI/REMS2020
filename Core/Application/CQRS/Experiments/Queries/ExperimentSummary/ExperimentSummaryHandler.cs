@@ -41,8 +41,8 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
                 { "Met", exp.MetStation.Name },
                 { "Reps", exp.Repetitions.ToString() },
                 { "Rating", exp.Rating.ToString() },
-                { "Start", exp.BeginDate.Value.ToString("dd - MM - yyyy") },
-                { "End", exp.EndDate.Value.ToString("dd - MM - yyyy") },
+                { "Start", exp.BeginDate.ToString("dd - MM - yyyy") },
+                { "End", exp.EndDate.ToString("dd - MM - yyyy") },
                 { "List", list },
                 { "Notes", exp.Notes }
             };

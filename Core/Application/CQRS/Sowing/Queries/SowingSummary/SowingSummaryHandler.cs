@@ -28,10 +28,11 @@ namespace Rems.Application.CQRS.Experiments.Queries.Experiments
         private Dictionary<string, string> Handler(SowingSummary request)
         {
             var sow = _context.Experiments.Find(request.ExperimentId).Sowing;
-
+            
             var d = new Dictionary<string, string>
             {
                 { "Method", sow.Method.Name },
+                { "Cultivar", sow.Cultivar },
                 { "Date", sow.Date.ToString("dd - MM - yyyy") },
                 { "Depth", sow.Depth.ToString() },
                 { "Row", sow.RowSpace.ToString() },

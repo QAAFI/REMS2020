@@ -293,6 +293,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\ApsimX\Models\Models.csproj">
+      <Project>{903C5EDA-948F-405C-8913-DD30442D17A3}</Project>
+      <Name>Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Core\Application\Application.csproj">
       <Project>{cd1807b9-9ce4-41e4-8ed6-5404d0720cd8}</Project>
       <Name>Application</Name>

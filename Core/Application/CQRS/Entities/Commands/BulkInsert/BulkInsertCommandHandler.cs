@@ -248,6 +248,8 @@ namespace Rems.Application.Entities.Commands
 
             foreach (DataRow row in table.Rows)
             {
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+
                 // Assume that the first column is the experiment ID
                 var id = ConvertDBValue<int>(row[0]);
 
@@ -273,9 +275,7 @@ namespace Rems.Application.Entities.Commands
                         UnitId = traits[i - 4].UnitId
                     };
                     _context.Add(data);
-                }
-
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+                }                
             }
             _context.SaveChangesAsync(_token);
         }
@@ -293,6 +293,8 @@ namespace Rems.Application.Entities.Commands
 
             foreach (DataRow row in table.Rows)
             {
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+
                 // Look for the station which sourced the data, create one if it isn't found
                 var station = _context.MetStations.FirstOrDefault(m => m.Name == row[0].ToString());
                 if (station is null)
@@ -315,8 +317,6 @@ namespace Rems.Application.Entities.Commands
                     };
                     _context.Add(data);
                 }
-
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChangesAsync(_token);
         }
@@ -335,6 +335,8 @@ namespace Rems.Application.Entities.Commands
 
             foreach (DataRow row in table.Rows)
             {
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+
                 var id = ConvertDBValue<int>(row[0]);
                 var col = ConvertDBValue<int>(row[1]);
 
@@ -358,8 +360,6 @@ namespace Rems.Application.Entities.Commands
                     };
                     _context.Add(data);
                 }
-
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChangesAsync(_token);
         }

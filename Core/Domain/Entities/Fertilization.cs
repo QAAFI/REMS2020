@@ -21,7 +21,7 @@ namespace Rems.Domain.Entities
 
         public int? UnitId { get; set; }
 
-        public DateTime? Date { get; set; }        
+        public DateTime Date { get; set; }        
 
         public int? Amount { get; set; }
 

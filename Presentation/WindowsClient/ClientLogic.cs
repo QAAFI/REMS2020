@@ -17,6 +17,7 @@ using Rems.Infrastructure.Excel;
 
 using Microsoft.Extensions.DependencyInjection;
 using System.Text;
+using Models.Core.ApsimFile;
 
 namespace WindowsClient
 {
@@ -34,10 +35,10 @@ namespace WindowsClient
             try
             {
                 IApsimX apsim = new ApsimX(mediator);
-                await apsim.CreateApsimModel(Path.GetDirectoryName(file));
-                apsim.SaveApsimFile(file);
+                var sims = await apsim.CreateModels();
+                File.WriteAllText(file, FileFormat.WriteToString(sims));
 
-                MessageBox.Show($"Export Complete.");
+                //MessageBox.Show($"Export Complete.");
                 return true;
             }
             catch (Exception error)

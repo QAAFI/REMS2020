@@ -197,7 +197,8 @@ namespace WindowsClient
                 save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
-                if (save.ShowDialog() == DialogResult.OK) await Logic.TryDataExport(save.FileName);
+                if (save.ShowDialog() == DialogResult.OK) 
+                    await Task.Run(() => Logic.TryDataExport(save.FileName));
             }
         }
 

@@ -46,6 +46,15 @@ namespace WindowsClient.Forms
             item++;
             label.Text = $"{item} of {items}: {args.Item}";
 
+            if (args.Maximum == 0)
+            {
+                bar.Width = barPanel.Width;
+                pctLabel.Text = $"100%";
+
+                Refresh();
+                return;
+            }
+
             bar.Width = 0;
             step = barPanel.Width / args.Maximum;
             max = args.Maximum;
@@ -57,7 +66,9 @@ namespace WindowsClient.Forms
         private void OnProgressIncremented(object sender, EventArgs e)
         {
             bar.Width += (int)step;
-            pctLabel.Text = $"{100 * bar.Width / barPanel.Width}%";
+
+            int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+            pctLabel.Text = $"{pct}%";
             
             Refresh();
         }

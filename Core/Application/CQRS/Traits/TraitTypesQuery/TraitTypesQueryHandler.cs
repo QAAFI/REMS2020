@@ -21,8 +21,9 @@ namespace Rems.Application.Tables.Queries
         {
             return Task.Run(() => _context.Traits
                 .Select(t => t.Type)
+                .Where(n => n != null)
                 .Distinct()
-                .OrderBy(n => n)
+                .OrderBy(n => n)                
                 .ToArray()
             );
         }

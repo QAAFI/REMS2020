@@ -1,79 +1,81 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using MediatR;
+﻿using MediatR;
 
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Rems.Application.DB.Queries;
+using System.Text;
+using Rems.Application.Common.Extensions;
 
 namespace Rems.Application.Met.Queries
 {
-    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, IEnumerable<MetFileDataVm>>
+    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, StringBuilder>
     {
         private readonly IRemsDbContext _context;
-        private readonly IMapper _mapper;
 
-        public MetFileDataQueryHandler(IRemsDbContext context, IMapper mapper)
+        public MetFileDataQueryHandler(IRemsDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        public Task<IEnumerable<MetFileDataVm>> Handle(MetFileDataQuery request, CancellationToken token)
+        public Task<StringBuilder> Handle(MetFileDataQuery request, CancellationToken token)
         {
             return Task.Run(() => Handler(request, token));
         }
 
-        private IEnumerable<MetFileDataVm> Handler(MetFileDataQuery request, CancellationToken token)
+        private StringBuilder Handler(MetFileDataQuery request, CancellationToken token)
         {
-            var mets = _context.MetDatas.ToList()
-                    .GroupBy(d => d.Date)
-                    .OrderBy(d => d.Key)
-                    .Where(g => g.Count() == 4) // TODO: Make this query less bad. It works but it hurts.
-                    .ToList()
-                    .Select(g =>
-                    {
-                        var data = new MetData[4];
+            var experiment = _context.Experiments.Find(request.ExperimentId);
+            var station = experiment.MetStation;
 
-                        data[0] = GetData(g, "MaxT");
-                        data[1] = GetData(g, "MinT");
-                        data[2] = GetData(g, "Radn");
-                        data[3] = GetData(g, "Rain");
+            var builder = new StringBuilder();
+            builder.AppendLine("[weather.met.weather]");
+            builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
+            builder.AppendLine($"!experiment = {experiment.Name}");
+            builder.AppendLine($"!station name = {station.Name}");
+            builder.AppendLine($"latitude = {station.Latitude} (DECIMAL DEGREES)");
+            builder.AppendLine($"longitude = {station.Longitude} (DECIMAL DEGREES)");
+            builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
+            builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
 
-                        return data;
-                    });
+            Trait maxT = _context.GetTraitByName("MaxT");
+            Trait minT = _context.GetTraitByName("MinT");
+            Trait radn = _context.GetTraitByName("Radn");
+            Trait rain = _context.GetTraitByName("Rain");            
 
-            return mets
-                .AsQueryable()
-                .ProjectTo<MetFileDataVm>(_mapper.ConfigurationProvider);
-        }
+            var datas = station.MetData
+                .ToArray()
+                .GroupBy(d => d.Date)
+                .OrderBy(d => d.Key);
 
-        private MetData GetData(IGrouping<System.DateTime, MetData> group, string name)
-        {
-            if (group.Any(d => d.Trait.Name == name)) 
-                return group.Single(d => d.Trait.Name == name);
-            else
+            foreach (var data in datas)
             {
-                var args = new ItemNotFoundArgs()
-                {
-                    Options = _context.Traits.Select(t => t.Name).ToArray(),
-                    Name = name
-                };
-                EventManager.InvokeItemNotFound(null, args);
+                var date = data.Key;
+                var mets = data.AsEnumerable();
 
-                var trait = _context.Traits.FirstOrDefault(t => t.Name == args.Selection);
-                trait.Name = name;
-                _context.SaveChanges();
-
-                return group.Single(d => d.Trait.Name == name);
+                builder.Append($"{date.Year,-7}");
+                builder.Append($"{date.DayOfYear,3}");
+                builder.Append($"{GetTraitValue(mets, maxT), 8}");
+                builder.Append($"{GetTraitValue(mets, minT), 8}");
+                builder.Append($"{GetTraitValue(mets, radn), 8}");
+                builder.AppendLine($"{GetTraitValue(mets, rain), 8}");
             }
+
+            string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
+            {
+                var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
+
+                if (data.Value is double value)
+                    return Math.Round(value, 2).ToString();
+
+                return "";
+            }
+
+            return builder;
         }
     }
 }

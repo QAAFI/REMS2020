@@ -22,9 +22,9 @@ namespace Rems.Domain.Entities
 
         public int? FieldId { get; set; }
 
-        public DateTime? BeginDate { get; set; }
+        public DateTime BeginDate { get; set; }
 
-        public DateTime? EndDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         public int? MetStationId { get; set; }
 
