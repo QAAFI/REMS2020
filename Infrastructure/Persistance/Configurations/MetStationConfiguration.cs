@@ -11,15 +11,19 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.MetStationId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.MetStationId)
                 .HasName("MetStationId")
                 .IsUnique();
 
-            builder.Property(e => e.Amp).HasDefaultValueSql("0");
+            builder.Property(e => e.Amplitude)
+                .HasDefaultValueSql("0");
 
-            builder.Property(e => e.Name).HasMaxLength(40);
+            builder.Property(e => e.Name)
+                .HasMaxLength(40);
 
-            builder.Property(e => e.TemperatureAverage).HasDefaultValueSql("0");
+            builder.Property(e => e.TemperatureAverage)
+                .HasDefaultValueSql("0");
         }
     }
 }

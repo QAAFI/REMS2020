@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Irrigation : IEntity
+    public class Irrigation : ITreatment
     {
         public Irrigation()
         {
@@ -14,16 +14,16 @@ namespace Rems.Domain.Entities
 
         public int? MethodId { get; set; }
 
-        public int? TreatmentId { get; set; }
+        public int TreatmentId { get; set; }
 
-        public DateTime? Date { get; set; }        
+        public DateTime Date { get; set; }        
 
         public int? Amount { get; set; }
 
         public string Notes { get; set; }
 
 
-        public virtual Method IrrigationMethod { get; set; }
+        public virtual Method Method { get; set; }
         public virtual Treatment Treatment { get; set; }
         public virtual ICollection<IrrigationInfo> IrrigationInfo { get; set; }
 

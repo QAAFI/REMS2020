@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Mappings;
@@ -6,6 +7,7 @@ using Rems.Domain.Entities;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,16 +18,19 @@ namespace Rems.Persistence
     {
         public string FileName { get; set; }
 
-        public IEnumerable<string> Names { get; set; }
+        public IEnumerable<string> Names
+        {
+            get
+            {
+                return Model.GetEntityTypes().Select(e => e.GetTableName());
+            }
+        }
 
-        public IEnumerable<IPropertyMap> Mappings { get; set; }
         public RemsDbContext() { }
 
         public RemsDbContext(string filename) 
         {
-            FileName = filename;
-            Mappings = Model.GetEntityTypes().Select(e => new PropertyMap(Activator.CreateInstance(e.ClrType)));
-            Names = Model.GetEntityTypes().Select(e => e.GetTableName());
+            FileName = filename;       
         }
 
         public RemsDbContext(DbContextOptions<RemsDbContext> options)
@@ -110,16 +115,29 @@ namespace Rems.Persistence
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RemsDbContext).Assembly);
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-            {
+            {                
                 optionsBuilder.UseSqlite("Data Source=" + FileName);
                 optionsBuilder.UseLazyLoadingProxies(true);
                 optionsBuilder.EnableSensitiveDataLogging(true);
                 optionsBuilder.EnableDetailedErrors(true);
             }
         }
+        
+        public IQueryable Query(string entity)
+        {
+            string name = "Rems.Domain.Entities." + entity;
+            return Query(Model.FindEntityType(name).ClrType);
+        }
 
+        public IQueryable Query(Type entity)
+        {
+            return (IQueryable)((IDbSetCache)this).GetOrAddSet(this.GetDependencies().SetSource, entity);
+        }
+
+        
     }
 }

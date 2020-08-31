@@ -14,10 +14,8 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Entities.Commands
 {
-    public class BulkInsertCommand : IRequest
+    public class BulkInsertCommand : IRequest<bool>
     {
-        public DataSet Data { get; set; }
-
-        public IPropertyMap TableMap { get; set; }        
+        public DataSet Data { get; set; } 
     }
 }

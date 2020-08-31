@@ -16,8 +16,7 @@ namespace Rems.Infrastructure.Excel
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
-            {
-                
+            {                
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
                     return reader.AsDataSet(new ExcelDataSetConfiguration()

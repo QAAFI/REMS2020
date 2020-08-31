@@ -3,13 +3,12 @@
 using Rems.Application.Common.Mappings;
 
 using System.Collections.Generic;
+using System.Text;
 
 namespace Rems.Application.Met.Queries
 {
-    public class MetFileDataQuery : IRequest<IEnumerable<MetFileDataVm>>
+    public class MetFileDataQuery : IRequest<StringBuilder>
     {
-        public int Id { get; set; }
-
-        public IPropertyMap Map { get; set; }
+        public int ExperimentId { get; set; }
     }
 }

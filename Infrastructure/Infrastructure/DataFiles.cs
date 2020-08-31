@@ -11,11 +11,12 @@ namespace Rems.Infrastructure
         {
             var filePath = Path.Combine("DataFiles", "apsimx", file);
             StringBuilder builder = new StringBuilder();
-            using var reader = new StreamReader(filePath);
-            while (!reader.EndOfStream)
+
+            using (var reader = new StreamReader(filePath))
             {
-                builder.AppendLine(reader.ReadLine());
-            };
+                while (!reader.EndOfStream) builder.AppendLine(reader.ReadLine());
+            }
+
             builder.Replace("\r", "");
             return builder.ToString();
         }

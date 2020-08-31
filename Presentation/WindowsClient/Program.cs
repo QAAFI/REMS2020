@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 using Rems.Application;
 using Rems.Persistence;
@@ -20,19 +21,12 @@ namespace WindowsClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            ConfigureServices();
-
-            Application.Run(new REMSClient(ServiceProvider));            
-        }
-
-        public static IServiceProvider ServiceProvider { get; set; }
-
-        static void ConfigureServices()
-        {
-            ServiceProvider = new ServiceCollection()
+            IServiceProvider ServiceProvider = new ServiceCollection()
                 .AddPersistence()
-                .AddApplication()               
-                .BuildServiceProvider();            
+                .AddApplication()                
+                .BuildServiceProvider();
+
+            Application.Run(new REMSClient(ServiceProvider));
         }
     }
 }

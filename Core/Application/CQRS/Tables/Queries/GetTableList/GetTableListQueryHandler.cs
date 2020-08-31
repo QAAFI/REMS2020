@@ -8,17 +8,19 @@ namespace Rems.Application.Tables.Queries
 {
     public class GetTableListQueryHandler : IRequestHandler<GetTableListQuery, IEnumerable<string> >
     {
-        private readonly IRemsDbFactory _factory;
-        public GetTableListQueryHandler(IRemsDbFactory factory)
+        private readonly IRemsDbContext _context;
+
+        public GetTableListQueryHandler(IRemsDbContext context)
         {
-            _factory = factory;
+            _context = context;
         }
 
-        public async Task<IEnumerable<string> > Handle(GetTableListQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<string> > Handle(GetTableListQuery request, CancellationToken cancellationToken)
         {
-            if (_factory.Context == null) return null;
-
-            return _factory.Context.Names;
+            return Task.Run(() =>
+            {
+                return _context.Names;
+            });
         }
     }
 

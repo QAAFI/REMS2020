@@ -41,7 +41,6 @@ namespace Rems.Application.Treatments.Queries
                 .ForMember(d => d.ExperimentName, opts => opts.MapFrom(s => s.Experiment.Name))
                 .ForMember(d => d.Id, opts => opts.MapFrom(s => s.TreatmentId))
                 .ForMember(d => d.SoilId, opts => opts.MapFrom(s => s.Experiment.Field.SoilId))
-                .ForMember(d => d.SowingId, opts => opts.MapFrom(s => s.Sowing.SowingId))
                 .ForMember(d => d.FieldSlope, opts => opts.MapFrom(s => s.Experiment.Field.Slope))
                 .ForMember(d => d.FieldArea, opts => opts.MapFrom(s => 1.0))
                 .ForMember(d => d.FieldLat, opts => opts.MapFrom(s => s.Experiment.Field.Latitude))

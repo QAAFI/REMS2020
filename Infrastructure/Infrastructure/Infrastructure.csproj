@@ -1,26 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Rems.Infrastructure</AssemblyName>
     <RootNamespace>Rems.Infrastructure</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ApsimX\DemoModels\Soil_BW5.cs" />
+    <Compile Remove="ApsimX\DemoModels\Soil_BW8.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ApsimX\DemoModels\Soil_BW5.cs" />
+    <None Include="ApsimX\DemoModels\Soil_BW8.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\ApsimX\APSIM.Shared\APSIM.Shared.csproj" />
+    <ProjectReference Include="..\..\..\ApsimX\Models\Models.csproj" />
     <ProjectReference Include="..\..\Core\Application\Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Models">
-      <HintPath>..\..\..\ApsimX\Models\bin\Debug\netcoreapp3.0\Models.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

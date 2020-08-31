@@ -1,13 +1,13 @@
 ﻿using System;
-
+using Rems.Domain.Attributes;
 
 namespace Rems.Domain.Entities
 {
-    public class MetData : IEntity
+    public class MetData : ITrait
     {
         public int MetStationId { get; set; }
 
-        public int? TraitId { get; set; }
+        public int TraitId { get; set; }
 
         public DateTime Date { get; set; }
 
@@ -15,9 +15,6 @@ namespace Rems.Domain.Entities
 
 
         public virtual MetStation MetStation { get; set; }
-        public virtual Trait Trait { get; set; }
-
-
-        
+        public virtual Trait Trait { get; set; }        
     }
 }

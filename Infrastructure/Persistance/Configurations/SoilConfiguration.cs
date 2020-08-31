@@ -11,11 +11,16 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.SoilId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.SoilId)
                 .HasName("SoilId")
                 .IsUnique();
 
-            builder.Property(e => e.Type).HasMaxLength(30);
+            builder.Property(e => e.SoilId)
+                .ValueGeneratedOnAdd();
+
+            builder.Property(e => e.SoilType)
+                .HasMaxLength(30);
         }
     }
 }

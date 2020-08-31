@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
 
         public int SoilId { get; set; }
 
-        public string Type { get; set; } = null;
+        public string SoilType { get; set; } = null;
 
         public string Notes { get; set; } = null;
 

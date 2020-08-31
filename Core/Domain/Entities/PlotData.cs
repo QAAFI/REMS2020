@@ -1,20 +1,21 @@
 ﻿using System;
+using Rems.Domain.Attributes;
 
 namespace Rems.Domain.Entities
 {
-    public class PlotData : IEntity
+    public class PlotData : ITrait
     {
         public int PlotDataId { get; set; }
 
         public int? PlotId { get; set; }
 
-        public int? TraitId { get; set; }
+        public int TraitId { get; set; }
 
-        public DateTime? PlotDataDate { get; set; }
+        public DateTime Date { get; set; }
 
         public string Sample { get; set; }
 
-        public double? Value { get; set; }
+        public double Value { get; set; }
 
         public int? UnitId { get; set; }
 

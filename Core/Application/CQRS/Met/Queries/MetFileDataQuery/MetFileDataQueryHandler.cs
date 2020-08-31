@@ -1,51 +1,81 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using MediatR;
+﻿using MediatR;
 
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
+using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text;
+using Rems.Application.Common.Extensions;
 
 namespace Rems.Application.Met.Queries
 {
-    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, IEnumerable<MetFileDataVm>>
+    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, StringBuilder>
     {
         private readonly IRemsDbContext _context;
-        private readonly IMapper _mapper;
 
-        public MetFileDataQueryHandler(IRemsDbFactory factory, IMapper mapper)
+        public MetFileDataQueryHandler(IRemsDbContext context)
         {
-            _context = factory.Context;
-            _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<IEnumerable<MetFileDataVm>> Handle(MetFileDataQuery request, CancellationToken token)
+        public Task<StringBuilder> Handle(MetFileDataQuery request, CancellationToken token)
         {
-            var mets = _context.MetDatas.ToList()
-                    .GroupBy(d => d.Date)
-                    .OrderBy(d => d.Key)
-                    .Where(g => g.Count() == 4)
-                    .ToList()
-                    .Select(g =>
-                    {
-                        var data = new MetData[4];
-                        data[0] = g.Single(d => d.Trait.Name == request.Map["MaxT"]);
-                        data[1] = g.Single(d => d.Trait.Name == request.Map["MinT"]);
-                        data[2] = g.Single(d => d.Trait.Name == request.Map["Radn"]);
-                        data[3] = g.Single(d => d.Trait.Name == request.Map["Rain"]);
+            return Task.Run(() => Handler(request, token));
+        }
 
-                        return data;
-                    });            
+        private StringBuilder Handler(MetFileDataQuery request, CancellationToken token)
+        {
+            var experiment = _context.Experiments.Find(request.ExperimentId);
+            var station = experiment.MetStation;
 
-            return mets
-                .AsQueryable()
-                .ProjectTo<MetFileDataVm>(_mapper.ConfigurationProvider);
+            var builder = new StringBuilder();
+            builder.AppendLine("[weather.met.weather]");
+            builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
+            builder.AppendLine($"!experiment = {experiment.Name}");
+            builder.AppendLine($"!station name = {station.Name}");
+            builder.AppendLine($"latitude = {station.Latitude} (DECIMAL DEGREES)");
+            builder.AppendLine($"longitude = {station.Longitude} (DECIMAL DEGREES)");
+            builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
+            builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
+
+            Trait maxT = _context.GetTraitByName("MaxT");
+            Trait minT = _context.GetTraitByName("MinT");
+            Trait radn = _context.GetTraitByName("Radn");
+            Trait rain = _context.GetTraitByName("Rain");            
+
+            var datas = station.MetData
+                .ToArray()
+                .GroupBy(d => d.Date)
+                .OrderBy(d => d.Key);
+
+            foreach (var data in datas)
+            {
+                var date = data.Key;
+                var mets = data.AsEnumerable();
+
+                builder.Append($"{date.Year,-7}");
+                builder.Append($"{date.DayOfYear,3}");
+                builder.Append($"{GetTraitValue(mets, maxT), 8}");
+                builder.Append($"{GetTraitValue(mets, minT), 8}");
+                builder.Append($"{GetTraitValue(mets, radn), 8}");
+                builder.AppendLine($"{GetTraitValue(mets, rain), 8}");
+            }
+
+            string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
+            {
+                var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
+
+                if (data.Value is double value)
+                    return Math.Round(value, 2).ToString();
+
+                return "";
+            }
+
+            return builder;
         }
     }
 }

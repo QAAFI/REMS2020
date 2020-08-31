@@ -27,7 +27,7 @@ namespace Rems.Persistence.Configurations
                 .HasColumnName("TreatmentId");
 
             // Define foreign key constraints
-            builder.HasOne(d => d.IrrigationMethod)
+            builder.HasOne(d => d.Method)
                 .WithMany(p => p.Irrigations)
                 .HasForeignKey(d => d.MethodId)
                 .OnDelete(DeleteBehavior.Cascade)

@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Site : IEntity
+    public class Site : INamed
     {
         public Site()
         {
@@ -13,15 +13,15 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
-        public string Name { get; set; } = null;
+        public string Name { get; set; }
 
-        public double? Latitude { get; set; } = null;
+        public double? Latitude { get; set; }
 
-        public double? Longitude { get; set; } = null;
+        public double? Longitude { get; set; }
 
-        public double? Elevation { get; set; } = null;
+        public double? Elevation { get; set; }
 
-        public string Notes { get; set; } = null;
+        public string Notes { get; set; }
 
 
         public virtual Region Region { get; set; }

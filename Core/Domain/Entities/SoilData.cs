@@ -1,8 +1,9 @@
 ﻿using System;
+using Rems.Domain.Attributes;
 
 namespace Rems.Domain.Entities
 {
-    public class SoilData : IEntity
+    public class SoilData : ITrait
     {
        public int SoilDataId { get; set; }
 

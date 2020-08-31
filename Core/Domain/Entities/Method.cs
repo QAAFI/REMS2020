@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Method : IEntity
+    public class Method : INamed
     {
         public Method()
         {
@@ -12,6 +12,7 @@ namespace Rems.Domain.Entities
             Harvests = new HashSet<Harvest>();
             Irrigations = new HashSet<Irrigation>();
             Tillages = new HashSet<Tillage>();
+            Sowings = new HashSet<Sowing>();
         }
 
         public int MethodId { get; set; }
@@ -29,6 +30,7 @@ namespace Rems.Domain.Entities
         public virtual ICollection<Harvest> Harvests { get; set; }
         public virtual ICollection<Irrigation> Irrigations { get; set; }
         public virtual ICollection<Tillage> Tillages { get; set; }
+        public virtual ICollection<Sowing> Sowings { get; set; }
 
     }
 }

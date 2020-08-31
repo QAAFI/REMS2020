@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Trait : IEntity
+    public class Trait : INamed
     {
         public Trait()
         {
@@ -28,7 +28,7 @@ namespace Rems.Domain.Entities
         public string Notes { get; set; } = null;
 
 
-        public virtual Unit DefaultUnit { get; set; }
+        public virtual Unit DefaultUnits { get; set; }
         public virtual ICollection<MetData> MetData { get; set; }
         public virtual ICollection<PlotData> PlotData { get; set; }
         public virtual ICollection<SoilData> SoilData { get; set; }

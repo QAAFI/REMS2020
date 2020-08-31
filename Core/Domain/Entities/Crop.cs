@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Crop : IEntity
+    public class Crop : INamed
     {
         public Crop()
         {

@@ -11,13 +11,16 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.SiteId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.SiteId)
                 .HasName("SiteId")
                 .IsUnique();
 
-            builder.Property(e => e.RegionId).HasDefaultValueSql("0");
+            builder.Property(e => e.RegionId)
+                .HasDefaultValueSql("0");
 
-            builder.Property(e => e.Name).HasMaxLength(50);
+            builder.Property(e => e.Name)
+                .HasMaxLength(50);
 
             // Define constraints
             builder.HasOne(d => d.Region)

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    public class Fertilization : IEntity
+    public class Fertilization : ITreatment
     {
         public Fertilization()
         {
@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
 
         public int FertilizationId { get; set; }
 
-        public int? TreatmentId { get; set; }
+        public int TreatmentId { get; set; }
 
         public int? FertilizerId { get; set; }
 
@@ -21,7 +21,7 @@ namespace Rems.Domain.Entities
 
         public int? UnitId { get; set; }
 
-        public DateTime? Date { get; set; }        
+        public DateTime Date { get; set; }        
 
         public int? Amount { get; set; }
 

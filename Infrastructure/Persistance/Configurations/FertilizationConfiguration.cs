@@ -18,7 +18,6 @@ namespace Rems.Persistence.Configurations
             builder.Property(e => e.Amount).HasDefaultValueSql("0");
             builder.Property(e => e.Depth).HasDefaultValueSql("0");
             builder.Property(e => e.TreatmentId).HasDefaultValueSql("0");
-            builder.Property(e => e.UnitId).HasDefaultValueSql("0");
             builder.Property(e => e.Notes).HasMaxLength(100);
 
             // Define foreign key constraints

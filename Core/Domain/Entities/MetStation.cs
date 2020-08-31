@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class MetStation : IEntity
+    public class MetStation : INamed
     {
         public MetStation()
         {
@@ -21,7 +21,7 @@ namespace Rems.Domain.Entities
 
         public double? Elevation { get; set; }
 
-        public double? Amp { get; set; }
+        public double? Amplitude { get; set; }
 
         public double? TemperatureAverage { get; set; }
 

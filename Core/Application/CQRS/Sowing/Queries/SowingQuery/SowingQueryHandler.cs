@@ -17,18 +17,19 @@ namespace Rems.Application.Queries
         private readonly IRemsDbContext _context;
         private readonly IMapper _mapper;
 
-        public SowingQueryHandler(IRemsDbFactory factory, IMapper mapper)
+        public SowingQueryHandler(IRemsDbContext context, IMapper mapper)
         {
-            _context = factory.Context;
+            _context = context;
             _mapper = mapper;
         }
 
-        public async Task<SowingQueryDto> Handle(SowingQuery request, CancellationToken token)
+        public Task<SowingQueryDto> Handle(SowingQuery request, CancellationToken token)
         {
-            return _context.Sowings
+            return Task.Run(() => _context.Sowings
                 .Where(s => s.SowingId == request.Id)
                 .ProjectTo<SowingQueryDto>(_mapper.ConfigurationProvider)
-                .Single();
+                .Single()
+            );
         }
     }
 }
