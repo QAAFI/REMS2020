@@ -30,6 +30,13 @@ namespace WindowsClient
             mediator = provider.GetRequiredService<IMediator>();
         }
 
+        public void TryDataImport(string file)
+        {
+            var importer = new ExcelImporter(mediator);
+            var data = importer.ReadDataSet(file);
+            importer.InsertDataSet(data);
+        }
+
         public async Task<bool> TryDataExport(string file)
         {
             try

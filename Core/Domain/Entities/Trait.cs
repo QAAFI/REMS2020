@@ -28,7 +28,7 @@ namespace Rems.Domain.Entities
         public string Notes { get; set; } = null;
 
 
-        public virtual Unit DefaultUnits { get; set; }
+        public virtual Unit Unit { get; set; }
         public virtual ICollection<MetData> MetData { get; set; }
         public virtual ICollection<PlotData> PlotData { get; set; }
         public virtual ICollection<SoilData> SoilData { get; set; }

@@ -18,7 +18,6 @@ namespace WindowsClient.Forms
         private int items;
 
         private double step;
-        private double max;
 
         public ProgressDialog(string title, int items)
         {
@@ -57,7 +56,6 @@ namespace WindowsClient.Forms
 
             bar.Width = 0;
             step = barPanel.Width / args.Maximum;
-            max = args.Maximum;
             pctLabel.Text = $"0%";
 
             Refresh();
