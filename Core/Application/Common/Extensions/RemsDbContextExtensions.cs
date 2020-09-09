@@ -18,18 +18,6 @@ namespace Rems.Application.Common.Extensions
             //throw new NotImplementedException();
         }
 
-        public static void Save(this IRemsDbContext context)
-        {
-            /// TODO: Implement this
-            //throw new NotImplementedException();
-        }
-
-        public static void SaveAs(this IRemsDbContext context, string file)
-        {
-            /// TODO: Implement this
-            //throw new NotImplementedException();
-        }
-
         internal static Trait GetTraitByName(this IRemsDbContext context, string name)
         {
             var trait = context.Traits.FirstOrDefault(t => t.Name == name);
