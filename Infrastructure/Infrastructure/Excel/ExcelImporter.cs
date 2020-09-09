@@ -127,7 +127,7 @@ namespace Rems.Infrastructure.Excel
                 return;
             }
 
-            var type = _mediator.Send(new EntityTypesQuery() { Name = table.TableName }).Result;
+            var type = _mediator.Send(new EntityTypeQuery() { Name = table.TableName }).Result;
             if (type == null) return;
 
             if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
@@ -139,7 +139,7 @@ namespace Rems.Infrastructure.Excel
             // This only filters true negatives, not false positives or false negatives
             else if (type.GetProperties().Count() < table.Columns.Count)
             {
-                var dependency = _mediator.Send(new EntityTypesQuery() { Name = type.Name + "Trait" }).Result;
+                var dependency = _mediator.Send(new EntityTypeQuery() { Name = type.Name + "Trait" }).Result;
                 var command = new InsertTraitTableCommand()
                 {
                     Table = table,

@@ -11,12 +11,7 @@ using MediatR;
 
 using Rems.Application;
 using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
-using Rems.Application.CQRS.Experiments.Queries.Experiments;
-using Rems.Application.DB.Commands;
-using Rems.Application.DB.Queries;
-using Rems.Application.Entities.Commands;
-using Rems.Application.Tables.Queries;
+using Rems.Application.CQRS;
 using Rems.Infrastructure;
 using Rems.Infrastructure.Excel;
 using Steema.TeeChart;
@@ -219,7 +214,7 @@ namespace WindowsClient
         {
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
-            dataGridView.DataSource = await Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
+            dataGridView.DataSource = await Logic.TryQueryREMS(new DataTableQuery() { TableName = item });
         }
 
         private async void LoadListView()

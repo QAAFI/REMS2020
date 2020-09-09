@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using MediatR;
-
-using Rems.Application.Met.Queries;
-
-using Rems.Infrastructure;
+using Rems.Application.CQRS;
 
 namespace Rems.Infrastructure.Met
 {

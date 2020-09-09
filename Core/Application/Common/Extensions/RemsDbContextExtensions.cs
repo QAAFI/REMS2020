@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Data;
 using System.Linq;
 
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace Rems.Application.Common.Extensions
 {
