@@ -1,12 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
+
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,17 +12,29 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IRemsDbContext
     {
-        EntityEntry Add(object entity);
+        #region DbContext base
 
-        void AddRange(params object[] entities);
+        IModel Model { get; }
 
         int SaveChanges();
 
         Task<int> SaveChangesAsync(CancellationToken token);
 
-        IEnumerable<string> Names { get; }
+        ChangeTracker ChangeTracker { get; }
 
-        IModel Model { get; }
+        EntityEntry Add(object entity);
+
+        EntityEntry Attach(object entity);
+
+        void AddRange(params object[] entities);
+
+        void AttachRange(params object[] entities);
+
+        void UpdateRange(params object[] entities);
+
+        #endregion
+
+        #region Sets
 
         DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
@@ -100,8 +110,12 @@ namespace Rems.Application.Common.Interfaces
 
         DbSet<Unit> Units { get; set; }
 
-        IQueryable Query(string entity);
+        #endregion
 
-        IQueryable Query(Type entity);
+        
+
+        IEnumerable<string> Names { get; }
+
+        IEnumerable<T> GetSetAsEnumerable<T>(T t) where T : class, IEntity;
     }
 }
