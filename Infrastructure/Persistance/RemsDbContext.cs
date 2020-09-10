@@ -25,7 +25,7 @@ namespace Rems.Persistence
                 return Model.GetEntityTypes().Select(e => e.GetTableName());
             }
         }
-
+        
         public RemsDbContext() { }
 
         public RemsDbContext(string filename) 
@@ -126,18 +126,126 @@ namespace Rems.Persistence
                 optionsBuilder.EnableDetailedErrors(true);
             }
         }
-        
-        public IQueryable Query(string entity)
-        {
-            string name = "Rems.Domain.Entities." + entity;
-            return Query(Model.FindEntityType(name).ClrType);
-        }
 
-        public IQueryable Query(Type entity)
+        public IEnumerable<T> GetSetAsEnumerable<T>(T t) where T : class, IEntity
         {
-            return (IQueryable)((IDbSetCache)this).GetOrAddSet(this.GetDependencies().SetSource, entity);
-        }
+            var name = t.GetType().Name;
+            switch (name)
+            {
+                case "ChemicalApplication":
+                    return ChemicalApplications.Select(e => e as T);
 
-        
+                case "Crop":
+                    return Crops.Select(e => e as T);
+
+                case "Design":
+                    return Designs.Select(e => e as T);
+
+                case "ExperimentInfo":
+                    return ExperimentInfos.Select(e => e as T);
+
+                case "Experiment":
+                    return Experiments.Select(e => e as T);
+
+                case "Factor":
+                    return Factors.Select(e => e as T);
+
+                case "FertilizationInfo":
+                    return FertilizationInfos.Select(e => e as T);
+
+                case "Fertilization":
+                    return Fertilizations.Select(e => e as T);
+
+                case "Fertilizer":
+                    return Fertilizers.Select(e => e as T);
+
+                case "Field":
+                    return Fields.Select(e => e as T);
+
+                case "Harvest":
+                    return Harvests.Select(e => e as T);
+
+                case "IrrigationInfo":
+                    return IrrigationInfos.Select(e => e as T);
+
+                case "Irrigation":
+                    return Irrigations.Select(e => e as T);
+
+                case "Level":
+                    return Levels.Select(e => e as T);
+
+                case "MetData":
+                    return MetDatas.Select(e => e as T);
+
+                case "MetInfo":
+                    return MetInfos.Select(e => e as T);
+
+                case "MetStation":
+                    return MetStations.Select(e => e as T);
+
+                case "Method":
+                    return Methods.Select(e => e as T);
+
+                case "PlotData":
+                    return PlotData.Select(e => e as T);
+
+                case "Plot":
+                    return Plots.Select(e => e as T);
+
+                case "Region":
+                    return Regions.Select(e => e as T);
+
+                case "ResearcherList":
+                    return ResearcherLists.Select(e => e as T);
+
+                case "Researcher":
+                    return Researchers.Select(e => e as T);
+
+                case "Site":
+                    return Sites.Select(e => e as T);
+
+                case "SoilData":
+                    return SoilDatas.Select(e => e as T);
+
+                case "SoilLayerData":
+                    return SoilLayerDatas.Select(e => e as T);
+
+                case "SoilLayerTrait":
+                    return SoilLayerTraits.Select(e => e as T);
+
+                case "SoilLayer":
+                    return SoilLayers.Select(e => e as T);
+
+                case "SoilTrait":
+                    return SoilTraits.Select(e => e as T);
+
+                case "Soil":
+                    return Soils.Select(e => e as T);
+
+                case "Sowing":
+                    return Sowings.Select(e => e as T);
+
+                case "Stat":
+                    return Stats.Select(e => e as T);
+
+                case "TillageInfo":
+                    return TillageInfos.Select(e => e as T);
+
+                case "Tillage":
+                    return Tillages.Select(e => e as T);
+
+                case "Trait":
+                    return Traits.Select(e => e as T);
+
+                case "Treatment":
+                    return Treatments.Select(e => e as T);
+
+                case "Unit":
+                    return Units.Select(e => e as T);
+
+                default:
+                    throw new Exception($"Could not find set of type {name}");
+            }
+        }
     }
 }

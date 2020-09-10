@@ -61,7 +61,8 @@ namespace WindowsClient.Forms
         {
             try
             {
-                return ExcelImporter.ReadRawData(box.Text);
+                //return ExcelImporter.ReadDataSet(box.Text);
+                return null;
             }
             catch
             {

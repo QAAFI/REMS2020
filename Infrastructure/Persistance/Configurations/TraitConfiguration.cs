@@ -29,7 +29,7 @@ namespace Rems.Persistence.Configurations
                 .HasMaxLength(10);
 
             // Define constraints
-            builder.HasOne(d => d.DefaultUnits)
+            builder.HasOne(d => d.Unit)
                 .WithMany(p => p.Traits)
                 .HasForeignKey(d => d.UnitId)
                 .OnDelete(DeleteBehavior.SetNull)

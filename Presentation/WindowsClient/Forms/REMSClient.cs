@@ -11,12 +11,7 @@ using MediatR;
 
 using Rems.Application;
 using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
-using Rems.Application.CQRS.Experiments.Queries.Experiments;
-using Rems.Application.DB.Commands;
-using Rems.Application.DB.Queries;
-using Rems.Application.Entities.Commands;
-using Rems.Application.Tables.Queries;
+using Rems.Application.CQRS;
 using Rems.Infrastructure;
 using Rems.Infrastructure.Excel;
 using Steema.TeeChart;
@@ -125,7 +120,7 @@ namespace WindowsClient
         /// </summary>
         private async void MenuSaveClicked(object sender, EventArgs e)
         {
-            await Logic.TryQueryREMS(new SaveDBCommand());
+            await Task.Run(() => { return; });
         }
 
         private void MenuSaveAsClicked(object sender, EventArgs e)
@@ -140,22 +135,30 @@ namespace WindowsClient
         private void ImportInformationClicked(object sender, EventArgs e)
         {
             // Even though the import operation is the same, we make a distinction between
-            // information, experiments and data for the users sake 
-            ImportFile();
+            // information, experiments and data for the users sake
+            Import();
         }
 
         private void ImportExperimentsClicked(object sender, EventArgs e)
         {
             // Even though the import operation is the same, we make a distinction between
             // information, experiments and data for the users sake 
-            ImportFile();
+            Import();
         }
 
         private void ImportDataClicked(object sender, EventArgs e)
         {
             // Even though the import operation is the same, we make a distinction between
             // information, experiments and data for the users sake 
+            Import();
+        }
+
+        private void Import()
+        {
+            Enabled = false;
             ImportFile();
+            EventManager.InvokeStopProgress(null, EventArgs.Empty);
+            Enabled = true;
         }
 
         private async void ImportFile()
@@ -169,9 +172,7 @@ namespace WindowsClient
                 {
                     try
                     {
-                        var data = ExcelImporter.ReadRawData(open.FileName);
-
-                        await Logic.TryQueryREMS(new BulkInsertCommand() { Data = data });
+                        await Task.Run(() => Logic.TryDataImport(open.FileName));
                     }
                     catch (IOException error)
                     {
@@ -179,6 +180,7 @@ namespace WindowsClient
                     }
                     catch (Exception error)
                     {
+                        while (error.InnerException != null) error = error.InnerException;
                         MessageBox.Show(error.Message);
                     }
                 }
@@ -212,7 +214,7 @@ namespace WindowsClient
         {
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
-            dataGridView.DataSource = await Logic.TryQueryREMS(new GetDataTableQuery() { TableName = item });
+            dataGridView.DataSource = await Logic.TryQueryREMS(new DataTableQuery() { TableName = item });
         }
 
         private async void LoadListView()

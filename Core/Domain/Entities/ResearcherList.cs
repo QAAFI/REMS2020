@@ -6,7 +6,7 @@
 
         public int? ResearcherId { get; set; }
 
-        public int? ExperimentId { get; set; }        
+        public int ExperimentId { get; set; }        
 
         public virtual Experiment Experiment { get; set; }
         public virtual Researcher Researcher { get; set; }

@@ -1,23 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using MediatR;
-using Rems.Application.Common.Interfaces;
-using Rems.Application.DB.Commands;
-using Rems.Application.DB.Queries;
-using Rems.Application.Entities.Commands;
-using Rems.Application.Tables.Queries;
-using Rems.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Models.Core.ApsimFile;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
-
-using Microsoft.Extensions.DependencyInjection;
-using System.Text;
-using Models.Core.ApsimFile;
 
 namespace WindowsClient
 {
@@ -28,6 +20,13 @@ namespace WindowsClient
         public ClientLogic(IServiceProvider provider)
         {
             mediator = provider.GetRequiredService<IMediator>();
+        }
+
+        public void TryDataImport(string file)
+        {
+            var importer = new ExcelImporter(mediator);
+            var data = importer.ReadDataSet(file);
+            importer.InsertDataSet(data);
         }
 
         public async Task<bool> TryDataExport(string file)
