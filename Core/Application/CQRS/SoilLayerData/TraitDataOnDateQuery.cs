@@ -9,7 +9,7 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class TraitDataOnDateQuery : IRequest<SeriesData>
+    public class TraitDataOnDateQuery : ITraitQuery<SeriesData>
     {
         public DateTime Date { get; set; }
 

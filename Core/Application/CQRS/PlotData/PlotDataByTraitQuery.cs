@@ -41,6 +41,8 @@ namespace Rems.Application.CQRS
                 .OrderBy(p => p.Date)
                 .ToArray();
 
+            if (data.Length == 0) return null;
+
             var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
             var x = rep.Select(p => p.Repetition).First();
             string name = request.TraitName + " " + x;
