@@ -199,13 +199,20 @@ namespace WindowsClient
                 {
                     try
                     {
-                        var importer = new ExcelImporter(_mediator);
-                        var data = importer.ReadDataSet(open.FileName);
-                        importer.InsertDataSet(data);
+                        if (await TryQueryREMS(new ConnectionExists()))
+                        {
+                            var importer = new ExcelImporter(_mediator);
+                            var data = importer.ReadDataSet(open.FileName);
+                            await Task.Run(() => importer.InsertDataSet(data));
 
-                        MessageBox.Show("Import complete!");
+                            MessageBox.Show("Import complete!");
 
-                        LoadExperimentsTab();
+                            LoadExperimentsTab();
+                        }
+                        else
+                        {
+                            MessageBox.Show("A database must be opened or created before importing");
+                        }                        
                     }
                     catch (IOException error)
                     {
@@ -227,13 +234,20 @@ namespace WindowsClient
         /// </summary>
         private async void MenuExportClicked(object sender, EventArgs e)
         {
-            using (var save = new SaveFileDialog())
+            if (await TryQueryREMS(new ConnectionExists()))
             {
-                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+                using (var save = new SaveFileDialog())
+                {
+                    save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
-                if (save.ShowDialog() == DialogResult.OK) 
-                    await Task.Run(() => TryDataExport(save.FileName));
+                    if (save.ShowDialog() == DialogResult.OK)
+                        await Task.Run(() => TryDataExport(save.FileName));
+                }
+            }
+            else
+            {
+                MessageBox.Show("A database must be opened before exporting.");
             }
         }
 
