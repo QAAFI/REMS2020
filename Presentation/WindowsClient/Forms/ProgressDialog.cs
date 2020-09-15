@@ -44,7 +44,9 @@ namespace WindowsClient.Forms
         private void OnTaskFailed(Exception error)
         {
             while (error.InnerException != null) error = error.InnerException;
-            MessageBox.Show(error.Message);
+            MessageBox.Show(error.Message, "Import failed!");
+
+            Close();
         }
 
         private void OnProgressChanged(object sender, EventArgs e)
@@ -71,7 +73,7 @@ namespace WindowsClient.Forms
 
             Close();
 
-            MessageBox.Show("Import complete!");
+            MessageBox.Show("No errors encountered.", "Import complete!");
         }
 
         private void OnNextItem(object sender, NextItemArgs args)

@@ -43,7 +43,7 @@ namespace WindowsClient
 
     public partial class REMSClient : Form
     {
-        private string _importFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
+        private string folder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
 
         private readonly IMediator _mediator;
 
@@ -73,15 +73,6 @@ namespace WindowsClient
             selector.ShowDialog();
         }
 
-        protected new async void Close()
-        {
-            await TryQueryREMS(new CloseDBCommand());
-
-            experimentsTree.NodeMouseClick -= OnExperimentNodeChanged;
-
-            base.Close();
-        }
-
         #endregion
 
         #region Taskbar
@@ -100,6 +91,8 @@ namespace WindowsClient
 
                 if (save.ShowDialog() == DialogResult.OK)
                 {
+                    folder = Path.GetDirectoryName(save.FileName);
+
                     await TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
                     await TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
 
@@ -115,70 +108,35 @@ namespace WindowsClient
         {
             using (var open = new OpenFileDialog())
             {
-                open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.InitialDirectory = folder;
                 open.Filter = "SQLite (*.db)|*.db";
 
                 if (open.ShowDialog() == DialogResult.OK)
                 {
+                    folder = Path.GetDirectoryName(open.FileName);
+
                     await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
+                    
                     LoadListView();
-
-                    LoadExperimentsTab();
-
+                    LoadTreeView();
                     traitChart.LoadTraitsBox();
                 }
             }
         }
 
-        /// <summary>
-        /// On click, saves changes made to the database
-        /// </summary>
-        private void MenuSaveClicked(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void MenuSaveAsClicked(object sender, EventArgs e)
-        {
-            // TODO: Implement
-            // string file = ?
-            // Logic.TryQueryREMS(new SaveAsDbCommand() { FileName = file });
-        }
-
-        #region Import
-
-        private void ImportInformationClicked(object sender, EventArgs e)
-        {
-            // Even though the import operation is the same, we make a distinction between
-            // information, experiments and data for the users sake
-            Import();
-        }
-
-        private void ImportExperimentsClicked(object sender, EventArgs e)
-        {
-            // Even though the import operation is the same, we make a distinction between
-            // information, experiments and data for the users sake 
-            Import();
-        }
-
-        private void ImportDataClicked(object sender, EventArgs e)
-        {
-            // Even though the import operation is the same, we make a distinction between
-            // information, experiments and data for the users sake 
-            Import();
-        }
-
-        private async void Import()
+        private async void Import(object sender, EventArgs e)
         {
             Enabled = false;
 
             using (var open = new OpenFileDialog())
-            {
+           {
                 open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
                 if (open.ShowDialog() == DialogResult.OK)
                 {
+                    folder = Path.GetDirectoryName(open.FileName);
+
                     try
                     {
                         if (await TryQueryREMS(new ConnectionExists()))
@@ -186,7 +144,7 @@ namespace WindowsClient
                             var importer = new ExcelImporter(_mediator, open.FileName);                           
                             new ProgressDialog(importer, "Importing...");
 
-                            LoadExperimentsTab();
+                            LoadTreeView();
                         }
                         else
                         {
@@ -209,8 +167,6 @@ namespace WindowsClient
             Enabled = true;
         }
 
-        #endregion
-
         /// <summary>
         /// 
         /// </summary>
@@ -224,7 +180,20 @@ namespace WindowsClient
                     save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
                     if (save.ShowDialog() == DialogResult.OK)
-                        await Task.Run(() => TryDataExport(save.FileName));
+                    {
+                        try
+                        {
+                            IApsimX apsim = new ApsimX(_mediator);
+                            var sims = await apsim.CreateModels();
+                            File.WriteAllText(save.FileName, FileFormat.WriteToString(sims));
+
+                            MessageBox.Show($"Export Complete.");
+                        }
+                        catch (Exception error)
+                        {
+                            MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
             }
             else
@@ -256,17 +225,7 @@ namespace WindowsClient
 
         #endregion
 
-        #region Experiments
-
-        
-
-        /// <summary>
-        /// Process the currently selected experiments tab
-        /// </summary>
-        private void LoadExperimentsTab()
-        {
-            LoadTreeView();
-        }
+        #region Experiments      
 
         /// <summary>
         /// Update the experiments tree view
@@ -413,24 +372,6 @@ namespace WindowsClient
         #endregion
 
         #region Logic
-
-        private async Task<bool> TryDataExport(string file)
-        {
-            try
-            {
-                IApsimX apsim = new ApsimX(_mediator);
-                var sims = await apsim.CreateModels();
-                File.WriteAllText(file, FileFormat.WriteToString(sims));
-
-                //MessageBox.Show($"Export Complete.");
-                return true;
-            }
-            catch (Exception error)
-            {
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
 
         public Task<T> TryQueryREMS<T>(IRequest<T> request)
         {
