@@ -28,7 +28,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertPlotsCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(InsertPlotsCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertPlotsCommand request)
         {
             var rows = request.Table.Rows.Cast<DataRow>();
 

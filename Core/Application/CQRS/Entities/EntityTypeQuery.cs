@@ -23,10 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Type> Handle(EntityTypeQuery request, CancellationToken cancellationToken)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Type> Handle(EntityTypeQuery request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
 
         private Type Handler(EntityTypeQuery request)
         {

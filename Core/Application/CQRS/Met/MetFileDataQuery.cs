@@ -26,10 +26,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<StringBuilder> Handle(MetFileDataQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request, token));
-        }
+        public Task<StringBuilder> Handle(MetFileDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private StringBuilder Handler(MetFileDataQuery request, CancellationToken token)
         {

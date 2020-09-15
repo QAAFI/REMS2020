@@ -12,12 +12,18 @@ namespace Rems.Application.Common.Extensions
 {
     public static class DataExtensions
     {
-        public static IEnumerable<DataRow> DistinctRows(this DataTable table)
+        public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {
-            var comparer = new DataRowItemComparer();
-            var rows = table.Rows.Cast<DataRow>();
+            if (comparer == null) 
+                comparer = new DataRowItemComparer();
 
-            return rows.Distinct(comparer);
+            var rows = table.Rows.Cast<DataRow>()
+                .Distinct(comparer)
+                .Select(r => r.ItemArray)
+                .ToArray();
+
+            table.Rows.Clear();
+            foreach (var row in rows) table.Rows.Add(row);
         }
 
         public static IEntity ToEntity(this DataRow row, IRemsDbContext context, Type type, PropertyInfo[] infos)

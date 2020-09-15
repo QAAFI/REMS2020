@@ -15,16 +15,13 @@ namespace Rems.Application.CQRS
 
     public class ConnectionExistsHandler : IRequestHandler<ConnectionExists, bool>
     {
-        private IRemsDbFactory _factory;
+        private readonly IRemsDbFactory _factory;
 
         public ConnectionExistsHandler(IRemsDbFactory factory)
         {
             _factory = factory;
         }
 
-        public Task<bool> Handle(ConnectionExists request, CancellationToken cancellationToken)
-        {
-            return Task.Run(() => File.Exists(_factory.Connection));
-        }
+        public Task<bool> Handle(ConnectionExists request, CancellationToken cancellationToken) => Task.Run(() => File.Exists(_factory.Connection));
     }
 }

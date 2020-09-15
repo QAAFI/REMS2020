@@ -20,15 +20,16 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<string[]> Handle(TraitTypesQuery request, CancellationToken token)
+        public Task<string[]> Handle(TraitTypesQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+
+        private string[] Handler(TraitTypesQuery request, CancellationToken token)
         {
-            return Task.Run(() => _context.Traits
+            return _context.Traits
                 .Select(t => t.Type)
                 .Where(n => n != null)
                 .Distinct()
                 .OrderBy(n => n)
-                .ToArray()
-            );
+                .ToArray();
         }
     }
 }

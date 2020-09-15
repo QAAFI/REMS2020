@@ -1,4 +1,5 @@
 ﻿using Rems.Application;
+using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,39 +9,66 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsClient.Forms
 {
     public partial class ProgressDialog : Form
     {
+        private delegate void SafeIncrement();
+
         private int item = 0;
-        private int items;
+        private readonly int items;
 
         private double step;
+        private double progress;
 
-        public ProgressDialog(string title, int items)
+        public ProgressDialog(IProgressTracker tracker, string title)
         {
             InitializeComponent();
 
-            this.Text = title;
-            this.items = items;
+            items = tracker.Items;
+            Text = title;
+            bar.Width = 0;            
 
-            bar.Width = 0;
+            Show();
 
-            EventManager.StartProgress += OnStartProgress;
-            EventManager.ProgressIncremented += OnProgressIncremented;
-            EventManager.StopProgress += OnStopProgress;
-        }
+            tracker.NextProgress += OnNextProgress;
+            tracker.IncrementProgress += OnProgressChanged;
+            tracker.StopProgress += OnRunWorkerCompleted;
 
-        private void OnStopProgress(object sender, EventArgs e)
+            tracker.Run();
+        }        
+
+        private void OnProgressChanged(object sender, EventArgs e)
         {
-            Thread.Sleep(2000);
-            
-            Close();            
+            if (InvokeRequired)
+            {
+                Invoke(new EventHandler(OnProgressChanged));
+            }
+            else
+            {
+                progress += step;
+                bar.Width = (int)progress;
+
+                int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+                pctLabel.Text = $"{pct}%";
+
+                Refresh();
+            }
         }
 
-        private void OnStartProgress(object sender, StartProgressArgs args)
+        private void OnRunWorkerCompleted(object sender, EventArgs e)
+        {
+            Thread.Sleep(1500);
+
+            Close();
+
+            MessageBox.Show("Import complete!");
+        }
+
+        private void OnNextProgress(object sender, StartProgressArgs args)
         {
             item++;
             label.Text = $"{item} of {items}: {args.Item}";
@@ -54,21 +82,13 @@ namespace WindowsClient.Forms
                 return;
             }
 
+            progress = 0;
+            step = (double)barPanel.Width / (double)args.Maximum;
             bar.Width = 0;
-            step = barPanel.Width / args.Maximum;
             pctLabel.Text = $"0%";
 
             Refresh();
         }
 
-        private void OnProgressIncremented(object sender, EventArgs e)
-        {
-            bar.Width += (int)step;
-
-            int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
-            pctLabel.Text = $"{pct}%";
-            
-            Refresh();
-        }
     }
 }

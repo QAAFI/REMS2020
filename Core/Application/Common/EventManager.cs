@@ -28,8 +28,8 @@ namespace Rems.Application
         /// <summary>
         /// 
         /// </summary>
-        public static event StartProgressHandler StartProgress;
-        public delegate void StartProgressHandler(object sender, StartProgressArgs args);
+        public static event NextProgressHandler StartProgress;
+        public delegate void NextProgressHandler(object sender, StartProgressArgs args);
         public static void InvokeStartProgress(object sender, StartProgressArgs args)
             => StartProgress?.Invoke(sender, args);
 

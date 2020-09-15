@@ -62,8 +62,7 @@ namespace WindowsClient
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            EventManager.ItemNotFound += OnEntityNotFound;
-            EventManager.ProgressTracking += OnProgressTrackingActivated;            
+            EventManager.ItemNotFound += OnEntityNotFound;         
         }
 
         #region Form
@@ -72,17 +71,6 @@ namespace WindowsClient
         {
             var selector = new ItemSelector(args);
             selector.ShowDialog();
-        }
-
-        private void OnProgressTrackingActivated(object sender, ProgressTrackingArgs args)
-        {
-            // TODO: Data import needs to be refactored before we can disable the main client during import.
-            // This is due to threading issues
-
-            //Enabled = false;
-
-            var tracker = new ProgressDialog(args.Title, args.Items);
-            tracker.Show();
         }
 
         protected new async void Close()
@@ -180,16 +168,10 @@ namespace WindowsClient
             Import();
         }
 
-        private void Import()
+        private async void Import()
         {
             Enabled = false;
-            ImportFile();
-            EventManager.InvokeStopProgress(null, EventArgs.Empty);
-            Enabled = true;
-        }
 
-        private async void ImportFile()
-        {
             using (var open = new OpenFileDialog())
             {
                 open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -201,11 +183,8 @@ namespace WindowsClient
                     {
                         if (await TryQueryREMS(new ConnectionExists()))
                         {
-                            var importer = new ExcelImporter(_mediator);
-                            var data = importer.ReadDataSet(open.FileName);
-                            await Task.Run(() => importer.InsertDataSet(data));
-
-                            MessageBox.Show("Import complete!");
+                            var importer = new ExcelImporter(_mediator, open.FileName);                           
+                            new ProgressDialog(importer, "Importing...");
 
                             LoadExperimentsTab();
                         }
@@ -225,6 +204,9 @@ namespace WindowsClient
                     }
                 }
             }
+
+            EventManager.InvokeStopProgress(null, EventArgs.Empty);
+            Enabled = true;
         }
 
         #endregion

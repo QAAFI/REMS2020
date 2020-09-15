@@ -23,16 +23,15 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<IEnumerable<KeyValuePair<int, string>>> Handle(PlotsQuery request, CancellationToken token)
+        public Task<IEnumerable<KeyValuePair<int, string>>> Handle(PlotsQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+
+        private IEnumerable<KeyValuePair<int, string>> Handler(PlotsQuery request, CancellationToken token)
         {
-            return Task.Run(() =>
-            {
-                return _context.Plots
+            return _context.Plots
                 .Where(p => p.TreatmentId == request.TreatmentId)
                 .OrderBy(p => p.Repetition)
                 .Select(p => new KeyValuePair<int, string>(p.PlotId, p.Repetition.ToString()))
                 .AsEnumerable();
-            });
         }
     }
 }

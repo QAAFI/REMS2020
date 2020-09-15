@@ -33,10 +33,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Zone> Handle(ZoneQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Zone> Handle(ZoneQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Zone Handler(ZoneQuery request)
         {

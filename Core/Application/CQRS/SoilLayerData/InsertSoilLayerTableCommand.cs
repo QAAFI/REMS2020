@@ -31,7 +31,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertSoilLayerTableCommand request, CancellationToken token)
+        public Task<Unit> Handle(InsertSoilLayerTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertSoilLayerTableCommand request)
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 

@@ -20,12 +20,6 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<IEnumerable<string>> Handle(GetTableListQuery request, CancellationToken cancellationToken)
-        {
-            return Task.Run(() =>
-            {
-                return _context.Names;
-            });
-        }
+        public Task<IEnumerable<string>> Handle(GetTableListQuery request, CancellationToken cancellationToken) => Task.Run(() => _context.Names);
     }
 }

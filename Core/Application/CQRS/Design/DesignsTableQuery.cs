@@ -23,10 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request, token));
-        }
+        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private DataTable Handler(DesignsTableQuery request, CancellationToken token)
         {

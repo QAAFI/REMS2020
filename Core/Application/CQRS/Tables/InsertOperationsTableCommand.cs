@@ -31,7 +31,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertOperationsTableCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(InsertOperationsTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertOperationsTableCommand request)
         {
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Skip(2)

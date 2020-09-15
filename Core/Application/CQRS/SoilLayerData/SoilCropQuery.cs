@@ -34,10 +34,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<SoilCrop> Handle(SoilCropQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<SoilCrop> Handle(SoilCropQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private SoilCrop Handler(SoilCropQuery request)
         {

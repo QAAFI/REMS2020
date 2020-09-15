@@ -23,10 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Dictionary<string, string>> Handle(SowingSummary request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Dictionary<string, string>> Handle(SowingSummary request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Dictionary<string, string> Handler(SowingSummary request)
         {

@@ -23,13 +23,14 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<KeyValuePair<int, string>[]> Handle(TreatmentsQuery request, CancellationToken token)
+        public Task<KeyValuePair<int, string>[]> Handle(TreatmentsQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+
+        private KeyValuePair<int, string>[] Handler(TreatmentsQuery request, CancellationToken token)
         {
-            return Task.Run(() => _context.Treatments
+            return _context.Treatments
                 .Where(t => t.ExperimentId == request.ExperimentId)
                 .Select(t => new KeyValuePair<int, string>(t.TreatmentId, t.Name))
-                .ToArray()
-            );
+                .ToArray();
         }
     }
 }

@@ -26,7 +26,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertTableCommand request)
         {
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Select(c => c.FindInfo(request.Type))
@@ -38,9 +40,8 @@ namespace Rems.Application.CQRS
                 var entity = row.ToEntity(_context, request.Type, infos);
                 _context.Add(entity);
 
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
-            }
-
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);                
+            }            
             _context.SaveChanges();
 
             return Unit.Value;

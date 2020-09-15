@@ -34,10 +34,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Operation[]> Handle(FertilizationsQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Operation[]> Handle(FertilizationsQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Operation[] Handler(FertilizationsQuery request)
         {

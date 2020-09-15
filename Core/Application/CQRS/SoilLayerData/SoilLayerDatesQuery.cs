@@ -22,14 +22,15 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<DateTime[]> Handle(SoilLayerDatesQuery request, CancellationToken token)
+        public Task<DateTime[]> Handle(SoilLayerDatesQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+
+        private DateTime[] Handler(SoilLayerDatesQuery request, CancellationToken token)
         {
-            return Task.Run(() => _context.SoilLayerDatas
+            return _context.SoilLayerDatas
                 .Where(d => d.Plot.TreatmentId == request.TreatmentId)
                 .Select(d => d.Date)
                 .Distinct()
-                .ToArray()
-            );
+                .ToArray();
         }
     }
 }

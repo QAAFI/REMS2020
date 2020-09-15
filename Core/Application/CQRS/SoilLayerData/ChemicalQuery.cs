@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Chemical> Handle(ChemicalQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Chemical> Handle(ChemicalQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Chemical Handler(ChemicalQuery request)
         {

@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Sample> Handle(SampleQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Sample> Handle(SampleQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Sample Handler(SampleQuery request)
         {
