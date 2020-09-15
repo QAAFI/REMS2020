@@ -11,13 +11,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Rems.Application.EventManager;
 
 namespace WindowsClient.Forms
 {
     public partial class ProgressDialog : Form
     {
-        private delegate void SafeIncrement();
-
         private int item = 0;
         private readonly int items;
 
@@ -34,12 +33,19 @@ namespace WindowsClient.Forms
 
             Show();
 
-            tracker.NextProgress += OnNextProgress;
+            tracker.NextProgress += OnNextItem;
             tracker.IncrementProgress += OnProgressChanged;
             tracker.StopProgress += OnRunWorkerCompleted;
+            tracker.TaskFailed += OnTaskFailed;
 
             tracker.Run();
-        }        
+        }
+
+        private void OnTaskFailed(Exception error)
+        {
+            while (error.InnerException != null) error = error.InnerException;
+            MessageBox.Show(error.Message);
+        }
 
         private void OnProgressChanged(object sender, EventArgs e)
         {
@@ -50,7 +56,7 @@ namespace WindowsClient.Forms
             else
             {
                 progress += step;
-                bar.Width = (int)progress;
+                bar.Width = Convert.ToInt32(progress);
 
                 int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
                 pctLabel.Text = $"{pct}%";
@@ -68,26 +74,33 @@ namespace WindowsClient.Forms
             MessageBox.Show("Import complete!");
         }
 
-        private void OnNextProgress(object sender, StartProgressArgs args)
+        private void OnNextItem(object sender, NextItemArgs args)
         {
-            item++;
-            label.Text = $"{item} of {items}: {args.Item}";
-
-            if (args.Maximum == 0)
+            if (InvokeRequired)
             {
-                bar.Width = barPanel.Width;
-                pctLabel.Text = $"100%";
+                Invoke(new NextItemHandler(OnNextItem));
+            }
+            else
+            {
+                item++;
+                label.Text = $"{item} of {items}: {args.Item}";
+
+                if (args.Maximum == 0)
+                {
+                    bar.Width = barPanel.Width;
+                    pctLabel.Text = $"100%";
+
+                    Refresh();
+                    return;
+                }
+
+                progress = 0;
+                step = ((double)barPanel.Width) / args.Maximum;
+                bar.Width = 0;
+                pctLabel.Text = $"0%";
 
                 Refresh();
-                return;
             }
-
-            progress = 0;
-            step = (double)barPanel.Width / (double)args.Maximum;
-            bar.Width = 0;
-            pctLabel.Text = $"0%";
-
-            Refresh();
         }
 
     }

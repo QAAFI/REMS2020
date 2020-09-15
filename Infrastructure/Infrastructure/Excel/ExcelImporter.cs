@@ -10,14 +10,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Rems.Application.EventManager;
 
 namespace Rems.Infrastructure.Excel
 {
     public class ExcelImporter : IProgressTracker
     {
-        public event EventManager.NextProgressHandler NextProgress;
+        public event NextItemHandler NextProgress;
         public event EventHandler IncrementProgress;
         public event EventHandler StopProgress;
+        public event ExceptionHandler TaskFailed;
         
         public DataSet Data { get; private set; }
 
@@ -29,7 +31,7 @@ namespace Rems.Infrastructure.Excel
         {
             _mediator = mediator;
 
-            EventManager.ProgressIncremented += OnProgressIncremented;
+            ProgressIncremented += OnProgressIncremented;
 
             ReadData(filepath);
         }
@@ -59,11 +61,18 @@ namespace Rems.Infrastructure.Excel
         }
 
         public async void Run()
-        {              
-            foreach (DataTable table in Data.Tables) 
-                await InsertTable(table);
+        {
+            try
+            {
+                foreach (DataTable table in Data.Tables)
+                    await InsertTable(table);
 
-            StopProgress?.Invoke(null, EventArgs.Empty);
+                StopProgress?.Invoke(null, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
+                TaskFailed?.Invoke(e);
+            }      
         }
 
         /// <summary>
@@ -77,7 +86,7 @@ namespace Rems.Infrastructure.Excel
             // Remove any duplicate rows from the table
             table.RemoveDuplicateRows();            
 
-            var args = new StartProgressArgs()
+            var args = new NextItemArgs()
             {
                 Maximum = table.Rows.Count,
                 Item = table.TableName

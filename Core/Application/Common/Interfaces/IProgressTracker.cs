@@ -8,11 +8,13 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IProgressTracker
     {
-        event NextProgressHandler NextProgress;
+        event NextItemHandler NextProgress;
 
         event EventHandler IncrementProgress;
 
         event EventHandler StopProgress;
+
+        event ExceptionHandler TaskFailed;
 
         int Items { get; }
 
