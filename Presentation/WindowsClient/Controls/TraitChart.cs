@@ -169,6 +169,8 @@ namespace WindowsClient.Controls
 
         public async void LoadTraitsBox()
         {
+            traitTypeBox.Items.Clear();
+
             // Load the trait type box
             var types = await StringsQuery?.Invoke(new TraitTypesQuery());
 

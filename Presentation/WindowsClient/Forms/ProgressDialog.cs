@@ -1,13 +1,7 @@
 ﻿using Rems.Application;
 using Rems.Application.Common.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
+
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +11,8 @@ namespace WindowsClient.Forms
 {
     public partial class ProgressDialog : Form
     {
+        public event Action TaskComplete;
+
         private int item = 0;
         private readonly int items;
 
@@ -73,7 +69,9 @@ namespace WindowsClient.Forms
 
             Close();
 
-            MessageBox.Show("No errors encountered.", "Import complete!");
+            MessageBox.Show("No errors encountered.", "Task complete!");
+
+            TaskComplete?.Invoke();
         }
 
         private void OnNextItem(object sender, NextItemArgs args)

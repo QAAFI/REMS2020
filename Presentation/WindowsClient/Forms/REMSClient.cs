@@ -116,10 +116,8 @@ namespace WindowsClient
                     folder = Path.GetDirectoryName(open.FileName);
 
                     await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
-                    
-                    LoadListView();
-                    LoadTreeView();
-                    traitChart.LoadTraitsBox();
+
+                    UpdateAllComponents();
                 }
             }
         }
@@ -142,9 +140,7 @@ namespace WindowsClient
                         if (await TryQueryREMS(new ConnectionExists()))
                         {
                             var importer = new ExcelImporter(_mediator, open.FileName);                           
-                            new ProgressDialog(importer, "Importing...");
-
-                            LoadTreeView();
+                            new ProgressDialog(importer, "Importing...").TaskComplete += UpdateAllComponents;                            
                         }
                         else
                         {
@@ -165,6 +161,13 @@ namespace WindowsClient
 
             EventManager.InvokeStopProgress(null, EventArgs.Empty);
             Enabled = true;
+        }
+
+        private void UpdateAllComponents()
+        {
+            LoadListView();
+            LoadTreeView();
+            traitChart.LoadTraitsBox();
         }
 
         /// <summary>
