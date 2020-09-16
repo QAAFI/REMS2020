@@ -31,7 +31,7 @@ namespace Rems.Application.CQRS
 
             var table = new DataTable("Designs");
 
-            var names = _context.Factors.Select(f => f.Name);
+            var names = _context.Factors.Select(f => f.Name).Distinct();
             var type = "".GetType();
 
             var columns = names.Select(n => new DataColumn(n, type)).ToArray();

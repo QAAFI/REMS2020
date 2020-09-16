@@ -57,6 +57,8 @@ namespace Rems.Application.CQRS
 
                     _context.Attach(data);
                 }
+
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChanges();
 

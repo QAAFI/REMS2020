@@ -3,7 +3,6 @@ using Rems.Domain.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -55,6 +54,7 @@ namespace Rems.Application.Common.Extensions
                     info.SetValue(entity, named);
 
                     context.Attach(named);
+                    context.SaveChanges();
                 }
                 else
                 {
