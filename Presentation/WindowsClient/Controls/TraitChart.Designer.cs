@@ -34,34 +34,36 @@
             this.traitsBox = new System.Windows.Forms.CheckedListBox();
             this.chart = new Steema.TeeChart.TChart();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.dateLabel = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // rightBtn
             // 
-            this.rightBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.rightBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.rightBtn.BackgroundImage = global::WindowsClient.Properties.Resources.right;
             this.rightBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.rightBtn.Location = new System.Drawing.Point(522, 3);
+            this.rightBtn.Enabled = false;
+            this.rightBtn.Location = new System.Drawing.Point(666, 532);
             this.rightBtn.Margin = new System.Windows.Forms.Padding(0);
             this.rightBtn.Name = "rightBtn";
-            this.rightBtn.Size = new System.Drawing.Size(24, 24);
+            this.rightBtn.Size = new System.Drawing.Size(29, 29);
             this.rightBtn.TabIndex = 19;
             this.rightBtn.UseVisualStyleBackColor = true;
-            this.rightBtn.Visible = false;
             this.rightBtn.Click += new System.EventHandler(this.RightClicked);
             // 
             // leftBtn
             // 
+            this.leftBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.leftBtn.BackgroundImage = global::WindowsClient.Properties.Resources.left;
             this.leftBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.leftBtn.Location = new System.Drawing.Point(3, 3);
+            this.leftBtn.Enabled = false;
+            this.leftBtn.Location = new System.Drawing.Point(552, 532);
             this.leftBtn.Margin = new System.Windows.Forms.Padding(0);
             this.leftBtn.Name = "leftBtn";
-            this.leftBtn.Size = new System.Drawing.Size(24, 24);
+            this.leftBtn.Size = new System.Drawing.Size(29, 29);
             this.leftBtn.TabIndex = 18;
             this.leftBtn.UseVisualStyleBackColor = true;
-            this.leftBtn.Visible = false;
             this.leftBtn.Click += new System.EventHandler(this.LeftClicked);
             // 
             // traitTypeBox
@@ -82,7 +84,7 @@
             this.traitsBox.FormattingEnabled = true;
             this.traitsBox.Location = new System.Drawing.Point(552, 30);
             this.traitsBox.Name = "traitsBox";
-            this.traitsBox.Size = new System.Drawing.Size(143, 529);
+            this.traitsBox.Size = new System.Drawing.Size(143, 499);
             this.traitsBox.TabIndex = 16;
             // 
             // chart
@@ -96,6 +98,10 @@
             // 
             // 
             // 
+            // 
+            // 
+            // 
+            this.chart.Axes.Bottom.Grid.Visible = true;
             // 
             // 
             // 
@@ -539,10 +545,6 @@
             // 
             // 
             // 
-            this.chart.Axes.Right.AxisPen.Visible = true;
-            // 
-            // 
-            // 
             // 
             // 
             // 
@@ -648,6 +650,10 @@
             // 
             // 
             // 
+            // 
+            // 
+            // 
+            this.chart.Axes.Top.AxisPen.Visible = false;
             // 
             // 
             // 
@@ -1261,6 +1267,7 @@
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.dateLabel);
             this.panel1.Controls.Add(this.rightBtn);
             this.panel1.Controls.Add(this.leftBtn);
             this.panel1.Controls.Add(this.chart);
@@ -1271,6 +1278,18 @@
             this.panel1.Size = new System.Drawing.Size(698, 567);
             this.panel1.TabIndex = 20;
             // 
+            // dateLabel
+            // 
+            this.dateLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.dateLabel.AutoSize = true;
+            this.dateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dateLabel.Location = new System.Drawing.Point(583, 538);
+            this.dateLabel.Name = "dateLabel";
+            this.dateLabel.Size = new System.Drawing.Size(80, 17);
+            this.dateLabel.TabIndex = 20;
+            this.dateLabel.Text = "01/01/2000";
+            this.dateLabel.Visible = false;
+            // 
             // TraitChart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1279,6 +1298,7 @@
             this.Name = "TraitChart";
             this.Size = new System.Drawing.Size(704, 573);
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1291,5 +1311,6 @@
         private System.Windows.Forms.CheckedListBox traitsBox;
         private Steema.TeeChart.TChart chart;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label dateLabel;
     }
 }

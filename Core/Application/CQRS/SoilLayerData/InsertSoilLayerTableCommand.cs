@@ -46,7 +46,7 @@ namespace Rems.Application.CQRS
                     .Where(p => p.Treatment.ExperimentId == id)
                     .Where(p => p.Column == col)
                     .Single()
-                    .TreatmentId;
+                    .PlotId;
 
                 for (int i = 5; i < row.ItemArray.Length; i++)
                 {

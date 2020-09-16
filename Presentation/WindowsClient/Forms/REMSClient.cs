@@ -43,7 +43,7 @@ namespace WindowsClient
 
     public partial class REMSClient : Form
     {
-        private string folder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase), "Data");
+        private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private readonly IMediator _mediator;
 

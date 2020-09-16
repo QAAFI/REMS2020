@@ -43,6 +43,8 @@ namespace Rems.Application.CQRS
 
             foreach (DataColumn c in request.Table.Columns)
             {
+                if (c.ColumnName.Contains("Column")) continue;
+
                 if (c.FindProperty(request.Type) is PropertyInfo info)
                 {
                     infos.Add(info);

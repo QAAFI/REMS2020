@@ -31,8 +31,11 @@ namespace WindowsClient.Controls
                 node = value;
                 if (value is null)
                     chart.Series.Clear();
-                else 
+                else
+                {
+                    RefreshSoilDataDates();
                     RefreshChart();
+                }
             }
         }
 
@@ -42,29 +45,15 @@ namespace WindowsClient.Controls
         public event QueryHandler<DateTime[]> DatesQuery;
         public event QueryHandler<PlotDataBounds> BoundsQuery;
 
-        private DateTime[] dates;
+        private DateTime[] dates = new DateTime[1];
         private int date = 0;
 
         public TraitChart()
         {
             InitializeComponent();
 
-            //XAxis = new Axis(chart.Chart)
-            //{
-            //    Horizontal = true,
-            //    AutomaticMaximum = true,
-            //    AutomaticMinimum = true
-            //};
-
-            //chart.Axes.Custom.Add(XAxis);
-            //chart.Axes.Custom.Add(YAxis);
-
             chart.Axes.Left.AutomaticMinimum = false;
             chart.Axes.Left.Minimum = 0;
-
-            //chart.Axes.Bottom.Grid.Visible = true;
-            //chart.Axes.Bottom.Grid.DrawEvery = 1;
-
             chart.Text = "Crop Traits";
 
             traitTypeBox.SelectedValueChanged += OnTraitChanged;
@@ -75,7 +64,7 @@ namespace WindowsClient.Controls
 
         private void OnTraitChanged(object sender, EventArgs args) => RefreshTraitsList();
 
-        public void PlotSeries(SeriesData series)
+        private void PlotSeries(SeriesData series)
         {
             if (series is null) return;
             if (series.X.Length == 0) return;
@@ -83,20 +72,11 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Title.Text = series.YLabel;
 
             Points points = new Points();
-            //{
-            //    CustomVertAxis = YAxis,
-            //    //CustomHorizAxis = XAxis
-            //};
             points.Legend.Text = series.Name;
             points.Legend.Visible = false;
 
             Line line = new Line();
-            //{
-            //    CustomVertAxis = YAxis,
-            //    //CustomHorizAxis = XAxis
-            //};
-            line.Legend.Visible = false;
-            
+            line.Legend.Visible = false;            
 
             if (series.X.GetValue(0) is DateTime)
             {
@@ -115,32 +95,22 @@ namespace WindowsClient.Controls
             chart.Series.Add(points);
 
             line.Color = points.Color;
-
-            //chart.Refresh();
         }
 
         private void RefreshChart()
         {
-            if (node is null) return;
+            if (node is null) 
+                return;            
 
-            leftBtn.Visible = false;
-            rightBtn.Visible = false;
-
-            if (traitTypeBox.Text == "Crop") RefreshCropData();
-            if (traitTypeBox.Text == "SoilLayer") RefreshSoilControl();
+            else if (traitTypeBox.Text == "Crop") 
+                RefreshCropData();
+            
+            else if (traitTypeBox.Text == "SoilLayer")
+                RefreshSoilData();
         }
 
-        private async void RefreshSoilControl()
-        {
-            if (!await RefreshSoilDataDates()) return;
-
-            leftBtn.Visible = true;
-            rightBtn.Visible = true;
-
-            RefreshSoilData();
-        }
-
-        public async Task<bool> RefreshSoilDataDates()
+        // On Node changing
+        public void RefreshSoilDataDates()
         {
             date = 0;
             
@@ -156,15 +126,17 @@ namespace WindowsClient.Controls
                     query.TreatmentId = ((NodeTag)node.Parent.Tag).ID;
                     break;
 
-                default:
-                    return false;
-            }
-            dates = await Task.Run(() => DatesQuery.Invoke(query));
+                case TagType.Experiment:                    
+                    break;
 
-            if (dates.Length > 0)
-                return true;
-            else
-                return false;
+                default:
+                    if (node.Text == "All")
+                        query.TreatmentId = ((NodeTag)node.Parent.Tag).ID;
+                    break;
+            }
+            dates = DatesQuery.Invoke(query).Result;
+
+            if (dates.Length < 1) dates = new DateTime[1];
         }
 
         public async void LoadTraitsBox()
@@ -177,7 +149,7 @@ namespace WindowsClient.Controls
             if (types.Length == 0) return;
 
             traitTypeBox.Items.AddRange(types);
-            traitTypeBox.SelectedIndex = 0;
+            traitTypeBox.SelectedIndex = 0;            
         }
 
         public async void RefreshTraitsList()
@@ -187,6 +159,8 @@ namespace WindowsClient.Controls
             var traits = await StringsQuery.Invoke(query);
             traitsBox.Items.AddRange(traits);
             traitsBox.Refresh();
+
+            RefreshChart();
         }
 
         private async void SetAxisBounds(string trait)
@@ -200,17 +174,14 @@ namespace WindowsClient.Controls
 
         public async void RefreshCropData()
         {
+            leftBtn.Enabled = false;
+            rightBtn.Enabled = false;
+            dateLabel.Text = "";
+
             chart.Series.Clear();
-
             chart.Text = "Crop Traits";
-
             chart.Axes.Left.Inverted = false;
-            chart.Axes.Right.Visible = true;
-            chart.Axes.Right.AxisPen.Visible = true;
-            chart.Axes.Top.Visible = true;
-            chart.Axes.Top.AxisPen.Visible = true;
-            chart.Axes.Bottom.MinorGrid.Visible = false;
-            
+            chart.Axes.Bottom.AutomaticMinimum = true;
 
             foreach (string trait in traitsBox.CheckedItems)
             {
@@ -247,7 +218,6 @@ namespace WindowsClient.Controls
                                 if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                                 {
                                     query.PlotId = t.ID;
-
                                     PlotSeries(await SeriesQuery.Invoke(query));
                                 }
                             }
@@ -260,11 +230,19 @@ namespace WindowsClient.Controls
 
         public async void RefreshSoilData()
         {
+            leftBtn.Enabled = true;
+            rightBtn.Enabled = true;
+            dateLabel.Visible = true;
+
             chart.Series.Clear();
 
             chart.Axes.Left.Inverted = true;
+            chart.Axes.Bottom.Minimum = 0;
+            chart.Axes.Bottom.AutomaticMinimum = false;
 
-            chart.Text = dates[date].ToString();
+            chart.Text = "Soil traits";
+
+            dateLabel.Text = dates[date].ToString("dd/MM/yyyy");
 
             var query = new TraitDataOnDateQuery()
             {
@@ -283,10 +261,11 @@ namespace WindowsClient.Controls
                         break;
 
                     case TagType.Treatment:
-                        var mean = new MeanTreatmentDataByTraitQuery()
+                        var mean = new MeanDataQuery()
                         {
+                            Date = dates[date],
                             TraitName = trait,
-                            TreatmentId = (int)node.Tag
+                            TreatmentId = tag.ID
                         };
                         PlotSeries(await SeriesQuery.Invoke(mean));
                         break;
@@ -296,10 +275,10 @@ namespace WindowsClient.Controls
                         PlotSeries(await SeriesQuery.Invoke(query));
                         break;
 
-                    case TagType.Empty:
-                        if (node.Name == "All")
+                    default:
+                        if (node.Text == "All")
                         {
-                            foreach (TreeNode plot in node.Nodes)
+                            foreach (TreeNode plot in node.Parent.Nodes)
                             {
                                 if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                                 {
@@ -307,13 +286,9 @@ namespace WindowsClient.Controls
                                     PlotSeries(await SeriesQuery.Invoke(query));
                                 }
                             }
-
                         }
                         break;
-
-                    default:
-                        break;
-                }
+                }                
             }
         }
 
