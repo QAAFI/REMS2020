@@ -3,7 +3,6 @@ using Rems.Domain.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -12,12 +11,18 @@ namespace Rems.Application.Common.Extensions
 {
     public static class DataExtensions
     {
-        public static IEnumerable<DataRow> DistinctRows(this DataTable table)
+        public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {
-            var comparer = new DataRowItemComparer();
-            var rows = table.Rows.Cast<DataRow>();
+            if (comparer == null) 
+                comparer = new DataRowItemComparer();
 
-            return rows.Distinct(comparer);
+            var rows = table.Rows.Cast<DataRow>()
+                .Distinct(comparer)
+                .Select(r => r.ItemArray)
+                .ToArray();
+
+            table.Rows.Clear();
+            foreach (var row in rows) table.Rows.Add(row);
         }
 
         public static IEntity ToEntity(this DataRow row, IRemsDbContext context, Type type, PropertyInfo[] infos)
@@ -49,6 +54,7 @@ namespace Rems.Application.Common.Extensions
                     info.SetValue(entity, named);
 
                     context.Attach(named);
+                    context.SaveChanges();
                 }
                 else
                 {

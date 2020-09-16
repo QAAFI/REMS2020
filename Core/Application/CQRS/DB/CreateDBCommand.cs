@@ -21,9 +21,6 @@ namespace Rems.Application.CQRS
             _factory = factory;
         }
 
-        public Task<IRemsDbContext> Handle(CreateDBCommand request, CancellationToken cancellationToken)
-        {
-            return Task.Run(() => _factory.Create(request.FileName));
-        }
+        public Task<IRemsDbContext> Handle(CreateDBCommand request, CancellationToken cancellationToken) => Task.Run(() => _factory.Create(request.FileName));
     }
 }

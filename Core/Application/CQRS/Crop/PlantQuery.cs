@@ -33,11 +33,8 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Plant> Handle(PlantQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
-
+        public Task<Plant> Handle(PlantQuery request, CancellationToken token) => Task.Run(() => Handler(request));
+        
         private Plant Handler(PlantQuery request)
         {
             var crop = _context.Experiments.Find(request.ExperimentId).Crop;

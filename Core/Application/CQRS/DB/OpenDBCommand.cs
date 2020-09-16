@@ -21,10 +21,12 @@ namespace Rems.Application.CQRS
             _factory = factory;
         }
 
-        public Task<Unit> Handle(OpenDBCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(OpenDBCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(OpenDBCommand request)
         {
             _factory.Connection = request.FileName;
-            return Task.Run(() => Unit.Value);
+            return Unit.Value;
         }
     }
 }

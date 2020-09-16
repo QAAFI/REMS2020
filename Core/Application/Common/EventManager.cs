@@ -9,6 +9,8 @@ namespace Rems.Application
     // TODO: It might be safer to implement this as a singleton, as opposed to using static events
     public static class EventManager
     {
+        public delegate void ExceptionHandler(Exception exception);
+
         /// <summary>
         /// 
         /// </summary>
@@ -28,10 +30,10 @@ namespace Rems.Application
         /// <summary>
         /// 
         /// </summary>
-        public static event StartProgressHandler StartProgress;
-        public delegate void StartProgressHandler(object sender, StartProgressArgs args);
-        public static void InvokeStartProgress(object sender, StartProgressArgs args)
-            => StartProgress?.Invoke(sender, args);
+        public static event NextItemHandler NextItem;
+        public delegate void NextItemHandler(object sender, NextItemArgs args);
+        public static void InvokeNextItem(object sender, NextItemArgs args)
+            => NextItem?.Invoke(sender, args);
 
         /// <summary>
         /// 
@@ -66,7 +68,7 @@ namespace Rems.Application
         public string Title { get; set; }
     }
 
-    public class StartProgressArgs : EventArgs
+    public class NextItemArgs : EventArgs
     {
         public int Maximum { get; set; }
 

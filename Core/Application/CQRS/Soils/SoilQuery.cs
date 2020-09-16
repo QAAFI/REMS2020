@@ -33,10 +33,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Soil> Handle(SoilQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Soil> Handle(SoilQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Soil Handler(SoilQuery request)
         {

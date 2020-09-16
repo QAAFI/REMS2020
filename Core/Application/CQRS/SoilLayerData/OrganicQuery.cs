@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Organic> Handle(OrganicQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Organic> Handle(OrganicQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Organic Handler(OrganicQuery request)
         {

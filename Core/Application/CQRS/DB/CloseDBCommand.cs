@@ -20,13 +20,12 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Unit> Handle(CloseDBCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(CloseDBCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(CloseDBCommand request)
         {
-            return Task.Run(() =>
-            {
-                _context.Close();
-                return Unit.Value;
-            });
+            _context.Close(); 
+            return Unit.Value;
         }
     }
 }

@@ -33,10 +33,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Clock> Handle(ClockQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Clock> Handle(ClockQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Clock Handler(ClockQuery request)
         {

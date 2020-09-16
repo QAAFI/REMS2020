@@ -31,7 +31,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertMetDataTableCommand request, CancellationToken token)
+        public Task<Unit> Handle(InsertMetDataTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
+        
+        private Unit Handler(InsertMetDataTableCommand request)
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
@@ -55,6 +57,8 @@ namespace Rems.Application.CQRS
 
                     _context.Attach(data);
                 }
+
+                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
             }
             _context.SaveChanges();
 

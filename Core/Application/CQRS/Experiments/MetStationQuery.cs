@@ -21,9 +21,13 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<string> Handle(MetStationQuery request, CancellationToken cancellationToken)
+        public Task<string> Handle(MetStationQuery request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+        
+        private string Handler(MetStationQuery request)
         {
-            return Task.Run(() => _context.Experiments.Find(request.ExperimentId).MetStation.Name);
+            return _context.Experiments.Find(request.ExperimentId)
+                .MetStation
+                .Name;
         }
     }
 }

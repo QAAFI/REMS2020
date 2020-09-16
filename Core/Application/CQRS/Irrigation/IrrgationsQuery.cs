@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Operation[]> Handle(IrrigationsQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Operation[]> Handle(IrrigationsQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Operation[] Handler(IrrigationsQuery request)
         {

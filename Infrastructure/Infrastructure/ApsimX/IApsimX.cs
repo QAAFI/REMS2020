@@ -377,7 +377,7 @@ namespace Rems.Infrastructure.ApsimX
             request.Wait();
             var result = request.Result;
 
-            EventManager.InvokeStartProgress(null, new StartProgressArgs() { Item = name, Maximum = result.Length });
+            EventManager.InvokeNextItem(null, new NextItemArgs() { Item = name, Maximum = result.Length });
 
             foreach (var treatment in result)
                 folder.AddTreatment(apsim, name + "_" + treatment.Value, id, treatment.Key);

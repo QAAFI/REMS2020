@@ -23,21 +23,20 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<PlotDataBounds> Handle(PlotDataTraitBoundsQuery request, CancellationToken token)
-        {
-            return Task.Run(() =>
-            {
-                var data = _context.PlotData
-                .Where(p => p.Trait.Name == request.TraitName);
+        public Task<PlotDataBounds> Handle(PlotDataTraitBoundsQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-                return new PlotDataBounds()
-                {
-                    YMin = data.Min(p => p.Value),
-                    YMax = data.Max(p => p.Value),
-                    XMin = data.Min(p => p.Date),
-                    XMax = data.Max(p => p.Date)
-                };
-            });
+        private PlotDataBounds Handler(PlotDataTraitBoundsQuery request, CancellationToken token)
+        {
+            var data = _context.PlotData
+            .Where(p => p.Trait.Name == request.TraitName);
+
+            return new PlotDataBounds()
+            {
+                YMin = data.Min(p => p.Value),
+                YMax = data.Max(p => p.Value),
+                XMin = data.Min(p => p.Date),
+                XMax = data.Max(p => p.Date)
+            };
         }
     }
 }

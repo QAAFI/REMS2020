@@ -204,7 +204,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientLogic.cs" />
+    <Compile Include="Controls\TraitChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TraitChart.Designer.cs">
+      <DependentUpon>TraitChart.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\LabeledBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -243,6 +248,9 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\TraitChart.resx">
+      <DependentUpon>TraitChart.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\LabeledBox.resx">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </EmbeddedResource>

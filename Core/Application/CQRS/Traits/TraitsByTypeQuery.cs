@@ -22,14 +22,15 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<string[]> Handle(TraitsByTypeQuery request, CancellationToken token)
+        public Task<string[]> Handle(TraitsByTypeQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+
+        private string[] Handler(TraitsByTypeQuery request, CancellationToken token)
         {
-            return Task.Run(() => _context.Traits
+            return _context.Traits
                 .Where(t => t.Type == request.Type)
                 .Select(t => t.Name)
                 .OrderBy(n => n)
-                .ToArray()
-            );
+                .ToArray();
         }
     }
 }

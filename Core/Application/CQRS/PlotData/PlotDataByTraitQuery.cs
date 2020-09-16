@@ -25,13 +25,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token)
-        {
-            return Task.Run(() =>
-            {
-                return Handler(request, token);
-            });
-        }
+        public Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private SeriesData Handler(PlotDataByTraitQuery request, CancellationToken token)
         {
@@ -40,6 +34,8 @@ namespace Rems.Application.CQRS
                 .Where(p => p.Trait.Name == request.TraitName)
                 .OrderBy(p => p.Date)
                 .ToArray();
+
+            if (data.Length == 0) return null;
 
             var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
             var x = rep.Select(p => p.Repetition).First();

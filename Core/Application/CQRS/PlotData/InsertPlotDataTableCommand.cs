@@ -31,7 +31,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertPlotDataTableCommand request, CancellationToken token)
+        public Task<Unit> Handle(InsertPlotDataTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertPlotDataTableCommand request)
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
@@ -74,6 +76,5 @@ namespace Rems.Application.CQRS
 
             return Unit.Value;
         }
-
     }
 }

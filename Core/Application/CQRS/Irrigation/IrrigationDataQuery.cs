@@ -23,13 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<SeriesData> Handle(IrrigationDataQuery request, CancellationToken token)
-        {
-            return Task.Run(() =>
-            {
-                return Handler(request, token);
-            });
-        }
+        public Task<SeriesData> Handle(IrrigationDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private SeriesData Handler(IrrigationDataQuery request, CancellationToken token)
         {

@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<WaterBalance> Handle(WaterBalanceQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<WaterBalance> Handle(WaterBalanceQuery request, CancellationToken token) =>  Task.Run(() => Handler(request));
 
         private WaterBalance Handler(WaterBalanceQuery request)
         {

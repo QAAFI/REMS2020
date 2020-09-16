@@ -1,94 +1,110 @@
 ﻿using ExcelDataReader;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Rems.Application;
 using Rems.Application.Common.Extensions;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using static Rems.Application.EventManager;
 
 namespace Rems.Infrastructure.Excel
 {
-    public class ExcelImporter
+    public class ExcelImporter : IProgressTracker
     {
+        public event NextItemHandler NextProgress;
+        public event EventHandler IncrementProgress;
+        public event EventHandler StopProgress;
+        public event ExceptionHandler TaskFailed;
+        
+        public DataSet Data { get; private set; }
+
+        public int Items { get { return Data.Tables.Count; } }
+
         private readonly IMediator _mediator;
 
-        public ExcelImporter(IMediator mediator)
+        public ExcelImporter(IMediator mediator, string filepath)
         {
             _mediator = mediator;
+
+            ProgressIncremented += OnProgressIncremented;
+
+            ReadData(filepath);
         }
 
-        public DataSet ReadDataSet(string filePath)
+        private void OnProgressIncremented(object sender, EventArgs e)
+        {
+            IncrementProgress?.Invoke(sender, e);
+        }
+
+        private void ReadData(string filepath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
-            {                
+            using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
+            {
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-                    return reader.AsDataSet(new ExcelDataSetConfiguration()
+                    Data = reader.AsDataSet(new ExcelDataSetConfiguration()
                     {
                         ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
                         {
                             UseHeaderRow = true
                         }
-                    });                    
+                    });
                 }
             }
         }
-        
-        public void InsertDataSet(DataSet data)
+
+        public async void Run()
         {
-            var args = new ProgressTrackingArgs()
+            try
             {
-                Items = data.Tables.Count,
-                Title = "Importing..."
-            };
+                foreach (DataTable table in Data.Tables)
+                    await InsertTable(table);
 
-            EventManager.InvokeProgressTracking(null, args);
-
-            foreach (DataTable table in data.Tables) InsertTable(table);
-
-            EventManager.InvokeStopProgress(null, EventArgs.Empty);
+                StopProgress?.Invoke(null, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
+                TaskFailed?.Invoke(e);
+            }      
         }
 
         /// <summary>
         /// Adds the given data table to the context
         /// </summary>
-        private void InsertTable(DataTable table)
+        private Task<Unit> InsertTable(DataTable table)
         {
-            // Remove any duplicate rows from the table
-            var rows = table.DistinctRows().Select(r => r.ItemArray).ToArray();
-            table.Rows.Clear();
-            foreach (var row in rows) table.Rows.Add(row);
+            if (!_mediator.Send(new ConnectionExists()).Result)
+                throw new Exception("No existing database connection");
 
-            var args = new StartProgressArgs()
+            // Remove any duplicate rows from the table
+            table.RemoveDuplicateRows();            
+
+            var args = new NextItemArgs()
             {
-                Maximum = rows.Count(),
+                Maximum = table.Rows.Count,
                 Item = table.TableName
             };
-            EventManager.InvokeStartProgress(null, args);
-
-            if (table.TableName == "Notes") return;
-            if (table.Rows.Count == 0) return;
+            NextProgress?.Invoke(null, args);            
 
             // These IF statements are awful code, but my hand has been forced since the data is
             // coming from poorly designed excel templates. I decided devising a better solution 
             // is currently not worth the effort.
 
+            if (table.TableName == "Notes" || table.Rows.Count == 0) 
+                return Task.Run(() => Unit.Value);            
+
             if (table.TableName == "Design") 
             {
                 // Note: InsertDesigns should preceed InsertPlots
-                _mediator.Send(new InsertDesignsCommand() { Table = table });
-                _mediator.Send(new InsertPlotsCommand() { Table = table });
-                return;
+                _mediator.Send(new InsertDesignsCommand() { Table = table }).Wait();
+                return _mediator.Send(new InsertPlotsCommand() { Table = table });                
             }
 
             if (table.TableName == "PlotData")
@@ -99,8 +115,7 @@ namespace Rems.Infrastructure.Excel
                     Skip = 4,
                     Type = "Crop"
                 };
-                _mediator.Send(command).Wait();
-                return;
+                return _mediator.Send(command);
             }
 
             if (table.TableName == "MetData")
@@ -111,8 +126,7 @@ namespace Rems.Infrastructure.Excel
                     Skip = 2,
                     Type = "Climate"
                 };
-                _mediator.Send(command).Wait();
-                return;
+                return _mediator.Send(command);
             }
 
             if (table.TableName == "SoilLayerData") 
@@ -123,35 +137,39 @@ namespace Rems.Infrastructure.Excel
                     Skip = 5,
                     Type = "SoilLayer"
                 };
-                _mediator.Send(command).Wait();
-                return;
+                return _mediator.Send(command);
             }
 
             var type = _mediator.Send(new EntityTypeQuery() { Name = table.TableName }).Result;
-            if (type == null) return;
+            if (type == null)
+                return Task.Run(() => Unit.Value);
 
             if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
-            { 
-                _mediator.Send(new InsertOperationsTableCommand() { Table = table, Type = type });
+            {
+                var command = new InsertOperationsTableCommand() { Table = table, Type = type };
+                return _mediator.Send(command);
             }
 
             // TODO: Find a better catch for trait tables
             // This only filters true negatives, not false positives or false negatives
             else if (type.GetProperties().Count() < table.Columns.Count)
             {
-                var dependency = _mediator.Send(new EntityTypeQuery() { Name = type.Name + "Trait" }).Result;
+                var query = new EntityTypeQuery() { Name = type.Name + "Trait" };
+                var dependency = _mediator.Send(query).Result;
+                
                 var command = new InsertTraitTableCommand()
                 {
                     Table = table,
                     Type = type,
                     Dependency = dependency
                 };
-                _mediator.Send(command);
+                return _mediator.Send(command);
             }
             else
             {
-                _mediator.Send(new InsertTableCommand() { Table = table, Type = type });
+                return _mediator.Send(new InsertTableCommand() { Table = table, Type = type });
             }
         }
+
     }
 }

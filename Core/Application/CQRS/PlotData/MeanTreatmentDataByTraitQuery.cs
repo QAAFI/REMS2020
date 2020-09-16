@@ -25,10 +25,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request, token));
-        }
+        public Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private SeriesData Handler(MeanTreatmentDataByTraitQuery request, CancellationToken token)
         {

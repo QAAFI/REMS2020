@@ -35,10 +35,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Physical> Handle(PhysicalQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request));
-        }
+        public Task<Physical> Handle(PhysicalQuery request, CancellationToken token) => Task.Run(() => Handler(request));
 
         private Physical Handler(PhysicalQuery request)
         {

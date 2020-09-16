@@ -23,10 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token)
-        {
-            return Task.Run(() => Handler(request, token));
-        }
+        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
         private DataTable Handler(DesignsTableQuery request, CancellationToken token)
         {
@@ -34,7 +31,7 @@ namespace Rems.Application.CQRS
 
             var table = new DataTable("Designs");
 
-            var names = _context.Factors.Select(f => f.Name);
+            var names = _context.Factors.Select(f => f.Name).Distinct();
             var type = "".GetType();
 
             var columns = names.Select(n => new DataColumn(n, type)).ToArray();

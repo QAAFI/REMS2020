@@ -33,7 +33,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public async Task<Unit> Handle(InsertTraitTableCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(InsertTraitTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+
+        private Unit Handler(InsertTraitTableCommand request)
         {
             var columns = request.Table.Columns.Cast<DataColumn>().Where(c => !c.ColumnName.Contains("Column"));
             var infos = new List<PropertyInfo>();
@@ -41,6 +43,8 @@ namespace Rems.Application.CQRS
 
             foreach (DataColumn c in request.Table.Columns)
             {
+                if (c.ColumnName.Contains("Column")) continue;
+
                 if (c.FindProperty(request.Type) is PropertyInfo info)
                 {
                     infos.Add(info);

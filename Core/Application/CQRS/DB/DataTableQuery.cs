@@ -23,14 +23,11 @@ namespace Rems.Application.CQRS
             _factory = factory;
         }
 
-        public Task<DataTable> Handle(DataTableQuery request, CancellationToken cancellationToken)
-        {
-            return Task.Run(() => GetDataTable(request.TableName));
-        }
+        public Task<DataTable> Handle(DataTableQuery request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
 
-        private DataTable GetDataTable(string name)
+        private DataTable Handler(DataTableQuery request)
         {
-            string text = $"SELECT * FROM {name}";
+            string text = $"SELECT * FROM {request.TableName}";
             DataTable table = null;
 
             using (var connection = new SqliteConnection("Data Source=" + _factory.Connection))
@@ -39,7 +36,7 @@ namespace Rems.Application.CQRS
                 using (var command = new SqliteCommand(text, connection))
                 using (var reader = command.ExecuteReader())
                 {
-                    table = new DataTable(name);
+                    table = new DataTable(request.TableName);
                     table.BeginLoadData();
                     table.Load(reader);
                     table.EndLoadData();
