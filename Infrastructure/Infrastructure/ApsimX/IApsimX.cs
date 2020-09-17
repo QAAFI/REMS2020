@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-using MediatR;
+﻿using MediatR;
 using Models;
 using Models.Climate;
 using Models.Core;
 using Models.Core.ApsimFile;
+using Models.Factorial;
 using Models.PMF;
 using Models.PostSimulationTools;
 using Models.Soils;
@@ -15,11 +11,14 @@ using Models.Soils.Arbitrator;
 using Models.Storage;
 using Models.Surface;
 using Models.WaterModel;
-
 using Rems.Application;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Met;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.ApsimX
 {
@@ -43,7 +42,6 @@ namespace Rems.Infrastructure.ApsimX
         public static void SaveFile(this IApsimX apsim, string filename)
         {
             apsim.Simulations.FileName = filename;
-            //JsonTools.SaveJson(filename, apsim.Simulations);
             //Calling apsim.Simulations.Write causes the storage to run which looks for sqlite.dll
             File.WriteAllText(filename, FileFormat.WriteToString(apsim.Simulations));
         }
@@ -60,8 +58,8 @@ namespace Rems.Infrastructure.ApsimX
 
             return model.Add(task.Result, next);
         }
-        
-        public static IModel Add<M>(this IModel model, NextNode next, string name = null) 
+
+        public static IModel Add<M>(this IModel model, NextNode next, string name = null)
             where M : IModel, new()
         {
             var child = new M();
@@ -71,6 +69,8 @@ namespace Rems.Infrastructure.ApsimX
 
         public static IModel Add(this IModel model, IModel child, NextNode next)
         {
+            EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+
             model.Children.Add(child);
             child.Parent = model;
 
@@ -89,8 +89,6 @@ namespace Rems.Infrastructure.ApsimX
 
         public async static Task<Simulations> CreateModels(this IApsimX apsim)
         {
-            
-
             var dVars = DataFiles.ReadRawText("Daily.txt").Split('\n');
             var dEvents = new string[] { "[Clock].DoReport" };
 
@@ -369,47 +367,43 @@ namespace Rems.Infrastructure.ApsimX
 
         public static IModel AddExperiment(this IModel model, NextNode next, IApsimX apsim, int id, string name)
         {
-            
+            var experiment = new Experiment() { Name = name };
+            experiment.Add<Factors>(NextNode.Child)
+                .Add<Permutation>(NextNode.Child)
+                    .AddFactors(apsim, id);
 
-            var folder = new Folder() { Name = name };
-
-            var request = apsim.Mediator.Send(new TreatmentsQuery() { ExperimentId = id });
-            request.Wait();
-            var result = request.Result;
-
-            EventManager.InvokeNextItem(null, new NextItemArgs() { Item = name, Maximum = result.Length });
-
-            foreach (var treatment in result)
-                folder.AddTreatment(apsim, name + "_" + treatment.Value, id, treatment.Key);
-
-            return model.Add(folder, next);
+            EventManager.InvokeNextItem(null, new NextItemArgs() { Item = name, Maximum = 28 });
+            experiment.AddTreatment(apsim, id);
+            return model.Add(experiment, next);
         }
 
-        public static void AddTreatment(this IModel model, IApsimX apsim, string name, int eId, int tId)
+        public static void AddFactors(this IModel model, IApsimX apsim, int id)
+        {
+            var factors = apsim.Mediator.Send(new FactorQuery() { ExperimentId = id }).Result;
+
+            foreach (var factor in factors)
+            {
+                model.Children.Add(factor);
+            }
+        }
+
+        public static void AddTreatment(this IModel model, IApsimX apsim/*, string name*/, int eId/*, int tId*/)
         {
             var dVars = new string[] { "GrainTempFactor" };
             var dEvents = new string[] { "[Clock].DoReport" };
             var hEvents = new string[] { "[Sorghum].Harvesting" };
 
-            var sim = new Simulation() { Name = name };
+            var sim = new Simulation() { Name = "Base" };
 
-            sim.Add<Summary>(NextNode.Sibling)
-                .Add<Clock, ClockQuery>(NextNode.Sibling, apsim, eId)
+            sim.Add<Clock, ClockQuery>(NextNode.Sibling, apsim, eId)
+                .Add<Summary>(NextNode.Sibling)
                 .AddWeather(NextNode.Sibling, apsim, eId)
                 .Add<SoilArbitrator>(NextNode.Sibling)
                 .Add<Zone, ZoneQuery>(NextNode.Child, apsim, eId)
-                    .Add<SoilCrop, SoilCropQuery>(NextNode.Sibling, apsim, eId)
-                    .AddSurfaceOrganicMatter(NextNode.Sibling)
-                    .AddReport(NextNode.Sibling, "Daily", dVars, dEvents)
-                    .AddReport(NextNode.Sibling, "Harvest", null, hEvents)
-                    .Add<Folder>(NextNode.Child, "Managers")
-                        .AddSowingManager(NextNode.Sibling, apsim, eId)
-                        .AddHarvestManager(NextNode.Parent)
-                    .AddOperations(NextNode.Sibling, apsim, tId)
-                    .Add<Irrigation>(NextNode.Sibling, "Irrigation")
-                    .Add<Fertiliser>(NextNode.Sibling, "Fertiliser")
+                    .Add<Plant, PlantQuery>(NextNode.Sibling, apsim, eId)
                     .Add<Soil, SoilQuery>(NextNode.Child, apsim, eId)
-                        .Add<Physical, PhysicalQuery>(NextNode.Sibling, apsim, eId)
+                        .Add<Physical, PhysicalQuery>(NextNode.Child, apsim, eId)
+                            .Add<SoilCrop, SoilCropQuery>(NextNode.Parent, apsim, eId)
                         .Add<WaterBalance, WaterBalanceQuery>(NextNode.Sibling, apsim, eId)
                         .Add<SoilNitrogen>(NextNode.Child, "SoilNitrogen")
                             .Add<SoilNitrogenNH4>(NextNode.Sibling, "NH4")
@@ -421,7 +415,15 @@ namespace Rems.Infrastructure.ApsimX
                         .Add<Chemical, ChemicalQuery>(NextNode.Sibling, apsim, eId)
                         .Add<Sample, SampleQuery>(NextNode.Sibling, apsim, eId)
                         .Add<CERESSoilTemperature>(NextNode.Parent, "SoilTemperature")
-                    .Add<Plant, PlantQuery>(NextNode.None, apsim, eId);
+                    .AddSurfaceOrganicMatter(NextNode.Sibling)
+                    .Add<Operations>(NextNode.Sibling)
+                    .Add<Irrigation>(NextNode.Sibling, "Irrigation")
+                    .Add<Fertiliser>(NextNode.Sibling, "Fertiliser")
+                    .Add<Folder>(NextNode.Child, "Managers")
+                        .AddSowingManager(NextNode.Sibling, apsim, eId)
+                        .AddHarvestManager(NextNode.Parent)
+                    .AddReport(NextNode.Sibling, "Daily", dVars, dEvents)
+                    .AddReport(NextNode.None, "Harvest", null, hEvents);
 
             model.Children.Add(sim);
 
@@ -466,7 +468,7 @@ namespace Rems.Infrastructure.ApsimX
 
             return model.Add(report, next);
         }
-    
+
         public static IModel AddSowingManager(this IModel model, NextNode next, IApsimX apsim, int id)
         {
             var request = apsim.Mediator.Send(new SowingSummary() { ExperimentId = id });
@@ -492,7 +494,7 @@ namespace Rems.Infrastructure.ApsimX
 
             return model.Add(sowing, next);
         }
-    
+
         public static IModel AddHarvestManager(this IModel model, NextNode next)
         {
             var harvest = new Manager()
@@ -511,7 +513,6 @@ namespace Rems.Infrastructure.ApsimX
             {
                 Operation = new List<Operation>()
             };
-            
 
             var irrigations = apsim.Mediator.Send(new IrrigationsQuery() { TreatmentId = id });
             var fertilizations = apsim.Mediator.Send(new FertilizationsQuery() { TreatmentId = id });
@@ -520,6 +521,6 @@ namespace Rems.Infrastructure.ApsimX
             if (fertilizations.Result is Operation[] f) operations.Operation.AddRange(f);
 
             return model.Add(operations, next);
-        }        
+        }
     }
 }
