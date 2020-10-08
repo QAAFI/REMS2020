@@ -1,53 +1,66 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Rems.Domain.Entities;
+﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
-namespace Rems.Application
+namespace Rems.Application.Common
 {
+    public delegate void ExceptionHandler(Exception exception);
+    public delegate void ItemNotFoundHandler(object sender, ItemNotFoundArgs args);
+    public delegate void ProgressTrackingHandler(object sender, ProgressTrackingArgs args);
+    public delegate void NextItemHandler(object sender, NextItemArgs args);
+    public delegate Task CommandHandler(IRequest command);
+    public delegate Task<object> QueryHandler(object query);
+    public delegate string FileParser(string file);
+
     // TODO: It might be safer to implement this as a singleton, as opposed to using static events
     public static class EventManager
     {
-        public delegate void ExceptionHandler(Exception exception);
-
         /// <summary>
         /// 
         /// </summary>
-        public static event ItemNotFoundHandler ItemNotFound;
-        public delegate void ItemNotFoundHandler(object sender, ItemNotFoundArgs args);
+        public static event ItemNotFoundHandler ItemNotFound;        
         public static void InvokeItemNotFound(object sender, ItemNotFoundArgs args) 
             => ItemNotFound?.Invoke(sender, args);
 
         /// <summary>
         /// 
         /// </summary>
-        public static event ProgressTrackingHandler ProgressTracking;
-        public delegate void ProgressTrackingHandler(object sender, ProgressTrackingArgs args);
+        public static event ProgressTrackingHandler ProgressTracking;        
         public static void InvokeProgressTracking(object sender, ProgressTrackingArgs args) 
             => ProgressTracking?.Invoke(sender, args);
 
         /// <summary>
         /// 
         /// </summary>
-        public static event NextItemHandler NextItem;
-        public delegate void NextItemHandler(object sender, NextItemArgs args);
+        public static event NextItemHandler NextItem;        
         public static void InvokeNextItem(object sender, NextItemArgs args)
             => NextItem?.Invoke(sender, args);
 
         /// <summary>
         /// 
         /// </summary>
-        public static event EventHandler ProgressIncremented;
-        public static void InvokeProgressIncremented(object sender, EventArgs args)
-            => ProgressIncremented?.Invoke(sender, args);
+        public static event Action ProgressIncremented;
+        public static void InvokeProgressIncremented()
+            => ProgressIncremented?.Invoke();
 
         /// <summary>
         /// 
         /// </summary>
-        public static event EventHandler StopProgress;
-        public static void InvokeStopProgress(object sender, EventArgs args)
-            => StopProgress?.Invoke(sender, args);
+        public static event Action StopProgress;
+        public static void InvokeStopProgress()
+            => StopProgress?.Invoke();
+
+        public static event QueryHandler SendQuery;
+        public static T OnSendQuery<T>(IRequest<T> query)
+        {
+            var task = SendQuery?.Invoke(query);
+            task.Wait();
+            return (T)task.Result;
+        }
+
+        public static event FileParser RequestRawData;
+        public static string OnRequestRawData(string file)
+            => RequestRawData?.Invoke(file);
     }
 
     public class ItemNotFoundArgs : EventArgs

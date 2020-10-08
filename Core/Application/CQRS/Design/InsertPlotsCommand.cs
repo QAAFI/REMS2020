@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -14,12 +15,12 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertPlotsCommand : IRequest<Unit>
+    public class InsertPlotsCommand : IRequest
     {
         public DataTable Table { get; set; }
     }
 
-    public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand, Unit>
+    public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -59,7 +60,7 @@ namespace Rems.Application.CQRS
                         };
                         plots.Add(plot);
 
-                        EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+                        EventManager.InvokeProgressIncremented();
                     }
                 }
             }

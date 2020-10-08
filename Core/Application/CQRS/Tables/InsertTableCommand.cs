@@ -5,19 +5,20 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertTableCommand : IRequest<Unit>
+    public class InsertTableCommand : IRequest
     {
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
     }
 
-    public class InsertTableCommandHandler : IRequestHandler<InsertTableCommand, Unit>
+    public class InsertTableCommandHandler : IRequestHandler<InsertTableCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -40,7 +41,7 @@ namespace Rems.Application.CQRS
                 var entity = row.ToEntity(_context, request.Type, infos);
                 _context.Add(entity);
 
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);                
+                EventManager.InvokeProgressIncremented();                
             }            
             _context.SaveChanges();
 

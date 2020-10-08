@@ -277,15 +277,6 @@
     <EmbeddedResource Include="Forms\REMSClient.resx">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Data\Demo_1_Information.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\Demo_2_Experiments.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\Demo_3_Data.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

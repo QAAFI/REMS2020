@@ -146,21 +146,21 @@
             this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
             this.informationToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.informationToolStripMenuItem.Text = "Information";
-            this.informationToolStripMenuItem.Click += new System.EventHandler(this.Import);
+            this.informationToolStripMenuItem.Click += new System.EventHandler(this.MenuImportClicked);
             // 
             // experimentsToolStripMenuItem
             // 
             this.experimentsToolStripMenuItem.Name = "experimentsToolStripMenuItem";
             this.experimentsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.experimentsToolStripMenuItem.Text = "Experiments";
-            this.experimentsToolStripMenuItem.Click += new System.EventHandler(this.Import);
+            this.experimentsToolStripMenuItem.Click += new System.EventHandler(this.MenuImportClicked);
             // 
             // dataToolStripMenuItem1
             // 
             this.dataToolStripMenuItem1.Name = "dataToolStripMenuItem1";
             this.dataToolStripMenuItem1.Size = new System.Drawing.Size(139, 22);
             this.dataToolStripMenuItem1.Text = "Data";
-            this.dataToolStripMenuItem1.Click += new System.EventHandler(this.Import);
+            this.dataToolStripMenuItem1.Click += new System.EventHandler(this.MenuImportClicked);
             // 
             // menuExport
             // 

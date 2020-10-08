@@ -1,6 +1,6 @@
 ﻿using ExcelDataReader;
 using MediatR;
-using Rems.Application;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
@@ -10,35 +10,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Rems.Application.EventManager;
 
 namespace Rems.Infrastructure.Excel
 {
-    public class ExcelImporter : IProgressTracker
+    public class ExcelImporter : ProgressTracker
     {
-        public event NextItemHandler NextProgress;
-        public event EventHandler IncrementProgress;
-        public event EventHandler StopProgress;
-        public event ExceptionHandler TaskFailed;
-        
         public DataSet Data { get; private set; }
 
-        public int Items { get { return Data.Tables.Count; } }
+        public override int Items { get { return Data.Tables.Count; } }
 
-        private readonly IMediator _mediator;
-
-        public ExcelImporter(IMediator mediator, string filepath)
-        {
-            _mediator = mediator;
-
-            ProgressIncremented += OnProgressIncremented;
-
+        public ExcelImporter(string filepath) : base()
+        {         
             ReadData(filepath);
         }
 
         private void OnProgressIncremented(object sender, EventArgs e)
         {
-            IncrementProgress?.Invoke(sender, e);
+            OnIncrementProgress();
         }
 
         private void ReadData(string filepath)
@@ -60,29 +48,29 @@ namespace Rems.Infrastructure.Excel
             }
         }
 
-        public async void Run()
+        public async override Task Run()
         {
             try
             {
+                if (!OnSendQuery(new ConnectionExists()))
+                    throw new Exception("No existing database connection");
+
                 foreach (DataTable table in Data.Tables)
                     await InsertTable(table);
 
-                StopProgress?.Invoke(null, EventArgs.Empty);
+                OnTaskFinished();
             }
             catch (Exception e)
             {
-                TaskFailed?.Invoke(e);
+                OnTaskFailed(e);
             }      
         }
 
         /// <summary>
         /// Adds the given data table to the context
         /// </summary>
-        private Task<Unit> InsertTable(DataTable table)
-        {
-            if (!_mediator.Send(new ConnectionExists()).Result)
-                throw new Exception("No existing database connection");
-
+        private Task InsertTable(DataTable table)
+        {            
             // Remove any duplicate rows from the table
             table.RemoveDuplicateRows();            
 
@@ -91,84 +79,76 @@ namespace Rems.Infrastructure.Excel
                 Maximum = table.Rows.Count,
                 Item = table.TableName
             };
-            NextProgress?.Invoke(null, args);            
+            OnNextItem(null, args);
 
-            // These IF statements are awful code, but my hand has been forced since the data is
-            // coming from poorly designed excel templates. I decided devising a better solution 
-            // is currently not worth the effort.
-
-            if (table.TableName == "Notes" || table.Rows.Count == 0) 
-                return Task.Run(() => Unit.Value);            
-
-            if (table.TableName == "Design") 
-            {
-                // Note: InsertDesigns should preceed InsertPlots
-                _mediator.Send(new InsertDesignsCommand() { Table = table }).Wait();
-                return _mediator.Send(new InsertPlotsCommand() { Table = table });                
-            }
-
-            if (table.TableName == "PlotData")
-            {
-                var command = new InsertPlotDataTableCommand()
-                { 
-                    Table = table, 
-                    Skip = 4,
-                    Type = "Crop"
-                };
-                return _mediator.Send(command);
-            }
-
-            if (table.TableName == "MetData")
-            {
-                var command = new InsertMetDataTableCommand()
-                {
-                    Table = table,
-                    Skip = 2,
-                    Type = "Climate"
-                };
-                return _mediator.Send(command);
-            }
-
-            if (table.TableName == "SoilLayerData") 
-            {
-                var command = new InsertSoilLayerTableCommand()
-                {
-                    Table = table,
-                    Skip = 5,
-                    Type = "SoilLayer"
-                };
-                return _mediator.Send(command);
-            }
-
-            var type = _mediator.Send(new EntityTypeQuery() { Name = table.TableName }).Result;
-            if (type == null)
+            // Skip the empty / notes tables
+            if (table.TableName == "Notes" || table.Rows.Count < 1)
                 return Task.Run(() => Unit.Value);
 
-            if (table.TableName == "Irrigation" || table.TableName == "Fertilization")
-            {
-                var command = new InsertOperationsTableCommand() { Table = table, Type = type };
-                return _mediator.Send(command);
-            }
+            var type = OnSendQuery(new EntityTypeQuery() { Name = table.TableName });
+            if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
-            // TODO: Find a better catch for trait tables
-            // This only filters true negatives, not false positives or false negatives
-            else if (type.GetProperties().Count() < table.Columns.Count)
+            IRequest command;
+            switch (table.TableName)
             {
-                var query = new EntityTypeQuery() { Name = type.Name + "Trait" };
-                var dependency = _mediator.Send(query).Result;
-                
-                var command = new InsertTraitTableCommand()
-                {
-                    Table = table,
-                    Type = type,
-                    Dependency = dependency
-                };
-                return _mediator.Send(command);
+                case "Design":
+                    OnSendCommand(new InsertDesignsCommand() { Table = table }).Wait();
+                    command = new InsertPlotsCommand() { Table = table };
+                    break;
+
+                case "PlotData":
+                    command = new InsertPlotDataTableCommand()
+                    {
+                        Table = table,
+                        Skip = 4,
+                        Type = "Crop"
+                    };
+                    break;
+
+                case "MetData":
+                    command = new InsertMetDataTableCommand()
+                    {
+                        Table = table,
+                        Skip = 2,
+                        Type = "Climate"
+                    };
+                    break;
+
+                case "SoilLayerData":
+                    command = new InsertSoilLayerTableCommand()
+                    {
+                        Table = table,
+                        Skip = 5,
+                        Type = "SoilLayer"
+                    };
+                    break;
+
+                case "Irrigation":
+                case "Fertilization":
+                    command = new InsertOperationsTableCommand() { Table = table, Type = type };
+                    break;
+
+                default:
+                    // TODO: Find a better catch for trait tables
+                    // This only filters true negatives, not false positives or false negatives
+                    if (type.GetProperties().Count() < table.Columns.Count)
+                    {
+                        var query = new EntityTypeQuery() { Name = type.Name + "Trait" };
+                        var dependency = OnSendQuery(query);
+                        command = new InsertTraitTableCommand()
+                        {
+                            Table = table,
+                            Type = type,
+                            Dependency = dependency
+                        };
+                    }
+                    else
+                    {
+                        command = new InsertTableCommand() { Table = table, Type = type };
+                    }
+                    break;
             }
-            else
-            {
-                return _mediator.Send(new InsertTableCommand() { Table = table, Type = type });
-            }
+            return OnSendCommand(command);
         }
 
     }

@@ -1,11 +1,10 @@
-﻿using Rems.Application;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System;
 
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Rems.Application.EventManager;
 
 namespace WindowsClient.Forms
 {
@@ -29,9 +28,9 @@ namespace WindowsClient.Forms
 
             Show();
 
-            tracker.NextProgress += OnNextItem;
+            tracker.NextItem += OnNextItem;
             tracker.IncrementProgress += OnProgressChanged;
-            tracker.StopProgress += OnRunWorkerCompleted;
+            tracker.TaskFinished += OnTaskFinished;
             tracker.TaskFailed += OnTaskFailed;
 
             tracker.Run();
@@ -45,11 +44,11 @@ namespace WindowsClient.Forms
             Close();
         }
 
-        private void OnProgressChanged(object sender, EventArgs e)
+        private void OnProgressChanged()
         {
             if (InvokeRequired)
             {
-                Invoke(new EventHandler(OnProgressChanged));
+                Invoke(new Action(OnProgressChanged));
             }
             else
             {
@@ -63,7 +62,7 @@ namespace WindowsClient.Forms
             }
         }
 
-        private void OnRunWorkerCompleted(object sender, EventArgs e)
+        private void OnTaskFinished()
         {
             Thread.Sleep(1500);
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using MediatR;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS

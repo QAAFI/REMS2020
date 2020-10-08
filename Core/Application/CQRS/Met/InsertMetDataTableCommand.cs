@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -13,7 +14,7 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertMetDataTableCommand : IRequest<Unit>
+    public class InsertMetDataTableCommand : IRequest
     {
         public DataTable Table { get; set; }
 
@@ -22,7 +23,7 @@ namespace Rems.Application.CQRS
         public string Type { get; set; }
     }
 
-    public class InsertMetDataTableCommandHandler : IRequestHandler<InsertMetDataTableCommand, Unit>
+    public class InsertMetDataTableCommandHandler : IRequestHandler<InsertMetDataTableCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -58,7 +59,7 @@ namespace Rems.Application.CQRS
                     _context.Attach(data);
                 }
 
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+                EventManager.InvokeProgressIncremented();
             }
             _context.SaveChanges();
 

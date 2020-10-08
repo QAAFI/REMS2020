@@ -62,12 +62,14 @@ namespace WindowsClient
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            EventManager.ItemNotFound += OnEntityNotFound;         
+            EventManager.ItemNotFound += OnItemNotFound;
+            EventManager.RequestRawData += ParseText;
+            EventManager.SendQuery += QueryREMS;
         }
 
         #region Form
 
-        private void OnEntityNotFound(object sender, ItemNotFoundArgs args)
+        private void OnItemNotFound(object sender, ItemNotFoundArgs args)
         {
             var selector = new ItemSelector(args);
             selector.ShowDialog();
@@ -84,7 +86,7 @@ namespace WindowsClient
         {
             using (var save = new SaveFileDialog())
             {
-                save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                save.InitialDirectory = folder;
                 save.AddExtension = true;
                 save.Filter = "SQLite (*.db)|*.db";
                 save.RestoreDirectory = true;
@@ -122,13 +124,13 @@ namespace WindowsClient
             }
         }
 
-        private async void Import(object sender, EventArgs e)
+        private async void MenuImportClicked(object sender, EventArgs e)
         {
             Enabled = false;
 
             using (var open = new OpenFileDialog())
            {
-                open.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                open.InitialDirectory = folder;
                 open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
                 if (open.ShowDialog() == DialogResult.OK)
@@ -139,8 +141,12 @@ namespace WindowsClient
                     {
                         if (await TryQueryREMS(new ConnectionExists()))
                         {
-                            var importer = new ExcelImporter(_mediator, open.FileName);                           
-                            new ProgressDialog(importer, "Importing...").TaskComplete += UpdateAllComponents;                            
+                            var importer = new ExcelImporter(open.FileName);
+                            importer.SendQuery += QueryREMS;
+                            importer.SendCommand += TryQueryREMS;
+
+                            var dialog = new ProgressDialog(importer, "Importing...");
+                            dialog.TaskComplete += UpdateAllComponents;                            
                         }
                         else
                         {
@@ -159,7 +165,7 @@ namespace WindowsClient
                 }
             }
 
-            EventManager.InvokeStopProgress(null, EventArgs.Empty);
+            EventManager.InvokeStopProgress();
             Enabled = true;
         }
 
@@ -179,18 +185,18 @@ namespace WindowsClient
             {
                 using (var save = new SaveFileDialog())
                 {
-                    save.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    save.InitialDirectory = folder;
                     save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
                     if (save.ShowDialog() == DialogResult.OK)
                     {
                         try
                         {
-                            IApsimX apsim = new ApsimX(_mediator);
-                            var sims = await apsim.CreateModels();
-                            File.WriteAllText(save.FileName, FileFormat.WriteToString(sims));
+                            var exporter = new ApsimXporter(save.FileName, QueryREMS);
+                            exporter.SendQuery += QueryREMS;
+                            exporter.SendCommand += TryQueryREMS;
 
-                            MessageBox.Show($"Export Complete.");
+                            var dialog = new ProgressDialog(exporter, "Exporting...");
                         }
                         catch (Exception error)
                         {
@@ -376,6 +382,11 @@ namespace WindowsClient
 
         #region Logic
 
+        public Task<object> QueryREMS(object request)
+        {
+            return _mediator.Send(request);
+        }
+
         public Task<T> TryQueryREMS<T>(IRequest<T> request)
         {
             Application.UseWaitCursor = true;
@@ -409,6 +420,19 @@ namespace WindowsClient
             return Task.Run(() => default(T));
         }
 
+        public string ParseText(string file)
+        {
+            var filePath = Path.Combine("DataFiles", "apsimx", file);
+            StringBuilder builder = new StringBuilder();
+
+            using (var reader = new StreamReader(filePath))
+            {
+                while (!reader.EndOfStream) builder.AppendLine(reader.ReadLine());
+            }
+
+            builder.Replace("\r", "");
+            return builder.ToString();
+        }
         #endregion
     }
 }
