@@ -10,7 +10,8 @@ namespace Rems.Application.Common
 {
     public abstract class ProgressTracker : IProgressTracker
     {
-        public abstract int Items { get; }
+        public abstract int Items { get; protected set; }
+        public abstract int Steps { get; protected set; }
 
         public event ProgressTrackingHandler StartProgress;
         public event NextItemHandler NextItem;
@@ -32,9 +33,9 @@ namespace Rems.Application.Common
             StartProgress?.Invoke(sender, args);
         }
 
-        protected void OnNextItem(object sender, NextItemArgs args)
+        protected void OnNextItem(string item)
         {
-            NextItem?.Invoke(sender, args);
+            NextItem?.Invoke(item);
         }
 
         protected void OnIncrementProgress()

@@ -7,7 +7,7 @@ namespace Rems.Application.Common
     public delegate void ExceptionHandler(Exception exception);
     public delegate void ItemNotFoundHandler(object sender, ItemNotFoundArgs args);
     public delegate void ProgressTrackingHandler(object sender, ProgressTrackingArgs args);
-    public delegate void NextItemHandler(object sender, NextItemArgs args);
+    public delegate void NextItemHandler(string item);
     public delegate Task CommandHandler(IRequest command);
     public delegate Task<object> QueryHandler(object query);
     public delegate string FileParser(string file);
@@ -33,8 +33,8 @@ namespace Rems.Application.Common
         /// 
         /// </summary>
         public static event NextItemHandler NextItem;        
-        public static void InvokeNextItem(object sender, NextItemArgs args)
-            => NextItem?.Invoke(sender, args);
+        public static void InvokeNextItem(string item)
+            => NextItem?.Invoke(item);
 
         /// <summary>
         /// 
@@ -79,12 +79,5 @@ namespace Rems.Application.Common
         public int Items { get; set; }
 
         public string Title { get; set; }
-    }
-
-    public class NextItemArgs : EventArgs
-    {
-        public int Maximum { get; set; }
-
-        public string Item { get; set; }
     }
 }

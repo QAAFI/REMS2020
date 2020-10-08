@@ -24,7 +24,8 @@ namespace WindowsClient.Forms
 
             items = tracker.Items;
             Text = title;
-            bar.Width = 0;            
+            bar.Width = 0;
+            step = ((double)barPanel.Width) / tracker.Steps;
 
             Show();
 
@@ -73,7 +74,7 @@ namespace WindowsClient.Forms
             TaskComplete?.Invoke();
         }
 
-        private void OnNextItem(object sender, NextItemArgs args)
+        private void OnNextItem(string text)
         {
             if (InvokeRequired)
             {
@@ -82,21 +83,7 @@ namespace WindowsClient.Forms
             else
             {
                 item++;
-                label.Text = $"{item} of {items}: {args.Item}";
-
-                if (args.Maximum == 0)
-                {
-                    bar.Width = barPanel.Width;
-                    pctLabel.Text = $"100%";
-
-                    Refresh();
-                    return;
-                }
-
-                progress = 0;
-                step = ((double)barPanel.Width) / args.Maximum;
-                bar.Width = 0;
-                pctLabel.Text = $"0%";
+                label.Text = $"{item} of {items}: {text}";
 
                 Refresh();
             }

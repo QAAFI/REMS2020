@@ -19,6 +19,8 @@ namespace Rems.Application.Common.Interfaces
 
         int Items { get; }
 
+        int Steps { get; }
+
         Task Run();
     }
 }

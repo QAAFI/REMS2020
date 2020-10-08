@@ -40,9 +40,9 @@
             this.label.AutoSize = true;
             this.label.Location = new System.Drawing.Point(12, 17);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(73, 13);
+            this.label.Size = new System.Drawing.Size(61, 13);
             this.label.TabIndex = 2;
-            this.label.Text = "Table 1 of 10:";
+            this.label.Text = "Initialising...";
             this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pctLabel
@@ -86,7 +86,6 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ProgressDialog";
-            this.Text = "Importing";
             this.barPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

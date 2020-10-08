@@ -14,15 +14,10 @@ namespace Rems.Infrastructure.ApsimX
 {
     public class ApsimXporter : ProgressTracker
     {
-        public Simulations Simulations { get; set; } 
+        public Simulations Simulations { get; set; }
 
-        public override int Items
-        {
-            get
-            {
-                return OnSendQuery(new ExperimentCount());
-            }
-        }
+        public override int Items { get; protected set; } = 0;
+        public override int Steps { get; protected set; } = 0;
 
         public ApsimXporter(string filename, QueryHandler handler)
         {
@@ -31,7 +26,10 @@ namespace Rems.Infrastructure.ApsimX
                 FileName = filename
             };
             SendQuery += handler;
-        } 
+
+            Items = OnSendQuery(new ExperimentCount());
+            Steps = Items * 28;
+        }
 
         public async override Task Run()
         {
@@ -77,13 +75,7 @@ namespace Rems.Infrastructure.ApsimX
 
         private Task AddExperiment(Model model, int id, string name)
         {
-            var args = new NextItemArgs() 
-            { 
-                Item = name,
-                Maximum = 28 
-            };
-
-            OnNextItem(null, args);
+            OnNextItem(name);
             return Task.Run(() => model.AddExperiment(NextNode.None, id, name));
         }
     }

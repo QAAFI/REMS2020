@@ -17,11 +17,23 @@ namespace Rems.Infrastructure.Excel
     {
         public DataSet Data { get; private set; }
 
-        public override int Items { get { return Data.Tables.Count; } }
+        public override int Items { get; protected set; } = 0;
+        public override int Steps { get; protected set; } = 0;
 
         public ExcelImporter(string filepath) : base()
         {         
-            ReadData(filepath);
+            Data = ReadData(filepath);
+
+            foreach (DataTable table in Data.Tables)
+            {
+                // Remove any duplicate rows from the table
+                table.RemoveDuplicateRows();
+
+                if (table.TableName == "Notes" || table.Rows.Count == 0) continue;
+                
+                Items++;
+                Steps += table.Rows.Count;
+            }
         }
 
         private void OnProgressIncremented(object sender, EventArgs e)
@@ -29,7 +41,7 @@ namespace Rems.Infrastructure.Excel
             OnIncrementProgress();
         }
 
-        private void ReadData(string filepath)
+        private DataSet ReadData(string filepath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -37,7 +49,7 @@ namespace Rems.Infrastructure.Excel
             {
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-                    Data = reader.AsDataSet(new ExcelDataSetConfiguration()
+                    return reader.AsDataSet(new ExcelDataSetConfiguration()
                     {
                         ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
                         {
@@ -70,20 +82,12 @@ namespace Rems.Infrastructure.Excel
         /// Adds the given data table to the context
         /// </summary>
         private Task InsertTable(DataTable table)
-        {            
-            // Remove any duplicate rows from the table
-            table.RemoveDuplicateRows();            
-
-            var args = new NextItemArgs()
-            {
-                Maximum = table.Rows.Count,
-                Item = table.TableName
-            };
-            OnNextItem(null, args);
-
+        {
             // Skip the empty / notes tables
             if (table.TableName == "Notes" || table.Rows.Count < 1)
                 return Task.Run(() => Unit.Value);
+
+            OnNextItem(table.TableName);            
 
             var type = OnSendQuery(new EntityTypeQuery() { Name = table.TableName });
             if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
