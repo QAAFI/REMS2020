@@ -40,13 +40,15 @@ namespace Rems.Infrastructure.ApsimX
 
             validations.AddCombinedResults(NextNode.Sibling)
                .AddPanel(NextNode.None);
+            Simulations.Add(validations, NextNode.None);
 
+            var experiments = new Folder() { Name = "Experiments" };
             foreach (var exp in exps)
             {
-                await AddExperiment(validations, exp.Key, exp.Value);
+                await AddExperiment(experiments, exp.Key, exp.Value);
             }
 
-            Simulations.Add(validations, NextNode.None);
+            Simulations.Add(experiments, NextNode.None);
 
             File.WriteAllText(Simulations.FileName, FileFormat.WriteToString(Simulations));
 

@@ -52,7 +52,7 @@ namespace Rems.Application.CQRS
 
                 foreach (var level in factor)
                 {
-                    model.Children.Add(new Memo() { Name = level.Name });
+                    model.Children.Add(new CompositeFactor() { Name = level.Name });
                 }
 
                 models.Add(model);
