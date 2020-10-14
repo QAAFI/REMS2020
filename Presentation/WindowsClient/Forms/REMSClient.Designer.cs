@@ -47,22 +47,10 @@
             this.designLabel = new System.Windows.Forms.Label();
             this.sowingPanel = new System.Windows.Forms.Panel();
             this.sowingLabel = new System.Windows.Forms.Label();
-            this.sowingMethodBox = new WindowsClient.Controls.LabeledBox();
-            this.sowingPopBox = new WindowsClient.Controls.LabeledBox();
-            this.sowingDateBox = new WindowsClient.Controls.LabeledBox();
-            this.sowingRowBox = new WindowsClient.Controls.LabeledBox();
-            this.sowingDepthBox = new WindowsClient.Controls.LabeledBox();
             this.descriptionBox = new System.Windows.Forms.TextBox();
             this.researchersLabel = new System.Windows.Forms.Label();
             this.researchersBox = new System.Windows.Forms.ListBox();
             this.notesLabel = new System.Windows.Forms.Label();
-            this.ratingBox = new WindowsClient.Controls.LabeledBox();
-            this.repsBox = new WindowsClient.Controls.LabeledBox();
-            this.endBox = new WindowsClient.Controls.LabeledBox();
-            this.startBox = new WindowsClient.Controls.LabeledBox();
-            this.metBox = new WindowsClient.Controls.LabeledBox();
-            this.fieldBox = new WindowsClient.Controls.LabeledBox();
-            this.cropBox = new WindowsClient.Controls.LabeledBox();
             this.experimentLabel = new System.Windows.Forms.Label();
             this.notesBox = new System.Windows.Forms.RichTextBox();
             this.designData = new System.Windows.Forms.DataGridView();
@@ -70,11 +58,25 @@
             this.operationsBox = new System.Windows.Forms.ComboBox();
             this.operationsChart = new Steema.TeeChart.TChart();
             this.pageData = new System.Windows.Forms.TabPage();
-            this.traitChart = new WindowsClient.Controls.TraitChart();
             this.pageInfo = new System.Windows.Forms.TabPage();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
+            this.pageApsimx = new System.Windows.Forms.TabPage();
+            this.sowingMethodBox = new WindowsClient.Controls.LabeledBox();
+            this.sowingPopBox = new WindowsClient.Controls.LabeledBox();
+            this.sowingDateBox = new WindowsClient.Controls.LabeledBox();
+            this.sowingRowBox = new WindowsClient.Controls.LabeledBox();
+            this.sowingDepthBox = new WindowsClient.Controls.LabeledBox();
+            this.ratingBox = new WindowsClient.Controls.LabeledBox();
+            this.repsBox = new WindowsClient.Controls.LabeledBox();
+            this.endBox = new WindowsClient.Controls.LabeledBox();
+            this.startBox = new WindowsClient.Controls.LabeledBox();
+            this.metBox = new WindowsClient.Controls.LabeledBox();
+            this.fieldBox = new WindowsClient.Controls.LabeledBox();
+            this.cropBox = new WindowsClient.Controls.LabeledBox();
+            this.traitChart = new WindowsClient.Controls.TraitChart();
+            this.apsimXTemplater1 = new WindowsClient.Controls.ApsimXTemplater();
             this.menuStrip1.SuspendLayout();
             this.pageExps.SuspendLayout();
             this.test.SuspendLayout();
@@ -86,6 +88,7 @@
             this.pageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
+            this.pageApsimx.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -111,14 +114,14 @@
             // menuNew
             // 
             this.menuNew.Name = "menuNew";
-            this.menuNew.Size = new System.Drawing.Size(180, 22);
+            this.menuNew.Size = new System.Drawing.Size(103, 22);
             this.menuNew.Text = "New";
             this.menuNew.Click += new System.EventHandler(this.MenuNewClicked);
             // 
             // menuOpen
             // 
             this.menuOpen.Name = "menuOpen";
-            this.menuOpen.Size = new System.Drawing.Size(180, 22);
+            this.menuOpen.Size = new System.Drawing.Size(103, 22);
             this.menuOpen.Text = "Open";
             this.menuOpen.Click += new System.EventHandler(this.MenuOpenClicked);
             // 
@@ -138,7 +141,7 @@
             this.experimentsToolStripMenuItem,
             this.dataToolStripMenuItem1});
             this.menuImport.Name = "menuImport";
-            this.menuImport.Size = new System.Drawing.Size(180, 22);
+            this.menuImport.Size = new System.Drawing.Size(110, 22);
             this.menuImport.Text = "Import";
             // 
             // informationToolStripMenuItem
@@ -165,7 +168,7 @@
             // menuExport
             // 
             this.menuExport.Name = "menuExport";
-            this.menuExport.Size = new System.Drawing.Size(180, 22);
+            this.menuExport.Size = new System.Drawing.Size(110, 22);
             this.menuExport.Text = "Export";
             this.menuExport.Click += new System.EventHandler(this.MenuExportClicked);
             // 
@@ -276,51 +279,6 @@
             this.sowingLabel.TabIndex = 22;
             this.sowingLabel.Text = "     Sowing     ";
             // 
-            // sowingMethodBox
-            // 
-            this.sowingMethodBox.Content = "";
-            this.sowingMethodBox.Label = "Method:";
-            this.sowingMethodBox.Location = new System.Drawing.Point(4, 32);
-            this.sowingMethodBox.Name = "sowingMethodBox";
-            this.sowingMethodBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingMethodBox.TabIndex = 20;
-            // 
-            // sowingPopBox
-            // 
-            this.sowingPopBox.Content = "";
-            this.sowingPopBox.Label = "Population:";
-            this.sowingPopBox.Location = new System.Drawing.Point(3, 160);
-            this.sowingPopBox.Name = "sowingPopBox";
-            this.sowingPopBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingPopBox.TabIndex = 19;
-            // 
-            // sowingDateBox
-            // 
-            this.sowingDateBox.Content = "";
-            this.sowingDateBox.Label = "Date:";
-            this.sowingDateBox.Location = new System.Drawing.Point(4, 64);
-            this.sowingDateBox.Name = "sowingDateBox";
-            this.sowingDateBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingDateBox.TabIndex = 16;
-            // 
-            // sowingRowBox
-            // 
-            this.sowingRowBox.Content = "";
-            this.sowingRowBox.Label = "Row space:";
-            this.sowingRowBox.Location = new System.Drawing.Point(4, 128);
-            this.sowingRowBox.Name = "sowingRowBox";
-            this.sowingRowBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingRowBox.TabIndex = 18;
-            // 
-            // sowingDepthBox
-            // 
-            this.sowingDepthBox.Content = "";
-            this.sowingDepthBox.Label = "Depth:";
-            this.sowingDepthBox.Location = new System.Drawing.Point(4, 96);
-            this.sowingDepthBox.Name = "sowingDepthBox";
-            this.sowingDepthBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingDepthBox.TabIndex = 17;
-            // 
             // descriptionBox
             // 
             this.descriptionBox.Location = new System.Drawing.Point(6, 30);
@@ -358,69 +316,6 @@
             this.notesLabel.Size = new System.Drawing.Size(55, 17);
             this.notesLabel.TabIndex = 12;
             this.notesLabel.Text = "Notes:";
-            // 
-            // ratingBox
-            // 
-            this.ratingBox.Content = "";
-            this.ratingBox.Label = "Rating:";
-            this.ratingBox.Location = new System.Drawing.Point(6, 190);
-            this.ratingBox.Name = "ratingBox";
-            this.ratingBox.Size = new System.Drawing.Size(372, 26);
-            this.ratingBox.TabIndex = 10;
-            // 
-            // repsBox
-            // 
-            this.repsBox.Content = "";
-            this.repsBox.Label = "Replicates:";
-            this.repsBox.Location = new System.Drawing.Point(6, 158);
-            this.repsBox.Name = "repsBox";
-            this.repsBox.Size = new System.Drawing.Size(372, 26);
-            this.repsBox.TabIndex = 9;
-            // 
-            // endBox
-            // 
-            this.endBox.Content = "";
-            this.endBox.Label = "End date:";
-            this.endBox.Location = new System.Drawing.Point(6, 254);
-            this.endBox.Name = "endBox";
-            this.endBox.Size = new System.Drawing.Size(372, 26);
-            this.endBox.TabIndex = 8;
-            // 
-            // startBox
-            // 
-            this.startBox.Content = "";
-            this.startBox.Label = "Start date:";
-            this.startBox.Location = new System.Drawing.Point(6, 222);
-            this.startBox.Name = "startBox";
-            this.startBox.Size = new System.Drawing.Size(372, 26);
-            this.startBox.TabIndex = 7;
-            // 
-            // metBox
-            // 
-            this.metBox.Content = "";
-            this.metBox.Label = "Met Station:";
-            this.metBox.Location = new System.Drawing.Point(6, 126);
-            this.metBox.Name = "metBox";
-            this.metBox.Size = new System.Drawing.Size(372, 26);
-            this.metBox.TabIndex = 6;
-            // 
-            // fieldBox
-            // 
-            this.fieldBox.Content = "";
-            this.fieldBox.Label = "Field:";
-            this.fieldBox.Location = new System.Drawing.Point(6, 94);
-            this.fieldBox.Name = "fieldBox";
-            this.fieldBox.Size = new System.Drawing.Size(372, 26);
-            this.fieldBox.TabIndex = 5;
-            // 
-            // cropBox
-            // 
-            this.cropBox.Content = "";
-            this.cropBox.Label = "Crop:";
-            this.cropBox.Location = new System.Drawing.Point(6, 62);
-            this.cropBox.Name = "cropBox";
-            this.cropBox.Size = new System.Drawing.Size(372, 26);
-            this.cropBox.TabIndex = 4;
             // 
             // experimentLabel
             // 
@@ -1655,17 +1550,6 @@
             this.pageData.TabIndex = 5;
             this.pageData.Text = "Data";
             // 
-            // traitChart
-            // 
-            this.traitChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitChart.Location = new System.Drawing.Point(0, 0);
-            this.traitChart.Name = "traitChart";
-            this.traitChart.Node = null;
-            this.traitChart.Size = new System.Drawing.Size(762, 614);
-            this.traitChart.TabIndex = 0;
-            // 
             // pageInfo
             // 
             this.pageInfo.BackColor = System.Drawing.Color.Transparent;
@@ -1710,11 +1594,152 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.notebook.Controls.Add(this.pageInfo);
             this.notebook.Controls.Add(this.pageExps);
+            this.notebook.Controls.Add(this.pageApsimx);
             this.notebook.Location = new System.Drawing.Point(0, 27);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
             this.notebook.Size = new System.Drawing.Size(938, 675);
             this.notebook.TabIndex = 2;
+            // 
+            // pageApsimx
+            // 
+            this.pageApsimx.Controls.Add(this.apsimXTemplater1);
+            this.pageApsimx.Location = new System.Drawing.Point(4, 22);
+            this.pageApsimx.Name = "pageApsimx";
+            this.pageApsimx.Padding = new System.Windows.Forms.Padding(3);
+            this.pageApsimx.Size = new System.Drawing.Size(930, 649);
+            this.pageApsimx.TabIndex = 5;
+            this.pageApsimx.Text = "ApsimX";
+            this.pageApsimx.UseVisualStyleBackColor = true;
+            // 
+            // sowingMethodBox
+            // 
+            this.sowingMethodBox.Content = "";
+            this.sowingMethodBox.Label = "Method:";
+            this.sowingMethodBox.Location = new System.Drawing.Point(4, 32);
+            this.sowingMethodBox.Name = "sowingMethodBox";
+            this.sowingMethodBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingMethodBox.TabIndex = 20;
+            // 
+            // sowingPopBox
+            // 
+            this.sowingPopBox.Content = "";
+            this.sowingPopBox.Label = "Population:";
+            this.sowingPopBox.Location = new System.Drawing.Point(3, 160);
+            this.sowingPopBox.Name = "sowingPopBox";
+            this.sowingPopBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingPopBox.TabIndex = 19;
+            // 
+            // sowingDateBox
+            // 
+            this.sowingDateBox.Content = "";
+            this.sowingDateBox.Label = "Date:";
+            this.sowingDateBox.Location = new System.Drawing.Point(4, 64);
+            this.sowingDateBox.Name = "sowingDateBox";
+            this.sowingDateBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingDateBox.TabIndex = 16;
+            // 
+            // sowingRowBox
+            // 
+            this.sowingRowBox.Content = "";
+            this.sowingRowBox.Label = "Row space:";
+            this.sowingRowBox.Location = new System.Drawing.Point(4, 128);
+            this.sowingRowBox.Name = "sowingRowBox";
+            this.sowingRowBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingRowBox.TabIndex = 18;
+            // 
+            // sowingDepthBox
+            // 
+            this.sowingDepthBox.Content = "";
+            this.sowingDepthBox.Label = "Depth:";
+            this.sowingDepthBox.Location = new System.Drawing.Point(4, 96);
+            this.sowingDepthBox.Name = "sowingDepthBox";
+            this.sowingDepthBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingDepthBox.TabIndex = 17;
+            // 
+            // ratingBox
+            // 
+            this.ratingBox.Content = "";
+            this.ratingBox.Label = "Rating:";
+            this.ratingBox.Location = new System.Drawing.Point(6, 190);
+            this.ratingBox.Name = "ratingBox";
+            this.ratingBox.Size = new System.Drawing.Size(372, 26);
+            this.ratingBox.TabIndex = 10;
+            // 
+            // repsBox
+            // 
+            this.repsBox.Content = "";
+            this.repsBox.Label = "Replicates:";
+            this.repsBox.Location = new System.Drawing.Point(6, 158);
+            this.repsBox.Name = "repsBox";
+            this.repsBox.Size = new System.Drawing.Size(372, 26);
+            this.repsBox.TabIndex = 9;
+            // 
+            // endBox
+            // 
+            this.endBox.Content = "";
+            this.endBox.Label = "End date:";
+            this.endBox.Location = new System.Drawing.Point(6, 254);
+            this.endBox.Name = "endBox";
+            this.endBox.Size = new System.Drawing.Size(372, 26);
+            this.endBox.TabIndex = 8;
+            // 
+            // startBox
+            // 
+            this.startBox.Content = "";
+            this.startBox.Label = "Start date:";
+            this.startBox.Location = new System.Drawing.Point(6, 222);
+            this.startBox.Name = "startBox";
+            this.startBox.Size = new System.Drawing.Size(372, 26);
+            this.startBox.TabIndex = 7;
+            // 
+            // metBox
+            // 
+            this.metBox.Content = "";
+            this.metBox.Label = "Met Station:";
+            this.metBox.Location = new System.Drawing.Point(6, 126);
+            this.metBox.Name = "metBox";
+            this.metBox.Size = new System.Drawing.Size(372, 26);
+            this.metBox.TabIndex = 6;
+            // 
+            // fieldBox
+            // 
+            this.fieldBox.Content = "";
+            this.fieldBox.Label = "Field:";
+            this.fieldBox.Location = new System.Drawing.Point(6, 94);
+            this.fieldBox.Name = "fieldBox";
+            this.fieldBox.Size = new System.Drawing.Size(372, 26);
+            this.fieldBox.TabIndex = 5;
+            // 
+            // cropBox
+            // 
+            this.cropBox.Content = "";
+            this.cropBox.Label = "Crop:";
+            this.cropBox.Location = new System.Drawing.Point(6, 62);
+            this.cropBox.Name = "cropBox";
+            this.cropBox.Size = new System.Drawing.Size(372, 26);
+            this.cropBox.TabIndex = 4;
+            // 
+            // traitChart
+            // 
+            this.traitChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitChart.Location = new System.Drawing.Point(0, 0);
+            this.traitChart.Name = "traitChart";
+            this.traitChart.Node = null;
+            this.traitChart.Size = new System.Drawing.Size(762, 614);
+            this.traitChart.TabIndex = 0;
+            // 
+            // apsimXTemplater1
+            // 
+            this.apsimXTemplater1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.apsimXTemplater1.Location = new System.Drawing.Point(6, 6);
+            this.apsimXTemplater1.Name = "apsimXTemplater1";
+            this.apsimXTemplater1.Size = new System.Drawing.Size(921, 640);
+            this.apsimXTemplater1.TabIndex = 0;
             // 
             // REMSClient
             // 
@@ -1741,6 +1766,7 @@
             this.pageInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
+            this.pageApsimx.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1794,6 +1820,8 @@
         private System.Windows.Forms.TextBox designBox;
         private System.Windows.Forms.Label designLabel;
         private Controls.TraitChart traitChart;
+        private System.Windows.Forms.TabPage pageApsimx;
+        private Controls.ApsimXTemplater apsimXTemplater1;
     }
 }
 

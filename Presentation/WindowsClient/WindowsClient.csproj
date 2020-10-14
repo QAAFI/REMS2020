@@ -204,6 +204,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ApsimXTemplater.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ApsimXTemplater.Designer.cs">
+      <DependentUpon>ApsimXTemplater.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -248,6 +254,9 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\ApsimXTemplater.resx">
+      <DependentUpon>ApsimXTemplater.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>
     </EmbeddedResource>
