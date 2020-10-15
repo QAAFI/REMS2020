@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Models.Core.ApsimFile;
-using Rems.Application;
 using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
-using Rems.Infrastructure;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
-using Steema.TeeChart;
-using Steema.TeeChart.Drawing;
 using Steema.TeeChart.Styles;
 using WindowsClient.Forms;
 
@@ -91,15 +83,14 @@ namespace WindowsClient
                 save.Filter = "SQLite (*.db)|*.db";
                 save.RestoreDirectory = true;
 
-                if (save.ShowDialog() == DialogResult.OK)
-                {
-                    folder = Path.GetDirectoryName(save.FileName);
+                if (save.ShowDialog() != DialogResult.OK) return;
+                
+                folder = Path.GetDirectoryName(save.FileName);
 
-                    await TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
-                    await TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
+                await TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
+                await TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
 
-                    LoadListView();
-                }
+                LoadListView();                
             }
         }
 
@@ -113,14 +104,13 @@ namespace WindowsClient
                 open.InitialDirectory = folder;
                 open.Filter = "SQLite (*.db)|*.db";
 
-                if (open.ShowDialog() == DialogResult.OK)
-                {
-                    folder = Path.GetDirectoryName(open.FileName);
+                if (open.ShowDialog() != DialogResult.OK) return;
+                
+                folder = Path.GetDirectoryName(open.FileName);
 
-                    await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
+                await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
 
-                    UpdateAllComponents();
-                }
+                UpdateAllComponents();                
             }
         }
 
@@ -129,40 +119,35 @@ namespace WindowsClient
             Enabled = false;
 
             using (var open = new OpenFileDialog())
-           {
+            {
                 open.InitialDirectory = folder;
                 open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
-                if (open.ShowDialog() == DialogResult.OK)
+                if (open.ShowDialog() != DialogResult.OK) return;
+                
+                folder = Path.GetDirectoryName(open.FileName);
+
+                try
                 {
-                    folder = Path.GetDirectoryName(open.FileName);
+                    if (!await TryQueryREMS(new ConnectionExists()))
+                    {
+                        MessageBox.Show("A database must be opened or created before importing");
+                        return;
+                    }
 
-                    try
-                    {
-                        if (await TryQueryREMS(new ConnectionExists()))
-                        {
-                            var importer = new ExcelImporter(open.FileName);
-                            importer.SendQuery += QueryREMS;
-                            importer.SendCommand += TryQueryREMS;
-
-                            var dialog = new ProgressDialog(importer, "Importing...");
-                            dialog.TaskComplete += UpdateAllComponents;                            
-                        }
-                        else
-                        {
-                            MessageBox.Show("A database must be opened or created before importing");
-                        }                        
-                    }
-                    catch (IOException error)
-                    {
-                        MessageBox.Show(error.Message);
-                    }
-                    catch (Exception error)
-                    {
-                        while (error.InnerException != null) error = error.InnerException;
-                        MessageBox.Show(error.Message);
-                    }
+                    var importer = new ExcelImporter(QueryREMS, TryQueryREMS, open.FileName);
+                    var dialog = new ProgressDialog(importer, "Importing...");
+                    dialog.TaskComplete += UpdateAllComponents;
                 }
+                catch (IOException error)
+                {
+                    MessageBox.Show(error.Message);
+                }
+                catch (Exception error)
+                {
+                    while (error.InnerException != null) error = error.InnerException;
+                    MessageBox.Show(error.Message);
+                }                
             }
 
             EventManager.InvokeStopProgress();
@@ -181,33 +166,28 @@ namespace WindowsClient
         /// </summary>
         private async void MenuExportClicked(object sender, EventArgs e)
         {
-            if (await TryQueryREMS(new ConnectionExists()))
-            {
-                using (var save = new SaveFileDialog())
-                {
-                    save.InitialDirectory = folder;
-                    save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
-
-                    if (save.ShowDialog() == DialogResult.OK)
-                    {
-                        try
-                        {
-                            var exporter = new ApsimXporter(save.FileName, QueryREMS);
-                            exporter.SendQuery += QueryREMS;
-                            exporter.SendCommand += TryQueryREMS;
-
-                            var dialog = new ProgressDialog(exporter, "Exporting...");
-                        }
-                        catch (Exception error)
-                        {
-                            MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }
-            }
-            else
+            if (!await TryQueryREMS(new ConnectionExists()))
             {
                 MessageBox.Show("A database must be opened before exporting.");
+                return;
+            }
+
+            using (var save = new SaveFileDialog())
+            {
+                save.InitialDirectory = folder;
+                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+
+                if (save.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    var exporter = new ApsimXporter(QueryREMS, TryQueryREMS, save.FileName);
+                    var dialog = new ProgressDialog(exporter, "Exporting...");
+                }
+                catch (Exception error)
+                {
+                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

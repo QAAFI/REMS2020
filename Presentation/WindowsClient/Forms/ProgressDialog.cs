@@ -47,25 +47,20 @@ namespace WindowsClient.Forms
 
         private void OnProgressChanged()
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(OnProgressChanged));
-            }
-            else
-            {
-                progress += step;
-                bar.Width = Convert.ToInt32(progress);
+            if (InvokeRequired) Invoke(new Action(OnProgressChanged));
 
-                int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
-                pctLabel.Text = $"{pct}%";
+            progress += step;
+            bar.Width = Convert.ToInt32(progress);
 
-                Refresh();
-            }
+            int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+            pctLabel.Text = $"{pct}%";
+
+            Refresh();            
         }
 
         private void OnTaskFinished()
         {
-            Thread.Sleep(1500);
+            Thread.Sleep(1000);
 
             Close();
 
@@ -76,17 +71,12 @@ namespace WindowsClient.Forms
 
         private void OnNextItem(string text)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new NextItemHandler(OnNextItem));
-            }
-            else
-            {
-                item++;
-                label.Text = $"{item} of {items}: {text}";
+            if (InvokeRequired) Invoke(new NextItemHandler(OnNextItem));
 
-                Refresh();
-            }
+            item++;
+            label.Text = $"{item} of {items}: {text}";
+
+            Refresh();            
         }
 
     }

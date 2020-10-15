@@ -20,7 +20,8 @@ namespace Rems.Infrastructure.Excel
         public override int Items { get; protected set; } = 0;
         public override int Steps { get; protected set; } = 0;
 
-        public ExcelImporter(string filepath) : base()
+        public ExcelImporter(QueryHandler query, CommandHandler command, string filepath)
+            : base(query, command)
         {         
             Data = ReadData(filepath);
 

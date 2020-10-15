@@ -19,13 +19,13 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items { get; protected set; } = 0;
         public override int Steps { get; protected set; } = 0;
 
-        public ApsimXporter(string filename, QueryHandler handler)
+        public ApsimXporter(QueryHandler query, CommandHandler command, string filename) 
+            : base(query, command)
         {
             Simulations = new Simulations
             {
                 FileName = filename
             };
-            SendQuery += handler;
 
             Items = OnSendQuery(new ExperimentCount());
             Steps = Items * 28;

@@ -25,13 +25,6 @@ namespace Rems.Application.Common
         /// <summary>
         /// 
         /// </summary>
-        public static event ProgressTrackingHandler ProgressTracking;        
-        public static void InvokeProgressTracking(object sender, ProgressTrackingArgs args) 
-            => ProgressTracking?.Invoke(sender, args);
-
-        /// <summary>
-        /// 
-        /// </summary>
         public static event NextItemHandler NextItem;        
         public static void InvokeNextItem(string item)
             => NextItem?.Invoke(item);
@@ -72,12 +65,5 @@ namespace Rems.Application.Common
         public string Selection { get; set; }
 
         public bool Cancelled { get; set; } = false;
-    }
-
-    public class ProgressTrackingArgs : EventArgs
-    {
-        public int Items { get; set; }
-
-        public string Title { get; set; }
     }
 }

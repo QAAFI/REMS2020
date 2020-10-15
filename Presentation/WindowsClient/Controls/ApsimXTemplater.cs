@@ -20,8 +20,6 @@ namespace WindowsClient.Controls
 {
     public partial class ApsimXTemplater : UserControl
     {
-        private IModel test;
-
         public ApsimXTemplater()
         {
             InitializeComponent();
@@ -87,7 +85,6 @@ namespace WindowsClient.Controls
                 if (open.ShowDialog() == DialogResult.OK)
                 {
                     var model = JsonTools.LoadJson<IModel>(open.FileName);
-                    test = model;
                     LoadModelView(model);
                 }
             }
@@ -121,7 +118,7 @@ namespace WindowsClient.Controls
             foreach (var info in properties)
             {
                 if (!info.HasAttribute<Models.Core.DescriptionAttribute>()) continue;
-                if (info.Name == "Drainablemm") continue; // Required from bug in Apsim models
+                if (info.Name == "Drainablemm") continue; // Required due to bug in Apsim models
 
                 var value = info.GetValue(node.Model);
                 AddRow(i, info, value);
