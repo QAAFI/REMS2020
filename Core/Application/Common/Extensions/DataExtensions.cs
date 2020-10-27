@@ -77,18 +77,13 @@ namespace Rems.Application.Common.Extensions
             var infos = props.Where(p => p.Name.Contains(name) || name.Contains(p.Name));
             if (infos.Count() <= 1) return infos.SingleOrDefault();
 
-            // If a property is not found, ask the user for input
-            var args = new ItemNotFoundArgs()
-            {
-                Name = name,
-                Options = props.Select(p => p.Name).ToArray()
-            };
-            EventManager.InvokeItemNotFound(null, args);
+            // If a property is not found
+            var validater = EventManager.InvokeItemNotFound(name);
 
-            if (args.Cancelled || args.Selection == "None")
+            if (!validater.IsValid)
                 return null;
             else
-                return props.First(p => p.Name == args.Selection);
+                return props.First(p => p.Name == validater.Item);
         }
 
         public static PropertyInfo FindInfo(this DataColumn col, Type type)
@@ -108,35 +103,21 @@ namespace Rems.Application.Common.Extensions
             }
             else
             {
-                var options = type.GetProperties()
+                var ptions = type.GetProperties()
                     .Where(p => !(p.PropertyType is ICollection))
                     .Select(e => e.Name)
                     .Where(n => !n.Contains("Id"))
                     .ToList();
 
-                var name = col.SelectName(options.ToArray());
-                if (name == null || name == "None") return null;
+                var validater = EventManager.InvokeItemNotFound(col.ColumnName);
 
-                col.ColumnName = name;
+                if (!validater.IsValid) return null;
+
+                col.ColumnName = validater.Item;
 
                 // TODO: Rather than use recursion, this method can probably be separated into smaller methods
                 return col.FindInfo(type);
             }
-        }
-
-        public static string SelectName(this DataColumn col, string[] options)
-        {
-            var args = new ItemNotFoundArgs()
-            {
-                Name = col.ColumnName,
-                Options = options
-            };
-            EventManager.InvokeItemNotFound(null, args);
-
-            if (args.Cancelled)
-                return null;
-            else
-                return args.Selection;
         }
     }
 

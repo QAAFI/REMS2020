@@ -21,22 +21,16 @@ namespace Rems.Application.Common.Extensions
 
             if (trait == null)
             {
-                var args = new ItemNotFoundArgs()
-                {
-                    Options = context.Traits.Select(t => t.Name).ToArray(),
-                    Name = name
-                };
+                var validater = EventManager.InvokeItemNotFound(name);
 
-                EventManager.InvokeItemNotFound(null, args);
-
-                if (args.Selection == "None")
+                if (!validater.IsValid)
                 {
                     trait = new Trait() { Name = name };
                     context.Add(trait);
                 }
                 else
                 {
-                    trait = context.Traits.FirstOrDefault(t => t.Name == args.Selection);
+                    trait = context.Traits.FirstOrDefault(t => t.Name == validater.Item);
                     trait.Name = name;
                 }
                 

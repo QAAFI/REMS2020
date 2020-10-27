@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common;
+using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
@@ -55,16 +57,16 @@ namespace WindowsClient
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
             EventManager.ItemNotFound += OnItemNotFound;
-            EventManager.RequestRawData += ParseText;
             EventManager.SendQuery += QueryREMS;
+
+            validater.SendQuery = new QueryHandler(QueryREMS);
         }
 
         #region Form
 
-        private void OnItemNotFound(object sender, ItemNotFoundArgs args)
+        private IItemValidater OnItemNotFound(string item)
         {
-            var selector = new ItemSelector(args);
-            selector.ShowDialog();
+            return validater.HandleMissingItem(item);
         }
 
         #endregion
@@ -150,7 +152,6 @@ namespace WindowsClient
                 }                
             }
 
-            EventManager.InvokeStopProgress();
             Enabled = true;
         }
 
@@ -181,7 +182,10 @@ namespace WindowsClient
 
                 try
                 {
-                    var exporter = new ApsimXporter(QueryREMS, TryQueryREMS, save.FileName);
+                    var exporter = new ApsimXporter(QueryREMS, TryQueryREMS)
+                    {
+                        FileName = save.FileName
+                    };
                     var dialog = new ProgressDialog(exporter, "Exporting...");
                 }
                 catch (Exception error)

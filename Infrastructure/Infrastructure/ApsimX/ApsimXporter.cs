@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Models.Core;
+﻿using Models.Core;
 using Models.Core.ApsimFile;
-using Models.PMF;
-using Models.Storage;
+
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,65 +14,34 @@ namespace Rems.Infrastructure.ApsimX
 {
     public class ApsimXporter : ProgressTracker
     {
-        public Simulations Simulations { get; set; }
+        public string FileName { get; set; }
 
         public override int Items { get; protected set; } = 0;
         public override int Steps { get; protected set; } = 0;
 
-        public ApsimXporter(QueryHandler query, CommandHandler command, string filename) 
+        public ApsimXporter(QueryHandler query, CommandHandler command) 
             : base(query, command)
-        {
-            Simulations = new Simulations
-            {
-                FileName = filename
-            };
-
+        {            
             Items = OnSendQuery(new ExperimentCount());
             Steps = Items * 28;
         }
 
         public async override Task Run()
         {
-            await Task.Run(InitialiseSimulations);
+            var path = Path.Combine("DataFiles", "apsimx", "Sorghum.apsimx");
+            var simulations = JsonTools.LoadJson<Simulations>(path);
 
-            var exps = OnSendQuery(new ExperimentsQuery());
-            var validations = new Folder() { Name = "Validations" };
+            var folder = new Folder() { Name = "Experiments" };
+            var experiments = OnSendQuery(new ExperimentsQuery());
+            
+            foreach (var experiment in experiments)            
+                await AddExperiment(folder, experiment.Key, experiment.Value);            
 
-            validations.AddCombinedResults(NextNode.Sibling)
-               .AddPanel(NextNode.None);
-            Simulations.Add(validations, NextNode.None);
+            simulations.Children.Add(folder);
 
-            var experiments = new Folder() { Name = "Experiments" };
-            foreach (var exp in exps)
-            {
-                await AddExperiment(experiments, exp.Key, exp.Value);
-            }
-
-            Simulations.Add(experiments, NextNode.None);
-
-            File.WriteAllText(Simulations.FileName, FileFormat.WriteToString(Simulations));
+            File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
 
             OnTaskFinished();
-        }
-
-        private void InitialiseSimulations()
-        {
-            var dVars = EventManager.OnRequestRawData("Daily.txt").Split('\n');
-            var dEvents = new string[] { "[Clock].DoReport" };
-
-            var hVars = EventManager.OnRequestRawData("Harvest.txt").Split('\n');
-            var hEvents = new string[] { "[Sorghum].Harvesting" };
-
-            Simulations
-                .Add<DataStore>(NextNode.Child)
-                    .AddExcelInput(NextNode.Sibling, "Observed")
-                    .AddExcelInput(NextNode.Sibling, "DailyObserved")
-                    .AddPredictedObserved(NextNode.Sibling, "Harvest")
-                    .AddPredictedObserved(NextNode.Parent, "Daily")
-                .Add<Replacements>(NextNode.Child, "Replacements")
-                    .AddPlant(NextNode.Sibling)
-                    .AddReport(NextNode.Sibling, "Daily", dVars, dEvents)
-                    .AddReport(NextNode.Parent, "Harvest", hVars, hEvents);
         }
 
         private Task AddExperiment(Model model, int id, string name)
@@ -80,16 +49,5 @@ namespace Rems.Infrastructure.ApsimX
             OnNextItem(name);
             return Task.Run(() => model.AddExperiment(NextNode.None, id, name));
         }
-    }
-
-    public static class Extensions
-    {
-        public static IModel AddPlant(this IModel model, NextNode next)
-        {
-            var sorghumModel = Path.Combine("DataFiles", "apsimx", "Sorghum.json");
-            var sorghum = JsonTools.LoadJson<Plant>(sorghumModel);
-
-            return model.Add(sorghum, next);
-        }
-    }
+    }    
 }

@@ -41,11 +41,11 @@ namespace Rems.Application.CQRS
 
             var plant = new Plant()
             {
-                CropType = crop.Name,
+                PlantType = crop.Name,
                 Name = crop.Name,
                 ResourceName = crop.Name
             };
-
+            
             return plant;
         }
     }

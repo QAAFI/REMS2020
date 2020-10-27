@@ -13,13 +13,12 @@ namespace Rems.Application.Common
         public abstract int Items { get; protected set; }
         public abstract int Steps { get; protected set; }
 
-        public event ProgressTrackingHandler StartProgress;
-        public event NextItemHandler NextItem;
         public event Action IncrementProgress;
         public event Action TaskFinished;
         public event ExceptionHandler TaskFailed;
         public event CommandHandler SendCommand;
         public event QueryHandler SendQuery;
+        public event NextItemHandler NextItem;
 
         public ProgressTracker(QueryHandler query, CommandHandler command)
         {

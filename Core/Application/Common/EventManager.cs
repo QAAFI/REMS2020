@@ -1,16 +1,16 @@
 ﻿using MediatR;
+using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
 namespace Rems.Application.Common
 {
     public delegate void ExceptionHandler(Exception exception);
-    public delegate void ItemNotFoundHandler(object sender, ItemNotFoundArgs args);
-    public delegate void ProgressTrackingHandler(object sender, ProgressTrackingArgs args);
-    public delegate void NextItemHandler(string item);
+    public delegate IItemValidater ItemNotFoundHandler(string item);
     public delegate Task CommandHandler(IRequest command);
     public delegate Task<object> QueryHandler(object query);
-    public delegate string FileParser(string file);
+    public delegate void NextItemHandler(string item);
 
     // TODO: It might be safer to implement this as a singleton, as opposed to using static events
     public static class EventManager
@@ -19,15 +19,8 @@ namespace Rems.Application.Common
         /// 
         /// </summary>
         public static event ItemNotFoundHandler ItemNotFound;        
-        public static void InvokeItemNotFound(object sender, ItemNotFoundArgs args) 
-            => ItemNotFound?.Invoke(sender, args);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public static event NextItemHandler NextItem;        
-        public static void InvokeNextItem(string item)
-            => NextItem?.Invoke(item);
+        public static IItemValidater InvokeItemNotFound(string item) 
+            => ItemNotFound?.Invoke(item);
 
         /// <summary>
         /// 
@@ -36,13 +29,6 @@ namespace Rems.Application.Common
         public static void InvokeProgressIncremented()
             => ProgressIncremented?.Invoke();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static event Action StopProgress;
-        public static void InvokeStopProgress()
-            => StopProgress?.Invoke();
-
         public static event QueryHandler SendQuery;
         public static T OnSendQuery<T>(IRequest<T> query)
         {
@@ -50,20 +36,5 @@ namespace Rems.Application.Common
             task.Wait();
             return (T)task.Result;
         }
-
-        public static event FileParser RequestRawData;
-        public static string OnRequestRawData(string file)
-            => RequestRawData?.Invoke(file);
-    }
-
-    public class ItemNotFoundArgs : EventArgs
-    {
-        public string Name { get; set; }
-
-        public string[] Options { get; set; }
-
-        public string Selection { get; set; }
-
-        public bool Cancelled { get; set; } = false;
     }
 }

@@ -41,22 +41,22 @@ namespace Rems.Application.CQRS
             if (filtered.Count() == 1)
                 return filtered.Single().ClrType;
 
-            var args = new ItemNotFoundArgs() { Name = request.Name };
+            //var args = new ItemNotFoundArgs() { Name = request.Name };
 
-            // If there is no match, get a list of the possible types
-            if (filtered.Count() == 0)
-                args.Options = types.Select(t => t.ClrType.Name).ToArray();
-            // If there are multiple options left, get a list of those options
-            else
-                args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
+            //// If there is no match, get a list of the possible types
+            //if (filtered.Count() == 0)
+            //    args.Options = types.Select(t => t.ClrType.Name).ToArray();
+            //// If there are multiple options left, get a list of those options
+            //else
+            //    args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
 
             // Ask the user to pick an entity type from the list of options
-            EventManager.InvokeItemNotFound(null, args);
+            var validater = EventManager.InvokeItemNotFound(request.Name);
 
-            if (args.Cancelled || args.Selection == "None")
+            if (!validater.IsValid)
                 return null;
-
-            return types.First(t => t.ClrType.Name == args.Selection).ClrType;
+            else
+                return types.First(t => t.ClrType.Name == validater.Item).ClrType;
         }
     }
 }

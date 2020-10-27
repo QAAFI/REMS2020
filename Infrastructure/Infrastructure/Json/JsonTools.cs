@@ -8,9 +8,10 @@ namespace Rems.Infrastructure
     {
         public static T LoadJson<T>(string file)
         {
+            if (!File.Exists(file)) throw new FileNotFoundException();
+
             using (var stream = new StreamReader(file))
             using (var reader = new JsonTextReader(stream))
-
             {
                 var serializer = new JsonSerializer()
                 {
@@ -18,7 +19,8 @@ namespace Rems.Infrastructure
                     TypeNameHandling = TypeNameHandling.Objects
                 };
 
-                return serializer.Deserialize<T>(reader);
+                var t = serializer.Deserialize<T>(reader);
+                return t;
             }
         }
 

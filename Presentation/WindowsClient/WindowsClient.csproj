@@ -204,12 +204,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\ApsimXTemplater.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ApsimXTemplater.Designer.cs">
-      <DependentUpon>ApsimXTemplater.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -222,6 +216,12 @@
     <Compile Include="Controls\LabeledBox.Designer.cs">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Validater.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Validater.Designer.cs">
+      <DependentUpon>Validater.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FileSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -233,12 +233,6 @@
     </Compile>
     <Compile Include="Forms\ProgressDialog.Designer.cs">
       <DependentUpon>ProgressDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ItemSelector.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ItemSelector.Designer.cs">
-      <DependentUpon>ItemSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -254,23 +248,20 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Controls\ApsimXTemplater.resx">
-      <DependentUpon>ApsimXTemplater.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\LabeledBox.resx">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Validater.resx">
+      <DependentUpon>Validater.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FileSelector.resx">
       <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProgressDialog.resx">
       <DependentUpon>ProgressDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ItemSelector.resx">
-      <DependentUpon>ItemSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

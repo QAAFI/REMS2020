@@ -21,7 +21,8 @@ namespace Rems.Application.CQRS
             _factory = factory;
         }
 
-        public Task<Unit> Handle(OpenDBCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+        public Task<Unit> Handle(OpenDBCommand request, CancellationToken cancellationToken) 
+            => Task.Run(() => Handler(request));
 
         private Unit Handler(OpenDBCommand request)
         {
