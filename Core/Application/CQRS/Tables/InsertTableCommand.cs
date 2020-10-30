@@ -27,7 +27,8 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+        public Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken) 
+            => Task.Run(() => Handler(request));
 
         private Unit Handler(InsertTableCommand request)
         {

@@ -47,7 +47,11 @@ namespace WindowsClient.Forms
 
         private void OnProgressChanged()
         {
-            if (InvokeRequired) Invoke(new Action(OnProgressChanged));
+            if (InvokeRequired)
+            {
+                Invoke(new Action(OnProgressChanged));
+                return;
+            }
 
             progress += step;
             bar.Width = Convert.ToInt32(progress);
@@ -71,7 +75,11 @@ namespace WindowsClient.Forms
 
         private void OnNextItem(string text)
         {
-            if (InvokeRequired) Invoke(new NextItemHandler(OnNextItem));
+            if (InvokeRequired)
+            {
+                Invoke(new NextItemHandler(OnNextItem));
+                return;
+            }
 
             item++;
             label.Text = $"{item} of {items}: {text}";

@@ -31,7 +31,7 @@ namespace Rems.Application.CQRS
 
             bool valid = false || _context.Traits.Any(t => t.Name == request.Validater.Name);
 
-            foreach (var item in request.Validater.Values.Split(','))
+            foreach (var item in request.Validater.Values)
                 valid = valid || _context.Traits.Any(t => t.Name == item);
 
             request.Validater.IsValid = valid;

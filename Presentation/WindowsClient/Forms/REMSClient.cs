@@ -11,7 +11,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Models;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
@@ -56,20 +55,12 @@ namespace WindowsClient
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            EventManager.ItemNotFound += OnItemNotFound;
+            EventManager.ItemNotFound += exportValidater.HandleMissingItem;
             EventManager.SendQuery += QueryREMS;
 
-            validater.SendQuery = new QueryHandler(QueryREMS);
+            exportValidater.SendQuery = new QueryHandler(QueryREMS);
+            importValidater.SendQuery = new QueryHandler(QueryREMS);
         }
-
-        #region Form
-
-        private IItemValidater OnItemNotFound(string item)
-        {
-            return validater.HandleMissingItem(item);
-        }
-
-        #endregion
 
         #region Taskbar
 
@@ -137,9 +128,14 @@ namespace WindowsClient
                         return;
                     }
 
-                    var importer = new ExcelImporter(QueryREMS, TryQueryREMS, open.FileName);
-                    var dialog = new ProgressDialog(importer, "Importing...");
-                    dialog.TaskComplete += UpdateAllComponents;
+                    var importer = new ExcelImporter(QueryREMS, TryQueryREMS);
+                    importer.FoundInvalids += importValidater.OnFoundInvalids;
+                    
+                    if (importer.Initialise(open.FileName))
+                    {
+                        var dialog = new ProgressDialog(importer, "Importing...");
+                        dialog.TaskComplete += UpdateAllComponents;
+                    }                    
                 }
                 catch (IOException error)
                 {
@@ -153,7 +149,7 @@ namespace WindowsClient
             }
 
             Enabled = true;
-        }
+        }        
 
         private void UpdateAllComponents()
         {

@@ -3,7 +3,6 @@ using Models.Core.ApsimFile;
 
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
-using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 
 using System;
@@ -23,7 +22,7 @@ namespace Rems.Infrastructure.ApsimX
             : base(query, command)
         {            
             Items = OnSendQuery(new ExperimentCount());
-            Steps = Items * 28;
+            Steps = Items * 30;
         }
 
         public async override Task Run()
@@ -33,21 +32,18 @@ namespace Rems.Infrastructure.ApsimX
 
             var folder = new Folder() { Name = "Experiments" };
             var experiments = OnSendQuery(new ExperimentsQuery());
-            
-            foreach (var experiment in experiments)            
-                await AddExperiment(folder, experiment.Key, experiment.Value);            
+
+            foreach (var experiment in experiments)
+            {
+                OnNextItem(experiment.Value);
+                await Task.Run(() => folder.AddExperiment(NextNode.None, experiment.Key, experiment.Value));
+            }
 
             simulations.Children.Add(folder);
 
             File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
 
             OnTaskFinished();
-        }
-
-        private Task AddExperiment(Model model, int id, string name)
-        {
-            OnNextItem(name);
-            return Task.Run(() => model.AddExperiment(NextNode.None, id, name));
         }
     }    
 }

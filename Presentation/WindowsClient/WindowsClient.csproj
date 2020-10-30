@@ -204,6 +204,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ExportValidater.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ImportValidater.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -234,6 +240,7 @@
     <Compile Include="Forms\ProgressDialog.Designer.cs">
       <DependentUpon>ProgressDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\ValidaterRow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controls\PropertyControl.cs">

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 

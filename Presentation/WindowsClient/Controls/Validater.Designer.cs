@@ -31,18 +31,22 @@
             this.dataGrid = new System.Windows.Forms.DataGridView();
             this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AltsColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Ignore = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGrid
             // 
+            this.dataGrid.AllowUserToAddRows = false;
+            this.dataGrid.AllowUserToDeleteRows = false;
             this.dataGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.NameColumn,
-            this.AltsColumn});
+            this.AltsColumn,
+            this.Ignore});
             this.dataGrid.Location = new System.Drawing.Point(3, 3);
             this.dataGrid.Name = "dataGrid";
             this.dataGrid.Size = new System.Drawing.Size(564, 526);
@@ -62,6 +66,16 @@
             this.AltsColumn.HeaderText = "Alternatives";
             this.AltsColumn.Name = "AltsColumn";
             // 
+            // Ignore
+            // 
+            this.Ignore.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.Ignore.FalseValue = "F";
+            this.Ignore.HeaderText = "Ignore";
+            this.Ignore.IndeterminateValue = "F";
+            this.Ignore.Name = "Ignore";
+            this.Ignore.TrueValue = "T";
+            this.Ignore.Width = 43;
+            // 
             // Validater
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -79,5 +93,6 @@
         private System.Windows.Forms.DataGridView dataGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn AltsColumn;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Ignore;
     }
 }

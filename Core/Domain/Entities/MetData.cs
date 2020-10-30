@@ -1,5 +1,4 @@
 ﻿using System;
-using Rems.Domain.Attributes;
 
 namespace Rems.Domain.Entities
 {

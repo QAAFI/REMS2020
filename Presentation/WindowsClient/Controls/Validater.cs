@@ -9,14 +9,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.Common;
 using Rems.Application.CQRS;
-using Rems.Application.Common.Models;
 using Castle.Core.Internal;
 using Steema.TeeChart.Styles;
 using Rems.Application.Common.Interfaces;
+using System.Collections.Immutable;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
-    public partial class Validater : UserControl
+    public abstract partial class Validater : UserControl
     {
         public QueryHandler SendQuery;
 
@@ -55,6 +56,8 @@ namespace WindowsClient.Controls
             { "SW", "" },
         };
 
+        protected DataGridView grid => dataGrid;
+
         public Validater()
         {
             InitializeComponent();
@@ -62,76 +65,57 @@ namespace WindowsClient.Controls
             Enter += OnClick;
 
             dataGrid.CellEndEdit += OnCellEndEdit;
-        }        
+            dataGrid.CellMouseDown += OnCellMouseDown;
+        }
+
+        private void OnCellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.ColumnIndex != 2) return;
+
+            var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
+
+            if (row.Ignore) row.Color = Color.Yellow;
+
+            dataGrid.ClearSelection();
+            dataGrid.Refresh();
+        }
 
         private void OnClick(object sender, EventArgs e)
         {
             if (dataGrid.Rows.Count == 1) FillRows();
-        }
-
-        private void FillRows()
-        {
-            var red = new DataGridViewCellStyle() { BackColor = Color.Red };
-
-            dataGrid.Rows.Clear();
-            foreach (var item in Items)
-            {
-                var row = new ValidaterRow();
-                row.CreateCells(dataGrid);
-                row.SetValues(item.Key, item.Value);
-                SendQuery(new TraitExistsQuery() { Validater = row });
-
-                dataGrid.Rows.Add(row);
-            }
-
-            Refresh();
-        }
+        }        
 
         private void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
-
-            var exists = new TraitExistsQuery() { Validater = row };
-            SendQuery(exists);
+            ValidateRow(row);            
         }
+
+        protected abstract void FillRows();
+
+        protected void AddRow(string item, string values)
+        {
+            var row = new ValidaterRow();
+            row.CreateCells(dataGrid);
+            row.SetValues(item, values);
+            ValidateRow(row);
+
+            dataGrid.Rows.Add(row);
+        }
+
+        protected abstract void ValidateRow(ValidaterRow row);
 
         public IItemValidater HandleMissingItem(string item)
         {
-            foreach (ValidaterRow row in dataGrid.Rows)            
-                if (row.Name == item) return row;            
+            if (dataGrid.Rows.Count == 1) throw new Exception("The validater has not been initiliased");
 
-            throw new Exception("The requested item is not handled by the validater");
+            foreach (IItemValidater row in dataGrid.Rows)
+                if (row.Name == item) return row;
+
+            return new ItemValidater();
         }
+
+             
     }
-
-    public class ValidaterRow : DataGridViewRow, IItemValidater
-    {
-        public string Name 
-        { 
-            get => Cells[0].Value.ToString();            
-            set => Cells[0].Value = value;            
-        }
-
-        public string Values 
-        {
-            get => Cells[1].Value.ToString();
-            set => Cells[1].Value = value;
-        }
-
-        public string Item { get; set; }
-
-        private bool valid;
-        public bool IsValid 
-        {
-            get => valid; 
-            set
-            {
-                valid = value;
-
-                if (valid) DefaultCellStyle.BackColor = Color.White;
-                else DefaultCellStyle.BackColor = Color.Red;
-                
-            }
-        }
-    }
+    
 }

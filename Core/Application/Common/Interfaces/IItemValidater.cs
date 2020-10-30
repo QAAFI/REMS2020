@@ -8,10 +8,12 @@ namespace Rems.Application.Common.Interfaces
     {
         string Name { get; set; }
 
-        string Values { get; set; }
+        string[] Values { get; set; }
 
         string Item { get; set; }
 
         bool IsValid { get; set; }
+
+        bool Ignore { get; }
     }
 }

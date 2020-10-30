@@ -103,11 +103,11 @@ namespace Rems.Application.Common.Extensions
             }
             else
             {
-                var ptions = type.GetProperties()
-                    .Where(p => !(p.PropertyType is ICollection))
-                    .Select(e => e.Name)
-                    .Where(n => !n.Contains("Id"))
-                    .ToList();
+                //var ptions = type.GetProperties()
+                //    .Where(p => !(p.PropertyType is ICollection))
+                //    .Select(e => e.Name)
+                //    .Where(n => !n.Contains("Id"))
+                //    .ToList();
 
                 var validater = EventManager.InvokeItemNotFound(col.ColumnName);
 

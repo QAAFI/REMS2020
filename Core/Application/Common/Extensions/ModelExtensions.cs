@@ -48,7 +48,7 @@ namespace Rems.Application.Common.Extensions
 
         public static IModel Add(this IModel model, IModel child, NextNode next)
         {
-            //EventManager.InvokeProgressIncremented();
+            EventManager.InvokeProgressIncremented();
 
             model.Children.Add(child);
             child.Parent = model;
@@ -108,7 +108,7 @@ namespace Rems.Application.Common.Extensions
 
             model.Children.Add(sim);
 
-            //EventManager.InvokeProgressIncremented();
+            EventManager.InvokeProgressIncremented();
         }
         #endregion
 
