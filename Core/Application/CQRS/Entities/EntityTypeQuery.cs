@@ -13,6 +13,8 @@ namespace Rems.Application.CQRS
     public class EntityTypeQuery : IRequest<Type>
     {
         public string Name { get; set; }
+
+        public RequestItem GetItem { get; set; }
     }
 
     public class EntityTypeQueryHandler : IRequestHandler<EntityTypeQuery, Type>
@@ -50,13 +52,9 @@ namespace Rems.Application.CQRS
             //else
             //    args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
 
-            // Ask the user to pick an entity type from the list of options
-            var validater = EventManager.InvokeItemNotFound(request.Name);
-
-            if (!validater.IsValid)
-                return null;
-            else
-                return types.First(t => t.ClrType.Name == validater.Item).ClrType;
+            // 
+            var item = request.GetItem(request.Name);
+            return types.FirstOrDefault(t => t.ClrType.Name == item).ClrType;
         }
     }
 }

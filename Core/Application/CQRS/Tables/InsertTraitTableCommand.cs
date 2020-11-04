@@ -23,6 +23,8 @@ namespace Rems.Application.CQRS
         public Type Type { get; set; }
 
         public Type Dependency { get; set; }
+
+        public RequestItem ItemNotFound { get; set; }
     }
 
     public class InsertTraitTableCommandHandler : IRequestHandler<InsertTraitTableCommand>
@@ -46,7 +48,7 @@ namespace Rems.Application.CQRS
             {
                 if (c.ColumnName.Contains("Column")) continue;
 
-                if (c.FindProperty(request.Type) is PropertyInfo info)
+                if (c.FindProperty(request.ItemNotFound) is PropertyInfo info)
                 {
                     infos.Add(info);
                 }

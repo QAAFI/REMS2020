@@ -11,12 +11,23 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
-    public class FactorQuery : IRequest<Factor[]>
+    public class PermutationQuery : IRequest<Permutation>, IParameterised
     {
         public int ExperimentId { get; set; }
+
+        public void Parameterise(params object[] args)
+        {
+            if (args.Length != 1)
+                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
+
+            if (args[0] is int id)
+                ExperimentId = id;
+            else
+                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
+        }
     }
 
-    public class FactorQueryHandler : IRequestHandler<FactorQuery, Factor[]>
+    public class FactorQueryHandler : IRequestHandler<PermutationQuery, Permutation>
     {
         private readonly IRemsDbContext _context;
 
@@ -25,12 +36,12 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Factor[]> Handle(FactorQuery request, CancellationToken token)
+        public Task<Permutation> Handle(PermutationQuery request, CancellationToken token)
             => Task.Run(() => Handler(request, token));
 
-        private Factor[] Handler(FactorQuery request, CancellationToken token)
+        private Permutation Handler(PermutationQuery request, CancellationToken token)
         {
-            var models = new List<Factor>();
+            var permutation = new Permutation();
 
             var levels = _context.Experiments.Find(request.ExperimentId)
                 .Treatments
@@ -55,10 +66,10 @@ namespace Rems.Application.CQRS
                     model.Children.Add(new CompositeFactor() { Name = level.Name });
                 }
 
-                models.Add(model);
+                permutation.Children.Add(model);
             }
 
-            return models.ToArray();
+            return permutation;
         }
     }
 }

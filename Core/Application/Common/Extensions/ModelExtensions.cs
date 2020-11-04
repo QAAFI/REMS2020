@@ -1,18 +1,14 @@
 ﻿using MediatR;
 using Models;
-using Models.Climate;
 using Models.Core;
 using Models.Factorial;
-using Models.PMF;
 using Models.Soils;
 using Models.Soils.Arbitrator;
 using Models.Surface;
-using Models.WaterModel;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -27,14 +23,13 @@ namespace Rems.Application.Common.Extensions
     public static class ModelExtensions
     {
         #region General
-        public static IModel Add<M, R>(this IModel model, NextNode next, params object[] args)
-            where M : IModel
-            where R : IRequest<M>, IParameterised, new()
+        public static IModel Add<R>(this IModel model, NextNode next, Query<IModel> query, params object[] args)
+            where R : IRequest<IModel>, IParameterised, new()
         {
             var request = new R();
             request.Parameterise(args);
 
-            var child = EventManager.OnSendQuery(request);
+            var child = query(request);
             return model.Add(child, next);
         }
 
@@ -69,36 +64,27 @@ namespace Rems.Application.Common.Extensions
 
         #region Simulations       
 
-        public static IModel AddExperiment(this IModel model, NextNode next, int id, string name)
+        public static IModel AddExperiment(this IModel model, NextNode next, int id, string name, Query<IModel> query)
         {
             var experiment = new Experiment() { Name = name };
             experiment.Add<Factors>(NextNode.Child)
-                .Add<Permutation>(NextNode.Child)
-                    .AddFactors(id);
+                .Add<PermutationQuery>(NextNode.Child, query, id);
             
-            experiment.AddTreatment(id);
+            experiment.AddTreatment(id, query);
             return model.Add(experiment, next);
         }
 
-        public static void AddFactors(this IModel model, int id)
-        {
-            var factors = EventManager.OnSendQuery(new FactorQuery() { ExperimentId = id });
-
-            foreach (var factor in factors)
-                model.Children.Add(factor);            
-        }
-
-        public static void AddTreatment(this IModel model, int id)
+        public static void AddTreatment(this IModel model, int id, Query<IModel> query)
         {
             var sim = new Simulation() { Name = "Base" };
 
-            sim.Add<Clock, ClockQuery>(NextNode.Sibling, id)
+            sim.Add<ClockQuery>(NextNode.Sibling, query, id)
                 .Add<Summary>(NextNode.Sibling)
-                .AddWeather(NextNode.Sibling, id)
+                .AddWeather(NextNode.Sibling, id, query)
                 .Add<SoilArbitrator>(NextNode.Sibling)
-                .Add<Zone, ZoneQuery>(NextNode.Child, id)
-                    .Add<Plant, PlantQuery>(NextNode.Sibling, id)
-                    .AddSoil(NextNode.Sibling, id)
+                .Add<ZoneQuery>(NextNode.Child, query, id)
+                    .Add<PlantQuery>(NextNode.Sibling, query, id)
+                    .AddSoil(NextNode.Sibling, id, query)
                     .AddSurfaceOrganicMatter(NextNode.Sibling)
                     .Add<Operations>(NextNode.Sibling)
                     .Add<Irrigation>(NextNode.Sibling, "Irrigation")
@@ -113,22 +99,22 @@ namespace Rems.Application.Common.Extensions
         #endregion
 
         #region Models
-        public static IModel AddSoil(this IModel model, NextNode next, int id)
+        public static IModel AddSoil(this IModel model, NextNode next, int id, Query<IModel> query)
         {
-            var soil = EventManager.OnSendQuery(new SoilQuery() { ExperimentId = id });
+            var soil = query(new SoilQuery() { ExperimentId = id });
 
-            soil.Add<Physical, PhysicalQuery>(NextNode.Child, id)
-                    .Add<SoilCrop, SoilCropQuery>(NextNode.Parent, id)
-                .Add<WaterBalance, WaterBalanceQuery>(NextNode.Sibling, id)
+            soil.Add<PhysicalQuery>(NextNode.Child, query, id)
+                    .Add<SoilCropQuery>(NextNode.Parent, query, id)
+                .Add<WaterBalanceQuery>(NextNode.Sibling, query, id)
                 .Add<SoilNitrogen>(NextNode.Child, "SoilNitrogen")
                     .Add<SoilNitrogenNH4>(NextNode.Sibling, "NH4")
                     .Add<SoilNitrogenNO3>(NextNode.Sibling, "NO3")
                     .Add<SoilNitrogenUrea>(NextNode.Sibling, "Urea")
                     .Add<SoilNitrogenPlantAvailableNH4>(NextNode.Sibling, "PlantAvailableNH4")
                     .Add<SoilNitrogenPlantAvailableNO3>(NextNode.Parent, "PlantAvailableNH4")
-                .Add<Organic, OrganicQuery>(NextNode.Sibling, id)
-                .Add<Chemical, ChemicalQuery>(NextNode.Sibling, id)
-                .Add<Sample, SampleQuery>(NextNode.Sibling, id)
+                .Add<OrganicQuery>(NextNode.Sibling, query, id)
+                .Add<ChemicalQuery>(NextNode.Sibling, query, id)
+                .Add<SampleQuery>(NextNode.Sibling, query, id)
                 .Add<CERESSoilTemperature>(NextNode.Parent, "SoilTemperature");
 
             return model.Add(soil, next);
@@ -147,42 +133,24 @@ namespace Rems.Application.Common.Extensions
             return model.Add(organic, next);
         }
 
-        public static IModel AddWeather(this IModel model, NextNode next, int id)
+        public static IModel AddWeather(this IModel model, NextNode next, int id, Query<IModel> query)
         {
-            var met = EventManager.OnSendQuery(new MetStationQuery() { ExperimentId = id });
-
-            string file = met + ".met";
-
-            if (!File.Exists(file))
-            {
-                using (var stream = new FileStream(file, FileMode.Create))
-                using (var writer = new StreamWriter(stream))
-                {
-                    var builder = EventManager.OnSendQuery(new MetFileDataQuery() { ExperimentId = id });
-                    writer.Write(builder.ToString());
-                    writer.Close();
-                }
-            }
-
-            var weather = new Weather()
-            {
-                FileName = file
-            };
+            var weather = query(new MetFileDataQuery() { ExperimentId = id });           
 
             return model.Add(weather, next);
         }
 
-        public static IModel AddOperations(this IModel model, NextNode next, int id)
+        public static IModel AddOperations(this IModel model, NextNode next, int id, Query<Operation[]> query)
         {
             var operations = new Operations()
             {
                 Operation = new List<Operation>()
             };
 
-            var i = EventManager.OnSendQuery(new IrrigationsQuery() { TreatmentId = id });
+            var i = query(new IrrigationsQuery() { TreatmentId = id });
             operations.Operation.AddRange(i);
 
-            var f = EventManager.OnSendQuery(new FertilizationsQuery() { TreatmentId = id });            
+            var f = query(new FertilizationsQuery() { TreatmentId = id });            
             operations.Operation.AddRange(f);
 
             return model.Add(operations, next);

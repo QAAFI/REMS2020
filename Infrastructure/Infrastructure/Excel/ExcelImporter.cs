@@ -1,6 +1,4 @@
-﻿using ExcelDataReader;
-using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
@@ -17,100 +15,18 @@ namespace Rems.Infrastructure.Excel
 {
     public class ExcelImporter : ProgressTracker
     {
-        public DataSet Data { get; private set; }
+        public DataSet Data { get; set; }
 
-        public override int Items { get; protected set; } = 0;
-        public override int Steps { get; protected set; } = 0;
+        public override int Items => Data.Tables.Count;
+        public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);
 
-        private bool initialised = false;
+        public event RequestItem ItemNotFound;
 
         public ExcelImporter(QueryHandler query, CommandHandler command) : base(query, command)
-        { }
-
-        public bool Initialise(string filepath)
-        {
-            Data = ReadData(filepath);
-
-            // Clean up tables and find metadata
-            foreach (DataTable table in Data.Tables)
-            {
-                // Remove any duplicate rows from the table
-                table.RemoveDuplicateRows();
-
-                if (table.TableName == "Notes" || table.Rows.Count == 0) continue;
-
-                Items++;
-                Steps += table.Rows.Count;
-
-                var type = OnSendQuery(new EntityTypeQuery() { Name = table.TableName });
-                if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
-
-                table.ExtendedProperties.Add("Type", type);
-            }
-
-            // For each data table
-            var invalids = Data.Tables.Cast<DataTable>()
-                .Where(table => table.ExtendedProperties["Type"] != null)
-                // From the data columns
-                .Select(table => table.Columns.Cast<DataColumn>())
-                // Where the column is not a property of an entity
-                .SelectMany(cols => cols.Where(col => !IsProperty(col)))
-                // Select the column name
-                .Select(col => col.ColumnName)
-                .ToArray();
-
-            if (invalids.Any())
-            {
-                OnFoundInvalids(invalids);
-                return false;
-            }
-
-            return initialised = true;
-        }
-
-        private bool IsProperty(DataColumn col)
-        {
-            var type = col.Table.ExtendedProperties["Type"] as Type;
-            
-            if (type.GetProperty(col.ColumnName) is PropertyInfo)
-                return true;
-
-            if (col.ColumnName == type.Name && type.GetProperty("Name") is PropertyInfo)
-            {
-                col.ColumnName = type.Name;
-                return true;
-            }
-
-            var validater = EventManager.InvokeItemNotFound(col.ColumnName);
-            if (validater.IsValid || validater.Ignore)
-                return true;
-
-            return false;
-        }
-
-        private DataSet ReadData(string filepath)
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
-            {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
-                {
-                    return reader.AsDataSet(new ExcelDataSetConfiguration()
-                    {
-                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
-                        {
-                            UseHeaderRow = true
-                        }
-                    });
-                }
-            }
-        }
+        { }        
 
         public async override Task Run()
         {
-            if (!initialised) throw new Exception("The importer has not been initialised");
-
             try
             {
                 if (!OnSendQuery(new ConnectionExists()))
@@ -177,23 +93,38 @@ namespace Rems.Infrastructure.Excel
 
                 case "Irrigation":
                 case "Fertilization":
-                    command = new InsertOperationsTableCommand() { Table = table, Type = type };
+                    command = new InsertOperationsTableCommand() 
+                    { 
+                        Table = table, 
+                        Type = type,
+                        ItemNotFound = ItemNotFound
+                    };
                     break;
 
                 case "Soils":
                 case "SoilLayer":
-                    var query = new EntityTypeQuery() { Name = type.Name + "Trait" };
+                    var query = new EntityTypeQuery() 
+                    { 
+                        Name = type.Name + "Trait"
+                    };
                     var dependency = OnSendQuery(query);
+
                     command = new InsertTraitTableCommand()
                     {
                         Table = table,
                         Type = type,
-                        Dependency = dependency
+                        Dependency = dependency,
+                        ItemNotFound = ItemNotFound
                     };
                     break;
 
                 default:
-                    command = new InsertTableCommand() { Table = table, Type = type };                    
+                    command = new InsertTableCommand()
+                    { 
+                        Table = table,
+                        Type = type,
+                        ItemNotFound = ItemNotFound
+                    };                    
                     break;
             }
             return OnSendCommand(command);

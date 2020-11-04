@@ -23,7 +23,7 @@ namespace WindowsClient.Models
             set => Cells[1].Value = string.Join(", ", value);
         }
 
-        public string Item { get; set; }
+        public string Item { get; set; } = "";
 
         private bool valid;
         public bool IsValid

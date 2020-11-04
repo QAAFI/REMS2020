@@ -15,28 +15,25 @@ namespace Rems.Application.Common.Extensions
             //throw new NotImplementedException();
         }
 
-        internal static Trait GetTraitByName(this IRemsDbContext context, string name)
+        internal static Trait GetTraitByName(this IRemsDbContext context, string name, RequestItem getItem)
         {
             var trait = context.Traits.FirstOrDefault(t => t.Name == name);
 
-            if (trait == null)
+            if (trait != null) 
+                return trait;
+            
+            var item = getItem(name);
+            trait = context.Traits.FirstOrDefault(t => t.Name == item);
+
+            if (trait is null)
             {
-                var validater = EventManager.InvokeItemNotFound(name);
+                trait = new Trait() { Name = name };
+                context.Add(trait);
+            }                
+            else
+                trait.Name = name;
 
-                if (!validater.IsValid)
-                {
-                    trait = new Trait() { Name = name };
-                    context.Add(trait);
-                }
-                else
-                {
-                    trait = context.Traits.FirstOrDefault(t => t.Name == validater.Item);
-                    trait.Name = name;
-                }
-                
-                context.SaveChanges();
-            }
-
+            context.SaveChanges();
             return trait;
         }
 
@@ -54,7 +51,7 @@ namespace Rems.Application.Common.Extensions
 
         internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name)
         {
-            var trait = context.GetTraitByName(name);
+            var trait = context.GetTraitByName(name, null);
 
             var data = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
                 .Where(v => v != null);

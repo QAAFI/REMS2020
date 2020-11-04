@@ -57,12 +57,13 @@
             this.designData = new System.Windows.Forms.DataGridView();
             this.pageOperation = new System.Windows.Forms.TabPage();
             this.operationsBox = new System.Windows.Forms.ComboBox();
-            this.operationsChart = new Steema.TeeChart.TChart();
             this.pageData = new System.Windows.Forms.TabPage();
             this.pageInfo = new System.Windows.Forms.TabPage();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
+            this.pageImport = new System.Windows.Forms.TabPage();
+            this.operationsChart = new Steema.TeeChart.TChart();
             this.sowingMethodBox = new WindowsClient.Controls.LabeledBox();
             this.sowingPopBox = new WindowsClient.Controls.LabeledBox();
             this.sowingDateBox = new WindowsClient.Controls.LabeledBox();
@@ -77,8 +78,7 @@
             this.cropBox = new WindowsClient.Controls.LabeledBox();
             this.traitChart = new WindowsClient.Controls.TraitChart();
             this.exportValidater = new WindowsClient.Controls.ExportValidater();
-            this.pageImport = new System.Windows.Forms.TabPage();
-            this.importValidater = new WindowsClient.Controls.ImportValidater();
+            this.importer = new WindowsClient.Controls.Importer();
             this.menuStrip1.SuspendLayout();
             this.pageExport.SuspendLayout();
             this.pageExps.SuspendLayout();
@@ -388,6 +388,82 @@
             this.operationsBox.Size = new System.Drawing.Size(145, 21);
             this.operationsBox.TabIndex = 1;
             this.operationsBox.SelectedIndexChanged += new System.EventHandler(this.OnOperationsBoxSelectionChanged);
+            // 
+            // pageData
+            // 
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.traitChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(763, 614);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
+            // 
+            // pageInfo
+            // 
+            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
+            this.pageInfo.Controls.Add(this.dataGridView);
+            this.pageInfo.Controls.Add(this.relationsListBox);
+            this.pageInfo.Location = new System.Drawing.Point(4, 22);
+            this.pageInfo.Name = "pageInfo";
+            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.pageInfo.Size = new System.Drawing.Size(930, 649);
+            this.pageInfo.TabIndex = 0;
+            this.pageInfo.Text = "Information";
+            // 
+            // dataGridView
+            // 
+            this.dataGridView.AllowUserToAddRows = false;
+            this.dataGridView.AllowUserToDeleteRows = false;
+            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.Location = new System.Drawing.Point(152, 3);
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
+            this.dataGridView.Size = new System.Drawing.Size(775, 643);
+            this.dataGridView.TabIndex = 1;
+            // 
+            // relationsListBox
+            // 
+            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.relationsListBox.FormattingEnabled = true;
+            this.relationsListBox.IntegralHeight = false;
+            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
+            this.relationsListBox.Name = "relationsListBox";
+            this.relationsListBox.ScrollAlwaysVisible = true;
+            this.relationsListBox.Size = new System.Drawing.Size(143, 643);
+            this.relationsListBox.TabIndex = 3;
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
+            // 
+            // notebook
+            // 
+            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.notebook.Controls.Add(this.pageInfo);
+            this.notebook.Controls.Add(this.pageExps);
+            this.notebook.Controls.Add(this.pageImport);
+            this.notebook.Controls.Add(this.pageExport);
+            this.notebook.Location = new System.Drawing.Point(0, 27);
+            this.notebook.Name = "notebook";
+            this.notebook.SelectedIndex = 0;
+            this.notebook.Size = new System.Drawing.Size(938, 675);
+            this.notebook.TabIndex = 2;
+            // 
+            // pageImport
+            // 
+            this.pageImport.Controls.Add(this.importer);
+            this.pageImport.Location = new System.Drawing.Point(4, 22);
+            this.pageImport.Name = "pageImport";
+            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
+            this.pageImport.Size = new System.Drawing.Size(930, 649);
+            this.pageImport.TabIndex = 6;
+            this.pageImport.Text = "Import";
+            this.pageImport.UseVisualStyleBackColor = true;
             // 
             // operationsChart
             // 
@@ -1553,69 +1629,6 @@
             this.operationsChart.Zoom.Brush.Solid = true;
             this.operationsChart.Zoom.Brush.Visible = true;
             // 
-            // pageData
-            // 
-            this.pageData.BackColor = System.Drawing.Color.LightGray;
-            this.pageData.Controls.Add(this.traitChart);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(763, 614);
-            this.pageData.TabIndex = 5;
-            this.pageData.Text = "Data";
-            // 
-            // pageInfo
-            // 
-            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
-            this.pageInfo.Controls.Add(this.dataGridView);
-            this.pageInfo.Controls.Add(this.relationsListBox);
-            this.pageInfo.Location = new System.Drawing.Point(4, 22);
-            this.pageInfo.Name = "pageInfo";
-            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(930, 649);
-            this.pageInfo.TabIndex = 0;
-            this.pageInfo.Text = "Information";
-            // 
-            // dataGridView
-            // 
-            this.dataGridView.AllowUserToAddRows = false;
-            this.dataGridView.AllowUserToDeleteRows = false;
-            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(152, 3);
-            this.dataGridView.Name = "dataGridView";
-            this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(775, 638);
-            this.dataGridView.TabIndex = 1;
-            // 
-            // relationsListBox
-            // 
-            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.relationsListBox.FormattingEnabled = true;
-            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
-            this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.Size = new System.Drawing.Size(143, 628);
-            this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
-            // 
-            // notebook
-            // 
-            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.notebook.Controls.Add(this.pageInfo);
-            this.notebook.Controls.Add(this.pageExps);
-            this.notebook.Controls.Add(this.pageExport);
-            this.notebook.Controls.Add(this.pageImport);
-            this.notebook.Location = new System.Drawing.Point(0, 27);
-            this.notebook.Name = "notebook";
-            this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(938, 675);
-            this.notebook.TabIndex = 2;
-            // 
             // sowingMethodBox
             // 
             this.sowingMethodBox.Content = "";
@@ -1737,28 +1750,21 @@
             // 
             // exportValidater
             // 
-            this.exportValidater.Location = new System.Drawing.Point(0, 0);
+            this.exportValidater.Location = new System.Drawing.Point(0, 33);
             this.exportValidater.Name = "exportValidater";
             this.exportValidater.Size = new System.Drawing.Size(930, 649);
             this.exportValidater.TabIndex = 0;
             // 
-            // pageImport
+            // importer
             // 
-            this.pageImport.Controls.Add(this.importValidater);
-            this.pageImport.Location = new System.Drawing.Point(4, 22);
-            this.pageImport.Name = "pageImport";
-            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageImport.Size = new System.Drawing.Size(930, 649);
-            this.pageImport.TabIndex = 6;
-            this.pageImport.Text = "Import";
-            this.pageImport.UseVisualStyleBackColor = true;
-            // 
-            // importValidater
-            // 
-            this.importValidater.Location = new System.Drawing.Point(0, 0);
-            this.importValidater.Name = "importValidater";
-            this.importValidater.Size = new System.Drawing.Size(930, 649);
-            this.importValidater.TabIndex = 0;
+            this.importer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.importer.Folder = "C:\\Users\\uqmstow1\\Documents";
+            this.importer.Location = new System.Drawing.Point(0, 0);
+            this.importer.Name = "importer";
+            this.importer.Size = new System.Drawing.Size(930, 649);
+            this.importer.TabIndex = 0;
             // 
             // REMSClient
             // 
@@ -1843,7 +1849,7 @@
         private System.Windows.Forms.TabControl notebook;
         private Controls.ExportValidater exportValidater;
         private System.Windows.Forms.TabPage pageImport;
-        private Controls.ImportValidater importValidater;
+        private Controls.Importer importer;
     }
 }
 

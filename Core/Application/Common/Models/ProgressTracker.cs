@@ -2,25 +2,25 @@
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Rems.Application.Common
 {
-    public delegate void InvalidsHandler(IEnumerable<string> items);
+    public delegate void InvalidsHandler(DataColumn[] items);
 
     public abstract class ProgressTracker : IProgressTracker
     {
-        public abstract int Items { get; protected set; }
-        public abstract int Steps { get; protected set; }
+        public abstract int Items { get; }
+        public abstract int Steps { get; }
 
         public event Action IncrementProgress;
         public event Action TaskFinished;
 
         public event NextItemHandler NextItem;
         public event ExceptionHandler TaskFailed;
-        public event InvalidsHandler FoundInvalids;
 
         public event CommandHandler SendCommand;
         public event QueryHandler SendQuery;
@@ -46,9 +46,6 @@ namespace Rems.Application.Common
 
         protected void OnTaskFailed(Exception error) =>
             TaskFailed?.Invoke(error);
-
-        protected void OnFoundInvalids(IEnumerable<string> items) =>
-            FoundInvalids?.Invoke(items);
 
         protected Task OnSendCommand(IRequest command) =>
             SendCommand?.Invoke(command);

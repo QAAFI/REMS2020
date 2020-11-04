@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 namespace Rems.Application.Common
 {
     public delegate void ExceptionHandler(Exception exception);
-    public delegate IItemValidater ItemNotFoundHandler(string item);
+    public delegate bool ItemNotFoundHandler(string item);
+    public delegate string RequestItem(string item);
+
     public delegate Task CommandHandler(IRequest command);
     public delegate Task<object> QueryHandler(object query);
+    public delegate T Query<T>(IRequest<T> query);
+
     public delegate void NextItemHandler(string item);
 
     // TODO: It might be safer to implement this as a singleton, as opposed to using static events
@@ -17,9 +21,9 @@ namespace Rems.Application.Common
         /// <summary>
         /// 
         /// </summary>
-        public static event ItemNotFoundHandler ItemNotFound;        
-        public static IItemValidater InvokeItemNotFound(string item) 
-            => ItemNotFound?.Invoke(item);
+        //public static event ItemNotFoundHandler ItemNotFound;        
+        //public static IItemValidater InvokeItemNotFound(string item) 
+        //    => ItemNotFound?.Invoke(item);
 
         /// <summary>
         /// 
@@ -27,13 +31,5 @@ namespace Rems.Application.Common
         public static event Action ProgressIncremented;
         public static void InvokeProgressIncremented()
             => ProgressIncremented?.Invoke();
-
-        public static event QueryHandler SendQuery;
-        public static T OnSendQuery<T>(IRequest<T> query)
-        {
-            var task = SendQuery?.Invoke(query);
-            task.Wait();
-            return (T)task.Result;
-        }
     }
 }

@@ -207,6 +207,12 @@
     <Compile Include="Controls\ExportValidater.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Controls\Importer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Importer.Designer.cs">
+      <DependentUpon>Importer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ImportValidater.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -255,6 +261,9 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\Importer.resx">
+      <DependentUpon>Importer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>
     </EmbeddedResource>

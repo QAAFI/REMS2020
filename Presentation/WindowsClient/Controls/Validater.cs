@@ -93,7 +93,7 @@ namespace WindowsClient.Controls
 
         protected abstract void FillRows();
 
-        protected void AddRow(string item, string values)
+        protected void AddRow(object item, string values)
         {
             var row = new ValidaterRow();
             row.CreateCells(dataGrid);
@@ -105,17 +105,19 @@ namespace WindowsClient.Controls
 
         protected abstract void ValidateRow(ValidaterRow row);
 
-        public IItemValidater HandleMissingItem(string item)
+        /// <summary>
+        /// Searches the validater for the requested item
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns>An alternative name, or null if none were found</returns>
+        public string HandleMissingItem(string item)
         {
-            if (dataGrid.Rows.Count == 1) throw new Exception("The validater has not been initiliased");
-
             foreach (IItemValidater row in dataGrid.Rows)
-                if (row.Name == item) return row;
+                if (row.Name == item) 
+                    return row.Item;
 
-            return new ItemValidater();
-        }
-
-             
+            return "";
+        }             
     }
     
 }

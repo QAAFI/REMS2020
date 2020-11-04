@@ -9,15 +9,17 @@ using MediatR;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
+using Models.Climate;
+using System.IO;
 
 namespace Rems.Application.CQRS
 {
-    public class MetFileDataQuery : IRequest<StringBuilder>
+    public class MetFileDataQuery : IRequest<Weather>
     {
         public int ExperimentId { get; set; }
     }
 
-    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, StringBuilder>
+    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, Weather>
     {
         private readonly IRemsDbContext _context;
 
@@ -26,11 +28,36 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<StringBuilder> Handle(MetFileDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<Weather> Handle(MetFileDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private StringBuilder Handler(MetFileDataQuery request, CancellationToken token)
+        private Weather Handler(MetFileDataQuery request, CancellationToken token)
         {
-            var experiment = _context.Experiments.Find(request.ExperimentId);
+            var met = _context.Experiments.Find(request.ExperimentId)
+                .MetStation
+                .Name;
+
+            string file = met + ".met";
+
+            if (!File.Exists(file))
+            {
+                using (var stream = new FileStream(file, FileMode.Create))
+                using (var writer = new StreamWriter(stream))
+                {
+                    var contents = BuildContents(request.ExperimentId);
+                    writer.Write(contents);
+                    writer.Close();
+                }
+            }
+
+            return new Weather()
+            {
+                FileName = file
+            };
+        }
+
+        private string BuildContents(int id)
+        {
+            var experiment = _context.Experiments.Find(id);
             var station = experiment.MetStation;
 
             var builder = new StringBuilder();
@@ -43,10 +70,10 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
             builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
 
-            Trait maxT = _context.GetTraitByName("MaxT");
-            Trait minT = _context.GetTraitByName("MinT");
-            Trait radn = _context.GetTraitByName("Radn");
-            Trait rain = _context.GetTraitByName("Rain");
+            Trait maxT = _context.GetTraitByName("MaxT", null);
+            Trait minT = _context.GetTraitByName("MinT", null);
+            Trait radn = _context.GetTraitByName("Radn", null);
+            Trait rain = _context.GetTraitByName("Rain", null);
 
             var datas = station.MetData
                 .ToArray()
@@ -76,7 +103,7 @@ namespace Rems.Application.CQRS
                 return "";
             }
 
-            return builder;
+            return builder.ToString();
         }
     }
 }

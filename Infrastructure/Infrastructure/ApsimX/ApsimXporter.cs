@@ -15,8 +15,8 @@ namespace Rems.Infrastructure.ApsimX
     {
         public string FileName { get; set; }
 
-        public override int Items { get; protected set; } = 0;
-        public override int Steps { get; protected set; } = 0;
+        public override int Items { get; } = 0;
+        public override int Steps { get; } = 0;
 
         public ApsimXporter(QueryHandler query, CommandHandler command) 
             : base(query, command)
@@ -36,7 +36,7 @@ namespace Rems.Infrastructure.ApsimX
             foreach (var experiment in experiments)
             {
                 OnNextItem(experiment.Value);
-                await Task.Run(() => folder.AddExperiment(NextNode.None, experiment.Key, experiment.Value));
+                await Task.Run(() => folder.AddExperiment(NextNode.None, experiment.Key, experiment.Value, OnSendQuery));
             }
 
             simulations.Children.Add(folder);

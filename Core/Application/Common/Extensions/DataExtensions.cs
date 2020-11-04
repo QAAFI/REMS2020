@@ -64,60 +64,22 @@ namespace Rems.Application.Common.Extensions
 
             return entity;
         }
-
-        public static PropertyInfo FindProperty(this DataColumn col, Type type)
+               
+        public static PropertyInfo FindProperty(this DataColumn col, RequestItem onItemNotFound)
         {
-            var name = col.ColumnName;
-            var props = type.GetProperties();
+            var type = col.Table.ExtendedProperties["Type"] as Type;
 
-            // Look for the property by name
-            if (props.SingleOrDefault(p => p.Name == name) is PropertyInfo i) return i;
+            if (type.GetProperty(col.ColumnName) is PropertyInfo x)
+                return x;
 
-            // Look for the property by coarse string matching
-            var infos = props.Where(p => p.Name.Contains(name) || name.Contains(p.Name));
-            if (infos.Count() <= 1) return infos.SingleOrDefault();
-
-            // If a property is not found
-            var validater = EventManager.InvokeItemNotFound(name);
-
-            if (!validater.IsValid)
-                return null;
-            else
-                return props.First(p => p.Name == validater.Item);
-        }
-
-        public static PropertyInfo FindInfo(this DataColumn col, Type type)
-        {
-            // Search for a property matching the column name
-            if (type.GetProperty(col.ColumnName) is PropertyInfo i)
+            if (col.ColumnName == type.Name && type.GetProperty("Name") is PropertyInfo y)
             {
-                return i;
-            }
-            // Test if the column name matches the entity name
-            else if (col.ColumnName == type.Name)
-            {
-                // Guess that there is a column/property called Name.
-                // If not, defer back to user selection
                 col.ColumnName = "Name";
-                return col.FindInfo(type);
+                return y;
             }
-            else
-            {
-                //var ptions = type.GetProperties()
-                //    .Where(p => !(p.PropertyType is ICollection))
-                //    .Select(e => e.Name)
-                //    .Where(n => !n.Contains("Id"))
-                //    .ToList();
 
-                var validater = EventManager.InvokeItemNotFound(col.ColumnName);
-
-                if (!validater.IsValid) return null;
-
-                col.ColumnName = validater.Item;
-
-                // TODO: Rather than use recursion, this method can probably be separated into smaller methods
-                return col.FindInfo(type);
-            }
+            // Delegate when item is not found
+            return type.GetProperty(onItemNotFound(col.ColumnName));
         }
     }
 

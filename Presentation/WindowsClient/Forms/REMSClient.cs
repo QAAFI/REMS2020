@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using ExcelDataReader;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Models.Core.Apsim710File;
 using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure.Excel;
@@ -55,11 +56,17 @@ namespace WindowsClient
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            EventManager.ItemNotFound += exportValidater.HandleMissingItem;
-            EventManager.SendQuery += QueryREMS;
+            //EventManager.ItemNotFound += exportValidater.HandleMissingItem;
+            //EventManager.ItemNotFound += importValidater.HandleMissingItem;
+            //EventManager.SendQuery += QueryREMS;
 
             exportValidater.SendQuery = new QueryHandler(QueryREMS);
-            importValidater.SendQuery = new QueryHandler(QueryREMS);
+
+            importer.Query += QueryREMS;
+            importer.Command += TryQueryREMS;
+            importer.DatabaseChanged += UpdateAllComponents;
+
+            importer.Initialise();
         }
 
         #region Taskbar
@@ -111,42 +118,7 @@ namespace WindowsClient
         {
             Enabled = false;
 
-            using (var open = new OpenFileDialog())
-            {
-                open.InitialDirectory = folder;
-                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
-
-                if (open.ShowDialog() != DialogResult.OK) return;
-                
-                folder = Path.GetDirectoryName(open.FileName);
-
-                try
-                {
-                    if (!await TryQueryREMS(new ConnectionExists()))
-                    {
-                        MessageBox.Show("A database must be opened or created before importing");
-                        return;
-                    }
-
-                    var importer = new ExcelImporter(QueryREMS, TryQueryREMS);
-                    importer.FoundInvalids += importValidater.OnFoundInvalids;
-                    
-                    if (importer.Initialise(open.FileName))
-                    {
-                        var dialog = new ProgressDialog(importer, "Importing...");
-                        dialog.TaskComplete += UpdateAllComponents;
-                    }                    
-                }
-                catch (IOException error)
-                {
-                    MessageBox.Show(error.Message);
-                }
-                catch (Exception error)
-                {
-                    while (error.InnerException != null) error = error.InnerException;
-                    MessageBox.Show(error.Message);
-                }                
-            }
+            
 
             Enabled = true;
         }        
@@ -413,6 +385,10 @@ namespace WindowsClient
             builder.Replace("\r", "");
             return builder.ToString();
         }
+
+        
+
+        
         #endregion
     }
 }
