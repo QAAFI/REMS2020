@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Rems.Application.Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Rems.Application.Common.Extensions
 {
-    public static class ObjectExtensions
+    public static class Extensions
     {
         public static object ConvertDBValue(this object value, Type type)
         {
@@ -32,6 +33,14 @@ namespace Rems.Application.Common.Extensions
 
             // Convert normal numerics
             return (T)Convert.ChangeType(value, type);
+        }
+
+        public static T SetParam<T>(this IParameterised query, object value)
+        {
+            if (value is T t)
+                return t;
+            else
+                throw new Exception($"Invalid parameter type. \n Expected: {typeof(T)} \n Received: {value.GetType()}");
         }
     }
 }

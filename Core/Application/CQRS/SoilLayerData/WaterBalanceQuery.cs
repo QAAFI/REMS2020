@@ -7,22 +7,24 @@ using MediatR;
 using Models.WaterModel;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
     public class WaterBalanceQuery : IRequest<WaterBalance>, IParameterised
-    {   
+    {
         public int ExperimentId { get; set; }
+
+        public RequestItem GetItem { get; set; }
 
         public void Parameterise(params object[] args)
         {
-            if (args.Length != 1) 
-                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
+            int count = GetType().GetProperties().Length;
+            if (args.Length != count)
+                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
-            if (args[0] is int id)
-                ExperimentId = id;
-            else
-                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
+            ExperimentId = this.SetParam<int>(args[0]);
+            GetItem = this.SetParam<RequestItem>(args[1]);
         }
     }
 
@@ -47,8 +49,8 @@ namespace Rems.Application.CQRS
             {
                 Name = "SoilWater",
                 Thickness = thickness,
-                SWCON = _context.GetSoilLayerTraitData(layers, "SWCON"),
-                KLAT = _context.GetSoilLayerTraitData(layers, "KLAT"),
+                SWCON = _context.GetSoilLayerTraitData(layers, "SWCON", request.GetItem),
+                KLAT = _context.GetSoilLayerTraitData(layers, "KLAT", request.GetItem),
                 SummerDate = "1-Nov",
                 SummerU = 6.0,
                 SummerCona = 3.5,

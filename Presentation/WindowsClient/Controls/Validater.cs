@@ -20,42 +20,7 @@ namespace WindowsClient.Controls
     public abstract partial class Validater : UserControl
     {
         public QueryHandler SendQuery;
-
-        public Dictionary<string, string> Items = new Dictionary<string, string>()
-        {
-            // Physical
-            { "BD", "" },
-            { "AirDry", "" },
-            { "LL15", "" },
-            { "DUL", "" },
-            { "SAT", "" },
-            { "KS", "" },
-                
-            // SoilCrop
-            { "LL", "" },
-            { "KL", "" },
-            { "XF", "" },
-
-            // WaterBalance
-            { "SWCON", "" },
-            { "KLAT", "" },
-
-            // Organic
-            { "Carbon", "" },
-            { "SoilCNRatio", "" },
-            { "FBiom", "" },
-            { "FInert", "" },
-            { "FOM", "" },
-
-            // Chemical
-            { "NO3N", "" },
-            { "NH4N", "" },
-            { "PH", "" },
-
-            // Sample
-            { "SW", "" },
-        };
-
+        
         protected DataGridView grid => dataGrid;
 
         public Validater()
@@ -82,7 +47,7 @@ namespace WindowsClient.Controls
 
         private void OnClick(object sender, EventArgs e)
         {
-            if (dataGrid.Rows.Count == 1) FillRows();
+            //if (dataGrid.Rows.Count == 1) FillRows();
         }        
 
         private void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -90,8 +55,6 @@ namespace WindowsClient.Controls
             var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
             ValidateRow(row);            
         }
-
-        protected abstract void FillRows();
 
         protected void AddRow(object item, string values)
         {

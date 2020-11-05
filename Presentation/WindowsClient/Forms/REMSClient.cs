@@ -56,17 +56,14 @@ namespace WindowsClient
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            //EventManager.ItemNotFound += exportValidater.HandleMissingItem;
-            //EventManager.ItemNotFound += importValidater.HandleMissingItem;
-            //EventManager.SendQuery += QueryREMS;
-
-            exportValidater.SendQuery = new QueryHandler(QueryREMS);
-
             importer.Query += QueryREMS;
             importer.Command += TryQueryREMS;
             importer.DatabaseChanged += UpdateAllComponents;
-
             importer.Initialise();
+
+            exporter.Query += QueryREMS;
+            exporter.Command += TryQueryREMS;
+            exporter.Initialise();
         }
 
         #region Taskbar
@@ -112,16 +109,7 @@ namespace WindowsClient
 
                 UpdateAllComponents();                
             }
-        }
-
-        private async void MenuImportClicked(object sender, EventArgs e)
-        {
-            Enabled = false;
-
-            
-
-            Enabled = true;
-        }        
+        }     
 
         private void UpdateAllComponents()
         {
@@ -129,40 +117,6 @@ namespace WindowsClient
             LoadTreeView();
             traitChart.LoadTraitsBox();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private async void MenuExportClicked(object sender, EventArgs e)
-        {
-            if (!await TryQueryREMS(new ConnectionExists()))
-            {
-                MessageBox.Show("A database must be opened before exporting.");
-                return;
-            }
-
-            using (var save = new SaveFileDialog())
-            {
-                save.InitialDirectory = folder;
-                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
-
-                if (save.ShowDialog() != DialogResult.OK) return;
-
-                try
-                {
-                    var exporter = new ApsimXporter(QueryREMS, TryQueryREMS)
-                    {
-                        FileName = save.FileName
-                    };
-                    var dialog = new ProgressDialog(exporter, "Exporting...");
-                }
-                catch (Exception error)
-                {
-                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
         #endregion       
 
         #region Tabs
@@ -385,10 +339,7 @@ namespace WindowsClient
             builder.Replace("\r", "");
             return builder.ToString();
         }
-
-        
-
-        
         #endregion
+
     }
 }

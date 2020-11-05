@@ -13,11 +13,6 @@ namespace WindowsClient.Controls
 {
     public class ImportValidater : Validater
     {
-        protected override void FillRows()
-        {
-            //throw new NotImplementedException();
-        }
-
         public bool AllValid()
         {
             foreach (ValidaterRow row in grid.Rows)

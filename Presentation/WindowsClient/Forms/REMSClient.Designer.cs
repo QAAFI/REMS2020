@@ -33,13 +33,8 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuNew = new System.Windows.Forms.ToolStripMenuItem();
             this.menuOpen = new System.Windows.Forms.ToolStripMenuItem();
-            this.dataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuImport = new System.Windows.Forms.ToolStripMenuItem();
-            this.informationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.experimentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dataToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuExport = new System.Windows.Forms.ToolStripMenuItem();
             this.pageExport = new System.Windows.Forms.TabPage();
+            this.exporter = new WindowsClient.Controls.Exporter();
             this.pageExps = new System.Windows.Forms.TabPage();
             this.experimentsTree = new System.Windows.Forms.TreeView();
             this.test = new System.Windows.Forms.TabControl();
@@ -48,27 +43,15 @@
             this.designLabel = new System.Windows.Forms.Label();
             this.sowingPanel = new System.Windows.Forms.Panel();
             this.sowingLabel = new System.Windows.Forms.Label();
-            this.descriptionBox = new System.Windows.Forms.TextBox();
-            this.researchersLabel = new System.Windows.Forms.Label();
-            this.researchersBox = new System.Windows.Forms.ListBox();
-            this.notesLabel = new System.Windows.Forms.Label();
-            this.experimentLabel = new System.Windows.Forms.Label();
-            this.notesBox = new System.Windows.Forms.RichTextBox();
-            this.designData = new System.Windows.Forms.DataGridView();
-            this.pageOperation = new System.Windows.Forms.TabPage();
-            this.operationsBox = new System.Windows.Forms.ComboBox();
-            this.pageData = new System.Windows.Forms.TabPage();
-            this.pageInfo = new System.Windows.Forms.TabPage();
-            this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.relationsListBox = new System.Windows.Forms.ListBox();
-            this.notebook = new System.Windows.Forms.TabControl();
-            this.pageImport = new System.Windows.Forms.TabPage();
-            this.operationsChart = new Steema.TeeChart.TChart();
             this.sowingMethodBox = new WindowsClient.Controls.LabeledBox();
             this.sowingPopBox = new WindowsClient.Controls.LabeledBox();
             this.sowingDateBox = new WindowsClient.Controls.LabeledBox();
             this.sowingRowBox = new WindowsClient.Controls.LabeledBox();
             this.sowingDepthBox = new WindowsClient.Controls.LabeledBox();
+            this.descriptionBox = new System.Windows.Forms.TextBox();
+            this.researchersLabel = new System.Windows.Forms.Label();
+            this.researchersBox = new System.Windows.Forms.ListBox();
+            this.notesLabel = new System.Windows.Forms.Label();
             this.ratingBox = new WindowsClient.Controls.LabeledBox();
             this.repsBox = new WindowsClient.Controls.LabeledBox();
             this.endBox = new WindowsClient.Controls.LabeledBox();
@@ -76,8 +59,19 @@
             this.metBox = new WindowsClient.Controls.LabeledBox();
             this.fieldBox = new WindowsClient.Controls.LabeledBox();
             this.cropBox = new WindowsClient.Controls.LabeledBox();
+            this.experimentLabel = new System.Windows.Forms.Label();
+            this.notesBox = new System.Windows.Forms.RichTextBox();
+            this.designData = new System.Windows.Forms.DataGridView();
+            this.pageOperation = new System.Windows.Forms.TabPage();
+            this.operationsBox = new System.Windows.Forms.ComboBox();
+            this.operationsChart = new Steema.TeeChart.TChart();
+            this.pageData = new System.Windows.Forms.TabPage();
             this.traitChart = new WindowsClient.Controls.TraitChart();
-            this.exportValidater = new WindowsClient.Controls.ExportValidater();
+            this.pageInfo = new System.Windows.Forms.TabPage();
+            this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.relationsListBox = new System.Windows.Forms.ListBox();
+            this.notebook = new System.Windows.Forms.TabControl();
+            this.pageImport = new System.Windows.Forms.TabPage();
             this.importer = new WindowsClient.Controls.Importer();
             this.menuStrip1.SuspendLayout();
             this.pageExport.SuspendLayout();
@@ -97,8 +91,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.dataToolStripMenuItem});
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(938, 24);
@@ -128,56 +121,9 @@
             this.menuOpen.Text = "Open";
             this.menuOpen.Click += new System.EventHandler(this.MenuOpenClicked);
             // 
-            // dataToolStripMenuItem
-            // 
-            this.dataToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuImport,
-            this.menuExport});
-            this.dataToolStripMenuItem.Name = "dataToolStripMenuItem";
-            this.dataToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
-            this.dataToolStripMenuItem.Text = "Data";
-            // 
-            // menuImport
-            // 
-            this.menuImport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.informationToolStripMenuItem,
-            this.experimentsToolStripMenuItem,
-            this.dataToolStripMenuItem1});
-            this.menuImport.Name = "menuImport";
-            this.menuImport.Size = new System.Drawing.Size(110, 22);
-            this.menuImport.Text = "Import";
-            // 
-            // informationToolStripMenuItem
-            // 
-            this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
-            this.informationToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.informationToolStripMenuItem.Text = "Information";
-            this.informationToolStripMenuItem.Click += new System.EventHandler(this.MenuImportClicked);
-            // 
-            // experimentsToolStripMenuItem
-            // 
-            this.experimentsToolStripMenuItem.Name = "experimentsToolStripMenuItem";
-            this.experimentsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.experimentsToolStripMenuItem.Text = "Experiments";
-            this.experimentsToolStripMenuItem.Click += new System.EventHandler(this.MenuImportClicked);
-            // 
-            // dataToolStripMenuItem1
-            // 
-            this.dataToolStripMenuItem1.Name = "dataToolStripMenuItem1";
-            this.dataToolStripMenuItem1.Size = new System.Drawing.Size(139, 22);
-            this.dataToolStripMenuItem1.Text = "Data";
-            this.dataToolStripMenuItem1.Click += new System.EventHandler(this.MenuImportClicked);
-            // 
-            // menuExport
-            // 
-            this.menuExport.Name = "menuExport";
-            this.menuExport.Size = new System.Drawing.Size(110, 22);
-            this.menuExport.Text = "Export";
-            this.menuExport.Click += new System.EventHandler(this.MenuExportClicked);
-            // 
             // pageExport
             // 
-            this.pageExport.Controls.Add(this.exportValidater);
+            this.pageExport.Controls.Add(this.exporter);
             this.pageExport.Location = new System.Drawing.Point(4, 22);
             this.pageExport.Name = "pageExport";
             this.pageExport.Padding = new System.Windows.Forms.Padding(3);
@@ -185,6 +131,17 @@
             this.pageExport.TabIndex = 5;
             this.pageExport.Text = "Export";
             this.pageExport.UseVisualStyleBackColor = true;
+            // 
+            // exporter
+            // 
+            this.exporter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.exporter.Folder = "C:\\Users\\uqmstow1\\Documents";
+            this.exporter.Location = new System.Drawing.Point(0, 0);
+            this.exporter.Name = "exporter";
+            this.exporter.Size = new System.Drawing.Size(930, 649);
+            this.exporter.TabIndex = 0;
             // 
             // pageExps
             // 
@@ -293,6 +250,51 @@
             this.sowingLabel.TabIndex = 22;
             this.sowingLabel.Text = "     Sowing     ";
             // 
+            // sowingMethodBox
+            // 
+            this.sowingMethodBox.Content = "";
+            this.sowingMethodBox.Label = "Method:";
+            this.sowingMethodBox.Location = new System.Drawing.Point(4, 32);
+            this.sowingMethodBox.Name = "sowingMethodBox";
+            this.sowingMethodBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingMethodBox.TabIndex = 20;
+            // 
+            // sowingPopBox
+            // 
+            this.sowingPopBox.Content = "";
+            this.sowingPopBox.Label = "Population:";
+            this.sowingPopBox.Location = new System.Drawing.Point(3, 160);
+            this.sowingPopBox.Name = "sowingPopBox";
+            this.sowingPopBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingPopBox.TabIndex = 19;
+            // 
+            // sowingDateBox
+            // 
+            this.sowingDateBox.Content = "";
+            this.sowingDateBox.Label = "Date:";
+            this.sowingDateBox.Location = new System.Drawing.Point(4, 64);
+            this.sowingDateBox.Name = "sowingDateBox";
+            this.sowingDateBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingDateBox.TabIndex = 16;
+            // 
+            // sowingRowBox
+            // 
+            this.sowingRowBox.Content = "";
+            this.sowingRowBox.Label = "Row space:";
+            this.sowingRowBox.Location = new System.Drawing.Point(4, 128);
+            this.sowingRowBox.Name = "sowingRowBox";
+            this.sowingRowBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingRowBox.TabIndex = 18;
+            // 
+            // sowingDepthBox
+            // 
+            this.sowingDepthBox.Content = "";
+            this.sowingDepthBox.Label = "Depth:";
+            this.sowingDepthBox.Location = new System.Drawing.Point(4, 96);
+            this.sowingDepthBox.Name = "sowingDepthBox";
+            this.sowingDepthBox.Size = new System.Drawing.Size(364, 26);
+            this.sowingDepthBox.TabIndex = 17;
+            // 
             // descriptionBox
             // 
             this.descriptionBox.Location = new System.Drawing.Point(6, 30);
@@ -330,6 +332,69 @@
             this.notesLabel.Size = new System.Drawing.Size(55, 17);
             this.notesLabel.TabIndex = 12;
             this.notesLabel.Text = "Notes:";
+            // 
+            // ratingBox
+            // 
+            this.ratingBox.Content = "";
+            this.ratingBox.Label = "Rating:";
+            this.ratingBox.Location = new System.Drawing.Point(6, 190);
+            this.ratingBox.Name = "ratingBox";
+            this.ratingBox.Size = new System.Drawing.Size(372, 26);
+            this.ratingBox.TabIndex = 10;
+            // 
+            // repsBox
+            // 
+            this.repsBox.Content = "";
+            this.repsBox.Label = "Replicates:";
+            this.repsBox.Location = new System.Drawing.Point(6, 158);
+            this.repsBox.Name = "repsBox";
+            this.repsBox.Size = new System.Drawing.Size(372, 26);
+            this.repsBox.TabIndex = 9;
+            // 
+            // endBox
+            // 
+            this.endBox.Content = "";
+            this.endBox.Label = "End date:";
+            this.endBox.Location = new System.Drawing.Point(6, 254);
+            this.endBox.Name = "endBox";
+            this.endBox.Size = new System.Drawing.Size(372, 26);
+            this.endBox.TabIndex = 8;
+            // 
+            // startBox
+            // 
+            this.startBox.Content = "";
+            this.startBox.Label = "Start date:";
+            this.startBox.Location = new System.Drawing.Point(6, 222);
+            this.startBox.Name = "startBox";
+            this.startBox.Size = new System.Drawing.Size(372, 26);
+            this.startBox.TabIndex = 7;
+            // 
+            // metBox
+            // 
+            this.metBox.Content = "";
+            this.metBox.Label = "Met Station:";
+            this.metBox.Location = new System.Drawing.Point(6, 126);
+            this.metBox.Name = "metBox";
+            this.metBox.Size = new System.Drawing.Size(372, 26);
+            this.metBox.TabIndex = 6;
+            // 
+            // fieldBox
+            // 
+            this.fieldBox.Content = "";
+            this.fieldBox.Label = "Field:";
+            this.fieldBox.Location = new System.Drawing.Point(6, 94);
+            this.fieldBox.Name = "fieldBox";
+            this.fieldBox.Size = new System.Drawing.Size(372, 26);
+            this.fieldBox.TabIndex = 5;
+            // 
+            // cropBox
+            // 
+            this.cropBox.Content = "";
+            this.cropBox.Label = "Crop:";
+            this.cropBox.Location = new System.Drawing.Point(6, 62);
+            this.cropBox.Name = "cropBox";
+            this.cropBox.Size = new System.Drawing.Size(372, 26);
+            this.cropBox.TabIndex = 4;
             // 
             // experimentLabel
             // 
@@ -388,82 +453,6 @@
             this.operationsBox.Size = new System.Drawing.Size(145, 21);
             this.operationsBox.TabIndex = 1;
             this.operationsBox.SelectedIndexChanged += new System.EventHandler(this.OnOperationsBoxSelectionChanged);
-            // 
-            // pageData
-            // 
-            this.pageData.BackColor = System.Drawing.Color.LightGray;
-            this.pageData.Controls.Add(this.traitChart);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(763, 614);
-            this.pageData.TabIndex = 5;
-            this.pageData.Text = "Data";
-            // 
-            // pageInfo
-            // 
-            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
-            this.pageInfo.Controls.Add(this.dataGridView);
-            this.pageInfo.Controls.Add(this.relationsListBox);
-            this.pageInfo.Location = new System.Drawing.Point(4, 22);
-            this.pageInfo.Name = "pageInfo";
-            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(930, 649);
-            this.pageInfo.TabIndex = 0;
-            this.pageInfo.Text = "Information";
-            // 
-            // dataGridView
-            // 
-            this.dataGridView.AllowUserToAddRows = false;
-            this.dataGridView.AllowUserToDeleteRows = false;
-            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView.Location = new System.Drawing.Point(152, 3);
-            this.dataGridView.Name = "dataGridView";
-            this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(775, 643);
-            this.dataGridView.TabIndex = 1;
-            // 
-            // relationsListBox
-            // 
-            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.relationsListBox.FormattingEnabled = true;
-            this.relationsListBox.IntegralHeight = false;
-            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
-            this.relationsListBox.Name = "relationsListBox";
-            this.relationsListBox.ScrollAlwaysVisible = true;
-            this.relationsListBox.Size = new System.Drawing.Size(143, 643);
-            this.relationsListBox.TabIndex = 3;
-            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
-            // 
-            // notebook
-            // 
-            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.notebook.Controls.Add(this.pageInfo);
-            this.notebook.Controls.Add(this.pageExps);
-            this.notebook.Controls.Add(this.pageImport);
-            this.notebook.Controls.Add(this.pageExport);
-            this.notebook.Location = new System.Drawing.Point(0, 27);
-            this.notebook.Name = "notebook";
-            this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(938, 675);
-            this.notebook.TabIndex = 2;
-            // 
-            // pageImport
-            // 
-            this.pageImport.Controls.Add(this.importer);
-            this.pageImport.Location = new System.Drawing.Point(4, 22);
-            this.pageImport.Name = "pageImport";
-            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageImport.Size = new System.Drawing.Size(930, 649);
-            this.pageImport.TabIndex = 6;
-            this.pageImport.Text = "Import";
-            this.pageImport.UseVisualStyleBackColor = true;
             // 
             // operationsChart
             // 
@@ -1629,113 +1618,16 @@
             this.operationsChart.Zoom.Brush.Solid = true;
             this.operationsChart.Zoom.Brush.Visible = true;
             // 
-            // sowingMethodBox
+            // pageData
             // 
-            this.sowingMethodBox.Content = "";
-            this.sowingMethodBox.Label = "Method:";
-            this.sowingMethodBox.Location = new System.Drawing.Point(4, 32);
-            this.sowingMethodBox.Name = "sowingMethodBox";
-            this.sowingMethodBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingMethodBox.TabIndex = 20;
-            // 
-            // sowingPopBox
-            // 
-            this.sowingPopBox.Content = "";
-            this.sowingPopBox.Label = "Population:";
-            this.sowingPopBox.Location = new System.Drawing.Point(3, 160);
-            this.sowingPopBox.Name = "sowingPopBox";
-            this.sowingPopBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingPopBox.TabIndex = 19;
-            // 
-            // sowingDateBox
-            // 
-            this.sowingDateBox.Content = "";
-            this.sowingDateBox.Label = "Date:";
-            this.sowingDateBox.Location = new System.Drawing.Point(4, 64);
-            this.sowingDateBox.Name = "sowingDateBox";
-            this.sowingDateBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingDateBox.TabIndex = 16;
-            // 
-            // sowingRowBox
-            // 
-            this.sowingRowBox.Content = "";
-            this.sowingRowBox.Label = "Row space:";
-            this.sowingRowBox.Location = new System.Drawing.Point(4, 128);
-            this.sowingRowBox.Name = "sowingRowBox";
-            this.sowingRowBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingRowBox.TabIndex = 18;
-            // 
-            // sowingDepthBox
-            // 
-            this.sowingDepthBox.Content = "";
-            this.sowingDepthBox.Label = "Depth:";
-            this.sowingDepthBox.Location = new System.Drawing.Point(4, 96);
-            this.sowingDepthBox.Name = "sowingDepthBox";
-            this.sowingDepthBox.Size = new System.Drawing.Size(364, 26);
-            this.sowingDepthBox.TabIndex = 17;
-            // 
-            // ratingBox
-            // 
-            this.ratingBox.Content = "";
-            this.ratingBox.Label = "Rating:";
-            this.ratingBox.Location = new System.Drawing.Point(6, 190);
-            this.ratingBox.Name = "ratingBox";
-            this.ratingBox.Size = new System.Drawing.Size(372, 26);
-            this.ratingBox.TabIndex = 10;
-            // 
-            // repsBox
-            // 
-            this.repsBox.Content = "";
-            this.repsBox.Label = "Replicates:";
-            this.repsBox.Location = new System.Drawing.Point(6, 158);
-            this.repsBox.Name = "repsBox";
-            this.repsBox.Size = new System.Drawing.Size(372, 26);
-            this.repsBox.TabIndex = 9;
-            // 
-            // endBox
-            // 
-            this.endBox.Content = "";
-            this.endBox.Label = "End date:";
-            this.endBox.Location = new System.Drawing.Point(6, 254);
-            this.endBox.Name = "endBox";
-            this.endBox.Size = new System.Drawing.Size(372, 26);
-            this.endBox.TabIndex = 8;
-            // 
-            // startBox
-            // 
-            this.startBox.Content = "";
-            this.startBox.Label = "Start date:";
-            this.startBox.Location = new System.Drawing.Point(6, 222);
-            this.startBox.Name = "startBox";
-            this.startBox.Size = new System.Drawing.Size(372, 26);
-            this.startBox.TabIndex = 7;
-            // 
-            // metBox
-            // 
-            this.metBox.Content = "";
-            this.metBox.Label = "Met Station:";
-            this.metBox.Location = new System.Drawing.Point(6, 126);
-            this.metBox.Name = "metBox";
-            this.metBox.Size = new System.Drawing.Size(372, 26);
-            this.metBox.TabIndex = 6;
-            // 
-            // fieldBox
-            // 
-            this.fieldBox.Content = "";
-            this.fieldBox.Label = "Field:";
-            this.fieldBox.Location = new System.Drawing.Point(6, 94);
-            this.fieldBox.Name = "fieldBox";
-            this.fieldBox.Size = new System.Drawing.Size(372, 26);
-            this.fieldBox.TabIndex = 5;
-            // 
-            // cropBox
-            // 
-            this.cropBox.Content = "";
-            this.cropBox.Label = "Crop:";
-            this.cropBox.Location = new System.Drawing.Point(6, 62);
-            this.cropBox.Name = "cropBox";
-            this.cropBox.Size = new System.Drawing.Size(372, 26);
-            this.cropBox.TabIndex = 4;
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.traitChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(763, 614);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
             // 
             // traitChart
             // 
@@ -1748,12 +1640,70 @@
             this.traitChart.Size = new System.Drawing.Size(762, 614);
             this.traitChart.TabIndex = 0;
             // 
-            // exportValidater
+            // pageInfo
             // 
-            this.exportValidater.Location = new System.Drawing.Point(0, 33);
-            this.exportValidater.Name = "exportValidater";
-            this.exportValidater.Size = new System.Drawing.Size(930, 649);
-            this.exportValidater.TabIndex = 0;
+            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
+            this.pageInfo.Controls.Add(this.dataGridView);
+            this.pageInfo.Controls.Add(this.relationsListBox);
+            this.pageInfo.Location = new System.Drawing.Point(4, 22);
+            this.pageInfo.Name = "pageInfo";
+            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
+            this.pageInfo.Size = new System.Drawing.Size(930, 649);
+            this.pageInfo.TabIndex = 0;
+            this.pageInfo.Text = "Information";
+            // 
+            // dataGridView
+            // 
+            this.dataGridView.AllowUserToAddRows = false;
+            this.dataGridView.AllowUserToDeleteRows = false;
+            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.Location = new System.Drawing.Point(152, 3);
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
+            this.dataGridView.Size = new System.Drawing.Size(775, 643);
+            this.dataGridView.TabIndex = 1;
+            // 
+            // relationsListBox
+            // 
+            this.relationsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.relationsListBox.FormattingEnabled = true;
+            this.relationsListBox.IntegralHeight = false;
+            this.relationsListBox.Location = new System.Drawing.Point(3, 3);
+            this.relationsListBox.Name = "relationsListBox";
+            this.relationsListBox.ScrollAlwaysVisible = true;
+            this.relationsListBox.Size = new System.Drawing.Size(143, 643);
+            this.relationsListBox.TabIndex = 3;
+            this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
+            // 
+            // notebook
+            // 
+            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.notebook.Controls.Add(this.pageInfo);
+            this.notebook.Controls.Add(this.pageExps);
+            this.notebook.Controls.Add(this.pageImport);
+            this.notebook.Controls.Add(this.pageExport);
+            this.notebook.Location = new System.Drawing.Point(0, 27);
+            this.notebook.Name = "notebook";
+            this.notebook.SelectedIndex = 0;
+            this.notebook.Size = new System.Drawing.Size(938, 675);
+            this.notebook.TabIndex = 2;
+            // 
+            // pageImport
+            // 
+            this.pageImport.Controls.Add(this.importer);
+            this.pageImport.Location = new System.Drawing.Point(4, 22);
+            this.pageImport.Name = "pageImport";
+            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
+            this.pageImport.Size = new System.Drawing.Size(930, 649);
+            this.pageImport.TabIndex = 6;
+            this.pageImport.Text = "Import";
+            this.pageImport.UseVisualStyleBackColor = true;
             // 
             // importer
             // 
@@ -1802,14 +1752,8 @@
 
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem dataToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem menuImport;
-        private System.Windows.Forms.ToolStripMenuItem menuExport;
         private System.Windows.Forms.ToolStripMenuItem menuNew;
         private System.Windows.Forms.ToolStripMenuItem menuOpen;
-        private System.Windows.Forms.ToolStripMenuItem informationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem experimentsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem dataToolStripMenuItem1;
         private System.Windows.Forms.TabPage pageExport;
         private System.Windows.Forms.TabPage pageExps;
         private System.Windows.Forms.TreeView experimentsTree;
@@ -1847,9 +1791,9 @@
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
-        private Controls.ExportValidater exportValidater;
         private System.Windows.Forms.TabPage pageImport;
         private Controls.Importer importer;
+        private Controls.Exporter exporter;
     }
 }
 

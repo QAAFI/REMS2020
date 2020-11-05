@@ -49,9 +49,9 @@ namespace Rems.Application.Common.Extensions
             return layers;
         }
 
-        internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name)
+        internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name, RequestItem getItem)
         {
-            var trait = context.GetTraitByName(name, null);
+            var trait = context.GetTraitByName(name, getItem);
 
             var data = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
                 .Where(v => v != null);

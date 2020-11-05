@@ -64,17 +64,17 @@ namespace Rems.Application.Common.Extensions
 
         #region Simulations       
 
-        public static IModel AddExperiment(this IModel model, NextNode next, int id, string name, Query<IModel> query)
+        public static IModel AddExperiment(this IModel model, NextNode next, int id, string name, Query<IModel> query, RequestItem getItem)
         {
             var experiment = new Experiment() { Name = name };
             experiment.Add<Factors>(NextNode.Child)
                 .Add<PermutationQuery>(NextNode.Child, query, id);
             
-            experiment.AddTreatment(id, query);
+            experiment.AddTreatment(id, query, getItem);
             return model.Add(experiment, next);
         }
 
-        public static void AddTreatment(this IModel model, int id, Query<IModel> query)
+        public static void AddTreatment(this IModel model, int id, Query<IModel> query, RequestItem getItem)
         {
             var sim = new Simulation() { Name = "Base" };
 
@@ -84,7 +84,7 @@ namespace Rems.Application.Common.Extensions
                 .Add<SoilArbitrator>(NextNode.Sibling)
                 .Add<ZoneQuery>(NextNode.Child, query, id)
                     .Add<PlantQuery>(NextNode.Sibling, query, id)
-                    .AddSoil(NextNode.Sibling, id, query)
+                    .AddSoil(NextNode.Sibling, id, query, getItem)
                     .AddSurfaceOrganicMatter(NextNode.Sibling)
                     .Add<Operations>(NextNode.Sibling)
                     .Add<Irrigation>(NextNode.Sibling, "Irrigation")
@@ -99,22 +99,22 @@ namespace Rems.Application.Common.Extensions
         #endregion
 
         #region Models
-        public static IModel AddSoil(this IModel model, NextNode next, int id, Query<IModel> query)
+        public static IModel AddSoil(this IModel model, NextNode next, int id, Query<IModel> query, RequestItem getItem)
         {
             var soil = query(new SoilQuery() { ExperimentId = id });
 
-            soil.Add<PhysicalQuery>(NextNode.Child, query, id)
-                    .Add<SoilCropQuery>(NextNode.Parent, query, id)
-                .Add<WaterBalanceQuery>(NextNode.Sibling, query, id)
+            soil.Add<PhysicalQuery>(NextNode.Child, query, id, getItem)
+                    .Add<SoilCropQuery>(NextNode.Parent, query, id, getItem)
+                .Add<WaterBalanceQuery>(NextNode.Sibling, query, id, getItem)
                 .Add<SoilNitrogen>(NextNode.Child, "SoilNitrogen")
                     .Add<SoilNitrogenNH4>(NextNode.Sibling, "NH4")
                     .Add<SoilNitrogenNO3>(NextNode.Sibling, "NO3")
                     .Add<SoilNitrogenUrea>(NextNode.Sibling, "Urea")
                     .Add<SoilNitrogenPlantAvailableNH4>(NextNode.Sibling, "PlantAvailableNH4")
                     .Add<SoilNitrogenPlantAvailableNO3>(NextNode.Parent, "PlantAvailableNH4")
-                .Add<OrganicQuery>(NextNode.Sibling, query, id)
-                .Add<ChemicalQuery>(NextNode.Sibling, query, id)
-                .Add<SampleQuery>(NextNode.Sibling, query, id)
+                .Add<OrganicQuery>(NextNode.Sibling, query, id, getItem)
+                .Add<ChemicalQuery>(NextNode.Sibling, query, id, getItem)
+                .Add<SampleQuery>(NextNode.Sibling, query, id, getItem)
                 .Add<CERESSoilTemperature>(NextNode.Parent, "SoilTemperature");
 
             return model.Add(soil, next);
