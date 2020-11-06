@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelDataReader;
@@ -46,32 +47,20 @@ namespace WindowsClient
             InitializeComponent();
 
             _mediator = provider.GetRequiredService<IMediator>();
-            
-            operationsBox.SelectedIndex = 0;
 
-            traitChart.SeriesQuery += TryQueryREMS;
-            traitChart.BoundsQuery += TryQueryREMS;
-            traitChart.DatesQuery += TryQueryREMS;
-            traitChart.StringsQuery += TryQueryREMS;
+            experimentDetailer.REMS += _mediator.Send;
 
-            experimentsTree.AfterSelect += OnExperimentNodeChanged;
-
-            importer.Query += QueryREMS;
-            importer.Command += TryQueryREMS;
+            importer.Query += _mediator.Send;
             importer.DatabaseChanged += UpdateAllComponents;
             importer.Initialise();
 
-            exporter.Query += QueryREMS;
-            exporter.Command += TryQueryREMS;
+            exporter.Query += _mediator.Send;
             exporter.Initialise();
         }
 
         #region Taskbar
 
-        /// <summary>
-        /// On click, prompt the user to create a new blank database
-        /// </summary>
-        private async void MenuNewClicked(object sender, EventArgs e)
+        private async void OnNewClicked(object sender, EventArgs e)
         {
             using (var save = new SaveFileDialog())
             {
@@ -81,20 +70,17 @@ namespace WindowsClient
                 save.RestoreDirectory = true;
 
                 if (save.ShowDialog() != DialogResult.OK) return;
-                
+
                 folder = Path.GetDirectoryName(save.FileName);
 
                 await TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
                 await TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
 
-                LoadListView();                
+                await LoadListView();
             }
         }
 
-        /// <summary>
-        /// On click, prompt the user to open an existing database
-        /// </summary>
-        private async void MenuOpenClicked(object sender, EventArgs e)
+        private async void OnOpenClicked(object sender, EventArgs e)
         {
             using (var open = new OpenFileDialog())
             {
@@ -102,26 +88,22 @@ namespace WindowsClient
                 open.Filter = "SQLite (*.db)|*.db";
 
                 if (open.ShowDialog() != DialogResult.OK) return;
-                
+
                 folder = Path.GetDirectoryName(open.FileName);
 
                 await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
 
-                UpdateAllComponents();                
+                UpdateAllComponents();
             }
-        }     
+        } 
 
-        private void UpdateAllComponents()
+        private async void UpdateAllComponents()
         {
-            LoadListView();
-            LoadTreeView();
-            traitChart.LoadTraitsBox();
+            await LoadListView();
+            await experimentDetailer.RefreshContent();          
         }
         #endregion       
 
-        #region Tabs
-
-        #region Information
 
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
         {
@@ -130,170 +112,17 @@ namespace WindowsClient
             dataGridView.DataSource = await TryQueryREMS(new DataTableQuery() { TableName = item });
         }
 
-        private async void LoadListView()
+        private async Task LoadListView()
         {
-            var items = await TryQueryREMS(new GetTableListQuery());
+            var items = await new GetTableListQuery().Send(new QueryHandler(TryQueryREMS));
 
             relationsListBox.Items.Clear();
             relationsListBox.Items.AddRange(items.ToArray());
         }
 
-        #endregion
-
-        #region Experiments      
-
-        /// <summary>
-        /// Update the experiments tree view
-        /// </summary>
-        private async void LoadTreeView()
-        {
-            experimentsTree.Nodes.Clear();
-
-            var exps = await TryQueryREMS(new ExperimentsQuery());
-
-            foreach (var exp in exps)
-            {
-                TreeNode eNode = new TreeNode(exp.Value) { Tag = new NodeTag() { ID = exp.Key, Type = TagType.Experiment } };
-
-                var treatments = await TryQueryREMS(new TreatmentsQuery() { ExperimentId = exp.Key });
-
-                foreach (var treatment in treatments)
-                {
-                    TreeNode tNode = new TreeNode(treatment.Value)
-                    {
-                        Tag = new NodeTag() { ID = treatment.Key, Type = TagType.Treatment }
-                    };
-                    tNode.Nodes.Add(new TreeNode("All") { Tag = new NodeTag() { Type = TagType.Empty } });
-
-                    var plots = await TryQueryREMS(new PlotsQuery() { TreatmentId = treatment.Key });
-
-                    tNode.Nodes.AddRange(plots.Select(p =>
-                    {
-                        var tag = new NodeTag() { ID = p.Key, Type = TagType.Plot };
-                        return new TreeNode(p.Value) { Tag = tag };
-                    }).ToArray());
-                    eNode.Nodes.Add(tNode);
-                }                
-
-                experimentsTree.Nodes.Add(eNode);
-            }
-            experimentsTree.SelectedNode = experimentsTree.TopNode;
-            experimentsTree.Refresh();
-        }
-
-        private void OnExperimentNodeChanged(object sender, EventArgs e)
-        {
-            traitChart.Node = experimentsTree.SelectedNode;
-
-            RefreshSummary();
-            RefreshOperationsData();
-        }
-
-        private void OnOperationsBoxSelectionChanged(object sender, EventArgs e)
-        {
-            RefreshOperationsData();
-        }
-
-        private async void RefreshSummary()
-        {
-            var node = experimentsTree.SelectedNode;
-            if (node is null) return;
-
-            if (node.Tag is NodeTag tag && tag.Type == TagType.Experiment)
-            {
-                var query = new ExperimentSummary() { ExperimentId = tag.ID };
-
-                var experiment = await TryQueryREMS(query);
-
-                descriptionBox.Text = experiment["Description"];
-                designBox.Text = experiment["Design"];
-                cropBox.Content = experiment["Crop"];
-                fieldBox.Content = experiment["Field"];
-                metBox.Content = experiment["Met"];
-                repsBox.Content = experiment["Reps"];
-                ratingBox.Content = experiment["Rating"];
-                startBox.Content = experiment["Start"];
-                endBox.Content = experiment["End"];
-
-                var items = experiment["List"].Split('\n');
-                researchersBox.Items.Clear();
-                researchersBox.Items.AddRange(items);
-
-                notesBox.Text = experiment["Notes"];
-
-                var sowing = await TryQueryREMS(new SowingSummary() { ExperimentId = tag.ID });
-                sowingMethodBox.Content = sowing["Method"];
-                sowingDateBox.Content = sowing["Date"];
-                sowingDepthBox.Content = sowing["Depth"];
-                sowingRowBox.Content = sowing["Row"];
-                sowingPopBox.Content = sowing["Pop"];
-
-                var design = new DesignsTableQuery() { ExperimentId = tag.ID };
-                designData.DataSource = await TryQueryREMS(design);
-            }
-        }
-
-        private async void RefreshOperationsData()
-        {
-            var node = experimentsTree.SelectedNode;
-            if (node is null) return;
-
-            var tag = (NodeTag)node.Tag;
-            if (tag.Type is TagType.Experiment) return;                 
-
-            IRequest<SeriesData> query;
-
-            string item = operationsBox.SelectedItem?.ToString();
-            if (item == "Irrigations")
-                query = new IrrigationDataQuery() { TreatmentId = tag.ID };
-            else if (item == "Fertilizations")
-                query = new FertilizationDataQuery() { TreatmentId = tag.ID };
-            else if (item == "Tillages")
-                query = new TillagesDataQuery() { TreatmentId = tag.ID };
-            else
-                return;
-
-            var data = await TryQueryREMS(query);
-
-            operationsChart.Series.Clear();
-            operationsChart.Text = item;
-
-            // Data
-            Bar bar = new Bar();
-            bar.CustomBarWidth = 8;
-            bar.Marks.Visible = false;
-
-            bar.Add(data.X, data.Y);
-
-            // X-Axis
-            bar.XValues.DateTime = true;
-            //operationsChart.Axes.Bottom.Labels.DateTimeFormat = "MMM-dd";
-            //operationsChart.Axes.Bottom.Labels.Angle = 90;
-            operationsChart.Axes.Bottom.Title.Text = data.XLabel;
-            //operationsChart.Axes.Bottom.Ticks.Visible = true;
-
-            // Y-Axis
-            operationsChart.Axes.Left.Title.Text = data.YLabel;
-
-            // Legend            
-            bar.Legend.Visible = false;
-
-
-            operationsChart.Series.Add(bar);
-        }
-
-        #endregion
-
-        #endregion
-
         #region Logic
 
-        public Task<object> QueryREMS(object request)
-        {
-            return _mediator.Send(request);
-        }
-
-        public Task<T> TryQueryREMS<T>(IRequest<T> request)
+        public Task<object> TryQueryREMS(object request, CancellationToken token = default)
         {
             Application.UseWaitCursor = true;
 
@@ -323,7 +152,7 @@ namespace WindowsClient
 
             Application.UseWaitCursor = false;
 
-            return Task.Run(() => default(T));
+            return null;
         }
 
         public string ParseText(string file)
@@ -339,7 +168,9 @@ namespace WindowsClient
             builder.Replace("\r", "");
             return builder.ToString();
         }
+
         #endregion
 
+        
     }
 }

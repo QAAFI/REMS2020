@@ -18,8 +18,6 @@ namespace WindowsClient.Controls
     {
         public QueryHandler Query;
 
-        public CommandHandler Command;
-
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private ApsimXporter exporter;
@@ -31,7 +29,7 @@ namespace WindowsClient.Controls
 
         public void Initialise()
         {
-            exporter = new ApsimXporter(Query, Command);
+            exporter = new ApsimXporter(Query);
             exporter.ItemNotFound += exportValidater.HandleMissingItem;
 
             exportValidater.SendQuery = Query;

@@ -30,8 +30,6 @@
         {
             this.exportValidater = new WindowsClient.Controls.ExportValidater();
             this.btnExport = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.btnChoose = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // exportValidater
@@ -54,36 +52,15 @@
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.OnExportClick);
             // 
-            // textBox1
-            // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(330, 5);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(223, 20);
-            this.textBox1.TabIndex = 2;
-            // 
-            // btnChoose
-            // 
-            this.btnChoose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnChoose.Location = new System.Drawing.Point(559, 3);
-            this.btnChoose.Name = "btnChoose";
-            this.btnChoose.Size = new System.Drawing.Size(75, 23);
-            this.btnChoose.TabIndex = 3;
-            this.btnChoose.Text = "Destination";
-            this.btnChoose.UseVisualStyleBackColor = true;
-            // 
             // Exporter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.btnChoose);
-            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnExport);
             this.Controls.Add(this.exportValidater);
             this.Name = "Exporter";
             this.Size = new System.Drawing.Size(637, 646);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -91,7 +68,5 @@
 
         private ExportValidater exportValidater;
         private System.Windows.Forms.Button btnExport;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button btnChoose;
     }
 }

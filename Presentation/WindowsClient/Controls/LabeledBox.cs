@@ -40,14 +40,14 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            label.SizeChanged += LabelSizeChanged;
+            //label.SizeChanged += LabelSizeChanged;
         }
 
-        private void LabelSizeChanged(object sender, EventArgs e)
-        {
-            this.Width = textBox.Width + label.Width + 11;
+        //private void LabelSizeChanged(object sender, EventArgs e)
+        //{
+        //    this.Width = textBox.Width + label.Width + 11;
 
-            textBox.Left = label.Right + 3;
-        }
+        //    textBox.Left = label.Right + 3;
+        //}
     }
 }

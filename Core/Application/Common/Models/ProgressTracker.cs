@@ -21,16 +21,12 @@ namespace Rems.Application.Common
 
         public event NextItemHandler NextItem;
         public event ExceptionHandler TaskFailed;
+        public event QueryHandler SendQuery;        
 
-        public event CommandHandler SendCommand;
-        public event QueryHandler SendQuery;
-        
-
-        public ProgressTracker(QueryHandler query, CommandHandler command)
+        public ProgressTracker(QueryHandler query)
         {
             EventManager.ProgressIncremented += OnIncrementProgress;
             SendQuery += query;
-            SendCommand += command;
         }
 
         public abstract Task Run();
@@ -46,9 +42,6 @@ namespace Rems.Application.Common
 
         protected void OnTaskFailed(Exception error) =>
             TaskFailed?.Invoke(error);
-
-        protected Task OnSendCommand(IRequest command) =>
-            SendCommand?.Invoke(command);
 
         protected T OnSendQuery<T>(IRequest<T> query)
         {

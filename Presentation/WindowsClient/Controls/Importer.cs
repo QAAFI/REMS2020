@@ -17,8 +17,6 @@ namespace WindowsClient.Controls
     {
         public QueryHandler Query;
 
-        public CommandHandler Command;
-
         public event Action DatabaseChanged;
 
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -32,7 +30,7 @@ namespace WindowsClient.Controls
 
         public void Initialise()
         {
-            importer = new ExcelImporter(Query, Command);
+            importer = new ExcelImporter(Query);
             importer.ItemNotFound += importValidater.HandleMissingItem;
 
             importValidater.SendQuery = Query;

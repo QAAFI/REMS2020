@@ -204,13 +204,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ExperimentDetailer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ExperimentDetailer.Designer.cs">
+      <DependentUpon>ExperimentDetailer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Exporter.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\Exporter.Designer.cs">
       <DependentUpon>Exporter.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ExportValidater.cs">
+    <Compile Include="Controls\Validater\ExportValidater.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\Importer.cs">
@@ -219,7 +225,7 @@
     <Compile Include="Controls\Importer.Designer.cs">
       <DependentUpon>Importer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ImportValidater.cs">
+    <Compile Include="Controls\Validater\ImportValidater.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\TraitChart.cs">
@@ -234,17 +240,11 @@
     <Compile Include="Controls\LabeledBox.Designer.cs">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Validater.cs">
+    <Compile Include="Controls\Validater\Validater.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Validater.Designer.cs">
+    <Compile Include="Controls\Validater\Validater.Designer.cs">
       <DependentUpon>Validater.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\FileSelector.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FileSelector.Designer.cs">
-      <DependentUpon>FileSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ProgressDialog.cs">
       <SubType>Form</SubType>
@@ -255,18 +255,15 @@
     <Compile Include="Models\ValidaterRow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controls\PropertyControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PropertyControl.Designer.cs">
-      <DependentUpon>PropertyControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\REMSClient.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Controls\ExperimentDetailer.resx">
+      <DependentUpon>ExperimentDetailer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\Exporter.resx">
       <DependentUpon>Exporter.cs</DependentUpon>
     </EmbeddedResource>
@@ -279,11 +276,8 @@
     <EmbeddedResource Include="Controls\LabeledBox.resx">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Validater.resx">
+    <EmbeddedResource Include="Controls\Validater\Validater.resx">
       <DependentUpon>Validater.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FileSelector.resx">
-      <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProgressDialog.resx">
       <DependentUpon>ProgressDialog.cs</DependentUpon>

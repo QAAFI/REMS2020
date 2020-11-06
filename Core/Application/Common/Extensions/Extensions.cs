@@ -1,7 +1,9 @@
-﻿using Rems.Application.Common.Interfaces;
+﻿using MediatR;
+using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -41,6 +43,11 @@ namespace Rems.Application.Common.Extensions
                 return t;
             else
                 throw new Exception($"Invalid parameter type. \n Expected: {typeof(T)} \n Received: {value.GetType()}");
+        }
+
+        public async static Task<T> Send<T>(this IRequest<T> query, QueryHandler handler)
+        {
+            return (T) await handler(query);
         }
     }
 }

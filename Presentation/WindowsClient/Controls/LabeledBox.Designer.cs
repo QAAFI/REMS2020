@@ -35,7 +35,7 @@
             // label
             // 
             this.label.AutoSize = true;
-            this.label.Location = new System.Drawing.Point(3, 6);
+            this.label.Location = new System.Drawing.Point(3, 0);
             this.label.Name = "label";
             this.label.Size = new System.Drawing.Size(36, 13);
             this.label.TabIndex = 0;
@@ -43,11 +43,12 @@
             // 
             // textBox
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox.Location = new System.Drawing.Point(44, 3);
+            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox.Location = new System.Drawing.Point(3, 13);
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
-            this.textBox.Size = new System.Drawing.Size(210, 20);
+            this.textBox.Size = new System.Drawing.Size(194, 20);
             this.textBox.TabIndex = 1;
             this.textBox.WordWrap = false;
             // 
@@ -57,8 +58,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.label);
+            this.MaximumSize = new System.Drawing.Size(1000, 36);
+            this.MinimumSize = new System.Drawing.Size(200, 36);
             this.Name = "LabeledBox";
-            this.Size = new System.Drawing.Size(257, 26);
+            this.Size = new System.Drawing.Size(200, 36);
             this.ResumeLayout(false);
             this.PerformLayout();
 

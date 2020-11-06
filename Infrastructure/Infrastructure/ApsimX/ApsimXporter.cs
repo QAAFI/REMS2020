@@ -20,8 +20,7 @@ namespace Rems.Infrastructure.ApsimX
 
         public event RequestItem ItemNotFound;
 
-        public ApsimXporter(QueryHandler query, CommandHandler command) 
-            : base(query, command)
+        public ApsimXporter(QueryHandler query) : base(query)
         { }
 
         public async override Task Run()

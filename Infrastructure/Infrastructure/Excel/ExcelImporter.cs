@@ -22,7 +22,7 @@ namespace Rems.Infrastructure.Excel
 
         public event RequestItem ItemNotFound;
 
-        public ExcelImporter(QueryHandler query, CommandHandler command) : base(query, command)
+        public ExcelImporter(QueryHandler query) : base(query)
         { }        
 
         public async override Task Run()
@@ -60,7 +60,7 @@ namespace Rems.Infrastructure.Excel
             switch (table.TableName)
             {
                 case "Design":
-                    OnSendCommand(new InsertDesignsCommand() { Table = table }).Wait();
+                    OnSendQuery(new InsertDesignsCommand() { Table = table });
                     command = new InsertPlotsCommand() { Table = table };
                     break;
 
@@ -127,7 +127,7 @@ namespace Rems.Infrastructure.Excel
                     };                    
                     break;
             }
-            return OnSendCommand(command);
+            return Task.Run(() => OnSendQuery(command));
         }
 
     }

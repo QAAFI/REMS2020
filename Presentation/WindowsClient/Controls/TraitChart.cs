@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Steema.TeeChart;
-using Rems.Application.Common;
+
 using Steema.TeeChart.Styles;
-using MediatR;
+
+using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Application.Common.Interfaces;
-using Steema.TeeChart.Drawing;
 
 namespace WindowsClient.Controls
 {
@@ -39,11 +31,7 @@ namespace WindowsClient.Controls
             }
         }
 
-        public delegate Task<T> QueryHandler<T>(IRequest<T> query);
-        public event QueryHandler<SeriesData> SeriesQuery;
-        public event QueryHandler<string[]> StringsQuery;
-        public event QueryHandler<DateTime[]> DatesQuery;
-        public event QueryHandler<PlotDataBounds> BoundsQuery;
+        public QueryHandler REMS;
 
         private DateTime[] dates = new DateTime[1];
         private int date = 0;
@@ -110,7 +98,7 @@ namespace WindowsClient.Controls
         }
 
         // On Node changing
-        public void RefreshSoilDataDates()
+        public async void RefreshSoilDataDates()
         {
             date = 0;
             
@@ -134,7 +122,7 @@ namespace WindowsClient.Controls
                         query.TreatmentId = ((NodeTag)node.Parent.Tag).ID;
                     break;
             }
-            dates = DatesQuery.Invoke(query).Result;
+            dates = await query.Send(REMS);
 
             if (dates.Length < 1) dates = new DateTime[1];
         }
@@ -144,7 +132,7 @@ namespace WindowsClient.Controls
             traitTypeBox.Items.Clear();
 
             // Load the trait type box
-            var types = await StringsQuery?.Invoke(new TraitTypesQuery());
+            var types = await new TraitTypesQuery().Send(REMS);
 
             if (types.Length == 0) return;
 
@@ -156,7 +144,7 @@ namespace WindowsClient.Controls
         {
             traitsBox.Items.Clear();
             var query = new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() };
-            var traits = await StringsQuery.Invoke(query);
+            var traits = await query.Send(REMS);
             traitsBox.Items.AddRange(traits);
             traitsBox.Refresh();
 
@@ -202,12 +190,12 @@ namespace WindowsClient.Controls
                             TraitName = trait,
                             TreatmentId = tag.ID
                         };
-                        PlotSeries(await SeriesQuery.Invoke(mean));
+                        PlotSeries(await mean.Send(REMS));
                         break;
 
                     case TagType.Plot:
                         query.PlotId = tag.ID;
-                        PlotSeries(await SeriesQuery.Invoke(query));
+                        PlotSeries(await query.Send(REMS));
                         break;
 
                     default:
@@ -218,7 +206,7 @@ namespace WindowsClient.Controls
                                 if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                                 {
                                     query.PlotId = t.ID;
-                                    PlotSeries(await SeriesQuery.Invoke(query));
+                                    PlotSeries(await query.Send(REMS));
                                 }
                             }
                         }
@@ -267,12 +255,12 @@ namespace WindowsClient.Controls
                             TraitName = trait,
                             TreatmentId = tag.ID
                         };
-                        PlotSeries(await SeriesQuery.Invoke(mean));
+                        PlotSeries(await mean.Send(REMS));
                         break;
 
                     case TagType.Plot:
                         query.PlotId = tag.ID;
-                        PlotSeries(await SeriesQuery.Invoke(query));
+                        PlotSeries(await query.Send(REMS));
                         break;
 
                     default:
@@ -283,7 +271,7 @@ namespace WindowsClient.Controls
                                 if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                                 {
                                     query.PlotId = t.ID;
-                                    PlotSeries(await SeriesQuery.Invoke(query));
+                                    PlotSeries(await query.Send(REMS));
                                 }
                             }
                         }
