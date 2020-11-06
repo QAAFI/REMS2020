@@ -19,29 +19,17 @@ namespace WindowsClient.Models
 
         public string[] Values
         {
-            get => Cells[1].Value.ToString().Split(',').Select(s => s.Trim()).ToArray();
+            get => Cells[1].Value is object o ? o.ToString().Split(',').Select(s => s.Trim()).ToArray() : new string[0];
             set => Cells[1].Value = string.Join(", ", value);
         }
 
         public string Item { get; set; } = "";
 
-        private bool valid;
-        public bool IsValid
-        {
-            get => valid;
-            set
-            {
-                valid = value;
-
-                if (Ignore) Color = Color.Yellow;
-                else if (valid) Color = Color.White;
-                else Color = Color.Red;
-            }
-        }
+        public bool IsValid { get; set; }
 
         public bool Ignore
         {
-            get => ((DataGridViewCheckBoxCell)Cells[2])?.Value?.ToString() == "T";
+            get => Cells[2].Value is true;
         }
 
         public Color Color

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,7 +13,7 @@ using WindowsClient.Models;
 namespace WindowsClient.Controls
 {
     public class ImportValidater : Validater
-    {
+    {    
         public bool AllValid()
         {
             foreach (ValidaterRow row in grid.Rows)
@@ -30,10 +31,12 @@ namespace WindowsClient.Controls
                     if (ItemIsProperty(col, item))
                     {
                         row.IsValid = true;
+                        row.Color = Color.White;
                         return;
                     };
 
                 row.IsValid = false;
+                row.Color = Color.Crimson;
             }
             else
             {

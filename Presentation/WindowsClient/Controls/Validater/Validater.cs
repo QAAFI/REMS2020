@@ -27,34 +27,31 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            Enter += OnClick;
-
-            dataGrid.CellEndEdit += OnCellEndEdit;
-            dataGrid.CellMouseDown += OnCellMouseDown;
+            //dataGrid.CellEndEdit += OnCellEndEdit;
+            dataGrid.CellValueChanged += OnCellValueChanged;
         }
 
-        private void OnCellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        public void Clear()
         {
-            if (e.ColumnIndex != 2) return;
-
-            var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
-
-            if (row.Ignore) row.Color = Color.Yellow;
-
-            dataGrid.ClearSelection();
-            dataGrid.Refresh();
+            grid.Rows.Clear();
+            ignoreBox.Checked = false;
         }
 
-        private void OnClick(object sender, EventArgs e)
-        {
-            //if (dataGrid.Rows.Count == 1) FillRows();
-        }        
-
-        private void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void OnCellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
-            ValidateRow(row);            
-        }
+
+            if (row.Ignore)
+                row.Color = Color.LightGray;
+            else
+                ValidateRow(row);
+        }  
+
+        //private void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
+        //    ValidateRow(row);            
+        //}
 
         protected void AddRow(object item, string values)
         {
@@ -80,7 +77,13 @@ namespace WindowsClient.Controls
                     return row.Item;
 
             return "";
-        }             
+        }
+
+        private void ignoreBoxChecked(object sender, EventArgs e)
+        {
+            foreach (ValidaterRow row in grid.Rows)
+                row.Cells[2].Value = ignoreBox.Checked;
+        }
     }
     
 }

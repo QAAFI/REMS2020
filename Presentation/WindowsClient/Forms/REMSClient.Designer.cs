@@ -32,6 +32,7 @@
             this.pageExport = new System.Windows.Forms.TabPage();
             this.exporter = new WindowsClient.Controls.Exporter();
             this.pageExps = new System.Windows.Forms.TabPage();
+            this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
             this.pageInfo = new System.Windows.Forms.TabPage();
             this.btnOpen = new System.Windows.Forms.Button();
             this.btnNew = new System.Windows.Forms.Button();
@@ -40,7 +41,6 @@
             this.notebook = new System.Windows.Forms.TabControl();
             this.pageImport = new System.Windows.Forms.TabPage();
             this.importer = new WindowsClient.Controls.Importer();
-            this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
             this.pageExport.SuspendLayout();
             this.pageExps.SuspendLayout();
             this.pageInfo.SuspendLayout();
@@ -55,7 +55,7 @@
             this.pageExport.Location = new System.Drawing.Point(4, 22);
             this.pageExport.Name = "pageExport";
             this.pageExport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageExport.Size = new System.Drawing.Size(859, 658);
+            this.pageExport.Size = new System.Drawing.Size(916, 621);
             this.pageExport.TabIndex = 5;
             this.pageExport.Text = "Export";
             this.pageExport.UseVisualStyleBackColor = true;
@@ -68,7 +68,7 @@
             this.exporter.Folder = "C:\\Users\\uqmstow1\\Documents";
             this.exporter.Location = new System.Drawing.Point(0, 0);
             this.exporter.Name = "exporter";
-            this.exporter.Size = new System.Drawing.Size(929, 631);
+            this.exporter.Size = new System.Drawing.Size(916, 621);
             this.exporter.TabIndex = 0;
             // 
             // pageExps
@@ -82,6 +82,17 @@
             this.pageExps.Text = "Experiments";
             this.pageExps.UseVisualStyleBackColor = true;
             // 
+            // experimentDetailer
+            // 
+            this.experimentDetailer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.experimentDetailer.Location = new System.Drawing.Point(0, 0);
+            this.experimentDetailer.MinimumSize = new System.Drawing.Size(920, 620);
+            this.experimentDetailer.Name = "experimentDetailer";
+            this.experimentDetailer.Size = new System.Drawing.Size(920, 620);
+            this.experimentDetailer.TabIndex = 0;
+            // 
             // pageInfo
             // 
             this.pageInfo.BackColor = System.Drawing.Color.Transparent;
@@ -92,7 +103,7 @@
             this.pageInfo.Location = new System.Drawing.Point(4, 22);
             this.pageInfo.Name = "pageInfo";
             this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(859, 658);
+            this.pageInfo.Size = new System.Drawing.Size(916, 621);
             this.pageInfo.TabIndex = 0;
             this.pageInfo.Text = "Data";
             // 
@@ -127,7 +138,7 @@
             this.dataGridView.Location = new System.Drawing.Point(165, 3);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(691, 652);
+            this.dataGridView.Size = new System.Drawing.Size(748, 615);
             this.dataGridView.TabIndex = 1;
             // 
             // relationsListBox
@@ -139,7 +150,7 @@
             this.relationsListBox.Location = new System.Drawing.Point(3, 32);
             this.relationsListBox.Name = "relationsListBox";
             this.relationsListBox.ScrollAlwaysVisible = true;
-            this.relationsListBox.Size = new System.Drawing.Size(156, 623);
+            this.relationsListBox.Size = new System.Drawing.Size(156, 586);
             this.relationsListBox.TabIndex = 3;
             this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
             // 
@@ -164,7 +175,7 @@
             this.pageImport.Location = new System.Drawing.Point(4, 22);
             this.pageImport.Name = "pageImport";
             this.pageImport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageImport.Size = new System.Drawing.Size(859, 658);
+            this.pageImport.Size = new System.Drawing.Size(916, 621);
             this.pageImport.TabIndex = 6;
             this.pageImport.Text = "Import";
             this.pageImport.UseVisualStyleBackColor = true;
@@ -177,19 +188,8 @@
             this.importer.Folder = "C:\\Users\\uqmstow1\\Documents";
             this.importer.Location = new System.Drawing.Point(0, 0);
             this.importer.Name = "importer";
-            this.importer.Size = new System.Drawing.Size(929, 631);
+            this.importer.Size = new System.Drawing.Size(913, 618);
             this.importer.TabIndex = 0;
-            // 
-            // experimentDetailer1
-            // 
-            this.experimentDetailer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.experimentDetailer.Location = new System.Drawing.Point(0, 0);
-            this.experimentDetailer.MinimumSize = new System.Drawing.Size(920, 620);
-            this.experimentDetailer.Name = "experimentDetailer1";
-            this.experimentDetailer.Size = new System.Drawing.Size(920, 620);
-            this.experimentDetailer.TabIndex = 0;
             // 
             // REMSClient
             // 

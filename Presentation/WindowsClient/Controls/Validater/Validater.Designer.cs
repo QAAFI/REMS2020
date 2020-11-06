@@ -32,6 +32,7 @@
             this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.AltsColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Ignore = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ignoreBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -68,23 +69,37 @@
             // 
             // Ignore
             // 
-            this.Ignore.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.Ignore.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.Ignore.FalseValue = "F";
             this.Ignore.HeaderText = "Ignore";
             this.Ignore.IndeterminateValue = "F";
             this.Ignore.Name = "Ignore";
             this.Ignore.TrueValue = "T";
-            this.Ignore.Width = 43;
+            this.Ignore.Width = 60;
+            // 
+            // ignoreBox
+            // 
+            this.ignoreBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ignoreBox.AutoSize = true;
+            this.ignoreBox.BackColor = System.Drawing.SystemColors.Window;
+            this.ignoreBox.Location = new System.Drawing.Point(547, 8);
+            this.ignoreBox.Name = "ignoreBox";
+            this.ignoreBox.Size = new System.Drawing.Size(15, 14);
+            this.ignoreBox.TabIndex = 1;
+            this.ignoreBox.UseVisualStyleBackColor = false;
+            this.ignoreBox.CheckedChanged += new System.EventHandler(this.ignoreBoxChecked);
             // 
             // Validater
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.ignoreBox);
             this.Controls.Add(this.dataGrid);
             this.Name = "Validater";
             this.Size = new System.Drawing.Size(570, 532);
             ((System.ComponentModel.ISupportInitialize)(this.dataGrid)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -94,5 +109,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn AltsColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Ignore;
+        private System.Windows.Forms.CheckBox ignoreBox;
     }
 }

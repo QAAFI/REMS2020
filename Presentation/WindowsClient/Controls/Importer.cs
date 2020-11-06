@@ -58,6 +58,9 @@ namespace WindowsClient.Controls
 
         private void CleanData(DataSet data)
         {
+            tableBox.Items.Clear();
+            importValidater.Clear();
+
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
             {
                 if (table.TableName == "Notes" || table.Rows.Count == 0)
