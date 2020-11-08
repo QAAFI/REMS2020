@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ExcelDataReader;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Models.Core.Apsim710File;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Infrastructure.ApsimX;
-using Rems.Infrastructure.Excel;
-using Steema.TeeChart.Styles;
-using WindowsClient.Forms;
 
 namespace WindowsClient
 {

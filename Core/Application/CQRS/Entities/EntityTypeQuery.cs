@@ -43,15 +43,6 @@ namespace Rems.Application.CQRS
             if (filtered.Count() == 1)
                 return filtered.Single().ClrType;
 
-            //var args = new ItemNotFoundArgs() { Name = request.Name };
-
-            //// If there is no match, get a list of the possible types
-            //if (filtered.Count() == 0)
-            //    args.Options = types.Select(t => t.ClrType.Name).ToArray();
-            //// If there are multiple options left, get a list of those options
-            //else
-            //    args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
-
             // 
             var item = request.GetItem(request.Name);
             return types.FirstOrDefault(t => t.ClrType.Name == item).ClrType;

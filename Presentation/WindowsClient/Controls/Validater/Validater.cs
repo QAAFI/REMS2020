@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.Common;
-using Rems.Application.CQRS;
-using Castle.Core.Internal;
-using Steema.TeeChart.Styles;
 using Rems.Application.Common.Interfaces;
-using System.Collections.Immutable;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -26,8 +16,6 @@ namespace WindowsClient.Controls
         public Validater()
         {
             InitializeComponent();
-
-            //dataGrid.CellEndEdit += OnCellEndEdit;
             dataGrid.CellValueChanged += OnCellValueChanged;
         }
 
@@ -46,12 +34,6 @@ namespace WindowsClient.Controls
             else
                 ValidateRow(row);
         }  
-
-        //private void OnCellEndEdit(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
-        //    ValidateRow(row);            
-        //}
 
         protected void AddRow(object item, string values)
         {
