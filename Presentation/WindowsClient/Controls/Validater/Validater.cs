@@ -17,6 +17,15 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
             dataGrid.CellValueChanged += OnCellValueChanged;
+            dataGrid.CellContentClick += OnCellContentClick;
+        }
+
+        private void OnCellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex != 0) return;
+
+            var row = dataGrid.Rows[e.RowIndex] as ValidaterRow;
+            row.Values = new string[] { "a", "b", "c" };
         }
 
         public void Clear()
@@ -35,11 +44,11 @@ namespace WindowsClient.Controls
                 ValidateRow(row);
         }  
 
-        protected void AddRow(object item, string values)
+        protected void AddRow(params object[] values)
         {
             var row = new ValidaterRow();
             row.CreateCells(dataGrid);
-            row.SetValues(item, values);
+            row.SetValues(values);
             ValidateRow(row);
 
             dataGrid.Rows.Add(row);
@@ -64,7 +73,7 @@ namespace WindowsClient.Controls
         private void ignoreBoxChecked(object sender, EventArgs e)
         {
             foreach (ValidaterRow row in grid.Rows)
-                row.Cells[2].Value = ignoreBox.Checked;
+                row.Cells[4].Value = ignoreBox.Checked;
         }
     }
     

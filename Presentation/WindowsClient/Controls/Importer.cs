@@ -69,6 +69,10 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
+                // Remove invalid columns
+                foreach (var col in table.Columns.Cast<DataColumn>().ToArray())
+                    if (col.ColumnName.Contains("Column")) table.Columns.Remove(col);
+
                 // Remove any duplicate rows from the table
                 table.RemoveDuplicateRows();
                 

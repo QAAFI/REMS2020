@@ -10,14 +10,14 @@ namespace WindowsClient.Models
     {
         public string Name
         {
-            get => Cells[0].Value.ToString();
-            set => Cells[0].Value = value;
+            get => Cells[1].Value.ToString();
+            set => Cells[1].Value = value;
         }
 
         public string[] Values
         {
-            get => Cells[1].Value is object o ? o.ToString().Split(',').Select(s => s.Trim()).ToArray() : new string[0];
-            set => Cells[1].Value = string.Join(", ", value);
+            get => Cells[3].Value is object o ? o.ToString().Split(',').Select(s => s.Trim()).ToArray() : new string[0];
+            set => Cells[3].Value = string.Join(", ", value);
         }
 
         public string Item { get; set; } = "";
