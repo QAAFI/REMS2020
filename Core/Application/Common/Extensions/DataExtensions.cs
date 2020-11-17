@@ -65,7 +65,7 @@ namespace Rems.Application.Common.Extensions
             return entity;
         }
                
-        public static PropertyInfo FindProperty(this DataColumn col, RequestItem onItemNotFound)
+        public static PropertyInfo FindProperty(this DataColumn col)
         {
             var type = col.Table.ExtendedProperties["Type"] as Type;
 
@@ -78,8 +78,8 @@ namespace Rems.Application.Common.Extensions
                 return y;
             }
 
-            // Delegate when item is not found
-            return type.GetProperty(onItemNotFound(col.ColumnName));
+            // If no property was found
+            return null;
         }
     }
 

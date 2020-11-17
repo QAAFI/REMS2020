@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             this.dataGrid = new System.Windows.Forms.DataGridView();
-            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.AltsColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Ignore = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.ignoreBox = new System.Windows.Forms.CheckBox();
+            this.Item = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Table = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Action = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Ignore = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,37 +46,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.NameColumn,
-            this.AltsColumn,
+            this.Item,
+            this.Table,
+            this.Action,
             this.Ignore});
             this.dataGrid.Location = new System.Drawing.Point(3, 3);
             this.dataGrid.Name = "dataGrid";
             this.dataGrid.Size = new System.Drawing.Size(564, 526);
             this.dataGrid.TabIndex = 0;
-            // 
-            // NameColumn
-            // 
-            this.NameColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.NameColumn.HeaderText = "Name";
-            this.NameColumn.Name = "NameColumn";
-            this.NameColumn.ReadOnly = true;
-            this.NameColumn.Width = 60;
-            // 
-            // AltsColumn
-            // 
-            this.AltsColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.AltsColumn.HeaderText = "Alternatives";
-            this.AltsColumn.Name = "AltsColumn";
-            // 
-            // Ignore
-            // 
-            this.Ignore.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.Ignore.FalseValue = "F";
-            this.Ignore.HeaderText = "Ignore";
-            this.Ignore.IndeterminateValue = "F";
-            this.Ignore.Name = "Ignore";
-            this.Ignore.TrueValue = "T";
-            this.Ignore.Width = 60;
             // 
             // ignoreBox
             // 
@@ -88,6 +66,38 @@
             this.ignoreBox.TabIndex = 1;
             this.ignoreBox.UseVisualStyleBackColor = false;
             this.ignoreBox.CheckedChanged += new System.EventHandler(this.ignoreBoxChecked);
+            // 
+            // Item
+            // 
+            this.Item.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Item.DataPropertyName = "Item";
+            this.Item.HeaderText = "Item";
+            this.Item.Name = "Item";
+            this.Item.ReadOnly = true;
+            this.Item.Width = 52;
+            // 
+            // Table
+            // 
+            this.Table.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Table.HeaderText = "Table";
+            this.Table.Name = "Table";
+            this.Table.Width = 59;
+            // 
+            // Action
+            // 
+            this.Action.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Action.HeaderText = "Action";
+            this.Action.Name = "Action";
+            // 
+            // Ignore
+            // 
+            this.Ignore.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Ignore.FalseValue = "F";
+            this.Ignore.HeaderText = "Ignore";
+            this.Ignore.IndeterminateValue = "F";
+            this.Ignore.Name = "Ignore";
+            this.Ignore.TrueValue = "T";
+            this.Ignore.Width = 60;
             // 
             // Validater
             // 
@@ -106,9 +116,10 @@
         #endregion
 
         private System.Windows.Forms.DataGridView dataGrid;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn AltsColumn;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Ignore;
         private System.Windows.Forms.CheckBox ignoreBox;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Item;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Table;
+        private System.Windows.Forms.DataGridViewComboBoxColumn Action;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Ignore;
     }
 }

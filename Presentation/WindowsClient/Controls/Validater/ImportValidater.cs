@@ -22,7 +22,7 @@ namespace WindowsClient.Controls
 
         protected override void ValidateRow(ValidaterRow row)
         {
-            if (row.Cells[1].Value is DataColumn col)
+            if (row.Cells[0].Value is DataColumn col)
             {
                 foreach (var item in row.Values)
                     if (ItemIsProperty(col, item))
@@ -57,7 +57,7 @@ namespace WindowsClient.Controls
         public void OnFoundInvalids(DataColumn[] columns)
         {
             foreach (var col in columns)            
-                AddRow(null, col, col.Table.TableName, "");            
+                AddRow(col, col.Table.TableName);            
 
             MessageBox.Show("Unknown items found in data. Please validate before importing.");
         }

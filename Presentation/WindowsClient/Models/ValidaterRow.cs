@@ -8,16 +8,26 @@ namespace WindowsClient.Models
 {
     public class ValidaterRow : DataGridViewRow, IItemValidater
     {
+        public ValidaterRow(DataGridView grid, params object[] values) : base()
+        {
+            CreateCells(grid);
+            SetValues(values);
+
+            var combo = (DataGridViewComboBoxCell)Cells[2];
+            combo.Style.BackColor = Color.White;
+            combo.Items.AddRange("Ignore", "Add trait", "Set property");
+        }
+
         public string Name
         {
-            get => Cells[1].Value.ToString();
-            set => Cells[1].Value = value;
+            get => Cells[0].Value.ToString();
+            set => Cells[0].Value = value;
         }
 
         public string[] Values
         {
-            get => Cells[3].Value is object o ? o.ToString().Split(',').Select(s => s.Trim()).ToArray() : new string[0];
-            set => Cells[3].Value = string.Join(", ", value);
+            get => Cells[2].Value is object o ? o.ToString().Split(',').Select(s => s.Trim()).ToArray() : new string[0];
+            set => Cells[2].Value = string.Join(", ", value);
         }
 
         public string Item { get; set; } = "";
@@ -26,7 +36,7 @@ namespace WindowsClient.Models
 
         public bool Ignore
         {
-            get => Cells[2].Value is true;
+            get => Cells[3].Value is true;
         }
 
         public Color Color

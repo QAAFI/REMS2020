@@ -21,8 +21,6 @@ namespace Rems.Application.CQRS
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
-
-        public RequestItem ItemNotFound { get; set; }
     }
 
     public class InsertOperationsTableCommandHandler : IRequestHandler<InsertOperationsTableCommand>
@@ -40,7 +38,7 @@ namespace Rems.Application.CQRS
         {
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Skip(2)
-                .Select(c => c.FindProperty(request.ItemNotFound))
+                .Select(c => c.FindProperty())
                 .Where(i => i != null)
                 .ToList();
 

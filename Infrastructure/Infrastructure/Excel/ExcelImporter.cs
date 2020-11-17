@@ -91,8 +91,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertOperationsTableCommand() 
                     { 
                         Table = table, 
-                        Type = type,
-                        ItemNotFound = ItemNotFound
+                        Type = type
                     };
                     break;
 
@@ -108,8 +107,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        Dependency = dependency,
-                        ItemNotFound = ItemNotFound
+                        Dependency = dependency
                     };
                     break;
 
@@ -117,8 +115,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertTableCommand()
                     { 
                         Table = table,
-                        Type = type,
-                        ItemNotFound = ItemNotFound
+                        Type = type
                     };                    
                     break;
             }

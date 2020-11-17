@@ -28,79 +28,111 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.pageIData = new System.Windows.Forms.TabPage();
+            this.nodeSplitter = new System.Windows.Forms.SplitContainer();
+            this.columnLabel = new System.Windows.Forms.Label();
+            this.stateBox = new System.Windows.Forms.PictureBox();
+            this.propertiesBox = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.actionBox = new System.Windows.Forms.ComboBox();
+            this.importData = new System.Windows.Forms.DataGridView();
+            this.dataTree = new System.Windows.Forms.TreeView();
             this.btnImport = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
-            this.tableBox = new System.Windows.Forms.ListBox();
-            this.importData = new System.Windows.Forms.DataGridView();
-            this.pageIValidater = new System.Windows.Forms.TabPage();
-            this.importValidater = new WindowsClient.Controls.ImportValidater();
-            this.tabControl1.SuspendLayout();
-            this.pageIData.SuspendLayout();
+            this.fileBox = new System.Windows.Forms.TextBox();
+            this.actionText = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.nodeSplitter)).BeginInit();
+            this.nodeSplitter.Panel1.SuspendLayout();
+            this.nodeSplitter.Panel2.SuspendLayout();
+            this.nodeSplitter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.stateBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
-            this.pageIValidater.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // nodeSplitter
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.nodeSplitter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.pageIData);
-            this.tabControl1.Controls.Add(this.pageIValidater);
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(655, 588);
-            this.tabControl1.TabIndex = 2;
+            this.nodeSplitter.Location = new System.Drawing.Point(165, 58);
+            this.nodeSplitter.Name = "nodeSplitter";
+            this.nodeSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // pageIData
+            // nodeSplitter.Panel1
             // 
-            this.pageIData.Controls.Add(this.btnImport);
-            this.pageIData.Controls.Add(this.btnLoad);
-            this.pageIData.Controls.Add(this.tableBox);
-            this.pageIData.Controls.Add(this.importData);
-            this.pageIData.Location = new System.Drawing.Point(4, 22);
-            this.pageIData.Name = "pageIData";
-            this.pageIData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageIData.Size = new System.Drawing.Size(647, 562);
-            this.pageIData.TabIndex = 0;
-            this.pageIData.Text = "Data";
-            this.pageIData.UseVisualStyleBackColor = true;
+            this.nodeSplitter.Panel1.Controls.Add(this.actionText);
+            this.nodeSplitter.Panel1.Controls.Add(this.propertiesBox);
+            this.nodeSplitter.Panel1.Controls.Add(this.label2);
+            this.nodeSplitter.Panel1.Controls.Add(this.label1);
+            this.nodeSplitter.Panel1.Controls.Add(this.actionBox);
             // 
-            // btnImport
+            // nodeSplitter.Panel2
             // 
-            this.btnImport.Location = new System.Drawing.Point(80, 0);
-            this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(75, 23);
-            this.btnImport.TabIndex = 3;
-            this.btnImport.Text = "Import";
-            this.btnImport.UseVisualStyleBackColor = true;
-            this.btnImport.Click += new System.EventHandler(this.OnImportClicked);
+            this.nodeSplitter.Panel2.Controls.Add(this.importData);
+            this.nodeSplitter.Size = new System.Drawing.Size(487, 527);
+            this.nodeSplitter.SplitterDistance = 85;
+            this.nodeSplitter.TabIndex = 9;
             // 
-            // btnLoad
+            // columnLabel
             // 
-            this.btnLoad.Location = new System.Drawing.Point(0, 0);
-            this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(75, 23);
-            this.btnLoad.TabIndex = 2;
-            this.btnLoad.Text = "Load";
-            this.btnLoad.UseVisualStyleBackColor = true;
-            this.btnLoad.Click += new System.EventHandler(this.OnLoadClicked);
+            this.columnLabel.AutoSize = true;
+            this.columnLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.columnLabel.Location = new System.Drawing.Point(190, 4);
+            this.columnLabel.Name = "columnLabel";
+            this.columnLabel.Size = new System.Drawing.Size(44, 17);
+            this.columnLabel.TabIndex = 3;
+            this.columnLabel.Text = "         ";
             // 
-            // tableBox
+            // stateBox
             // 
-            this.tableBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.tableBox.FormattingEnabled = true;
-            this.tableBox.IntegralHeight = false;
-            this.tableBox.Location = new System.Drawing.Point(0, 27);
-            this.tableBox.Name = "tableBox";
-            this.tableBox.ScrollAlwaysVisible = true;
-            this.tableBox.Size = new System.Drawing.Size(155, 535);
-            this.tableBox.TabIndex = 1;
-            this.tableBox.SelectedIndexChanged += new System.EventHandler(this.OnTableSelected);
+            this.stateBox.Location = new System.Drawing.Point(168, 6);
+            this.stateBox.Name = "stateBox";
+            this.stateBox.Size = new System.Drawing.Size(16, 16);
+            this.stateBox.TabIndex = 2;
+            this.stateBox.TabStop = false;
+            // 
+            // propertiesBox
+            // 
+            this.propertiesBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.propertiesBox.Enabled = false;
+            this.propertiesBox.FormattingEnabled = true;
+            this.propertiesBox.Location = new System.Drawing.Point(16, 57);
+            this.propertiesBox.Name = "propertiesBox";
+            this.propertiesBox.Size = new System.Drawing.Size(220, 21);
+            this.propertiesBox.TabIndex = 1;
+            this.propertiesBox.SelectedIndexChanged += new System.EventHandler(this.PropertiesSelectionChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(13, 41);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(49, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Property:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Action:";
+            // 
+            // actionBox
+            // 
+            this.actionBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.actionBox.FormattingEnabled = true;
+            this.actionBox.Items.AddRange(new object[] {
+            "Ignore",
+            "Add trait",
+            "Set property"});
+            this.actionBox.Location = new System.Drawing.Point(16, 17);
+            this.actionBox.Name = "actionBox";
+            this.actionBox.Size = new System.Drawing.Size(220, 21);
+            this.actionBox.TabIndex = 0;
+            this.actionBox.SelectedIndexChanged += new System.EventHandler(this.ActionBoxSelectionChanged);
             // 
             // importData
             // 
@@ -110,56 +142,99 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.importData.Location = new System.Drawing.Point(161, 0);
+            this.importData.Location = new System.Drawing.Point(3, 3);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(486, 562);
+            this.importData.Size = new System.Drawing.Size(481, 432);
             this.importData.TabIndex = 0;
             // 
-            // pageIValidater
+            // dataTree
             // 
-            this.pageIValidater.Controls.Add(this.importValidater);
-            this.pageIValidater.Location = new System.Drawing.Point(4, 22);
-            this.pageIValidater.Name = "pageIValidater";
-            this.pageIValidater.Padding = new System.Windows.Forms.Padding(3);
-            this.pageIValidater.Size = new System.Drawing.Size(647, 562);
-            this.pageIValidater.TabIndex = 1;
-            this.pageIValidater.Text = "Validater";
-            this.pageIValidater.UseVisualStyleBackColor = true;
+            this.dataTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dataTree.HideSelection = false;
+            this.dataTree.Location = new System.Drawing.Point(3, 58);
+            this.dataTree.Name = "dataTree";
+            this.dataTree.Size = new System.Drawing.Size(156, 527);
+            this.dataTree.TabIndex = 8;
+            this.dataTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeAfterSelect);
             // 
-            // importValidater
+            // btnImport
             // 
-            this.importValidater.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.importValidater.Location = new System.Drawing.Point(-1, 0);
-            this.importValidater.Name = "importValidater";
-            this.importValidater.Size = new System.Drawing.Size(648, 562);
-            this.importValidater.TabIndex = 0;
+            this.btnImport.Location = new System.Drawing.Point(84, 3);
+            this.btnImport.Name = "btnImport";
+            this.btnImport.Size = new System.Drawing.Size(75, 23);
+            this.btnImport.TabIndex = 7;
+            this.btnImport.Text = "Import";
+            this.btnImport.UseVisualStyleBackColor = true;
+            this.btnImport.Click += new System.EventHandler(this.OnImportClicked);
+            // 
+            // btnLoad
+            // 
+            this.btnLoad.Location = new System.Drawing.Point(3, 3);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(75, 23);
+            this.btnLoad.TabIndex = 6;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.OnLoadClicked);
+            // 
+            // fileBox
+            // 
+            this.fileBox.Location = new System.Drawing.Point(3, 32);
+            this.fileBox.Name = "fileBox";
+            this.fileBox.ReadOnly = true;
+            this.fileBox.Size = new System.Drawing.Size(156, 20);
+            this.fileBox.TabIndex = 10;
+            // 
+            // actionText
+            // 
+            this.actionText.Location = new System.Drawing.Point(242, 17);
+            this.actionText.Multiline = true;
+            this.actionText.Name = "actionText";
+            this.actionText.ReadOnly = true;
+            this.actionText.Size = new System.Drawing.Size(242, 61);
+            this.actionText.TabIndex = 4;
+            this.actionText.Text = "Please select an action.";
             // 
             // Importer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.fileBox);
+            this.Controls.Add(this.stateBox);
+            this.Controls.Add(this.columnLabel);
+            this.Controls.Add(this.nodeSplitter);
+            this.Controls.Add(this.dataTree);
+            this.Controls.Add(this.btnImport);
+            this.Controls.Add(this.btnLoad);
             this.Name = "Importer";
             this.Size = new System.Drawing.Size(655, 588);
-            this.tabControl1.ResumeLayout(false);
-            this.pageIData.ResumeLayout(false);
+            this.nodeSplitter.Panel1.ResumeLayout(false);
+            this.nodeSplitter.Panel1.PerformLayout();
+            this.nodeSplitter.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nodeSplitter)).EndInit();
+            this.nodeSplitter.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.stateBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).EndInit();
-            this.pageIValidater.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage pageIData;
+        private System.Windows.Forms.SplitContainer nodeSplitter;
+        private System.Windows.Forms.DataGridView importData;
+        private System.Windows.Forms.TreeView dataTree;
         private System.Windows.Forms.Button btnImport;
         private System.Windows.Forms.Button btnLoad;
-        private System.Windows.Forms.ListBox tableBox;
-        private System.Windows.Forms.DataGridView importData;
-        private System.Windows.Forms.TabPage pageIValidater;
-        private ImportValidater importValidater;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox actionBox;
+        private System.Windows.Forms.ComboBox propertiesBox;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.PictureBox stateBox;
+        private System.Windows.Forms.Label columnLabel;
+        private System.Windows.Forms.TextBox fileBox;
+        private System.Windows.Forms.TextBox actionText;
     }
 }

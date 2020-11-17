@@ -36,6 +36,18 @@ namespace WindowsClient.Controls
             }
         }
 
+        public bool ReadOnly
+        {
+            get
+            {
+                return textBox.ReadOnly;
+            }
+            set
+            {
+                textBox.ReadOnly = value;
+            }
+        }
+
         public LabeledBox()
         {
             InitializeComponent();

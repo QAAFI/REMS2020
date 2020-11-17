@@ -46,9 +46,8 @@ namespace WindowsClient.Controls
 
         protected void AddRow(params object[] values)
         {
-            var row = new ValidaterRow();
-            row.CreateCells(dataGrid);
-            row.SetValues(values);
+            var row = new ValidaterRow(dataGrid, values);
+
             ValidateRow(row);
 
             dataGrid.Rows.Add(row);
