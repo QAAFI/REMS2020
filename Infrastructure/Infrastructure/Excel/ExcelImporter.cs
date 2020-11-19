@@ -59,6 +59,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertPlotsCommand() { Table = table };
                     break;
 
+                case "HarvestData":
                 case "PlotData":
                     command = new InsertPlotDataTableCommand()
                     {

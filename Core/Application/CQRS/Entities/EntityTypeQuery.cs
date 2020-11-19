@@ -13,8 +13,6 @@ namespace Rems.Application.CQRS
     public class EntityTypeQuery : IRequest<Type>
     {
         public string Name { get; set; }
-
-        public RequestItem GetItem { get; set; }
     }
 
     public class EntityTypeQueryHandler : IRequestHandler<EntityTypeQuery, Type>
@@ -43,9 +41,19 @@ namespace Rems.Application.CQRS
             if (filtered.Count() == 1)
                 return filtered.Single().ClrType;
 
-            // 
-            var item = request.GetItem(request.Name);
-            return types.FirstOrDefault(t => t.ClrType.Name == item).ClrType;
+            // Function to find the string which best matches the request
+            IEntityType findMatch(IEntityType a, IEntityType b)
+            {
+                var x = Math.Abs(a.ClrType.Name.Length - request.Name.Length);
+                var y = Math.Abs(b.ClrType.Name.Length - request.Name.Length);
+
+                if (x < y)
+                    return a;
+                else
+                    return b;
+            }
+
+            return filtered.Aggregate(findMatch).ClrType;
         }
     }
 }

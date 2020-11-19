@@ -1,20 +1,22 @@
-﻿using System;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using ExcelDataReader;
+using Microsoft.EntityFrameworkCore.Internal;
+
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using System.IO;
-using ExcelDataReader;
 using Rems.Infrastructure.Excel;
-using Rems.Application.Common;
-using WindowsClient.Forms;
-using Microsoft.EntityFrameworkCore.Internal;
-using System.Collections.Generic;
+
+using System;
 using System.Collections;
-using Castle.Components.DictionaryAdapter.Xml;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Reflection;
+using System.Windows.Forms;
+
+using WindowsClient.Forms;
 
 namespace WindowsClient.Controls
 {
@@ -30,6 +32,7 @@ namespace WindowsClient.Controls
 
         private ImageList images;
 
+        /*
         private List<string> Traits = new List<string>()
         {
             "u",
@@ -93,6 +96,21 @@ namespace WindowsClient.Controls
             "MinT",
             "SW"
         };
+        */
+
+        private List<string> tables = new List<string>()
+        {
+            "Design",
+            "HarvestData",
+            "PlotData",
+            "MetData",
+            "SoilLayerData",
+            "Irrigation",
+            "Fertilization",
+            "Soils",
+            "SoilLayer",
+            "SoilLayers"
+        };
 
         public Importer()
         {
@@ -104,6 +122,7 @@ namespace WindowsClient.Controls
             images.Images.Add("Valid", Properties.Resources.Valid);
             images.Images.Add("Invalid", Properties.Resources.Invalid);
             images.Images.Add("Warning", Properties.Resources.Warning);
+            images.Images.Add("Add", Properties.Resources.Add);
 
             dataTree.ImageList = images;
         }
@@ -150,6 +169,13 @@ namespace WindowsClient.Controls
                     data.Tables.Remove(table);
                     continue;
                 }
+
+                // TODO: This is a quick workaround, find better way to handle factors/levels table
+                if (table.TableName == "Factors") table.TableName = "Levels";
+
+                // TODO: This is a quick workaround, find better way to handle planting/sowing table
+                if (table.TableName == "Planting") table.TableName = "Sowing";
+
                 // Remove any duplicate rows from the table
                 table.RemoveDuplicateRows();
                 
@@ -166,25 +192,38 @@ namespace WindowsClient.Controls
         {
             var tnode = new TreeNode(table.TableName) { Tag = table };            
 
-            // Remove invalid columns
+            // Prepare individual columns for import
             foreach (var col in table.Columns.Cast<DataColumn>().ToArray())
             {
-                //col.ExtendedProperties.Add("State", "Invalid");
-
+                // Remove empty columns
                 if (col.ColumnName.Contains("Column"))
                 {
                     table.Columns.Remove(col);
                     continue;
                 }
 
+                // Create a node for the column
                 var cnode = new TreeNode(col.ColumnName) { Tag = col };
                 
                 var info = col.FindProperty();
                 col.ExtendedProperties.Add("Info", info);
 
-                if (info is null && !Traits.Contains(col.ColumnName))
+                if (info is null)
                 {
-                    SetState(cnode, "Invalid");
+                    if (table.DataSet.Tables["Traits"] is DataTable traits
+                        && traits.Columns["Name"] is DataColumn name
+                        && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName))
+                    {
+                        SetState(cnode, "Valid");
+                    }
+                    // Look for a trait that matches the column in the database
+                    else if ((bool)Query(new TraitExistsQuery() { Name = col.ColumnName}).Result)
+                    {
+                        SetState(cnode, "Valid");
+                    }
+                    // Default to no trait existing
+                    else
+                        SetState(cnode, "Invalid");
                 }
                 else
                 {
@@ -226,7 +265,7 @@ namespace WindowsClient.Controls
                 {
                     var col = cnode.Tag as DataColumn;
 
-                    if (col.ExtendedProperties["State"] != "Valid")
+                    if (col.ExtendedProperties["State"].ToString() == "Invalid")
                     {
                         SetState(node, "Warning");
                         return;
@@ -266,10 +305,20 @@ namespace WindowsClient.Controls
                     .Where(o => o != null)
                     .Cast<PropertyInfo>();
 
+                bool notEnum(PropertyInfo info)
+                {
+                    // TODO: Find a better way to test this
+                    if (info.PropertyType.Name == typeof(ICollection<>).Name)
+                        return false;
+
+                    return true;
+                }
+
                 // Find all the non-mapped infos
                 var type = col.Table.ExtendedProperties["Type"] as Type;
                 var properties = type.GetProperties()
                     .Except(infos)
+                    .Where(p => notEnum(p))
                     .Select(p => p.Name)
                     .ToArray();
 
@@ -297,6 +346,8 @@ namespace WindowsClient.Controls
                     CleanData(importer.Data);
 
                     fileBox.Text = Path.GetFileName(open.FileName);
+
+                    dataTree.SelectedNode = dataTree.TopNode;
                 }
                 catch (IOException error)
                 {
@@ -318,7 +369,7 @@ namespace WindowsClient.Controls
 
                 var states = dataTree.Nodes.Cast<TreeNode>()
                     .Select(n => n.Tag as DataTable)
-                    .Where(t => t.ExtendedProperties["State"] != "Valid");
+                    .Where(t => t.ExtendedProperties["State"].ToString() != "Valid");
 
                 if (states.Any())
                 {
@@ -344,27 +395,31 @@ namespace WindowsClient.Controls
             switch (actionBox.SelectedIndex)
             {
                 case 0:
+                    SetState(dataTree.SelectedNode, "Ignored");
                     propertiesBox.Enabled = false;
                     actionText.Text = "None of the column data will be imported into the database";
-                        return;
+                    break;
 
                 case 1:
+                    SetState(dataTree.SelectedNode, "Add");
                     propertiesBox.Enabled = false;
                     actionText.Text = "A trait named after the column will be created, and" +
                         "the column values will be mapped to it";
-                    return;
+                    break;
 
                 case 2:
                     propertiesBox.Enabled = true;
                     actionText.Text = "Please identify the database property which best matches " +
                         "the column. The column data will be imported using this property.";
-                    return;
+                    break;
 
                 default:
                     propertiesBox.Enabled = false;
                     actionText.Text = "Please select an action.";
-                    return;
+                    break;
             }
+
+            CheckState(dataTree.SelectedNode.Parent);
         }
 
         private void PropertiesSelectionChanged(object sender, EventArgs e)

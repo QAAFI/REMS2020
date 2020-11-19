@@ -4,16 +4,17 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class TraitExistsQuery : IRequest 
+    public class TraitExistsQuery : IRequest<bool>
     {
-        public IItemValidater Validater { get; set; }
+        public string Name { get; set; }
     }
 
-    public class TraitExistsQueryHandler : IRequestHandler<TraitExistsQuery>
+    public class TraitExistsQueryHandler : IRequestHandler<TraitExistsQuery, bool>
     {
         private readonly IRemsDbContext _context;
 
@@ -22,21 +23,15 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Unit> Handle(TraitExistsQuery request, CancellationToken token) 
+        public Task<bool> Handle(TraitExistsQuery request, CancellationToken token) 
             => Task.Run(() => Handler(request, token));
 
-        private Unit Handler(TraitExistsQuery request, CancellationToken token)
+        private bool Handler(TraitExistsQuery request, CancellationToken token)
         {
-            // TODO: Search could be more efficient. Just getting it working.
+            if (_context.FileName is null)
+                return false;
 
-            bool valid = false || _context.Traits.Any(t => t.Name == request.Validater.Name);
-
-            foreach (var item in request.Validater.Values)
-                valid = valid || _context.Traits.Any(t => t.Name == item);
-
-            request.Validater.IsValid = valid;
-
-            return Unit.Value;
+            return _context.Traits.Any(t => t.Name == request.Name);
         }
     }
 }

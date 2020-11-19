@@ -97,13 +97,8 @@ namespace Rems.Application.Common.Extensions
             var set = context.GetSetAsEnumerable(temp);
             var props = type.GetProperties();
 
-            foreach (var entity in set)
-            {
-                if (entity.HasValue(value, props))
-                {
-                    return entity;
-                }
-            }
+            foreach (var entity in set)            
+                if (entity.HasValue(value, props)) return entity;            
 
             return null;
         }

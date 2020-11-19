@@ -32,7 +32,9 @@ namespace Rems.Application.Common.Extensions
             foreach (var info in infos)
             {
                 var value = row[info.Name];
-                if (value is DBNull) continue; // Use default value if DBNull
+
+                // Use default value if DBNull
+                if (value is DBNull) continue;
 
                 var itype = info.PropertyType;
 
@@ -64,18 +66,46 @@ namespace Rems.Application.Common.Extensions
 
             return entity;
         }
-               
+        
+        /// <summary>
+        /// A bunch of ugly string matching to find a property because unfiltered excel data
+        /// </summary>
         public static PropertyInfo FindProperty(this DataColumn col)
         {
             var type = col.Table.ExtendedProperties["Type"] as Type;
 
+            // Test for a direct match
             if (type.GetProperty(col.ColumnName) is PropertyInfo x)
                 return x;
 
+            // Test if the column is called name
             if (col.ColumnName == type.Name && type.GetProperty("Name") is PropertyInfo y)
             {
                 col.ColumnName = "Name";
                 return y;
+            }
+
+            // Trim the column and look for direct match again
+            var name = col.ColumnName.Replace("Name", "").Replace("name", "").Trim();
+            if (type.GetProperty(name) is PropertyInfo z)
+            {
+                col.ColumnName = name;
+                return z;
+            }
+
+            // Assume its called name
+            if (name == type.Name)
+            {
+                col.ColumnName = "Name";
+                return type.GetProperty("Name");
+            }
+
+            // Assume the column has the type name attached
+            var prop = col.ColumnName.Replace(type.Name, "").Trim();
+            if (type.GetProperty(prop) is PropertyInfo i)
+            {
+                col.ColumnName = prop;
+                return i;
             }
 
             // If no property was found

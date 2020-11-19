@@ -348,6 +348,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\IgnoredX.png" />
+    <None Include="Resources\Images\Add.png" />
     <Content Include="Resources\Warning.png" />
     <Content Include="Resources\Valid.png" />
     <Content Include="Resources\Ignored.png" />

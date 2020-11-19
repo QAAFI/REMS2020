@@ -47,7 +47,7 @@ namespace WindowsClient.Controls
 
         protected override void ValidateRow(ValidaterRow row)
         {
-            var exists = new TraitExistsQuery() { Validater = row };
+            var exists = new TraitExistsQuery();
             SendQuery(exists);
         }
 
