@@ -37,10 +37,10 @@ namespace WindowsClient.Controls
             InitializeComponent();            
 
             images = new ImageList();
-            images.Images.Add("Ignored", Properties.Resources.Ignored);
-            images.Images.Add("IgnoredX", Properties.Resources.IgnoredX);
-            images.Images.Add("Valid", Properties.Resources.Valid);
-            images.Images.Add("Invalid", Properties.Resources.Invalid);
+            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
+            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
+            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
+            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
             images.Images.Add("Warning", Properties.Resources.Warning);
             images.Images.Add("Add", Properties.Resources.Add);
 
@@ -110,8 +110,10 @@ namespace WindowsClient.Controls
 
         private TreeNode ValidateTable(DataTable table)
         {
-            var tnode = new TreeNode(table.TableName) { Tag = table };            
+            var tnode = new TreeNode(table.TableName) { Tag = table };
+            table.ExtendedProperties["Valid"] = true;
 
+            bool valid = true;
             // Prepare individual columns for import
             foreach (var col in table.Columns.Cast<DataColumn>().ToArray())
             {
@@ -122,77 +124,82 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
+                col.ExtendedProperties["Ignored"] = false;
+
+                // Use some default name replacement options
+                ReplaceName(col);
+
                 // Create a node for the column
                 var cnode = new TreeNode(col.ColumnName) { Tag = col };
                 
                 var info = col.FindProperty();
-                col.ExtendedProperties.Add("Info", info);
+                col.ExtendedProperties["Info"] = info;
 
-                if (info is null)
-                {
-                    if (table.DataSet.Tables["Traits"] is DataTable traits
+                // Don't question it
+                if (info is null && 
+                    (
+                        (bool)Query(new TraitExistsQuery() { Name = col.ColumnName }).Result
+                        || table.DataSet.Tables["Traits"] is DataTable traits
                         && traits.Columns["Name"] is DataColumn name
                         && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName))
-                    {
-                        SetState(cnode, "Valid");
-                    }
-                    // Look for a trait that matches the column in the database
-                    else if ((bool)Query(new TraitExistsQuery() { Name = col.ColumnName}).Result)
-                    {
-                        SetState(cnode, "Valid");
-                    }
-                    // Default to no trait existing
-                    else
-                        SetState(cnode, "Invalid");
-                }
-                else
+                    )
                 {
-                    SetState(cnode, "Valid");
+                    col.ExtendedProperties["Valid"] = true;
                 }
 
                 tnode.Nodes.Add(cnode);
+                SetState(cnode, col.ExtendedProperties);
+
+                valid &= (bool)col.ExtendedProperties["Valid"];
             }
 
-            if (tnode.Nodes.Cast<TreeNode>().Any(n => n.ImageKey == "Invalid"))
-                SetState(tnode, "Warning");
-            else
-                SetState(tnode, "Valid");
+            if (!valid) 
+                table.ExtendedProperties["Override"] = "Warning";
+
+            SetState(tnode, table.ExtendedProperties);
 
             return tnode;
         }
 
         #endregion
 
-        private void SetState(TreeNode node, string key)
+        private void SetState(TreeNode node, PropertyCollection Is)
         {
+            string key = "";
+
+            if (Is["Valid"] is true)
+                key += "Valid";
+            else
+                key += "Invalid";         
+
+            if (Is["Ignored"] is true)
+                key += "Off";
+            else
+                key += "On";
+
+            if (Is["Override"] is string s && s != "")
+                key = s;
+
             node.ImageKey = key;
             node.SelectedImageKey = key;
 
-            if (node.Tag is DataColumn col)
-                col.ExtendedProperties["State"] = key;
-
-            if (node.Tag is DataTable table)
-                table.ExtendedProperties["State"] = key;
-
             stateBox.Image = images.Images[key];
+
+            // Update the node parent
+            CheckState(node.Parent);
         }
 
         private void CheckState(TreeNode node)
         {
-            if (node.Tag is DataTable table)
+            if (node?.Tag is DataTable table)
             {
-                foreach(TreeNode cnode in node.Nodes)
-                {
-                    var col = cnode.Tag as DataColumn;
+                var cols = table.Columns.Cast<DataColumn>();
+                if (cols.Any(c => c.ExtendedProperties["Valid"] is false && c.ExtendedProperties["Ignored"] is false))
+                    table.ExtendedProperties["Override"] = "Warning";
+                else
+                    table.ExtendedProperties["Override"] = "";
 
-                    if (col.ExtendedProperties["State"].ToString() == "Invalid")
-                    {
-                        SetState(node, "Warning");
-                        return;
-                    }
-                }
-
-                SetState(node, "Valid");
+                SetState(node, table.ExtendedProperties);
             }
         }
 
@@ -219,30 +226,11 @@ namespace WindowsClient.Controls
                 // Reset the available properties
                 propertiesBox.Items.Clear();
 
-                // Find all the infos which are already mapped to a column
-                var infos = col.Table.Columns.Cast<DataColumn>()
-                    .Select(c => c.ExtendedProperties["Info"])
-                    .Where(o => o != null)
-                    .Cast<PropertyInfo>();
-
-                bool notEnum(PropertyInfo info)
-                {
-                    // TODO: Find a better way to test this
-                    if (info.PropertyType.Name == typeof(ICollection<>).Name)
-                        return false;
-
-                    return true;
-                }
-
-                // Find all the non-mapped infos
-                var type = col.Table.ExtendedProperties["Type"] as Type;
-                var properties = type.GetProperties()
-                    .Except(infos)
-                    .Where(p => notEnum(p))
+                var items = col.GetUnmappedProperties()
                     .Select(p => p.Name)
                     .ToArray();
 
-                propertiesBox.Items.AddRange(properties);
+                propertiesBox.Items.AddRange(items);
             }
 
             stateBox.Image = images.Images[e.Node.ImageKey];
@@ -312,34 +300,42 @@ namespace WindowsClient.Controls
             var col = dataTree.SelectedNode.Tag as DataColumn;
             col.ExtendedProperties["Action"] = actionBox.SelectedIndex;
 
+            void setValues(bool ignored, bool enabled, string action)
+            {
+                col.ExtendedProperties["Ignored"] = ignored;
+                SetState(dataTree.SelectedNode, col.ExtendedProperties);
+                propertiesBox.Enabled = enabled;
+                actionText.Text = action;
+            }
+
+            string text;
+
             switch (actionBox.SelectedIndex)
             {
                 case 0:
-                    SetState(dataTree.SelectedNode, "Ignored");
-                    propertiesBox.Enabled = false;
-                    actionText.Text = "None of the column data will be imported into the database";
+                    text = "None of the column data will be imported into the database";
+                    setValues(true, false, text);
                     break;
 
                 case 1:
-                    SetState(dataTree.SelectedNode, "Add");
-                    propertiesBox.Enabled = false;
-                    actionText.Text = "A trait named after the column will be created, and" +
+                    text = "A trait named after the column will be created, and" +
                         "the column values will be mapped to it";
+                    setValues(false, false, text);
                     break;
 
                 case 2:
-                    propertiesBox.Enabled = true;
-                    actionText.Text = "Please identify the database property which best matches " +
+                    text = "Please identify the database property which best matches " +
                         "the column. The column data will be imported using this property.";
+                    setValues(false, true, text);
                     break;
 
                 default:
-                    propertiesBox.Enabled = false;
-                    actionText.Text = "Please select an action.";
+                    text = "Please select an action.";
+                    setValues(false, false, text);
                     break;
             }
 
-            CheckState(dataTree.SelectedNode.Parent);
+            SetState(dataTree.SelectedNode, col.ExtendedProperties);
         }
 
         private void PropertiesSelectionChanged(object sender, EventArgs e)
@@ -354,10 +350,39 @@ namespace WindowsClient.Controls
             }
 
             col.ColumnName = item;
+            col.ExtendedProperties["Valid"] = true;
 
-            SetState(dataTree.SelectedNode, "Valid");
+            SetState(dataTree.SelectedNode, col.ExtendedProperties);            
+        }
 
-            CheckState(dataTree.SelectedNode.Parent);
+        private void ReplaceName(DataColumn col)
+        {
+            switch (col.ColumnName)
+            {
+                case "ExpID":
+                    col.ColumnName = "ExperimentId"; return;
+
+                case "N%":
+                    col.ColumnName = "Nitrogen"; return;
+
+                case "P%":
+                    col.ColumnName = "Phosphorus"; return;
+
+                case "K%":
+                    col.ColumnName = "Potassium"; return;
+
+                case "Ca%":
+                    col.ColumnName = "Calcium"; return;
+
+                case "S%":
+                    col.ColumnName = "Sulfur"; return;
+
+                case "Other%":
+                    col.ColumnName = "OtherPercent"; return;
+
+                default:
+                    return;
+            }
         }
     }
 }

@@ -347,19 +347,19 @@
     <EmbeddedResource Include="Resources\TeeChart.licenses" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\IgnoredX.png" />
+    <Content Include="Resources\InvalidOff.png" />
     <None Include="Resources\Images\Add.png" />
     <Content Include="Resources\Warning.png" />
-    <Content Include="Resources\Valid.png" />
-    <Content Include="Resources\Ignored.png" />
-    <Content Include="Resources\Invalid.png" />
+    <Content Include="Resources\ValidOn.png" />
+    <Content Include="Resources\ValidOff.png" />
+    <Content Include="Resources\InvalidOn.png" />
     <Content Include="Resources\select-icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\left.png" />
+    <Content Include="Resources\left.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\right.png" />
+    <Content Include="Resources\right.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">

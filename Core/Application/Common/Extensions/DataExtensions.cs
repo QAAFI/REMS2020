@@ -67,12 +67,39 @@ namespace Rems.Application.Common.Extensions
             return entity;
         }
         
+        public static IEnumerable<PropertyInfo> GetUnmappedProperties(this DataColumn col)
+        {
+            // Find all the infos which are already mapped to a column
+            var infos = col.Table.Columns.Cast<DataColumn>()
+                .Select(c => c.ExtendedProperties["Info"])
+                .Where(o => o != null)
+                .Cast<PropertyInfo>();
+
+            bool notEnum(PropertyInfo info)
+            {
+                // TODO: Find a better way to test this
+                if (info.PropertyType.Name == typeof(ICollection<>).Name)
+                    return false;
+
+                return true;
+            }
+
+            // Find all the non-mapped infos
+            var type = col.Table.ExtendedProperties["Type"] as Type;
+            var properties = type.GetProperties()
+                .Except(infos)
+                .Where(p => notEnum(p));
+
+            return properties;
+        }
+
         /// <summary>
         /// A bunch of ugly string matching to find a property because unfiltered excel data
         /// </summary>
         public static PropertyInfo FindProperty(this DataColumn col)
         {
             var type = col.Table.ExtendedProperties["Type"] as Type;
+            col.ExtendedProperties["Valid"] = true;
 
             // Test for a direct match
             if (type.GetProperty(col.ColumnName) is PropertyInfo x)
@@ -108,8 +135,26 @@ namespace Rems.Application.Common.Extensions
                 return i;
             }
 
+            var single = col.GetUnmappedProperties()
+                .SingleOrDefault(p => col.ColumnName.ToLower().Contains(p.Name.ToLower()));
+
+            if (single != null)
+            {
+                col.ColumnName = single.Name;
+                return single;
+            }
+
             // If no property was found
+            col.ExtendedProperties["Valid"] = false;
             return null;
+        }
+
+        public static bool IsValid(this DataTable table)
+        {
+            return table.Columns.Cast<DataColumn>()
+                .Select(c => c.ExtendedProperties["Valid"])
+                .Cast<bool>()
+                .Aggregate((a, b) => a |= b);
         }
     }
 

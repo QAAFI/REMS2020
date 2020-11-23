@@ -73,9 +73,9 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Ignored {
+        internal static System.Drawing.Bitmap InvalidOff {
             get {
-                object obj = ResourceManager.GetObject("Ignored", resourceCulture);
+                object obj = ResourceManager.GetObject("InvalidOff", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,19 +83,9 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap IgnoredX {
+        internal static System.Drawing.Bitmap InvalidOn {
             get {
-                object obj = ResourceManager.GetObject("IgnoredX", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Invalid {
-            get {
-                object obj = ResourceManager.GetObject("Invalid", resourceCulture);
+                object obj = ResourceManager.GetObject("InvalidOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -143,9 +133,19 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Valid {
+        internal static System.Drawing.Bitmap ValidOff {
             get {
-                object obj = ResourceManager.GetObject("Valid", resourceCulture);
+                object obj = ResourceManager.GetObject("ValidOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ValidOn {
+            get {
+                object obj = ResourceManager.GetObject("ValidOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
