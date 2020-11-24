@@ -24,7 +24,6 @@ namespace Rems.Application.CQRS
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
             ExperimentId = this.SetParam<int>(args[0]);
-            GetItem = this.SetParam<RequestItem>(args[1]);
         }
     }
 
@@ -49,12 +48,12 @@ namespace Rems.Application.CQRS
             {
                 Name = "Physical",
                 Thickness = thickness,
-                BD = _context.GetSoilLayerTraitData(layers, "BD", request.GetItem),
-                AirDry = _context.GetSoilLayerTraitData(layers, "AirDry", request.GetItem),
-                LL15 = _context.GetSoilLayerTraitData(layers, "LL15", request.GetItem),
-                DUL = _context.GetSoilLayerTraitData(layers, "DUL", request.GetItem),
-                SAT = _context.GetSoilLayerTraitData(layers, "SAT", request.GetItem),
-                KS = _context.GetSoilLayerTraitData(layers, "KS", request.GetItem)
+                BD = _context.GetSoilLayerTraitData(layers, "BD"),
+                AirDry = _context.GetSoilLayerTraitData(layers, "AirDry"),
+                LL15 = _context.GetSoilLayerTraitData(layers, "LL15"),
+                DUL = _context.GetSoilLayerTraitData(layers, "DUL"),
+                SAT = _context.GetSoilLayerTraitData(layers, "SAT"),
+                KS = _context.GetSoilLayerTraitData(layers, "KS")
             };
 
             return physical;

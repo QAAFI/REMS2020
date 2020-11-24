@@ -349,9 +349,10 @@
   <ItemGroup>
     <Content Include="Resources\InvalidOff.png" />
     <None Include="Resources\Images\Add.png" />
-    <Content Include="Resources\Warning.png" />
-    <Content Include="Resources\ValidOn.png" />
     <Content Include="Resources\ValidOff.png" />
+    <Content Include="Resources\WarningOn.png" />
+    <Content Include="Resources\ValidOn.png" />
+    <Content Include="Resources\WarningOff.png" />
     <Content Include="Resources\InvalidOn.png" />
     <Content Include="Resources\select-icon.png" />
   </ItemGroup>

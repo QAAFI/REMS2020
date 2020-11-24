@@ -70,10 +70,10 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
             builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
 
-            Trait maxT = _context.GetTraitByName("MaxT", null);
-            Trait minT = _context.GetTraitByName("MinT", null);
-            Trait radn = _context.GetTraitByName("Radn", null);
-            Trait rain = _context.GetTraitByName("Rain", null);
+            Trait maxT = _context.GetTraitByName("MaxT");
+            Trait minT = _context.GetTraitByName("MinT");
+            Trait radn = _context.GetTraitByName("Radn");
+            Trait rain = _context.GetTraitByName("Rain");
 
             var datas = station.MetData
                 .ToArray()

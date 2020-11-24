@@ -44,7 +44,7 @@ namespace Rems.Infrastructure.Excel
         private Task InsertTable(DataTable table)
         {
             // Skip the empty / notes tables
-            if (table.TableName == "Notes" || table.Rows.Count < 1)
+            if (table.ExtendedProperties["Ignored"] is true)
                 return Task.Run(() => Unit.Value);
 
             OnNextItem(table.TableName);
@@ -98,6 +98,7 @@ namespace Rems.Infrastructure.Excel
 
                 case "Soils":
                 case "SoilLayer":
+                case "SoilLayers":
                     var query = new EntityTypeQuery() 
                     { 
                         Name = type.Name + "Trait"

@@ -153,9 +153,19 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Warning {
+        internal static System.Drawing.Bitmap WarningOff {
             get {
-                object obj = ResourceManager.GetObject("Warning", resourceCulture);
+                object obj = ResourceManager.GetObject("WarningOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WarningOn {
+            get {
+                object obj = ResourceManager.GetObject("WarningOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

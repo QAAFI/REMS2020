@@ -98,6 +98,9 @@ namespace Rems.Application.Common.Extensions
         /// </summary>
         public static PropertyInfo FindProperty(this DataColumn col)
         {
+            // Be careful when changing the order of these tests - they look independent are not.
+            // Some of the later tests rely on assumptions that are excluded in the initial tests.
+
             var type = col.Table.ExtendedProperties["Type"] as Type;
             col.ExtendedProperties["Valid"] = true;
 
@@ -135,13 +138,14 @@ namespace Rems.Application.Common.Extensions
                 return i;
             }
 
-            var single = col.GetUnmappedProperties()
-                .SingleOrDefault(p => col.ColumnName.ToLower().Contains(p.Name.ToLower()));
+            // Check if there is a single umapped property which contains the column name
+            var s = col.GetUnmappedProperties()
+                .Where(p => col.ColumnName.ToLower().Contains(p.Name.ToLower()));
 
-            if (single != null)
+            if (s.Count() == 1)
             {
-                col.ColumnName = single.Name;
-                return single;
+                col.ColumnName = s.Single().Name;
+                return s.Single();
             }
 
             // If no property was found

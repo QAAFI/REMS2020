@@ -45,9 +45,9 @@ namespace Rems.Application.CQRS
             var crop = new SoilCrop()
             {
                 Name = "SorghumSoil",
-                LL = _context.GetSoilLayerTraitData(layers, "LL", request.GetItem),
-                KL = _context.GetSoilLayerTraitData(layers, "KL", request.GetItem),
-                XF = _context.GetSoilLayerTraitData(layers, "XF", request.GetItem)
+                LL = _context.GetSoilLayerTraitData(layers, "LL"),
+                KL = _context.GetSoilLayerTraitData(layers, "KL"),
+                XF = _context.GetSoilLayerTraitData(layers, "XF")
             };
 
             return crop;

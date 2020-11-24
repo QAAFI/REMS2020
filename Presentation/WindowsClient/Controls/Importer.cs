@@ -41,7 +41,8 @@ namespace WindowsClient.Controls
             images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
             images.Images.Add("ValidOn", Properties.Resources.ValidOn);
             images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
-            images.Images.Add("Warning", Properties.Resources.Warning);
+            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
+            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
             images.Images.Add("Add", Properties.Resources.Add);
 
             dataTree.ImageList = images;
@@ -89,6 +90,8 @@ namespace WindowsClient.Controls
                     data.Tables.Remove(table);
                     continue;
                 }
+
+                table.ExtendedProperties["Ignored"] = false;
 
                 // TODO: This is a quick workaround, find better way to handle factors/levels table
                 if (table.TableName == "Factors") table.TableName = "Levels";
@@ -170,15 +173,15 @@ namespace WindowsClient.Controls
             if (Is["Valid"] is true)
                 key += "Valid";
             else
-                key += "Invalid";         
+                key += "Invalid";
+
+            if (Is["Override"] is string s && s != "")
+                key = s;
 
             if (Is["Ignored"] is true)
                 key += "Off";
             else
                 key += "On";
-
-            if (Is["Override"] is string s && s != "")
-                key = s;
 
             node.ImageKey = key;
             node.SelectedImageKey = key;
@@ -209,21 +212,19 @@ namespace WindowsClient.Controls
             {
                 importData.DataSource = table;
 
-                nodeSplitter.Panel1Collapsed = true;
+                nodeSplitter.Panel2Collapsed = true;
+
+                ignoreBox.Checked = (bool)table.ExtendedProperties["Ignored"];
             }
 
             else if (e.Node.Tag is DataColumn col)
             {
                 importData.DataSource = col.Table;
 
-                nodeSplitter.Panel1Collapsed = false;
+                nodeSplitter.Panel2Collapsed = false;
 
-                if (col.ExtendedProperties["Action"] is int i)
-                    actionBox.SelectedIndex = i;
-                else
-                    actionBox.SelectedIndex = -1;
+                ignoreBox.Checked = (bool)col.ExtendedProperties["Ignored"];
 
-                // Reset the available properties
                 propertiesBox.Items.Clear();
 
                 var items = col.GetUnmappedProperties()
@@ -277,11 +278,11 @@ namespace WindowsClient.Controls
 
                 var states = dataTree.Nodes.Cast<TreeNode>()
                     .Select(n => n.Tag as DataTable)
-                    .Where(t => t.ExtendedProperties["State"].ToString() != "Valid");
+                    .Where(t => t.ExtendedProperties["Valid"] is false);
 
                 if (states.Any())
                 {
-                    MessageBox.Show("Cannot import invalid data");
+                    MessageBox.Show("There errors in the data preventing import.");
                     return;
                 }
 
@@ -293,49 +294,6 @@ namespace WindowsClient.Controls
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
             }
-        }
-
-        private void ActionBoxSelectionChanged(object sender, EventArgs e)
-        {
-            var col = dataTree.SelectedNode.Tag as DataColumn;
-            col.ExtendedProperties["Action"] = actionBox.SelectedIndex;
-
-            void setValues(bool ignored, bool enabled, string action)
-            {
-                col.ExtendedProperties["Ignored"] = ignored;
-                SetState(dataTree.SelectedNode, col.ExtendedProperties);
-                propertiesBox.Enabled = enabled;
-                actionText.Text = action;
-            }
-
-            string text;
-
-            switch (actionBox.SelectedIndex)
-            {
-                case 0:
-                    text = "None of the column data will be imported into the database";
-                    setValues(true, false, text);
-                    break;
-
-                case 1:
-                    text = "A trait named after the column will be created, and" +
-                        "the column values will be mapped to it";
-                    setValues(false, false, text);
-                    break;
-
-                case 2:
-                    text = "Please identify the database property which best matches " +
-                        "the column. The column data will be imported using this property.";
-                    setValues(false, true, text);
-                    break;
-
-                default:
-                    text = "Please select an action.";
-                    setValues(false, false, text);
-                    break;
-            }
-
-            SetState(dataTree.SelectedNode, col.ExtendedProperties);
         }
 
         private void PropertiesSelectionChanged(object sender, EventArgs e)
@@ -355,33 +313,48 @@ namespace WindowsClient.Controls
             SetState(dataTree.SelectedNode, col.ExtendedProperties);            
         }
 
+        private static Dictionary<string, string> map = new Dictionary<string, string>()
+        {
+            {"ExpId", "ExperimentId" },
+            {"N%", "Nitrogen" },
+            {"P%", "Phosphorus" },
+            {"K%", "Potassium" },
+            {"Ca%", "Calcium" },
+            {"S%", "Sulfur" },
+            {"Other%", "OtherPercent" }
+        };
+
         private void ReplaceName(DataColumn col)
         {
-            switch (col.ColumnName)
+            if (map.ContainsKey(col.ColumnName))
+                col.ColumnName = map[col.ColumnName];
+        }
+
+        private void IgnoreBoxCheckChanged(object sender, EventArgs e)
+        {
+            PropertyCollection items;
+
+            if (dataTree.SelectedNode.Tag is DataColumn col)
+                items = col.ExtendedProperties;
+            else if (dataTree.SelectedNode.Tag is DataTable table)
+                items = table.ExtendedProperties;
+            else
+                throw new Exception("Invalid node type. Node must represent either a datatable or datacolumn.");
+
+            items["Ignored"] = ignoreBox.Checked;
+            isTraitBox.Enabled = !ignoreBox.Checked;
+            propertiesBox.Enabled = !ignoreBox.Checked;
+
+            SetState(dataTree.SelectedNode, items);
+        }
+
+        private void IsTraitBoxCheckChanged(object sender, EventArgs e)
+        {
+            propertiesBox.Enabled = !isTraitBox.Checked;
+
+            if (isTraitBox.Checked)
             {
-                case "ExpID":
-                    col.ColumnName = "ExperimentId"; return;
-
-                case "N%":
-                    col.ColumnName = "Nitrogen"; return;
-
-                case "P%":
-                    col.ColumnName = "Phosphorus"; return;
-
-                case "K%":
-                    col.ColumnName = "Potassium"; return;
-
-                case "Ca%":
-                    col.ColumnName = "Calcium"; return;
-
-                case "S%":
-                    col.ColumnName = "Sulfur"; return;
-
-                case "Other%":
-                    col.ColumnName = "OtherPercent"; return;
-
-                default:
-                    return;
+                propertiesBox.SelectedIndex = -1;
             }
         }
     }

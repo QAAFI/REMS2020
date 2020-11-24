@@ -15,8 +15,6 @@ namespace Rems.Application.CQRS
     {
         public int ExperimentId { get; set; }
 
-        public RequestItem GetItem { get; set; }
-
         public void Parameterise(params object[] args)
         {
             int count = GetType().GetProperties().Length;
@@ -24,7 +22,6 @@ namespace Rems.Application.CQRS
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
             ExperimentId = this.SetParam<int>(args[0]);
-            GetItem = this.SetParam<RequestItem>(args[1]);
         }
     }
 
@@ -48,7 +45,7 @@ namespace Rems.Application.CQRS
                 Name = "Water",
                 Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
                 Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
-                SW = _context.GetSoilLayerTraitData(layers, "SW", request.GetItem)
+                SW = _context.GetSoilLayerTraitData(layers, "SW")
             };
 
             return sample;

@@ -15,23 +15,15 @@ namespace Rems.Application.Common.Extensions
             //throw new NotImplementedException();
         }
 
-        internal static Trait GetTraitByName(this IRemsDbContext context, string name, RequestItem getItem)
+        internal static Trait GetTraitByName(this IRemsDbContext context, string name)
         {
-            var trait = context.Traits.FirstOrDefault(t => t.Name == name);
-
-            if (trait != null) 
-                return trait;
-            
-            var item = getItem(name);
-            trait = context.Traits.FirstOrDefault(t => t.Name == item);
+            var trait = context.Traits.FirstOrDefault(t => t.NameMatches(name));
 
             if (trait is null)
             {
                 trait = new Trait() { Name = name };
                 context.Add(trait);
-            }                
-            else
-                trait.Name = name;
+            }
 
             context.SaveChanges();
             return trait;
@@ -49,16 +41,16 @@ namespace Rems.Application.Common.Extensions
             return layers;
         }
 
-        internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name, RequestItem getItem)
+        internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name)
         {
-            var trait = context.GetTraitByName(name, getItem);
+            var trait = context.GetTraitByName(name);
 
             var data = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
                 .Where(v => v != null);
             return data.Select(v => v.Value.GetValueOrDefault()).ToArray();
         }
 
-        internal static Trait CreateTrait(this IRemsDbContext context, string name, string type)
+        internal static Trait AddTrait(this IRemsDbContext context, string name, string type)
         {
             var unit = context.Units.FirstOrDefault(u => u.Name == "-");
 
@@ -70,24 +62,25 @@ namespace Rems.Application.Common.Extensions
                 Type = type,
                 Unit = unit
             };
-            context.Attach(trait);
+            context.Add(trait);
+            context.SaveChanges();
             return trait;
         }
 
         internal static Trait[] GetTraitsFromColumns(this IRemsDbContext context, DataTable table, int skip, string type)
         {
+            Trait getTrait(DataColumn c)
+            {
+                var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
+                if (trait is null)
+                    trait = context.AddTrait(c.ColumnName, type);
+
+                return trait;
+            }
+
             return table.Columns.Cast<DataColumn>()
                 .Skip(skip)
-                .Select(c => {
-                    var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
-                    if (trait is null)
-                    {
-                        trait = context.CreateTrait(c.ColumnName, type);
-                        context.SaveChanges();
-                    }
-
-                    return trait;
-                })
+                .Select(c => getTrait(c))
                 .ToArray();
         }
 

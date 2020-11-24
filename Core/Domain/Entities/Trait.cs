@@ -36,8 +36,22 @@ namespace Rems.Domain.Entities
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }
         public virtual ICollection<SoilTrait> SoilTraits { get; set; }
         public virtual ICollection<Stat> Stats { get; set; }
+    }
 
+    public static partial class Extensions
+    {
+        public static bool NameMatches(this Trait trait, string name)
+        {
+            if (trait.Name == name)
+                return true;
 
+            if (trait.Name.ToLower() == name.ToLower())
+            {
+                trait.Name = name;
+                return true;
+            }
 
+            return false;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -40,29 +41,45 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in request.Table.Rows)
             {
+                List<Plot> plots = new List<Plot>(); 
+
                 var id = row[0].ConvertDBValue<int>();
-                var col = row[1].ConvertDBValue<int>();
 
-                var plot = _context.Plots
-                    .Where(p => p.Treatment.ExperimentId == id)
-                    .Where(p => p.Column == col)
-                    .Single()
-                    .PlotId;
-
-                for (int i = 5; i < row.ItemArray.Length; i++)
+                if (row[1].ToString() == "ALL")
                 {
-                    if (row.ItemArray[i] is DBNull) continue;
+                    var all = _context.Plots
+                        .Where(p => p.Treatment.ExperimentId == id);
 
-                    var data = new SoilLayerData()
+                    plots.AddRange(all);
+                }
+                else
+                {
+                    var col = row[1].ConvertDBValue<int>();
+                    var plot = _context.Plots
+                        .Where(p => p.Treatment.ExperimentId == id)
+                        .Where(p => p.Column == col)
+                        .Single();
+
+                    plots.Add(plot);
+                }
+
+                foreach (var plot in plots)
+                {
+                    for (int i = 5; i < row.ItemArray.Length; i++)
                     {
-                        PlotId = plot,
-                        Trait = traits[i - 5],
-                        Date = row[2].ConvertDBValue<DateTime>(),
-                        DepthFrom = row[3].ConvertDBValue<int>(),
-                        DepthTo = row[4].ConvertDBValue<int>(),
-                        Value = row[i].ConvertDBValue<double>()
-                    };
-                    _context.Attach(data);
+                        if (row.ItemArray[i] is DBNull) continue;
+
+                        var data = new SoilLayerData()
+                        {
+                            Plot = plot,
+                            Trait = traits[i - 5],
+                            Date = row[2].ConvertDBValue<DateTime>(),
+                            DepthFrom = row[3].ConvertDBValue<int>(),
+                            DepthTo = row[4].ConvertDBValue<int>(),
+                            Value = row[i].ConvertDBValue<double>()
+                        };
+                        _context.Attach(data);
+                    }
                 }
                 EventManager.InvokeProgressIncremented();
             }
