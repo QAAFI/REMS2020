@@ -18,6 +18,8 @@ namespace WindowsClient.Forms
         private double step;
         private double progress;
 
+        private Task task;
+
         public ProgressDialog(IProgressTracker tracker, string title)
         {
             InitializeComponent();
@@ -34,7 +36,7 @@ namespace WindowsClient.Forms
             tracker.TaskFinished += OnTaskFinished;
             tracker.TaskFailed += OnTaskFailed;
 
-            tracker.Run();
+            task = tracker.Run();
         }
 
         private void OnTaskFailed(Exception error)
@@ -87,5 +89,10 @@ namespace WindowsClient.Forms
             Refresh();            
         }
 
+        private void cancel_Click(object sender, EventArgs e)
+        {
+            task.Dispose();
+            Close();
+        }
     }
 }

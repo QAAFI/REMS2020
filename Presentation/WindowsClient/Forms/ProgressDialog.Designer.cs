@@ -32,6 +32,7 @@
             this.pctLabel = new System.Windows.Forms.Label();
             this.barPanel = new System.Windows.Forms.Panel();
             this.bar = new System.Windows.Forms.Panel();
+            this.cancel = new System.Windows.Forms.Button();
             this.barPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,9 +49,9 @@
             // pctLabel
             // 
             this.pctLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pctLabel.Location = new System.Drawing.Point(315, 17);
+            this.pctLabel.Location = new System.Drawing.Point(234, 14);
             this.pctLabel.Name = "pctLabel";
-            this.pctLabel.Size = new System.Drawing.Size(35, 13);
+            this.pctLabel.Size = new System.Drawing.Size(35, 19);
             this.pctLabel.TabIndex = 3;
             this.pctLabel.Text = "0%";
             this.pctLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -74,13 +75,24 @@
             this.bar.Size = new System.Drawing.Size(338, 28);
             this.bar.TabIndex = 0;
             // 
+            // cancel
+            // 
+            this.cancel.Location = new System.Drawing.Point(275, 12);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(75, 23);
+            this.cancel.TabIndex = 5;
+            this.cancel.Text = "Cancel";
+            this.cancel.UseVisualStyleBackColor = true;
+            this.cancel.Click += new System.EventHandler(this.cancel_Click);
+            // 
             // ProgressDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 82);
-            this.Controls.Add(this.barPanel);
             this.Controls.Add(this.pctLabel);
+            this.Controls.Add(this.cancel);
+            this.Controls.Add(this.barPanel);
             this.Controls.Add(this.label);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -97,5 +109,6 @@
         private System.Windows.Forms.Label pctLabel;
         private System.Windows.Forms.Panel barPanel;
         private System.Windows.Forms.Panel bar;
+        private System.Windows.Forms.Button cancel;
     }
 }
