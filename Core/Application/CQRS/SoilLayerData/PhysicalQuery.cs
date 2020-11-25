@@ -15,8 +15,6 @@ namespace Rems.Application.CQRS
     {
         public int ExperimentId { get; set; }
 
-        public RequestItem GetItem { get; set; }
-
         public void Parameterise(params object[] args)
         {
             int count = GetType().GetProperties().Length;

@@ -13,7 +13,7 @@ namespace WindowsClient.Controls
 
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        private ApsimXporter exporter;
+        
 
         public Exporter()
         {
@@ -22,40 +22,12 @@ namespace WindowsClient.Controls
 
         public void Initialise()
         {
-            exporter = new ApsimXporter(Query);
-            exporter.ItemNotFound += exportValidater.HandleMissingItem;
-
-            exportValidater.SendQuery = Query;
-
-            exportValidater.FillRows();
+            
         }
 
         private async void OnExportClick(object sender, EventArgs e)
         {
-            bool connected = (bool)await Query(new ConnectionExists());
-            if (!connected)
-            {
-                MessageBox.Show("A database must be opened before exporting.");
-                return;
-            }
-
-            using (var save = new SaveFileDialog())
-            {
-                save.InitialDirectory = Folder;
-                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
-
-                if (save.ShowDialog() != DialogResult.OK) return;
-
-                try
-                {
-                    exporter.FileName = save.FileName;
-                    var dialog = new ProgressDialog(exporter, "Exporting...");
-                }
-                catch (Exception error)
-                {
-                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+            
         }
     }
 }

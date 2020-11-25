@@ -18,8 +18,6 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => OnSendQuery(new ExperimentCount());
         public override int Steps => Items * 30;
 
-        public event RequestItem ItemNotFound;
-
         public ApsimXporter(QueryHandler query) : base(query)
         { }
 
@@ -35,7 +33,7 @@ namespace Rems.Infrastructure.ApsimX
             {
                 OnNextItem(experiment.Value);
                 await Task.Run(() => 
-                    folder.AddExperiment(NextNode.None, experiment.Key, experiment.Value, OnSendQuery, ItemNotFound));
+                    folder.AddExperiment(NextNode.None, experiment.Key, experiment.Value, OnSendQuery));
             }
 
             simulations.Children.Add(folder);

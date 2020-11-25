@@ -15,9 +15,23 @@ namespace Rems.Application.Common.Extensions
             //throw new NotImplementedException();
         }
 
+        internal static bool NameMatches(this Trait trait, string name)
+        {
+            if (trait.Name == name)
+                return true;
+
+            if (trait.Name.ToLower() == name.ToLower())
+            {
+                trait.Name = name;
+                return true;
+            }
+
+            return false;
+        }
+
         internal static Trait GetTraitByName(this IRemsDbContext context, string name)
         {
-            var trait = context.Traits.FirstOrDefault(t => t.NameMatches(name));
+            var trait = context.Traits.ToArray().FirstOrDefault(t => t.NameMatches(name));
 
             if (trait is null)
             {

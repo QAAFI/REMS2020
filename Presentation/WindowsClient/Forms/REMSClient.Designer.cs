@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(REMSClient));
-            this.pageExport = new System.Windows.Forms.TabPage();
-            this.exporter = new WindowsClient.Controls.Exporter();
+            this.pageData = new System.Windows.Forms.TabPage();
+            this.importer = new WindowsClient.Controls.Importer();
             this.pageExps = new System.Windows.Forms.TabPage();
             this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
             this.pageInfo = new System.Windows.Forms.TabPage();
@@ -39,37 +39,34 @@
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
-            this.pageImport = new System.Windows.Forms.TabPage();
-            this.importer = new WindowsClient.Controls.Importer();
-            this.pageExport.SuspendLayout();
+            this.pageData.SuspendLayout();
             this.pageExps.SuspendLayout();
             this.pageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
-            this.pageImport.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pageExport
+            // pageData
             // 
-            this.pageExport.Controls.Add(this.exporter);
-            this.pageExport.Location = new System.Drawing.Point(4, 22);
-            this.pageExport.Name = "pageExport";
-            this.pageExport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageExport.Size = new System.Drawing.Size(916, 621);
-            this.pageExport.TabIndex = 5;
-            this.pageExport.Text = "Export";
-            this.pageExport.UseVisualStyleBackColor = true;
+            this.pageData.Controls.Add(this.importer);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(916, 621);
+            this.pageData.TabIndex = 6;
+            this.pageData.Text = "Data";
+            this.pageData.UseVisualStyleBackColor = true;
             // 
-            // exporter
+            // importer
             // 
-            this.exporter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.importer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.exporter.Folder = "C:\\Users\\uqmstow1\\Documents";
-            this.exporter.Location = new System.Drawing.Point(0, 0);
-            this.exporter.Name = "exporter";
-            this.exporter.Size = new System.Drawing.Size(916, 621);
-            this.exporter.TabIndex = 0;
+            this.importer.Folder = "C:\\Users\\uqmstow1\\Documents";
+            this.importer.Location = new System.Drawing.Point(0, 0);
+            this.importer.Name = "importer";
+            this.importer.Size = new System.Drawing.Size(913, 618);
+            this.importer.TabIndex = 0;
             // 
             // pageExps
             // 
@@ -105,7 +102,7 @@
             this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
             this.pageInfo.Size = new System.Drawing.Size(916, 621);
             this.pageInfo.TabIndex = 0;
-            this.pageInfo.Text = "Data";
+            this.pageInfo.Text = "Information";
             // 
             // btnOpen
             // 
@@ -163,35 +160,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.notebook.Controls.Add(this.pageInfo);
             this.notebook.Controls.Add(this.pageExps);
-            this.notebook.Controls.Add(this.pageImport);
-            this.notebook.Controls.Add(this.pageExport);
+            this.notebook.Controls.Add(this.pageData);
             this.notebook.Location = new System.Drawing.Point(0, 0);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
             this.notebook.Size = new System.Drawing.Size(924, 647);
             this.notebook.TabIndex = 2;
-            // 
-            // pageImport
-            // 
-            this.pageImport.Controls.Add(this.importer);
-            this.pageImport.Location = new System.Drawing.Point(4, 22);
-            this.pageImport.Name = "pageImport";
-            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
-            this.pageImport.Size = new System.Drawing.Size(916, 621);
-            this.pageImport.TabIndex = 6;
-            this.pageImport.Text = "Import";
-            this.pageImport.UseVisualStyleBackColor = true;
-            // 
-            // importer
-            // 
-            this.importer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.importer.Folder = "C:\\Users\\uqmstow1\\Documents";
-            this.importer.Location = new System.Drawing.Point(0, 0);
-            this.importer.Name = "importer";
-            this.importer.Size = new System.Drawing.Size(913, 618);
-            this.importer.TabIndex = 0;
             // 
             // REMSClient
             // 
@@ -202,29 +176,27 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "REMSClient";
             this.Text = "REMS 2020";
-            this.pageExport.ResumeLayout(false);
+            this.pageData.ResumeLayout(false);
             this.pageExps.ResumeLayout(false);
             this.pageInfo.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
-            this.pageImport.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.TabPage pageExport;
+
+        private System.Windows.Forms.TabPage pageData;
+        private Controls.Importer importer;
         private System.Windows.Forms.TabPage pageExps;
+        private Controls.ExperimentDetailer experimentDetailer;
         private System.Windows.Forms.TabPage pageInfo;
+        private System.Windows.Forms.Button btnOpen;
+        private System.Windows.Forms.Button btnNew;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
-        private System.Windows.Forms.TabPage pageImport;
-        private Controls.Importer importer;
-        private Controls.Exporter exporter;
-        private System.Windows.Forms.Button btnOpen;
-        private System.Windows.Forms.Button btnNew;
-        private Controls.ExperimentDetailer experimentDetailer;
     }
 }
 

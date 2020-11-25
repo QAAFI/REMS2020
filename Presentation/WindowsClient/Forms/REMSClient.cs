@@ -46,9 +46,6 @@ namespace WindowsClient
             importer.Query += _mediator.Send;
             importer.DatabaseChanged += UpdateAllComponents;
             importer.Initialise();
-
-            exporter.Query += _mediator.Send;
-            exporter.Initialise();
         }
 
         #region Taskbar

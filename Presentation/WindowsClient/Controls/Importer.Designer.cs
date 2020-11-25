@@ -40,12 +40,19 @@
             this.btnImport = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
             this.fileBox = new System.Windows.Forms.TextBox();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.tabcontrol = new System.Windows.Forms.TabControl();
+            this.pageImport = new System.Windows.Forms.TabPage();
+            this.pageExport = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.nodeSplitter)).BeginInit();
             this.nodeSplitter.Panel1.SuspendLayout();
             this.nodeSplitter.Panel2.SuspendLayout();
             this.nodeSplitter.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.stateBox)).BeginInit();
+            this.tabcontrol.SuspendLayout();
+            this.pageImport.SuspendLayout();
+            this.pageExport.SuspendLayout();
             this.SuspendLayout();
             // 
             // nodeSplitter
@@ -53,7 +60,7 @@
             this.nodeSplitter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.nodeSplitter.Location = new System.Drawing.Point(165, 30);
+            this.nodeSplitter.Location = new System.Drawing.Point(161, 30);
             this.nodeSplitter.Name = "nodeSplitter";
             // 
             // nodeSplitter.Panel1
@@ -66,7 +73,7 @@
             this.nodeSplitter.Panel2.Controls.Add(this.label2);
             this.nodeSplitter.Panel2.Controls.Add(this.propertiesBox);
             this.nodeSplitter.Panel2Collapsed = true;
-            this.nodeSplitter.Size = new System.Drawing.Size(487, 25);
+            this.nodeSplitter.Size = new System.Drawing.Size(491, 25);
             this.nodeSplitter.SplitterDistance = 62;
             this.nodeSplitter.TabIndex = 9;
             // 
@@ -120,16 +127,16 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.importData.Location = new System.Drawing.Point(165, 57);
+            this.importData.Location = new System.Drawing.Point(161, 57);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(487, 528);
+            this.importData.Size = new System.Drawing.Size(491, 528);
             this.importData.TabIndex = 0;
             // 
             // columnLabel
             // 
             this.columnLabel.AutoSize = true;
             this.columnLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.columnLabel.Location = new System.Drawing.Point(29, 32);
+            this.columnLabel.Location = new System.Drawing.Point(30, 29);
             this.columnLabel.Name = "columnLabel";
             this.columnLabel.Size = new System.Drawing.Size(44, 17);
             this.columnLabel.TabIndex = 3;
@@ -137,7 +144,7 @@
             // 
             // stateBox
             // 
-            this.stateBox.Location = new System.Drawing.Point(3, 32);
+            this.stateBox.Location = new System.Drawing.Point(4, 29);
             this.stateBox.Name = "stateBox";
             this.stateBox.Size = new System.Drawing.Size(16, 16);
             this.stateBox.TabIndex = 2;
@@ -145,28 +152,30 @@
             // 
             // dataTree
             // 
-            this.dataTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dataTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataTree.HideSelection = false;
-            this.dataTree.Location = new System.Drawing.Point(3, 56);
+            this.dataTree.Location = new System.Drawing.Point(0, 49);
             this.dataTree.Name = "dataTree";
-            this.dataTree.Size = new System.Drawing.Size(156, 529);
+            this.dataTree.Size = new System.Drawing.Size(148, 504);
             this.dataTree.TabIndex = 8;
             this.dataTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeAfterSelect);
             // 
             // btnImport
             // 
-            this.btnImport.Location = new System.Drawing.Point(84, 3);
+            this.btnImport.Location = new System.Drawing.Point(3, 3);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(75, 23);
+            this.btnImport.Size = new System.Drawing.Size(142, 23);
             this.btnImport.TabIndex = 7;
-            this.btnImport.Text = "Import";
+            this.btnImport.Text = "Run";
             this.btnImport.UseVisualStyleBackColor = true;
             this.btnImport.Click += new System.EventHandler(this.OnImportClicked);
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(3, 3);
+            this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLoad.Location = new System.Drawing.Point(577, 2);
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(75, 23);
             this.btnLoad.TabIndex = 6;
@@ -178,23 +187,67 @@
             // 
             this.fileBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fileBox.Location = new System.Drawing.Point(165, 4);
+            this.fileBox.Location = new System.Drawing.Point(161, 4);
             this.fileBox.Name = "fileBox";
             this.fileBox.ReadOnly = true;
-            this.fileBox.Size = new System.Drawing.Size(487, 20);
+            this.fileBox.Size = new System.Drawing.Size(410, 20);
             this.fileBox.TabIndex = 10;
+            // 
+            // btnExport
+            // 
+            this.btnExport.Location = new System.Drawing.Point(3, 3);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(142, 23);
+            this.btnExport.TabIndex = 11;
+            this.btnExport.Text = "Run";
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.OnExportClick);
+            // 
+            // tabcontrol
+            // 
+            this.tabcontrol.Controls.Add(this.pageImport);
+            this.tabcontrol.Controls.Add(this.pageExport);
+            this.tabcontrol.ItemSize = new System.Drawing.Size(76, 20);
+            this.tabcontrol.Location = new System.Drawing.Point(3, 4);
+            this.tabcontrol.Name = "tabcontrol";
+            this.tabcontrol.SelectedIndex = 0;
+            this.tabcontrol.Size = new System.Drawing.Size(156, 581);
+            this.tabcontrol.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this.tabcontrol.TabIndex = 12;
+            // 
+            // pageImport
+            // 
+            this.pageImport.Controls.Add(this.dataTree);
+            this.pageImport.Controls.Add(this.btnImport);
+            this.pageImport.Controls.Add(this.columnLabel);
+            this.pageImport.Controls.Add(this.stateBox);
+            this.pageImport.Location = new System.Drawing.Point(4, 24);
+            this.pageImport.Name = "pageImport";
+            this.pageImport.Padding = new System.Windows.Forms.Padding(3);
+            this.pageImport.Size = new System.Drawing.Size(148, 553);
+            this.pageImport.TabIndex = 0;
+            this.pageImport.Text = "Import";
+            this.pageImport.UseVisualStyleBackColor = true;
+            // 
+            // pageExport
+            // 
+            this.pageExport.Controls.Add(this.btnExport);
+            this.pageExport.Location = new System.Drawing.Point(4, 24);
+            this.pageExport.Name = "pageExport";
+            this.pageExport.Padding = new System.Windows.Forms.Padding(3);
+            this.pageExport.Size = new System.Drawing.Size(148, 553);
+            this.pageExport.TabIndex = 1;
+            this.pageExport.Text = "Export";
+            this.pageExport.UseVisualStyleBackColor = true;
             // 
             // Importer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.tabcontrol);
             this.Controls.Add(this.importData);
             this.Controls.Add(this.fileBox);
-            this.Controls.Add(this.stateBox);
-            this.Controls.Add(this.columnLabel);
             this.Controls.Add(this.nodeSplitter);
-            this.Controls.Add(this.dataTree);
-            this.Controls.Add(this.btnImport);
             this.Controls.Add(this.btnLoad);
             this.Name = "Importer";
             this.Size = new System.Drawing.Size(655, 588);
@@ -206,6 +259,10 @@
             this.nodeSplitter.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.importData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.stateBox)).EndInit();
+            this.tabcontrol.ResumeLayout(false);
+            this.pageImport.ResumeLayout(false);
+            this.pageImport.PerformLayout();
+            this.pageExport.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -225,5 +282,9 @@
         private System.Windows.Forms.TextBox fileBox;
         private System.Windows.Forms.CheckBox ignoreBox;
         private System.Windows.Forms.CheckBox isTraitBox;
+        private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.TabControl tabcontrol;
+        private System.Windows.Forms.TabPage pageImport;
+        private System.Windows.Forms.TabPage pageExport;
     }
 }

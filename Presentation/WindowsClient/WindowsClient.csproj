@@ -231,17 +231,11 @@
     <Compile Include="Controls\Exporter.Designer.cs">
       <DependentUpon>Exporter.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Validater\ExportValidater.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Controls\Importer.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\Importer.Designer.cs">
       <DependentUpon>Importer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\Validater\ImportValidater.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
@@ -254,12 +248,6 @@
     </Compile>
     <Compile Include="Controls\LabeledBox.Designer.cs">
       <DependentUpon>LabeledBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\Validater\Validater.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\Validater\Validater.Designer.cs">
-      <DependentUpon>Validater.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ProgressDialog.cs">
       <SubType>Form</SubType>
@@ -290,9 +278,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\LabeledBox.resx">
       <DependentUpon>LabeledBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Validater\Validater.resx">
-      <DependentUpon>Validater.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProgressDialog.resx">
       <DependentUpon>ProgressDialog.cs</DependentUpon>

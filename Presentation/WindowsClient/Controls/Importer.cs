@@ -7,16 +7,15 @@ using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Reflection;
 using System.Windows.Forms;
 
 using WindowsClient.Forms;
+using Rems.Infrastructure.ApsimX;
 
 namespace WindowsClient.Controls
 {
@@ -29,6 +28,8 @@ namespace WindowsClient.Controls
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private ExcelImporter importer;
+
+        private ApsimXporter exporter;
 
         private ImageList images;
 
@@ -51,12 +52,7 @@ namespace WindowsClient.Controls
         public void Initialise()
         {
             importer = new ExcelImporter(Query);
-            importer.ItemNotFound += Importer_ItemNotFound;
-        }
-
-        private string Importer_ItemNotFound(string item)
-        {
-            throw new NotImplementedException();
+            exporter = new ApsimXporter(Query);
         }
 
         #region Data
@@ -276,6 +272,12 @@ namespace WindowsClient.Controls
                     return;
                 }
 
+                if (importer.Data is null)
+                {
+                    MessageBox.Show("There is no loaded data to import. Please load and validate data.");
+                    return;
+                }
+
                 var states = dataTree.Nodes.Cast<TreeNode>()
                     .Select(n => n.Tag as DataTable)
                     .Where(t => t.ExtendedProperties["Valid"] is false);
@@ -315,6 +317,7 @@ namespace WindowsClient.Controls
 
         private static Dictionary<string, string> map = new Dictionary<string, string>()
         {
+            {"ExpID", "ExperimentId" },
             {"ExpId", "ExperimentId" },
             {"N%", "Nitrogen" },
             {"P%", "Phosphorus" },
@@ -355,6 +358,34 @@ namespace WindowsClient.Controls
             if (isTraitBox.Checked)
             {
                 propertiesBox.SelectedIndex = -1;
+            }
+        }
+
+        private async void OnExportClick(object sender, EventArgs e)
+        {
+            bool connected = (bool)await Query(new ConnectionExists());
+            if (!connected)
+            {
+                MessageBox.Show("A database must be opened before exporting.");
+                return;
+            }
+
+            using (var save = new SaveFileDialog())
+            {
+                save.InitialDirectory = Folder;
+                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+
+                if (save.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    exporter.FileName = save.FileName;
+                    var dialog = new ProgressDialog(exporter, "Exporting...");
+                }
+                catch (Exception error)
+                {
+                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }

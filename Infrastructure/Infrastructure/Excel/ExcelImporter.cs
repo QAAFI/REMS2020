@@ -15,8 +15,6 @@ namespace Rems.Infrastructure.Excel
         public override int Items => Data.Tables.Count;
         public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);
 
-        public event RequestItem ItemNotFound;
-
         public ExcelImporter(QueryHandler query) : base(query)
         { }        
 

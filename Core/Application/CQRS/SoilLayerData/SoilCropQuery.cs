@@ -14,8 +14,6 @@ namespace Rems.Application.CQRS
     {
         public int ExperimentId { get; set; }
 
-        public RequestItem GetItem { get; set; }
-
         public void Parameterise(params object[] args)
         {
             int count = GetType().GetProperties().Length;
@@ -23,7 +21,6 @@ namespace Rems.Application.CQRS
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
             ExperimentId = this.SetParam<int>(args[0]);
-            GetItem = this.SetParam<RequestItem>(args[1]);
         }
     }
 

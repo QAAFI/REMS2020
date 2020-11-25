@@ -28,36 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.exportValidater = new WindowsClient.Controls.ExportValidater();
-            this.btnExport = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // exportValidater
-            // 
-            this.exportValidater.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportValidater.Location = new System.Drawing.Point(3, 25);
-            this.exportValidater.Name = "exportValidater";
-            this.exportValidater.Size = new System.Drawing.Size(631, 618);
-            this.exportValidater.TabIndex = 0;
-            // 
-            // btnExport
-            // 
-            this.btnExport.Location = new System.Drawing.Point(3, 2);
-            this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(75, 23);
-            this.btnExport.TabIndex = 1;
-            this.btnExport.Text = "Export";
-            this.btnExport.UseVisualStyleBackColor = true;
-            this.btnExport.Click += new System.EventHandler(this.OnExportClick);
             // 
             // Exporter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.btnExport);
-            this.Controls.Add(this.exportValidater);
             this.Name = "Exporter";
             this.Size = new System.Drawing.Size(637, 646);
             this.ResumeLayout(false);
@@ -65,8 +41,5 @@
         }
 
         #endregion
-
-        private ExportValidater exportValidater;
-        private System.Windows.Forms.Button btnExport;
     }
 }
