@@ -32,7 +32,8 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Unit> Handle(InsertPlotDataTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
+        public Task<Unit> Handle(InsertPlotDataTableCommand request, CancellationToken token) 
+            => Task.Run(() => Alt(request));
 
         private Unit Handler(InsertPlotDataTableCommand request)
         {
@@ -74,6 +75,62 @@ namespace Rems.Application.CQRS
                 EventManager.InvokeProgressIncremented();
             }
             _context.SaveChanges();
+
+            return Unit.Value;
+        }
+
+        private Unit Alt(InsertPlotDataTableCommand request)
+        {
+            var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
+
+            // Group into experiments
+            var exps = request.Table.Rows
+                .Cast<DataRow>()
+                .GroupBy(r => r.ItemArray[0]);
+
+            foreach (var exp in exps)
+            {
+                var id = exp.Key.ConvertDBValue<int>();
+
+                // Group into plots
+                var plts = exp.GroupBy(r => r.ItemArray[1]);
+
+                foreach (var plt in plts)
+                {
+                    var col = plt.Key.ConvertDBValue<int>();
+
+                    var plot = _context.Plots
+                    .Where(p => p.Treatment.ExperimentId == id)
+                    .Where(p => p.Column == col)
+                    .FirstOrDefault();
+
+                    if (plot is null) continue;
+
+                    // Add the data in each plot
+                    foreach (var row in plt)
+                    {
+                        for (int i = 4; i < row.ItemArray.Length; i++)
+                        {
+                            if (row.ItemArray[i] is DBNull) continue;
+
+                            var trait = traits[i - 4];
+
+                            var data = new PlotData()
+                            {
+                                Plot = plot,
+                                Trait = trait,
+                                Date = row[2].ConvertDBValue<DateTime>(),
+                                Sample = row[3].ToString(),
+                                Value = row[i].ConvertDBValue<double>(),
+                                UnitId = trait.UnitId
+                            };
+                            _context.Add(data);
+                        }
+
+                        EventManager.InvokeProgressIncremented();
+                    }
+                }
+            }
 
             return Unit.Value;
         }

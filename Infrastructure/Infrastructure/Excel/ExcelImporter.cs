@@ -87,6 +87,7 @@ namespace Rems.Infrastructure.Excel
 
                 case "Irrigation":
                 case "Fertilization":
+                case "Tillage":
                     command = new InsertOperationsTableCommand() 
                     { 
                         Table = table, 

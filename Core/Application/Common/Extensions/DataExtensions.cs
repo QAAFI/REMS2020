@@ -33,8 +33,8 @@ namespace Rems.Application.Common.Extensions
             {
                 var value = row[info.Name];
 
-                // Use default value if DBNull
-                if (value is DBNull) continue;
+                // Use default value if cell is empty
+                if (value is DBNull || value is "") continue;
 
                 var itype = info.PropertyType;
 
@@ -48,14 +48,23 @@ namespace Rems.Application.Common.Extensions
                         continue;
                     }
 
-                    // If the entity was not found, assume that it was referred
-                    // to by name, and create a new entity using the given value
-                    INamed named = Activator.CreateInstance(itype) as INamed;
-                    named.Name = value.ToString();
+                    // If the entity was not found create a new entity using the given value
+                    IEntity other = Activator.CreateInstance(itype) as IEntity;
+                    var name = other.GetType().GetProperty("Name");
+                    
+                    if (name is null)
+                    {
+                        var soil = other.GetType().GetProperty("SoilType");
+                        soil?.SetValue(other, value);
+                    }
+                    else
+                    {
+                        name.SetValue(other, value);
+                    }
 
-                    info.SetValue(entity, named);
+                    info.SetValue(entity, other);
 
-                    context.Attach(named);
+                    context.Attach(other);
                     context.SaveChanges();
                 }
                 else
