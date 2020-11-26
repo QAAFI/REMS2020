@@ -36,7 +36,7 @@ namespace Rems.Application.CQRS
             var rows = request.Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
-            var eGroup = rows.GroupBy(row => row[0].ConvertDBValue<int>());
+            var eGroup = rows.GroupBy(row => Convert.ToInt32(row[0]));
 
             var plots = new List<Plot>();
 
@@ -55,8 +55,8 @@ namespace Rems.Application.CQRS
                         var plot = new Plot()
                         {
                             Treatment = treatment,
-                            Repetition = row[2].ConvertDBValue<int>(),
-                            Column = row[3].ConvertDBValue<int>()
+                            Repetition = Convert.ToInt32(row[2]),
+                            Column = Convert.ToInt32(row[3])
                         };
                         plots.Add(plot);
 

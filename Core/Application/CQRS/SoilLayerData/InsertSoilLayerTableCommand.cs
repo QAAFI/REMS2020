@@ -43,40 +43,42 @@ namespace Rems.Application.CQRS
             {
                 List<Plot> plots = new List<Plot>(); 
 
-                var id = row[0].ConvertDBValue<int>();
+                var id = Convert.ToInt32(row[0]);
 
                 if (row[1].ToString() == "ALL")
                 {
                     var all = _context.Plots
                         .Where(p => p.Treatment.ExperimentId == id);
 
-                    plots.AddRange(all);
+                    if (all.Any()) 
+                        plots.AddRange(all);
                 }
                 else
                 {
-                    var col = row[1].ConvertDBValue<int>();
+                    var col = Convert.ToInt32(row[1]);
                     var plot = _context.Plots
                         .Where(p => p.Treatment.ExperimentId == id)
                         .Where(p => p.Column == col)
-                        .Single();
+                        .SingleOrDefault();
 
-                    plots.Add(plot);
+                    if (plot is Plot)
+                        plots.Add(plot);
                 }
 
                 foreach (var plot in plots)
                 {
                     for (int i = 5; i < row.ItemArray.Length; i++)
                     {
-                        if (row.ItemArray[i] is DBNull) continue;
+                        if (row[i] is DBNull || row[i] is "") continue;
 
                         var data = new SoilLayerData()
                         {
                             Plot = plot,
                             Trait = traits[i - 5],
-                            Date = row[2].ConvertDBValue<DateTime>(),
-                            DepthFrom = row[3].ConvertDBValue<int>(),
-                            DepthTo = row[4].ConvertDBValue<int>(),
-                            Value = row[i].ConvertDBValue<double>()
+                            Date = Convert.ToDateTime(row[2]),
+                            DepthFrom = Convert.ToInt32(row[3]),
+                            DepthTo = Convert.ToInt32(row[4]),
+                            Value = Convert.ToDouble(row[i])
                         };
                         _context.Attach(data);
                     }

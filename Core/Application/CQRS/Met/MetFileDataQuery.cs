@@ -97,7 +97,7 @@ namespace Rems.Application.CQRS
             {
                 var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
 
-                if (data.Value is double value)
+                if (data?.Value is double value)
                     return Math.Round(value, 2).ToString();
 
                 return "";

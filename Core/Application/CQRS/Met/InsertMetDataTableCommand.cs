@@ -46,14 +46,14 @@ namespace Rems.Application.CQRS
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
-                    if (row.ItemArray[i] is DBNull) continue;
+                    if (row[i] is DBNull || row[i] is "") continue;
 
                     var data = new MetData()
                     {
                         MetStationId = station.MetStationId,
                         Trait = traits[i - 2],
-                        Date = row[1].ConvertDBValue<DateTime>(),
-                        Value = row[i].ConvertDBValue<double>()
+                        Date = Convert.ToDateTime(row[1]),
+                        Value = Convert.ToDouble(row[i])
                     };
 
                     _context.Attach(data);

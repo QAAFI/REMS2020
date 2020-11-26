@@ -13,7 +13,7 @@ namespace Rems.Infrastructure.Excel
         public DataSet Data { get; set; }
 
         public override int Items => Data.Tables.Count;
-        public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);
+        public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);        
 
         public ExcelImporter(QueryHandler query) : base(query)
         { }        
@@ -63,7 +63,8 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Skip = 4,
-                        Type = "Crop"
+                        Type = "Crop",
+                        IncrementProgress = OnIncrementProgress
                     };
                     break;
 

@@ -91,7 +91,6 @@ namespace WindowsClient.Forms
 
         private void cancel_Click(object sender, EventArgs e)
         {
-            task.Dispose();
             Close();
         }
     }

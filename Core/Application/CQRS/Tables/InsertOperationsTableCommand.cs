@@ -51,7 +51,7 @@ namespace Rems.Application.CQRS
                 // Assume that in a 'treatment' row, the first column is the experiment ID
                 // and the second column is the treatment name
 
-                var id = row[0].ConvertDBValue<int>();
+                var id = Convert.ToInt32(row[0]);
                 var name = row[1].ToString();
 
                 var treatments = _context.Treatments.AsNoTracking()
