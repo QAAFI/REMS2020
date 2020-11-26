@@ -98,6 +98,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ProgressDialog";
+            this.UseWaitCursor = true;
             this.barPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

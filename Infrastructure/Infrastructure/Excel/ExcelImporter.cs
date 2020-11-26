@@ -54,7 +54,11 @@ namespace Rems.Infrastructure.Excel
             {
                 case "Design":
                     OnSendQuery(new InsertDesignsCommand() { Table = table });
-                    command = new InsertPlotsCommand() { Table = table };
+                    command = new InsertPlotsCommand() 
+                    { 
+                        Table = table,
+                        IncrementProgress = OnIncrementProgress
+                    };
                     break;
 
                 case "HarvestData":
@@ -73,7 +77,8 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Skip = 2,
-                        Type = "Climate"
+                        Type = "Climate",
+                        IncrementProgress = OnIncrementProgress
                     };
                     break;
 
@@ -82,7 +87,8 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Skip = 5,
-                        Type = "SoilLayer"
+                        Type = "SoilLayer",
+                        IncrementProgress = OnIncrementProgress
                     };
                     break;
 
@@ -92,7 +98,8 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertOperationsTableCommand() 
                     { 
                         Table = table, 
-                        Type = type
+                        Type = type,
+                        IncrementProgress = OnIncrementProgress
                     };
                     break;
 
@@ -109,7 +116,8 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        Dependency = dependency
+                        Dependency = dependency,
+                        IncrementProgress = OnIncrementProgress
                     };
                     break;
 
@@ -117,7 +125,8 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertTableCommand()
                     { 
                         Table = table,
-                        Type = type
+                        Type = type,
+                        IncrementProgress = OnIncrementProgress
                     };                    
                     break;
             }

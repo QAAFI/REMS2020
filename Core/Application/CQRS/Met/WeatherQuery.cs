@@ -14,29 +14,40 @@ using System.IO;
 
 namespace Rems.Application.CQRS
 {
-    public class MetFileDataQuery : IRequest<Weather>
+    public class WeatherQuery : IRequest<Weather>, IParameterised
     {
         public int ExperimentId { get; set; }
+
+        public void Parameterise(params object[] args)
+        {
+            if (args.Length != 1)
+                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
+
+            if (args[0] is int id)
+                ExperimentId = id;
+            else
+                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
+        }
     }
 
-    public class MetFileDataQueryHandler : IRequestHandler<MetFileDataQuery, Weather>
+    public class WeatherQueryHandler : IRequestHandler<WeatherQuery, Weather>
     {
         private readonly IRemsDbContext _context;
 
-        public MetFileDataQueryHandler(IRemsDbContext context)
+        public WeatherQueryHandler(IRemsDbContext context)
         {
             _context = context;
         }
 
-        public Task<Weather> Handle(MetFileDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<Weather> Handle(WeatherQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private Weather Handler(MetFileDataQuery request, CancellationToken token)
+        private Weather Handler(WeatherQuery request, CancellationToken token)
         {
             var met = _context.Experiments.Find(request.ExperimentId)
                 .MetStation
                 .Name;
 
-            string file = met + ".met";
+            string file = met.Replace('/', '-') + ".met";
 
             if (!File.Exists(file))
             {

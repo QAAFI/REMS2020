@@ -16,6 +16,8 @@ namespace Rems.Application.CQRS
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
     public class InsertTableCommandHandler : IRequestHandler<InsertTableCommand>
@@ -42,7 +44,7 @@ namespace Rems.Application.CQRS
                 var entity = row.ToEntity(_context, request.Type, infos);
                 _context.Add(entity);
 
-                EventManager.InvokeProgressIncremented();                
+                request.IncrementProgress();
             }            
             _context.SaveChanges();
 

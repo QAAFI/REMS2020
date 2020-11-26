@@ -22,6 +22,8 @@ namespace Rems.Application.CQRS
         public int Skip { get; set; }
 
         public string Type { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
     public class InsertSoilLayerTableCommandHandler : IRequestHandler<InsertSoilLayerTableCommand>
@@ -83,7 +85,7 @@ namespace Rems.Application.CQRS
                         _context.Attach(data);
                     }
                 }
-                EventManager.InvokeProgressIncremented();
+                request.IncrementProgress();
             }
             _context.SaveChanges();
 

@@ -23,6 +23,8 @@ namespace Rems.Application.CQRS
         public Type Type { get; set; }
 
         public Type Dependency { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
     public class InsertTraitTableCommandHandler : IRequestHandler<InsertTraitTableCommand>
@@ -82,7 +84,7 @@ namespace Rems.Application.CQRS
 
                 _context.Attach(entity);
 
-                EventManager.InvokeProgressIncremented();
+                request.IncrementProgress();
             }
             _context.SaveChanges();
             _context.AttachRange(entities.ToArray());

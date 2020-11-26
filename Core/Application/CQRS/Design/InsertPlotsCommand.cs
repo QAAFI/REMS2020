@@ -18,6 +18,8 @@ namespace Rems.Application.CQRS
     public class InsertPlotsCommand : IRequest
     {
         public DataTable Table { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
     public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand>
@@ -60,7 +62,7 @@ namespace Rems.Application.CQRS
                         };
                         plots.Add(plot);
 
-                        EventManager.InvokeProgressIncremented();
+                        request.IncrementProgress();
                     }
                 }
             }

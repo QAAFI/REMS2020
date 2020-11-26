@@ -25,7 +25,6 @@ namespace Rems.Application.Common
 
         public ProgressTracker(QueryHandler query)
         {
-            EventManager.ProgressIncremented += OnIncrementProgress;
             SendQuery += query;
         }
 
