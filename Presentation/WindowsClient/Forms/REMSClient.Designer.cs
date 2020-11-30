@@ -29,55 +29,33 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(REMSClient));
-            this.pageData = new System.Windows.Forms.TabPage();
-            this.importer = new WindowsClient.Controls.Importer();
-            this.pageExps = new System.Windows.Forms.TabPage();
+            this.expsPage = new System.Windows.Forms.TabPage();
             this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
-            this.pageInfo = new System.Windows.Forms.TabPage();
+            this.infoPage = new System.Windows.Forms.TabPage();
             this.btnOpen = new System.Windows.Forms.Button();
             this.btnNew = new System.Windows.Forms.Button();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.relationsListBox = new System.Windows.Forms.ListBox();
             this.notebook = new System.Windows.Forms.TabControl();
-            this.pageData.SuspendLayout();
-            this.pageExps.SuspendLayout();
-            this.pageInfo.SuspendLayout();
+            this.homePage = new System.Windows.Forms.TabPage();
+            this.homeScreen = new WindowsClient.Controls.HomeScreen();
+            this.expsPage.SuspendLayout();
+            this.infoPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
+            this.homePage.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pageData
+            // expsPage
             // 
-            this.pageData.Controls.Add(this.importer);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(916, 621);
-            this.pageData.TabIndex = 6;
-            this.pageData.Text = "Data";
-            this.pageData.UseVisualStyleBackColor = true;
-            // 
-            // importer
-            // 
-            this.importer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.importer.Folder = "C:\\Users\\uqmstow1\\Documents";
-            this.importer.Location = new System.Drawing.Point(0, 0);
-            this.importer.Name = "importer";
-            this.importer.Size = new System.Drawing.Size(913, 618);
-            this.importer.TabIndex = 0;
-            // 
-            // pageExps
-            // 
-            this.pageExps.Controls.Add(this.experimentDetailer);
-            this.pageExps.Location = new System.Drawing.Point(4, 22);
-            this.pageExps.Name = "pageExps";
-            this.pageExps.Padding = new System.Windows.Forms.Padding(3);
-            this.pageExps.Size = new System.Drawing.Size(916, 621);
-            this.pageExps.TabIndex = 4;
-            this.pageExps.Text = "Experiments";
-            this.pageExps.UseVisualStyleBackColor = true;
+            this.expsPage.Controls.Add(this.experimentDetailer);
+            this.expsPage.Location = new System.Drawing.Point(4, 22);
+            this.expsPage.Name = "expsPage";
+            this.expsPage.Padding = new System.Windows.Forms.Padding(3);
+            this.expsPage.Size = new System.Drawing.Size(568, 522);
+            this.expsPage.TabIndex = 4;
+            this.expsPage.Text = "Experiments";
+            this.expsPage.UseVisualStyleBackColor = true;
             // 
             // experimentDetailer
             // 
@@ -87,22 +65,22 @@
             this.experimentDetailer.Location = new System.Drawing.Point(0, 0);
             this.experimentDetailer.MinimumSize = new System.Drawing.Size(920, 620);
             this.experimentDetailer.Name = "experimentDetailer";
-            this.experimentDetailer.Size = new System.Drawing.Size(920, 620);
+            this.experimentDetailer.Size = new System.Drawing.Size(925, 621);
             this.experimentDetailer.TabIndex = 0;
             // 
-            // pageInfo
+            // infoPage
             // 
-            this.pageInfo.BackColor = System.Drawing.Color.Transparent;
-            this.pageInfo.Controls.Add(this.btnOpen);
-            this.pageInfo.Controls.Add(this.btnNew);
-            this.pageInfo.Controls.Add(this.dataGridView);
-            this.pageInfo.Controls.Add(this.relationsListBox);
-            this.pageInfo.Location = new System.Drawing.Point(4, 22);
-            this.pageInfo.Name = "pageInfo";
-            this.pageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.pageInfo.Size = new System.Drawing.Size(916, 621);
-            this.pageInfo.TabIndex = 0;
-            this.pageInfo.Text = "Information";
+            this.infoPage.BackColor = System.Drawing.Color.Transparent;
+            this.infoPage.Controls.Add(this.btnOpen);
+            this.infoPage.Controls.Add(this.btnNew);
+            this.infoPage.Controls.Add(this.dataGridView);
+            this.infoPage.Controls.Add(this.relationsListBox);
+            this.infoPage.Location = new System.Drawing.Point(4, 22);
+            this.infoPage.Name = "infoPage";
+            this.infoPage.Padding = new System.Windows.Forms.Padding(3);
+            this.infoPage.Size = new System.Drawing.Size(568, 522);
+            this.infoPage.TabIndex = 0;
+            this.infoPage.Text = "Information";
             // 
             // btnOpen
             // 
@@ -112,7 +90,6 @@
             this.btnOpen.TabIndex = 5;
             this.btnOpen.Text = "Open";
             this.btnOpen.UseVisualStyleBackColor = true;
-            this.btnOpen.Click += new System.EventHandler(this.OnOpenClicked);
             // 
             // btnNew
             // 
@@ -122,7 +99,6 @@
             this.btnNew.TabIndex = 4;
             this.btnNew.Text = "New";
             this.btnNew.UseVisualStyleBackColor = true;
-            this.btnNew.Click += new System.EventHandler(this.OnNewClicked);
             // 
             // dataGridView
             // 
@@ -137,7 +113,7 @@
             this.dataGridView.Location = new System.Drawing.Point(165, 3);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(748, 615);
+            this.dataGridView.Size = new System.Drawing.Size(350, 507);
             this.dataGridView.TabIndex = 1;
             // 
             // relationsListBox
@@ -149,54 +125,70 @@
             this.relationsListBox.Location = new System.Drawing.Point(3, 32);
             this.relationsListBox.Name = "relationsListBox";
             this.relationsListBox.ScrollAlwaysVisible = true;
-            this.relationsListBox.Size = new System.Drawing.Size(156, 586);
+            this.relationsListBox.Size = new System.Drawing.Size(156, 478);
             this.relationsListBox.TabIndex = 3;
             this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
             // 
             // notebook
             // 
-            this.notebook.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.notebook.Controls.Add(this.pageInfo);
-            this.notebook.Controls.Add(this.pageExps);
-            this.notebook.Controls.Add(this.pageData);
+            this.notebook.Controls.Add(this.homePage);
+            this.notebook.Controls.Add(this.infoPage);
+            this.notebook.Controls.Add(this.expsPage);
+            this.notebook.Dock = System.Windows.Forms.DockStyle.Fill;
             this.notebook.Location = new System.Drawing.Point(0, 0);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(924, 647);
+            this.notebook.Size = new System.Drawing.Size(576, 548);
             this.notebook.TabIndex = 2;
+            // 
+            // homePage
+            // 
+            this.homePage.Controls.Add(this.homeScreen);
+            this.homePage.Location = new System.Drawing.Point(4, 22);
+            this.homePage.Name = "homePage";
+            this.homePage.Padding = new System.Windows.Forms.Padding(3);
+            this.homePage.Size = new System.Drawing.Size(568, 522);
+            this.homePage.TabIndex = 7;
+            this.homePage.Text = "Home";
+            this.homePage.UseVisualStyleBackColor = true;
+            // 
+            // homeScreen
+            // 
+            this.homeScreen.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.homeScreen.Location = new System.Drawing.Point(3, 3);
+            this.homeScreen.Name = "homeScreen";
+            this.homeScreen.Size = new System.Drawing.Size(562, 516);
+            this.homeScreen.TabIndex = 0;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(924, 646);
+            this.ClientSize = new System.Drawing.Size(576, 548);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "REMSClient";
             this.Text = "REMS 2020";
-            this.pageData.ResumeLayout(false);
-            this.pageExps.ResumeLayout(false);
-            this.pageInfo.ResumeLayout(false);
+            this.expsPage.ResumeLayout(false);
+            this.infoPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
+            this.homePage.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TabPage pageData;
-        private Controls.Importer importer;
-        private System.Windows.Forms.TabPage pageExps;
+        private System.Windows.Forms.TabPage expsPage;
         private Controls.ExperimentDetailer experimentDetailer;
-        private System.Windows.Forms.TabPage pageInfo;
+        private System.Windows.Forms.TabPage infoPage;
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.Button btnNew;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.ListBox relationsListBox;
         private System.Windows.Forms.TabControl notebook;
+        private System.Windows.Forms.TabPage homePage;
+        private Controls.HomeScreen homeScreen;
     }
 }
 

@@ -21,21 +21,18 @@ namespace WindowsClient.Controls
 {
     public partial class Importer : UserControl
     {
-        public QueryHandler Query;
+        public QueryHandler Query { get; set; }
 
         public event Action DatabaseChanged;
 
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        private ExcelImporter importer;
-
-        private ApsimXporter exporter;
-
         private ImageList images;
 
-        public Importer()
+        public Importer() : base()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            Dock = DockStyle.Fill;
 
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
@@ -46,16 +43,12 @@ namespace WindowsClient.Controls
             images.Images.Add("WarningOff", Properties.Resources.WarningOff);
             images.Images.Add("Add", Properties.Resources.Add);
 
-            dataTree.ImageList = images;
-        }
-
-        public void Initialise()
-        {
-            importer = new ExcelImporter(Query);
-            exporter = new ApsimXporter(Query);
+            dataTree.ImageList = images;            
         }
 
         #region Data
+        public DataSet Data { get; set; } 
+
         private DataSet ReadData(string filepath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -181,7 +174,7 @@ namespace WindowsClient.Controls
 
             node.ImageKey = key;
             node.SelectedImageKey = key;
-
+            
             stateBox.Image = images.Images[key];
 
             // Update the node parent
@@ -246,9 +239,9 @@ namespace WindowsClient.Controls
                 Folder = Path.GetDirectoryName(open.FileName);
 
                 try
-                {
-                    importer.Data = ReadData(open.FileName);
-                    CleanData(importer.Data);
+                {                    
+                    Data = ReadData(open.FileName);
+                    CleanData(Data);
 
                     fileBox.Text = Path.GetFileName(open.FileName);
 
@@ -271,8 +264,8 @@ namespace WindowsClient.Controls
                     MessageBox.Show("A database must be opened or created before importing");
                     return;
                 }
-
-                if (importer.Data is null)
+                
+                if (Data is null)
                 {
                     MessageBox.Show("There is no loaded data to import. Please load and validate data.");
                     return;
@@ -288,6 +281,9 @@ namespace WindowsClient.Controls
                     return;
                 }
 
+                var importer = new ExcelImporter();
+                importer.Query = Query;
+                importer.Data = Data;
                 var dialog = new ProgressDialog(importer, "Importing...");
                 dialog.TaskComplete += DatabaseChanged;
             }
@@ -358,34 +354,6 @@ namespace WindowsClient.Controls
             if (isTraitBox.Checked)
             {
                 propertiesBox.SelectedIndex = -1;
-            }
-        }
-
-        private async void OnExportClick(object sender, EventArgs e)
-        {
-            bool connected = (bool)await Query(new ConnectionExists());
-            if (!connected)
-            {
-                MessageBox.Show("A database must be opened before exporting.");
-                return;
-            }
-
-            using (var save = new SaveFileDialog())
-            {
-                save.InitialDirectory = Folder;
-                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
-
-                if (save.ShowDialog() != DialogResult.OK) return;
-
-                try
-                {
-                    exporter.FileName = save.FileName;
-                    var dialog = new ProgressDialog(exporter, "Exporting...");
-                }
-                catch (Exception error)
-                {
-                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
             }
         }
     }

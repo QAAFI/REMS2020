@@ -231,11 +231,23 @@
     <Compile Include="Controls\Exporter.Designer.cs">
       <DependentUpon>Exporter.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\HomeScreen.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\HomeScreen.Designer.cs">
+      <DependentUpon>HomeScreen.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Importer.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\Importer.Designer.cs">
       <DependentUpon>Importer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ImportLink.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ImportLink.Designer.cs">
+      <DependentUpon>ImportLink.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
@@ -270,8 +282,14 @@
     <EmbeddedResource Include="Controls\Exporter.resx">
       <DependentUpon>Exporter.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\HomeScreen.resx">
+      <DependentUpon>HomeScreen.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\Importer.resx">
       <DependentUpon>Importer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ImportLink.resx">
+      <DependentUpon>ImportLink.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>

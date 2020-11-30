@@ -56,9 +56,9 @@
             this.designData = new System.Windows.Forms.DataGridView();
             this.pageOperation = new System.Windows.Forms.TabPage();
             this.operationsBox = new System.Windows.Forms.ComboBox();
-            this.operationsChart = new Steema.TeeChart.TChart();
             this.pageData = new System.Windows.Forms.TabPage();
             this.traitChart = new WindowsClient.Controls.TraitChart();
+            this.operationsChart = new Steema.TeeChart.TChart();
             this.experimentDetails.SuspendLayout();
             this.pageSummary.SuspendLayout();
             this.sowingPanel.SuspendLayout();
@@ -151,6 +151,7 @@
             this.sowingMethodBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.sowingMethodBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.sowingMethodBox.Name = "sowingMethodBox";
+            this.sowingMethodBox.ReadOnly = true;
             this.sowingMethodBox.Size = new System.Drawing.Size(361, 36);
             this.sowingMethodBox.TabIndex = 20;
             // 
@@ -162,6 +163,7 @@
             this.sowingPopBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.sowingPopBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.sowingPopBox.Name = "sowingPopBox";
+            this.sowingPopBox.ReadOnly = true;
             this.sowingPopBox.Size = new System.Drawing.Size(361, 36);
             this.sowingPopBox.TabIndex = 19;
             // 
@@ -173,6 +175,7 @@
             this.sowingDateBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.sowingDateBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.sowingDateBox.Name = "sowingDateBox";
+            this.sowingDateBox.ReadOnly = true;
             this.sowingDateBox.Size = new System.Drawing.Size(361, 36);
             this.sowingDateBox.TabIndex = 16;
             // 
@@ -184,6 +187,7 @@
             this.sowingRowBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.sowingRowBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.sowingRowBox.Name = "sowingRowBox";
+            this.sowingRowBox.ReadOnly = true;
             this.sowingRowBox.Size = new System.Drawing.Size(362, 36);
             this.sowingRowBox.TabIndex = 18;
             // 
@@ -195,6 +199,7 @@
             this.sowingDepthBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.sowingDepthBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.sowingDepthBox.Name = "sowingDepthBox";
+            this.sowingDepthBox.ReadOnly = true;
             this.sowingDepthBox.Size = new System.Drawing.Size(361, 36);
             this.sowingDepthBox.TabIndex = 17;
             // 
@@ -247,6 +252,7 @@
             this.ratingBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.ratingBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.ratingBox.Name = "ratingBox";
+            this.ratingBox.ReadOnly = true;
             this.ratingBox.Size = new System.Drawing.Size(372, 36);
             this.ratingBox.TabIndex = 10;
             // 
@@ -258,6 +264,7 @@
             this.repsBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.repsBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.repsBox.Name = "repsBox";
+            this.repsBox.ReadOnly = true;
             this.repsBox.Size = new System.Drawing.Size(372, 36);
             this.repsBox.TabIndex = 9;
             // 
@@ -269,6 +276,7 @@
             this.endBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.endBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.endBox.Name = "endBox";
+            this.endBox.ReadOnly = true;
             this.endBox.Size = new System.Drawing.Size(372, 36);
             this.endBox.TabIndex = 8;
             // 
@@ -280,6 +288,7 @@
             this.startBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.startBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.startBox.Name = "startBox";
+            this.startBox.ReadOnly = true;
             this.startBox.Size = new System.Drawing.Size(372, 36);
             this.startBox.TabIndex = 7;
             // 
@@ -291,6 +300,7 @@
             this.metBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.metBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.metBox.Name = "metBox";
+            this.metBox.ReadOnly = true;
             this.metBox.Size = new System.Drawing.Size(372, 36);
             this.metBox.TabIndex = 6;
             // 
@@ -302,6 +312,7 @@
             this.fieldBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.fieldBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.fieldBox.Name = "fieldBox";
+            this.fieldBox.ReadOnly = true;
             this.fieldBox.Size = new System.Drawing.Size(372, 36);
             this.fieldBox.TabIndex = 5;
             // 
@@ -313,6 +324,7 @@
             this.cropBox.MaximumSize = new System.Drawing.Size(1000, 36);
             this.cropBox.MinimumSize = new System.Drawing.Size(200, 36);
             this.cropBox.Name = "cropBox";
+            this.cropBox.ReadOnly = true;
             this.cropBox.Size = new System.Drawing.Size(372, 36);
             this.cropBox.TabIndex = 4;
             // 
@@ -345,7 +357,7 @@
             this.pageDesign.Location = new System.Drawing.Point(4, 22);
             this.pageDesign.Name = "pageDesign";
             this.pageDesign.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDesign.Size = new System.Drawing.Size(692, 586);
+            this.pageDesign.Size = new System.Drawing.Size(756, 588);
             this.pageDesign.TabIndex = 8;
             this.pageDesign.Text = "Design";
             this.pageDesign.UseVisualStyleBackColor = true;
@@ -396,6 +408,28 @@
             this.operationsBox.Size = new System.Drawing.Size(145, 21);
             this.operationsBox.TabIndex = 1;
             this.operationsBox.SelectedIndexChanged += new System.EventHandler(this.OnOperationSelection);
+            // 
+            // pageData
+            // 
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.traitChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(756, 588);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
+            // 
+            // traitChart
+            // 
+            this.traitChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitChart.Location = new System.Drawing.Point(0, 0);
+            this.traitChart.Name = "traitChart";
+            this.traitChart.Node = null;
+            this.traitChart.Size = new System.Drawing.Size(691, 586);
+            this.traitChart.TabIndex = 0;
             // 
             // operationsChart
             // 
@@ -1560,28 +1594,6 @@
             this.operationsChart.Zoom.Brush.Color = System.Drawing.Color.LightBlue;
             this.operationsChart.Zoom.Brush.Solid = true;
             this.operationsChart.Zoom.Brush.Visible = true;
-            // 
-            // pageData
-            // 
-            this.pageData.BackColor = System.Drawing.Color.LightGray;
-            this.pageData.Controls.Add(this.traitChart);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(692, 586);
-            this.pageData.TabIndex = 5;
-            this.pageData.Text = "Data";
-            // 
-            // traitChart
-            // 
-            this.traitChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitChart.Location = new System.Drawing.Point(0, 0);
-            this.traitChart.Name = "traitChart";
-            this.traitChart.Node = null;
-            this.traitChart.Size = new System.Drawing.Size(691, 586);
-            this.traitChart.TabIndex = 0;
             // 
             // ExperimentDetailer
             // 

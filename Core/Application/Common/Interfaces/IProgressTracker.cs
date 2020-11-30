@@ -13,7 +13,7 @@ namespace Rems.Application.Common.Interfaces
 
         event ExceptionHandler TaskFailed;
 
-        event QueryHandler SendQuery;
+        QueryHandler Query { get; set; }
 
         int Items { get; }
 

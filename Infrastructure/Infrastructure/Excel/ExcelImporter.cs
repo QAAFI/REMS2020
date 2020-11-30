@@ -14,15 +14,12 @@ namespace Rems.Infrastructure.Excel
 
         public override int Items => Data.Tables.Count;
         public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);        
-
-        public ExcelImporter(QueryHandler query) : base(query)
-        { }        
-
+ 
         public async override Task Run()
         {
             try
             {
-                if (!OnSendQuery(new ConnectionExists()))
+                if (!OnQuery(new ConnectionExists()))
                     throw new Exception("No existing database connection");
 
                 foreach (DataTable table in Data.Tables)
@@ -53,7 +50,7 @@ namespace Rems.Infrastructure.Excel
             switch (table.TableName)
             {
                 case "Design":
-                    OnSendQuery(new InsertDesignsCommand() { Table = table });
+                    OnQuery(new InsertDesignsCommand() { Table = table });
                     command = new InsertPlotsCommand() 
                     { 
                         Table = table,
@@ -110,7 +107,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Name = type.Name + "Trait"
                     };
-                    var dependency = OnSendQuery(query);
+                    var dependency = OnQuery(query);
 
                     command = new InsertTraitTableCommand()
                     {
@@ -130,7 +127,7 @@ namespace Rems.Infrastructure.Excel
                     };                    
                     break;
             }
-            return Task.Run(() => OnSendQuery(command));
+            return Task.Run(() => OnQuery(command));
         }
 
     }

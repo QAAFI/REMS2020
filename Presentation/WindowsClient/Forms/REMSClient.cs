@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
+using WindowsClient.Controls;
 
 namespace WindowsClient
 {
@@ -31,8 +32,6 @@ namespace WindowsClient
 
     public partial class REMSClient : Form
     {
-        private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
         private readonly IMediator _mediator;
 
         public REMSClient(IServiceProvider provider)
@@ -43,57 +42,31 @@ namespace WindowsClient
 
             experimentDetailer.REMS += _mediator.Send;
 
-            importer.Query += _mediator.Send;
-            importer.DatabaseChanged += UpdateAllComponents;
-            importer.Initialise();
+            homeScreen.Query += _mediator.Send;
+            homeScreen.DBCreated += LoadListView;
+            homeScreen.DBOpened += UpdateAllComponents;
+            homeScreen.ImportRequested += OnImportRequested;
         }
 
-        #region Taskbar
-
-        private async void OnNewClicked(object sender, EventArgs e)
+        private void OnImportRequested(object sender, EventArgs e)
         {
-            using (var save = new SaveFileDialog())
-            {
-                save.InitialDirectory = folder;
-                save.AddExtension = true;
-                save.Filter = "SQLite (*.db)|*.db";
-                save.RestoreDirectory = true;
+            var link = sender as ImportLink;
 
-                if (save.ShowDialog() != DialogResult.OK) return;
+            var tab = new TabPage(link.Label);
 
-                folder = Path.GetDirectoryName(save.FileName);
+            tab.Controls.Add(link.Importer);
+            link.Importer.Query = _mediator.Send;
+            link.Importer.DatabaseChanged += UpdateAllComponents;
 
-                await TryQueryREMS(new CreateDBCommand() { FileName = save.FileName });
-                await TryQueryREMS(new OpenDBCommand() { FileName = save.FileName });
-
-                await LoadListView();
-            }
+            notebook.TabPages.Add(tab);
+            notebook.SelectedTab = tab;
         }
-
-        private async void OnOpenClicked(object sender, EventArgs e)
-        {
-            using (var open = new OpenFileDialog())
-            {
-                open.InitialDirectory = folder;
-                open.Filter = "SQLite (*.db)|*.db";
-
-                if (open.ShowDialog() != DialogResult.OK) return;
-
-                folder = Path.GetDirectoryName(open.FileName);
-
-                await TryQueryREMS(new OpenDBCommand() { FileName = open.FileName });
-
-                UpdateAllComponents();
-            }
-        } 
 
         private async void UpdateAllComponents()
         {
-            await LoadListView();
+            LoadListView();
             await experimentDetailer.RefreshContent();          
-        }
-        #endregion       
-
+        }     
 
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
         {
@@ -102,15 +75,13 @@ namespace WindowsClient
             dataGridView.DataSource = await TryQueryREMS(new DataTableQuery() { TableName = item });
         }
 
-        private async Task LoadListView()
+        private async void LoadListView()
         {
-            var items = await new GetTableListQuery().Send(new QueryHandler(TryQueryREMS));
+            var items = await new GetTableListQuery().Send(TryQueryREMS);
 
             relationsListBox.Items.Clear();
             relationsListBox.Items.AddRange(items.ToArray());
         }
-
-        #region Logic
 
         public Task<object> TryQueryREMS(object request, CancellationToken token = default)
         {
@@ -158,9 +129,5 @@ namespace WindowsClient
             builder.Replace("\r", "");
             return builder.ToString();
         }
-
-        #endregion
-
-        
     }
 }

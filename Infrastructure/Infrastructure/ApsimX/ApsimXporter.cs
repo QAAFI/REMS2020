@@ -23,11 +23,8 @@ namespace Rems.Infrastructure.ApsimX
     {
         public string FileName { get; set; }
 
-        public override int Items => OnSendQuery(new ExperimentCount());
+        public override int Items => OnQuery(new ExperimentCount());
         public override int Steps => Items * 30;
-
-        public ApsimXporter(QueryHandler query) : base(query)
-        { }
 
         public async override Task Run()
         {
@@ -35,7 +32,7 @@ namespace Rems.Infrastructure.ApsimX
             var simulations = JsonTools.LoadJson<Simulations>(path);
 
             var folder = new Folder() { Name = "Experiments" };
-            var experiments = OnSendQuery(new ExperimentsQuery());
+            var experiments = OnQuery(new ExperimentsQuery());
 
             foreach (var experiment in experiments)
             {
@@ -62,7 +59,7 @@ namespace Rems.Infrastructure.ApsimX
             var request = new R();
             request.Parameterise(id);
 
-            var model = OnSendQuery(request);
+            var model = OnQuery(request);
 
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
