@@ -5,19 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
+using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
     public class DataNode : TreeNode
     {
+        public QueryHandler Query;
+
         public PropertyCollection State { get; }
 
         public DataNode(DataColumn col) : base(col.ColumnName)
         {
             Tag = col;
             State = col.ExtendedProperties;
+           
             ContextMenu = new ColumnNodeMenu(this, col);
 
             State["Ignore"] = false;
@@ -27,14 +31,16 @@ namespace WindowsClient.Models
         {
             Tag = table;
             State = table.ExtendedProperties;
-            ContextMenu = new TableNodeMenu();
+            ContextMenu = new TableNodeMenu(this, table);
 
             State["Valid"] = true;
             State["Ignore"] = false;
         }
 
-        public void SetState()
+        public void UpdateState(string state, object value)
         {
+            State[state] = value;
+
             string key = "";
 
             if (State["Valid"] is true)
@@ -57,17 +63,37 @@ namespace WindowsClient.Models
             CheckState(Parent as DataNode);
         }
 
+        public void ToggleIgnore(object sender, EventArgs args)
+        {
+            var item = sender as MenuItem;
+            item.Checked = !item.Checked;
+            UpdateState("Ignore", item.Checked);
+        }
+
+        public async void AddTrait(object sender, EventArgs args)
+        {
+            if (Tag is DataTable)
+                throw new Exception("A table cannot be added as a trait");
+
+            var name = (Tag as DataColumn).ColumnName;
+            var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
+            var result = await Query(new AddTraitCommand() { Name = name, Type = type.Name });
+
+            if ((bool)result)
+                UpdateState("Valid", true);
+            else
+                MessageBox.Show("The trait could not be added");
+        }
+
         private void CheckState(DataNode node)
         {
             if (node?.Tag is DataTable table)
             {
                 var cols = table.Columns.Cast<DataColumn>();
                 if (cols.Any(c => c.ExtendedProperties["Valid"] is false && c.ExtendedProperties["Ignore"] is false))
-                    table.ExtendedProperties["Override"] = "Warning";
+                    node.UpdateState("Override", "Warning");
                 else
-                    table.ExtendedProperties["Override"] = "";
-
-                node.SetState();
+                    node.UpdateState("Override", "");
             }
         }
     }
@@ -86,8 +112,8 @@ namespace WindowsClient.Models
             this.column = column;
             this.node = node;
 
-            ignore = new MenuItem("Ignore", ToggleIgnore);
-            trait = new MenuItem("Add trait", AddTrait);
+            ignore = new MenuItem("Ignore", node.ToggleIgnore);
+            trait = new MenuItem("Add trait", node.AddTrait);
             items = new MenuItem("Set property");
             
             MenuItems.Add(ignore);
@@ -96,19 +122,6 @@ namespace WindowsClient.Models
 
             Popup += ItemsPopup;
         }        
-
-        private void ToggleIgnore(object sender, EventArgs args)
-        {
-            ignore.Checked = !ignore.Checked;
-            column.ExtendedProperties["Ignore"] = ignore.Checked;
-
-            node.SetState();
-        }
-
-        private void AddTrait(object sender, EventArgs args)
-        {
-
-        }
 
         private void ItemsPopup(object sender, EventArgs e)
         {
@@ -126,17 +139,24 @@ namespace WindowsClient.Models
             var item = sender as MenuItem;
             column.ColumnName = item.Text;
             node.State["Info"] = column.FindProperty();
-            node.State["Valid"] = true;
             node.Text = item.Text;
-            node.SetState();
+            node.UpdateState("Valid", true);
         }
     }
 
     public class TableNodeMenu : ContextMenu
     {
-        public TableNodeMenu() : base()
+        DataNode node;
+        DataTable table;
+
+        MenuItem ignore;
+
+        public TableNodeMenu(DataNode node, DataTable table) : base()
         {
-            var ignore = new MenuItem("Ignore");
+            this.node = node;
+            this.table = table;
+
+            ignore = new MenuItem("Ignore", node.ToggleIgnore);
 
             MenuItems.Add(ignore);
         }

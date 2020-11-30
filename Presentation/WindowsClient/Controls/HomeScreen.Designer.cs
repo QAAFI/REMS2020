@@ -35,13 +35,13 @@
             this.createLabel = new System.Windows.Forms.Label();
             this.recentLabel = new System.Windows.Forms.Label();
             this.groupImport = new System.Windows.Forms.GroupBox();
-            this.groupAbout = new System.Windows.Forms.GroupBox();
-            this.groupExperiments = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.dataLink = new WindowsClient.Controls.ImportLink();
             this.expsLink = new WindowsClient.Controls.ImportLink();
             this.infoLink = new WindowsClient.Controls.ImportLink();
+            this.groupAbout = new System.Windows.Forms.GroupBox();
+            this.groupExperiments = new System.Windows.Forms.GroupBox();
             this.export = new System.Windows.Forms.Button();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupFile.SuspendLayout();
             this.groupImport.SuspendLayout();
             this.groupExperiments.SuspendLayout();
@@ -129,6 +129,48 @@
             this.groupImport.TabStop = false;
             this.groupImport.Text = "Import";
             // 
+            // dataLink
+            // 
+            this.dataLink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataLink.File = null;
+            this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
+            this.dataLink.Label = "Data";
+            this.dataLink.Location = new System.Drawing.Point(6, 107);
+            this.dataLink.Name = "dataLink";
+            this.dataLink.Size = new System.Drawing.Size(238, 38);
+            this.dataLink.Stage = WindowsClient.Controls.Stage.Missing;
+            this.dataLink.TabIndex = 2;
+            // 
+            // expsLink
+            // 
+            this.expsLink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.expsLink.File = null;
+            this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
+            this.expsLink.Label = "Experiments";
+            this.expsLink.Location = new System.Drawing.Point(6, 63);
+            this.expsLink.Name = "expsLink";
+            this.expsLink.Size = new System.Drawing.Size(238, 38);
+            this.expsLink.Stage = WindowsClient.Controls.Stage.Missing;
+            this.expsLink.TabIndex = 1;
+            // 
+            // infoLink
+            // 
+            this.infoLink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.infoLink.File = null;
+            this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
+            this.infoLink.Label = "Information";
+            this.infoLink.Location = new System.Drawing.Point(6, 19);
+            this.infoLink.Name = "infoLink";
+            this.infoLink.Size = new System.Drawing.Size(238, 38);
+            this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
+            this.infoLink.TabIndex = 0;
+            // 
             // groupAbout
             // 
             this.groupAbout.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -154,6 +196,16 @@
             this.groupExperiments.TabStop = false;
             this.groupExperiments.Text = "Experiments";
             // 
+            // export
+            // 
+            this.export.Location = new System.Drawing.Point(166, 220);
+            this.export.Name = "export";
+            this.export.Size = new System.Drawing.Size(78, 28);
+            this.export.TabIndex = 0;
+            this.export.Text = "Export";
+            this.export.UseVisualStyleBackColor = true;
+            this.export.Click += new System.EventHandler(this.OnExportClick);
+            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
@@ -172,52 +224,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(520, 520);
             this.tableLayoutPanel1.TabIndex = 4;
-            // 
-            // dataLink
-            // 
-            this.dataLink.File = null;
-            this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
-            this.dataLink.Label = "Data";
-            this.dataLink.Location = new System.Drawing.Point(6, 107);
-            this.dataLink.Name = "dataLink";
-            this.dataLink.Size = new System.Drawing.Size(238, 38);
-            this.dataLink.Stage = WindowsClient.Controls.Stage.Missing;
-            this.dataLink.TabIndex = 2;
-            // 
-            // expsLink
-            // 
-            this.expsLink.File = null;
-            this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
-            this.expsLink.Label = "Experiments";
-            this.expsLink.Location = new System.Drawing.Point(6, 63);
-            this.expsLink.Name = "expsLink";
-            this.expsLink.Size = new System.Drawing.Size(238, 38);
-            this.expsLink.Stage = WindowsClient.Controls.Stage.Missing;
-            this.expsLink.TabIndex = 1;
-            // 
-            // infoLink
-            // 
-            this.infoLink.File = null;
-            this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
-            this.infoLink.Label = "Information";
-            this.infoLink.Location = new System.Drawing.Point(6, 19);
-            this.infoLink.Name = "infoLink";
-            this.infoLink.Size = new System.Drawing.Size(238, 38);
-            this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
-            this.infoLink.TabIndex = 0;
-            // 
-            // export
-            // 
-            this.export.Location = new System.Drawing.Point(166, 220);
-            this.export.Name = "export";
-            this.export.Size = new System.Drawing.Size(78, 28);
-            this.export.TabIndex = 0;
-            this.export.Text = "Export";
-            this.export.UseVisualStyleBackColor = true;
-            this.export.Click += new System.EventHandler(this.OnExportClick);
             // 
             // HomeScreen
             // 

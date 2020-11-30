@@ -81,8 +81,6 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
-                table.ExtendedProperties["Ignore"] = false;
-
                 // TODO: This is a quick workaround, find better way to handle factors/levels table
                 if (table.TableName == "Factors") table.TableName = "Levels";
 
@@ -103,7 +101,7 @@ namespace WindowsClient.Controls
 
         private TreeNode ValidateTable(DataTable table)
         {
-            var tnode = new DataNode(table);
+            var tnode = new DataNode(table) { Query = Query };
 
             bool valid = true;
             // Prepare individual columns for import
@@ -120,33 +118,39 @@ namespace WindowsClient.Controls
                 ReplaceName(col);
 
                 // Create a node for the column
-                var cnode = new DataNode(col);
+                var cnode = new DataNode(col) { Query = Query };
 
                 var info = col.FindProperty();
                 col.ExtendedProperties["Info"] = info;
+                col.ExtendedProperties["Ignore"] = false;
 
-                // Don't question it
-                if (info is null && 
-                    (
-                        (bool)Query(new TraitExistsQuery() { Name = col.ColumnName }).Result
-                        || table.DataSet.Tables["Traits"] is DataTable traits
-                        && traits.Columns["Name"] is DataColumn name
-                        && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName))
-                    )
+                // Test if a column without a matching property is a trait
+                bool isTrait()
                 {
-                    col.ExtendedProperties["Valid"] = true;
-                }
+                    return
+                    // Test if the trait is in the database
+                    (bool)Query(new TraitExistsQuery() { Name = col.ColumnName }).Result
+                    // Or in the spreadsheet traits table
+                    || table.DataSet.Tables["Traits"] is DataTable traits
+                    // If it is, find the column of trait names
+                    && traits.Columns["Name"] is DataColumn name
+                    // 
+                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName);
+                };
 
+                if (info is null && !isTrait())
+                    cnode.UpdateState("Valid", false);
+                else
+                    cnode.UpdateState("Valid", true);
                 tnode.Nodes.Add(cnode);
-                cnode.SetState();
 
                 valid &= (bool)col.ExtendedProperties["Valid"];
             }
 
-            if (!valid) 
-                table.ExtendedProperties["Override"] = "Warning";
-
-            tnode.SetState();
+            if (valid)
+                tnode.UpdateState("Valid", true);     
+            else
+                tnode.UpdateState("Override", "Warning");
 
             return tnode;
         }

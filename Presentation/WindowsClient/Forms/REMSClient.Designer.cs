@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(REMSClient));
             this.expsPage = new System.Windows.Forms.TabPage();
-            this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
             this.infoPage = new System.Windows.Forms.TabPage();
             this.btnOpen = new System.Windows.Forms.Button();
             this.btnNew = new System.Windows.Forms.Button();
@@ -39,6 +38,7 @@
             this.notebook = new System.Windows.Forms.TabControl();
             this.homePage = new System.Windows.Forms.TabPage();
             this.homeScreen = new WindowsClient.Controls.HomeScreen();
+            this.experimentDetailer = new WindowsClient.Controls.ExperimentDetailer();
             this.expsPage.SuspendLayout();
             this.infoPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
@@ -56,17 +56,6 @@
             this.expsPage.TabIndex = 4;
             this.expsPage.Text = "Experiments";
             this.expsPage.UseVisualStyleBackColor = true;
-            // 
-            // experimentDetailer
-            // 
-            this.experimentDetailer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.experimentDetailer.Location = new System.Drawing.Point(0, 0);
-            this.experimentDetailer.MinimumSize = new System.Drawing.Size(920, 620);
-            this.experimentDetailer.Name = "experimentDetailer";
-            this.experimentDetailer.Size = new System.Drawing.Size(925, 621);
-            this.experimentDetailer.TabIndex = 0;
             // 
             // infoPage
             // 
@@ -138,7 +127,7 @@
             this.notebook.Location = new System.Drawing.Point(0, 0);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(576, 548);
+            this.notebook.Size = new System.Drawing.Size(651, 589);
             this.notebook.TabIndex = 2;
             // 
             // homePage
@@ -147,7 +136,7 @@
             this.homePage.Location = new System.Drawing.Point(4, 22);
             this.homePage.Name = "homePage";
             this.homePage.Padding = new System.Windows.Forms.Padding(3);
-            this.homePage.Size = new System.Drawing.Size(568, 522);
+            this.homePage.Size = new System.Drawing.Size(643, 563);
             this.homePage.TabIndex = 7;
             this.homePage.Text = "Home";
             this.homePage.UseVisualStyleBackColor = true;
@@ -157,14 +146,25 @@
             this.homeScreen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.homeScreen.Location = new System.Drawing.Point(3, 3);
             this.homeScreen.Name = "homeScreen";
-            this.homeScreen.Size = new System.Drawing.Size(562, 516);
+            this.homeScreen.Size = new System.Drawing.Size(637, 557);
             this.homeScreen.TabIndex = 0;
+            // 
+            // experimentDetailer
+            // 
+            this.experimentDetailer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.experimentDetailer.Location = new System.Drawing.Point(0, 0);
+            this.experimentDetailer.MinimumSize = new System.Drawing.Size(920, 620);
+            this.experimentDetailer.Name = "experimentDetailer";
+            this.experimentDetailer.Size = new System.Drawing.Size(925, 621);
+            this.experimentDetailer.TabIndex = 0;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(576, 548);
+            this.ClientSize = new System.Drawing.Size(651, 589);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "REMSClient";
