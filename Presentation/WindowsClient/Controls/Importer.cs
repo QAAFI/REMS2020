@@ -15,10 +15,11 @@ using System.Text;
 using System.Windows.Forms;
 
 using WindowsClient.Forms;
+using WindowsClient.Models;
 using Rems.Infrastructure.ApsimX;
 
 namespace WindowsClient.Controls
-{
+{    
     public partial class Importer : UserControl
     {
         public QueryHandler Query { get; set; }
@@ -80,7 +81,7 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
-                table.ExtendedProperties["Ignored"] = false;
+                table.ExtendedProperties["Ignore"] = false;
 
                 // TODO: This is a quick workaround, find better way to handle factors/levels table
                 if (table.TableName == "Factors") table.TableName = "Levels";
@@ -102,8 +103,7 @@ namespace WindowsClient.Controls
 
         private TreeNode ValidateTable(DataTable table)
         {
-            var tnode = new TreeNode(table.TableName) { Tag = table };
-            table.ExtendedProperties["Valid"] = true;
+            var tnode = new DataNode(table);
 
             bool valid = true;
             // Prepare individual columns for import
@@ -116,14 +116,12 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
-                col.ExtendedProperties["Ignored"] = false;
-
                 // Use some default name replacement options
                 ReplaceName(col);
 
                 // Create a node for the column
-                var cnode = new TreeNode(col.ColumnName) { Tag = col };
-                
+                var cnode = new DataNode(col);
+
                 var info = col.FindProperty();
                 col.ExtendedProperties["Info"] = info;
 
@@ -140,7 +138,7 @@ namespace WindowsClient.Controls
                 }
 
                 tnode.Nodes.Add(cnode);
-                SetState(cnode, col.ExtendedProperties);
+                cnode.SetState();
 
                 valid &= (bool)col.ExtendedProperties["Valid"];
             }
@@ -148,79 +146,23 @@ namespace WindowsClient.Controls
             if (!valid) 
                 table.ExtendedProperties["Override"] = "Warning";
 
-            SetState(tnode, table.ExtendedProperties);
+            tnode.SetState();
 
             return tnode;
         }
 
         #endregion
 
-        private void SetState(TreeNode node, PropertyCollection Is)
-        {
-            string key = "";
-
-            if (Is["Valid"] is true)
-                key += "Valid";
-            else
-                key += "Invalid";
-
-            if (Is["Override"] is string s && s != "")
-                key = s;
-
-            if (Is["Ignored"] is true)
-                key += "Off";
-            else
-                key += "On";
-
-            node.ImageKey = key;
-            node.SelectedImageKey = key;
-            
-            stateBox.Image = images.Images[key];
-
-            // Update the node parent
-            CheckState(node.Parent);
-        }
-
-        private void CheckState(TreeNode node)
-        {
-            if (node?.Tag is DataTable table)
-            {
-                var cols = table.Columns.Cast<DataColumn>();
-                if (cols.Any(c => c.ExtendedProperties["Valid"] is false && c.ExtendedProperties["Ignored"] is false))
-                    table.ExtendedProperties["Override"] = "Warning";
-                else
-                    table.ExtendedProperties["Override"] = "";
-
-                SetState(node, table.ExtendedProperties);
-            }
-        }
-
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Tag is DataTable table)
             {
                 importData.DataSource = table;
-
-                nodeSplitter.Panel2Collapsed = true;
-
-                ignoreBox.Checked = (bool)table.ExtendedProperties["Ignored"];
             }
 
             else if (e.Node.Tag is DataColumn col)
             {
                 importData.DataSource = col.Table;
-
-                nodeSplitter.Panel2Collapsed = false;
-
-                ignoreBox.Checked = (bool)col.ExtendedProperties["Ignored"];
-
-                propertiesBox.Items.Clear();
-
-                var items = col.GetUnmappedProperties()
-                    .Select(p => p.Name)
-                    .ToArray();
-
-                propertiesBox.Items.AddRange(items);
             }
 
             stateBox.Image = images.Images[e.Node.ImageKey];
@@ -294,23 +236,6 @@ namespace WindowsClient.Controls
             }
         }
 
-        private void PropertiesSelectionChanged(object sender, EventArgs e)
-        {
-            var item = propertiesBox.SelectedItem.ToString();
-            var col = (DataColumn)dataTree.SelectedNode.Tag;
-
-            if (col.Table.Columns.Contains(item))
-            {
-                MessageBox.Show("The table already has a column mapped to this property");
-                return;
-            }
-
-            col.ColumnName = item;
-            col.ExtendedProperties["Valid"] = true;
-
-            SetState(dataTree.SelectedNode, col.ExtendedProperties);            
-        }
-
         private static Dictionary<string, string> map = new Dictionary<string, string>()
         {
             {"ExpID", "ExperimentId" },
@@ -327,34 +252,6 @@ namespace WindowsClient.Controls
         {
             if (map.ContainsKey(col.ColumnName))
                 col.ColumnName = map[col.ColumnName];
-        }
-
-        private void IgnoreBoxCheckChanged(object sender, EventArgs e)
-        {
-            PropertyCollection items;
-
-            if (dataTree.SelectedNode.Tag is DataColumn col)
-                items = col.ExtendedProperties;
-            else if (dataTree.SelectedNode.Tag is DataTable table)
-                items = table.ExtendedProperties;
-            else
-                throw new Exception("Invalid node type. Node must represent either a datatable or datacolumn.");
-
-            items["Ignored"] = ignoreBox.Checked;
-            isTraitBox.Enabled = !ignoreBox.Checked;
-            propertiesBox.Enabled = !ignoreBox.Checked;
-
-            SetState(dataTree.SelectedNode, items);
-        }
-
-        private void IsTraitBoxCheckChanged(object sender, EventArgs e)
-        {
-            propertiesBox.Enabled = !isTraitBox.Checked;
-
-            if (isTraitBox.Checked)
-            {
-                propertiesBox.SelectedIndex = -1;
-            }
         }
     }
 }
