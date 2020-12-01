@@ -66,8 +66,6 @@ namespace WindowsClient.Controls
             }
             experimentsTree.SelectedNode = experimentsTree.TopNode;
             experimentsTree.Refresh();
-
-            traitChart.LoadTraitsBox();
         }
 
         private void OnExperimentNodeChanged(object sender, EventArgs e)

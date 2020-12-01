@@ -28,11 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.traitsBox = new System.Windows.Forms.CheckedListBox();
             this.chart = new Steema.TeeChart.TChart();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.listSplitter = new System.Windows.Forms.SplitContainer();
+            this.traitsBox = new System.Windows.Forms.ListBox();
             this.datesBox = new System.Windows.Forms.ListBox();
+            this.traitsLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -42,16 +43,6 @@
             this.listSplitter.Panel2.SuspendLayout();
             this.listSplitter.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // traitsBox
-            // 
-            this.traitsBox.CheckOnClick = true;
-            this.traitsBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.traitsBox.FormattingEnabled = true;
-            this.traitsBox.Location = new System.Drawing.Point(0, 0);
-            this.traitsBox.Name = "traitsBox";
-            this.traitsBox.Size = new System.Drawing.Size(173, 286);
-            this.traitsBox.TabIndex = 16;
             // 
             // chart
             // 
@@ -1252,6 +1243,7 @@
             // 
             // listSplitter.Panel1
             // 
+            this.listSplitter.Panel1.Controls.Add(this.traitsLabel);
             this.listSplitter.Panel1.Controls.Add(this.traitsBox);
             // 
             // listSplitter.Panel2
@@ -1261,6 +1253,18 @@
             this.listSplitter.SplitterDistance = 286;
             this.listSplitter.TabIndex = 17;
             // 
+            // traitsBox
+            // 
+            this.traitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitsBox.FormattingEnabled = true;
+            this.traitsBox.IntegralHeight = false;
+            this.traitsBox.Location = new System.Drawing.Point(0, 23);
+            this.traitsBox.Name = "traitsBox";
+            this.traitsBox.Size = new System.Drawing.Size(173, 263);
+            this.traitsBox.TabIndex = 0;
+            // 
             // datesBox
             // 
             this.datesBox.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1269,6 +1273,19 @@
             this.datesBox.Name = "datesBox";
             this.datesBox.Size = new System.Drawing.Size(173, 283);
             this.datesBox.TabIndex = 0;
+            this.datesBox.SelectedIndexChanged += new System.EventHandler(this.OnDateSelected);
+            // 
+            // traitsLabel
+            // 
+            this.traitsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.traitsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.traitsLabel.Location = new System.Drawing.Point(0, 0);
+            this.traitsLabel.Name = "traitsLabel";
+            this.traitsLabel.Size = new System.Drawing.Size(173, 23);
+            this.traitsLabel.TabIndex = 1;
+            this.traitsLabel.Text = "Traits";
+            this.traitsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TraitChart
             // 
@@ -1290,10 +1307,11 @@
         }
 
         #endregion
-        private System.Windows.Forms.CheckedListBox traitsBox;
         private Steema.TeeChart.TChart chart;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer listSplitter;
         private System.Windows.Forms.ListBox datesBox;
+        private System.Windows.Forms.ListBox traitsBox;
+        private System.Windows.Forms.Label traitsLabel;
     }
 }
