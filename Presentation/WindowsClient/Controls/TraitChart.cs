@@ -59,7 +59,9 @@ namespace WindowsClient.Controls
             if (series is null) return;
             if (series.X.Length == 0) return;
 
+            chart.Text = series.Title;
             chart.Axes.Left.Title.Text = series.YLabel;
+            chart.Axes.Bottom.Title.Text = series.XLabel;
 
             Points points = new Points();
             points.Legend.Text = series.Title;
@@ -204,9 +206,9 @@ namespace WindowsClient.Controls
 
         private async void OnDateSelected(object sender, EventArgs e)
         {
-            var date = Convert.ToDateTime(datesBox.SelectedItem);
+            chart.Series.Clear();
 
-            
+            var date = Convert.ToDateTime(datesBox.SelectedItem);            
 
             string trait = traitsBox.SelectedItem.ToString();
             chart.Text = trait;            
