@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.experimentsTree = new System.Windows.Forms.TreeView();
             this.experimentDetails = new System.Windows.Forms.TabControl();
             this.pageSummary = new System.Windows.Forms.TabPage();
@@ -55,10 +56,13 @@
             this.designBox = new System.Windows.Forms.TextBox();
             this.designData = new System.Windows.Forms.DataGridView();
             this.pageOperation = new System.Windows.Forms.TabPage();
-            this.operationsBox = new System.Windows.Forms.ComboBox();
+            this.operationsChart = new Steema.TeeChart.TChart();
             this.pageData = new System.Windows.Forms.TabPage();
             this.traitChart = new WindowsClient.Controls.TraitChart();
-            this.operationsChart = new Steema.TeeChart.TChart();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.experimentDetails.SuspendLayout();
             this.pageSummary.SuspendLayout();
             this.sowingPanel.SuspendLayout();
@@ -68,29 +72,43 @@
             this.pageData.SuspendLayout();
             this.SuspendLayout();
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.experimentsTree);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.experimentDetails);
+            this.splitContainer1.Size = new System.Drawing.Size(920, 620);
+            this.splitContainer1.SplitterDistance = 162;
+            this.splitContainer1.TabIndex = 5;
+            // 
             // experimentsTree
             // 
-            this.experimentsTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.experimentsTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.experimentsTree.HideSelection = false;
-            this.experimentsTree.Location = new System.Drawing.Point(3, 3);
+            this.experimentsTree.Location = new System.Drawing.Point(0, 0);
             this.experimentsTree.Name = "experimentsTree";
-            this.experimentsTree.Size = new System.Drawing.Size(144, 614);
+            this.experimentsTree.Size = new System.Drawing.Size(162, 620);
             this.experimentsTree.TabIndex = 4;
             // 
             // experimentDetails
             // 
-            this.experimentDetails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.experimentDetails.Controls.Add(this.pageSummary);
             this.experimentDetails.Controls.Add(this.pageDesign);
             this.experimentDetails.Controls.Add(this.pageOperation);
             this.experimentDetails.Controls.Add(this.pageData);
-            this.experimentDetails.Location = new System.Drawing.Point(153, 3);
+            this.experimentDetails.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.experimentDetails.Location = new System.Drawing.Point(0, 0);
             this.experimentDetails.Name = "experimentDetails";
             this.experimentDetails.SelectedIndex = 0;
-            this.experimentDetails.Size = new System.Drawing.Size(764, 614);
+            this.experimentDetails.Size = new System.Drawing.Size(754, 620);
             this.experimentDetails.TabIndex = 3;
             // 
             // pageSummary
@@ -113,7 +131,7 @@
             this.pageSummary.Location = new System.Drawing.Point(4, 22);
             this.pageSummary.Name = "pageSummary";
             this.pageSummary.Padding = new System.Windows.Forms.Padding(3);
-            this.pageSummary.Size = new System.Drawing.Size(756, 588);
+            this.pageSummary.Size = new System.Drawing.Size(746, 594);
             this.pageSummary.TabIndex = 7;
             this.pageSummary.Text = "Summary";
             // 
@@ -130,7 +148,7 @@
             this.sowingPanel.Controls.Add(this.sowingDepthBox);
             this.sowingPanel.Location = new System.Drawing.Point(10, 347);
             this.sowingPanel.Name = "sowingPanel";
-            this.sowingPanel.Size = new System.Drawing.Size(368, 235);
+            this.sowingPanel.Size = new System.Drawing.Size(368, 241);
             this.sowingPanel.TabIndex = 21;
             // 
             // sowingLabel
@@ -210,7 +228,7 @@
             this.descriptionBox.Location = new System.Drawing.Point(6, 30);
             this.descriptionBox.Name = "descriptionBox";
             this.descriptionBox.ReadOnly = true;
-            this.descriptionBox.Size = new System.Drawing.Size(745, 20);
+            this.descriptionBox.Size = new System.Drawing.Size(735, 20);
             this.descriptionBox.TabIndex = 15;
             // 
             // researchersLabel
@@ -231,7 +249,7 @@
             this.researchersBox.IntegralHeight = false;
             this.researchersBox.Location = new System.Drawing.Point(384, 88);
             this.researchersBox.Name = "researchersBox";
-            this.researchersBox.Size = new System.Drawing.Size(367, 126);
+            this.researchersBox.Size = new System.Drawing.Size(357, 126);
             this.researchersBox.TabIndex = 13;
             // 
             // notesLabel
@@ -346,7 +364,7 @@
             this.notesBox.Location = new System.Drawing.Point(384, 235);
             this.notesBox.Name = "notesBox";
             this.notesBox.ReadOnly = true;
-            this.notesBox.Size = new System.Drawing.Size(366, 347);
+            this.notesBox.Size = new System.Drawing.Size(356, 353);
             this.notesBox.TabIndex = 1;
             this.notesBox.Text = "";
             // 
@@ -357,7 +375,7 @@
             this.pageDesign.Location = new System.Drawing.Point(4, 22);
             this.pageDesign.Name = "pageDesign";
             this.pageDesign.Padding = new System.Windows.Forms.Padding(3);
-            this.pageDesign.Size = new System.Drawing.Size(756, 588);
+            this.pageDesign.Size = new System.Drawing.Size(746, 594);
             this.pageDesign.TabIndex = 8;
             this.pageDesign.Text = "Design";
             this.pageDesign.UseVisualStyleBackColor = true;
@@ -369,7 +387,7 @@
             this.designBox.Location = new System.Drawing.Point(0, 0);
             this.designBox.Name = "designBox";
             this.designBox.ReadOnly = true;
-            this.designBox.Size = new System.Drawing.Size(692, 20);
+            this.designBox.Size = new System.Drawing.Size(682, 20);
             this.designBox.TabIndex = 26;
             // 
             // designData
@@ -380,62 +398,22 @@
             this.designData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.designData.Location = new System.Drawing.Point(0, 19);
             this.designData.Name = "designData";
-            this.designData.Size = new System.Drawing.Size(692, 567);
+            this.designData.Size = new System.Drawing.Size(682, 573);
             this.designData.TabIndex = 24;
             // 
             // pageOperation
             // 
             this.pageOperation.BackColor = System.Drawing.Color.LightGray;
-            this.pageOperation.Controls.Add(this.operationsBox);
             this.pageOperation.Controls.Add(this.operationsChart);
             this.pageOperation.Location = new System.Drawing.Point(4, 22);
             this.pageOperation.Name = "pageOperation";
             this.pageOperation.Padding = new System.Windows.Forms.Padding(3);
-            this.pageOperation.Size = new System.Drawing.Size(756, 588);
+            this.pageOperation.Size = new System.Drawing.Size(746, 594);
             this.pageOperation.TabIndex = 3;
             this.pageOperation.Text = "Operations";
             // 
-            // operationsBox
-            // 
-            this.operationsBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.operationsBox.FormattingEnabled = true;
-            this.operationsBox.Items.AddRange(new object[] {
-            "Irrigations",
-            "Fertilizations",
-            "Tillages"});
-            this.operationsBox.Location = new System.Drawing.Point(6, 6);
-            this.operationsBox.Name = "operationsBox";
-            this.operationsBox.Size = new System.Drawing.Size(145, 21);
-            this.operationsBox.TabIndex = 1;
-            this.operationsBox.SelectedIndexChanged += new System.EventHandler(this.OnOperationSelection);
-            // 
-            // pageData
-            // 
-            this.pageData.BackColor = System.Drawing.Color.LightGray;
-            this.pageData.Controls.Add(this.traitChart);
-            this.pageData.Location = new System.Drawing.Point(4, 22);
-            this.pageData.Name = "pageData";
-            this.pageData.Padding = new System.Windows.Forms.Padding(3);
-            this.pageData.Size = new System.Drawing.Size(756, 588);
-            this.pageData.TabIndex = 5;
-            this.pageData.Text = "Data";
-            // 
-            // traitChart
-            // 
-            this.traitChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitChart.Location = new System.Drawing.Point(0, 0);
-            this.traitChart.Name = "traitChart";
-            this.traitChart.Node = null;
-            this.traitChart.Size = new System.Drawing.Size(691, 586);
-            this.traitChart.TabIndex = 0;
-            // 
             // operationsChart
             // 
-            this.operationsChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // 
             // 
@@ -1099,6 +1077,7 @@
             this.operationsChart.Axes.Top.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.operationsChart.Axes.Top.Title.Shadow.Brush.Solid = true;
             this.operationsChart.Axes.Top.Title.Shadow.Brush.Visible = true;
+            this.operationsChart.Dock = System.Windows.Forms.DockStyle.Fill;
             // 
             // 
             // 
@@ -1319,7 +1298,7 @@
             this.operationsChart.Legend.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.operationsChart.Legend.Title.Shadow.Brush.Solid = true;
             this.operationsChart.Legend.Title.Shadow.Brush.Visible = true;
-            this.operationsChart.Location = new System.Drawing.Point(157, 6);
+            this.operationsChart.Location = new System.Drawing.Point(3, 3);
             this.operationsChart.Name = "operationsChart";
             // 
             // 
@@ -1352,7 +1331,7 @@
             this.operationsChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.operationsChart.Panel.Shadow.Brush.Solid = true;
             this.operationsChart.Panel.Shadow.Brush.Visible = true;
-            this.operationsChart.Size = new System.Drawing.Size(593, 574);
+            this.operationsChart.Size = new System.Drawing.Size(740, 588);
             // 
             // 
             // 
@@ -1595,15 +1574,37 @@
             this.operationsChart.Zoom.Brush.Solid = true;
             this.operationsChart.Zoom.Brush.Visible = true;
             // 
+            // pageData
+            // 
+            this.pageData.BackColor = System.Drawing.Color.LightGray;
+            this.pageData.Controls.Add(this.traitChart);
+            this.pageData.Location = new System.Drawing.Point(4, 22);
+            this.pageData.Name = "pageData";
+            this.pageData.Padding = new System.Windows.Forms.Padding(3);
+            this.pageData.Size = new System.Drawing.Size(746, 594);
+            this.pageData.TabIndex = 5;
+            this.pageData.Text = "Data";
+            // 
+            // traitChart
+            // 
+            this.traitChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.traitChart.Location = new System.Drawing.Point(3, 3);
+            this.traitChart.Name = "traitChart";
+            this.traitChart.Node = null;
+            this.traitChart.Size = new System.Drawing.Size(740, 588);
+            this.traitChart.TabIndex = 0;
+            // 
             // ExperimentDetailer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.experimentsTree);
-            this.Controls.Add(this.experimentDetails);
-            this.MinimumSize = new System.Drawing.Size(920, 620);
+            this.Controls.Add(this.splitContainer1);
             this.Name = "ExperimentDetailer";
             this.Size = new System.Drawing.Size(920, 620);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.experimentDetails.ResumeLayout(false);
             this.pageSummary.ResumeLayout(false);
             this.pageSummary.PerformLayout();
@@ -1647,9 +1648,9 @@
         private System.Windows.Forms.TextBox designBox;
         private System.Windows.Forms.DataGridView designData;
         private System.Windows.Forms.TabPage pageOperation;
-        private System.Windows.Forms.ComboBox operationsBox;
         private Steema.TeeChart.TChart operationsChart;
         private System.Windows.Forms.TabPage pageData;
         private TraitChart traitChart;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }

@@ -39,7 +39,7 @@ namespace Rems.Infrastructure.Excel
         private Task InsertTable(DataTable table)
         {
             // Skip the empty / notes tables
-            if (table.ExtendedProperties["Ignored"] is true)
+            if (table.ExtendedProperties["Ignore"] is true)
                 return Task.Run(() => Unit.Value);
 
             OnNextItem(table.TableName);

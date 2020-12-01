@@ -44,7 +44,7 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Name = name,
+                Title = name,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
                 XLabel = "Value",

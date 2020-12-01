@@ -26,7 +26,6 @@ namespace WindowsClient.Controls
                 else
                 {
                     RefreshSoilDataDates();
-                    RefreshChart();
                 }
             }
         }
@@ -44,11 +43,11 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Minimum = 0;
             chart.Text = "Crop Traits";
 
-            traitTypeBox.SelectedValueChanged += OnTraitChanged;
+            //traitTypeBox.SelectedValueChanged += OnTraitChanged;
             traitsBox.SelectedIndexChanged += OnItemCheck;
         }
 
-        private void OnItemCheck(object sender, EventArgs e) => RefreshChart();
+        private void OnItemCheck(object sender, EventArgs e) => throw new NotImplementedException();
 
         private void OnTraitChanged(object sender, EventArgs args) => RefreshTraitsList();
 
@@ -60,7 +59,7 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Title.Text = series.YLabel;
 
             Points points = new Points();
-            points.Legend.Text = series.Name;
+            points.Legend.Text = series.Title;
             points.Legend.Visible = false;
 
             Line line = new Line();
@@ -83,18 +82,6 @@ namespace WindowsClient.Controls
             chart.Series.Add(points);
 
             line.Color = points.Color;
-        }
-
-        private void RefreshChart()
-        {
-            if (node is null) 
-                return;            
-
-            else if (traitTypeBox.Text == "Crop") 
-                RefreshCropData();
-            
-            else if (traitTypeBox.Text == "SoilLayer")
-                RefreshSoilData();
         }
 
         // On Node changing
@@ -129,26 +116,26 @@ namespace WindowsClient.Controls
 
         public async void LoadTraitsBox()
         {
-            traitTypeBox.Items.Clear();
+            //traitTypeBox.Items.Clear();
 
             // Load the trait type box
             var types = await new TraitTypesQuery().Send(REMS);
 
             if (types.Length == 0) return;
 
-            traitTypeBox.Items.AddRange(types);
-            traitTypeBox.SelectedIndex = 0;            
+            //traitTypeBox.Items.AddRange(types);
+            //traitTypeBox.SelectedIndex = 0;            
         }
 
         public async void RefreshTraitsList()
         {
             traitsBox.Items.Clear();
-            var query = new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() };
-            var traits = await query.Send(REMS);
-            traitsBox.Items.AddRange(traits);
+            //var query = new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() };
+            //var traits = await query.Send(REMS);
+            //traitsBox.Items.AddRange(traits);
             traitsBox.Refresh();
 
-            RefreshChart();
+            //RefreshChart();
         }
 
         private async void SetAxisBounds(string trait)
@@ -162,10 +149,6 @@ namespace WindowsClient.Controls
 
         public async void RefreshCropData()
         {
-            leftBtn.Enabled = false;
-            rightBtn.Enabled = false;
-            dateLabel.Text = "";
-
             chart.Series.Clear();
             chart.Text = "Crop Traits";
             chart.Axes.Left.Inverted = false;
@@ -218,10 +201,6 @@ namespace WindowsClient.Controls
 
         public async void RefreshSoilData()
         {
-            leftBtn.Enabled = true;
-            rightBtn.Enabled = true;
-            dateLabel.Visible = true;
-
             chart.Series.Clear();
 
             chart.Axes.Left.Inverted = true;
@@ -229,8 +208,6 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.AutomaticMinimum = false;
 
             chart.Text = "Soil traits";
-
-            dateLabel.Text = dates[date].ToString("dd/MM/yyyy");
 
             var query = new TraitDataOnDateQuery()
             {

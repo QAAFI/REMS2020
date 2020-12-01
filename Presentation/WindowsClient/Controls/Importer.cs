@@ -16,7 +16,6 @@ using System.Windows.Forms;
 
 using WindowsClient.Forms;
 using WindowsClient.Models;
-using Rems.Infrastructure.ApsimX;
 
 namespace WindowsClient.Controls
 {    

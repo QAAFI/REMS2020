@@ -28,70 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.rightBtn = new System.Windows.Forms.Button();
-            this.leftBtn = new System.Windows.Forms.Button();
-            this.traitTypeBox = new System.Windows.Forms.ComboBox();
             this.traitsBox = new System.Windows.Forms.CheckedListBox();
             this.chart = new Steema.TeeChart.TChart();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.dateLabel = new System.Windows.Forms.Label();
-            this.panel1.SuspendLayout();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.listSplitter = new System.Windows.Forms.SplitContainer();
+            this.datesBox = new System.Windows.Forms.ListBox();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.listSplitter)).BeginInit();
+            this.listSplitter.Panel1.SuspendLayout();
+            this.listSplitter.Panel2.SuspendLayout();
+            this.listSplitter.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // rightBtn
-            // 
-            this.rightBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.rightBtn.BackgroundImage = global::WindowsClient.Properties.Resources.right;
-            this.rightBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.rightBtn.Enabled = false;
-            this.rightBtn.Location = new System.Drawing.Point(666, 532);
-            this.rightBtn.Margin = new System.Windows.Forms.Padding(0);
-            this.rightBtn.Name = "rightBtn";
-            this.rightBtn.Size = new System.Drawing.Size(29, 29);
-            this.rightBtn.TabIndex = 19;
-            this.rightBtn.UseVisualStyleBackColor = true;
-            this.rightBtn.Click += new System.EventHandler(this.RightClicked);
-            // 
-            // leftBtn
-            // 
-            this.leftBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.leftBtn.BackgroundImage = global::WindowsClient.Properties.Resources.left;
-            this.leftBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.leftBtn.Enabled = false;
-            this.leftBtn.Location = new System.Drawing.Point(552, 532);
-            this.leftBtn.Margin = new System.Windows.Forms.Padding(0);
-            this.leftBtn.Name = "leftBtn";
-            this.leftBtn.Size = new System.Drawing.Size(29, 29);
-            this.leftBtn.TabIndex = 18;
-            this.leftBtn.UseVisualStyleBackColor = true;
-            this.leftBtn.Click += new System.EventHandler(this.LeftClicked);
-            // 
-            // traitTypeBox
-            // 
-            this.traitTypeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.traitTypeBox.FormattingEnabled = true;
-            this.traitTypeBox.Location = new System.Drawing.Point(552, 3);
-            this.traitTypeBox.Name = "traitTypeBox";
-            this.traitTypeBox.Size = new System.Drawing.Size(143, 21);
-            this.traitTypeBox.TabIndex = 17;
             // 
             // traitsBox
             // 
-            this.traitsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.traitsBox.CheckOnClick = true;
+            this.traitsBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.traitsBox.FormattingEnabled = true;
-            this.traitsBox.Location = new System.Drawing.Point(552, 30);
+            this.traitsBox.Location = new System.Drawing.Point(0, 0);
             this.traitsBox.Name = "traitsBox";
-            this.traitsBox.Size = new System.Drawing.Size(143, 499);
+            this.traitsBox.Size = new System.Drawing.Size(173, 286);
             this.traitsBox.TabIndex = 16;
             // 
             // chart
             // 
-            this.chart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // 
             // 
@@ -760,6 +723,7 @@
             this.chart.Axes.Top.Title.Shadow.Brush.Solid = true;
             this.chart.Axes.Top.Title.Shadow.Brush.Visible = true;
             this.chart.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
             // 
             // 
             // 
@@ -982,7 +946,7 @@
             this.chart.Legend.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.chart.Legend.Title.Shadow.Brush.Solid = true;
             this.chart.Legend.Title.Shadow.Brush.Visible = true;
-            this.chart.Location = new System.Drawing.Point(3, 3);
+            this.chart.Location = new System.Drawing.Point(0, 0);
             this.chart.Name = "chart";
             // 
             // 
@@ -1019,7 +983,7 @@
             this.chart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.chart.Panel.Shadow.Brush.Solid = true;
             this.chart.Panel.Shadow.Brush.Visible = true;
-            this.chart.Size = new System.Drawing.Size(543, 558);
+            this.chart.Size = new System.Drawing.Size(527, 573);
             // 
             // 
             // 
@@ -1262,55 +1226,74 @@
             this.chart.Zoom.Brush.Solid = true;
             this.chart.Zoom.Brush.Visible = true;
             // 
-            // panel1
+            // splitContainer1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.Controls.Add(this.dateLabel);
-            this.panel1.Controls.Add(this.rightBtn);
-            this.panel1.Controls.Add(this.leftBtn);
-            this.panel1.Controls.Add(this.chart);
-            this.panel1.Controls.Add(this.traitTypeBox);
-            this.panel1.Controls.Add(this.traitsBox);
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(698, 567);
-            this.panel1.TabIndex = 20;
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
             // 
-            // dateLabel
+            // splitContainer1.Panel1
             // 
-            this.dateLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.dateLabel.AutoSize = true;
-            this.dateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dateLabel.Location = new System.Drawing.Point(583, 538);
-            this.dateLabel.Name = "dateLabel";
-            this.dateLabel.Size = new System.Drawing.Size(80, 17);
-            this.dateLabel.TabIndex = 20;
-            this.dateLabel.Text = "01/01/2000";
-            this.dateLabel.Visible = false;
+            this.splitContainer1.Panel1.Controls.Add(this.listSplitter);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.chart);
+            this.splitContainer1.Size = new System.Drawing.Size(704, 573);
+            this.splitContainer1.SplitterDistance = 173;
+            this.splitContainer1.TabIndex = 17;
+            // 
+            // listSplitter
+            // 
+            this.listSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listSplitter.Location = new System.Drawing.Point(0, 0);
+            this.listSplitter.Name = "listSplitter";
+            this.listSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // listSplitter.Panel1
+            // 
+            this.listSplitter.Panel1.Controls.Add(this.traitsBox);
+            // 
+            // listSplitter.Panel2
+            // 
+            this.listSplitter.Panel2.Controls.Add(this.datesBox);
+            this.listSplitter.Size = new System.Drawing.Size(173, 573);
+            this.listSplitter.SplitterDistance = 286;
+            this.listSplitter.TabIndex = 17;
+            // 
+            // datesBox
+            // 
+            this.datesBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.datesBox.FormattingEnabled = true;
+            this.datesBox.Location = new System.Drawing.Point(0, 0);
+            this.datesBox.Name = "datesBox";
+            this.datesBox.Size = new System.Drawing.Size(173, 283);
+            this.datesBox.TabIndex = 0;
             // 
             // TraitChart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.splitContainer1);
             this.Name = "TraitChart";
             this.Size = new System.Drawing.Size(704, 573);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            this.listSplitter.Panel1.ResumeLayout(false);
+            this.listSplitter.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.listSplitter)).EndInit();
+            this.listSplitter.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button rightBtn;
-        private System.Windows.Forms.Button leftBtn;
-        private System.Windows.Forms.ComboBox traitTypeBox;
         private System.Windows.Forms.CheckedListBox traitsBox;
         private Steema.TeeChart.TChart chart;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label dateLabel;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer listSplitter;
+        private System.Windows.Forms.ListBox datesBox;
     }
 }

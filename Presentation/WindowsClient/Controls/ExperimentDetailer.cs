@@ -8,6 +8,9 @@ using MediatR;
 using Rems.Application.Common;
 using Steema.TeeChart.Styles;
 using Rems.Application.Common.Extensions;
+using Steema.TeeChart;
+using static Steema.TeeChart.Axis;
+using System.Drawing;
 
 namespace WindowsClient.Controls
 {
@@ -19,9 +22,7 @@ namespace WindowsClient.Controls
 
         public ExperimentDetailer()
         {
-            InitializeComponent();
-
-            operationsBox.SelectedIndex = 0;            
+            InitializeComponent();          
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
         }
@@ -123,54 +124,121 @@ namespace WindowsClient.Controls
 
         private async void RefreshOperationsData()
         {
+            operationsChart.Text = "Operations";
+            var chart = operationsChart.Chart;
+            chart.Panel.MarginUnits = PanelMarginUnits.Pixels;
+            chart.Panel.MarginLeft = 70;
+            chart.Panel.MarginRight = 30;
+            chart.Panel.MarginBottom = 90;            
+
             var node = experimentsTree.SelectedNode;
             if (node is null) return;
 
             var tag = (NodeTag)node.Tag;
             if (tag.Type is TagType.Experiment) return;
 
-            IRequest<SeriesData> query;
+            var iData = await (new IrrigationDataQuery() { TreatmentId = tag.ID }).Send(REMS);
+            var fData = await (new FertilizationDataQuery() { TreatmentId = tag.ID }).Send(REMS);
+            var tData = await (new TillagesDataQuery() { TreatmentId = tag.ID }).Send(REMS);
 
-            string item = operationsBox.SelectedItem?.ToString();
-            if (item == "Irrigations")
-                query = new IrrigationDataQuery() { TreatmentId = tag.ID };
-            else if (item == "Fertilizations")
-                query = new FertilizationDataQuery() { TreatmentId = tag.ID };
-            else if (item == "Tillages")
-                query = new TillagesDataQuery() { TreatmentId = tag.ID };
-            else
-                return;
+            chart.Series.Clear();
+            chart.Axes.Custom.Clear();
 
-            var data = await query.Send(REMS);
+            var pen = new AxisLinePen(chart)
+            {
+                Visible = true,
+                Color = Color.Black,
+                Width = 2
+            };
+            chart.Axes.Right.AxisPen = pen;
+            chart.Axes.Right.Visible = true;
 
-            operationsChart.Series.Clear();
-            operationsChart.Text = item;
+            var x = new Axis(chart)
+            {
+                Title = new AxisTitle() { Text = "Date" },
+                AutomaticMaximum = true,
+                AutomaticMinimum = true,
+                Horizontal = true,
+            };
+            x.Labels.DateTimeFormat = "MMM-dd";
+            x.Labels.Angle = 60;
+            x.Ticks.Visible = true;
+            x.MinorGrid.Visible = true;
+            x.MinorGrid.Color = Color.LightGray;
+            x.Grid.Visible = true;
+
+            var y = new Axis(chart)
+            {
+                AxisPen = pen
+            };
+
+            chart.Axes.Custom.Add(x);
+            chart.Axes.Custom.Add(y);
+
+            chart.Series.Add(CreateBar(iData, x, 0));
+            chart.Series.Add(CreateBar(fData, x, 1));
+            chart.Series.Add(CreateBar(tData, x, 2));           
+
+            chart.Draw();
+        }
+
+        private Bar CreateBar(SeriesData data, Axis x, int pos)
+        {
+            var chart = operationsChart.Chart;
+
+            int margin = 5 * pos;
+            int start = 30 * pos + margin;
+            int end = start + 30;
+
+            var title = new AxisTitle() 
+            { 
+                Text = data.Title + " " + data.YLabel,
+                Angle = 90          
+            };
+            title.Font.Size = 8;
+
+            int increment = Convert.ToInt32(Math.Floor(data.Y.Cast<double>().Max() / 30)) * 10;
+            var y = new Axis(chart)
+            {
+                Title = title,
+                StartPosition = start,
+                EndPosition = end,
+                MinorTickCount = 1,
+                Increment = increment
+            };
+            y.MinorGrid.Visible = true;
+            y.MinorGrid.Color = Color.LightGray;
+
+            var b = new Axis(chart)
+            {                
+                AxisPen = new AxisLinePen(chart) { Visible = true, Width = 2, Color = Color.Black },
+                Horizontal = true,
+                Visible = true,
+                RelativePosition = start
+            };            
+
+            chart.Axes.Custom.Add(y);
+            chart.Axes.Custom.Add(b);
 
             // Data
-            Bar bar = new Bar();
-            bar.CustomBarWidth = 8;
-            bar.Marks.Visible = false;
+            Bar bar = new Bar()
+            {
+                CustomBarWidth = 4,
+                CustomHorizAxis = x,
+                CustomVertAxis = y,
+                Title = data.Title
+            };
+            bar.Marks.Visible = false;                        
 
             bar.Add(data.X, data.Y);
 
             // X-Axis
             bar.XValues.DateTime = true;
-            //operationsChart.Axes.Bottom.Labels.DateTimeFormat = "MMM-dd";
-            //operationsChart.Axes.Bottom.Labels.Angle = 90;
-            operationsChart.Axes.Bottom.Title.Text = data.XLabel;
-            //operationsChart.Axes.Bottom.Ticks.Visible = true;
-
-            // Y-Axis
-            operationsChart.Axes.Left.Title.Text = data.YLabel;
-
+           
             // Legend            
             bar.Legend.Visible = false;
 
-
-            operationsChart.Series.Add(bar);
-            operationsChart.Refresh();
+            return bar;
         }
-
-        
     }
 }

@@ -42,7 +42,7 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Name = request.TraitName,
+                Title = request.TraitName,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
                 XLabel = "Value",

@@ -125,6 +125,12 @@ namespace WindowsClient.Models
 
         private void ItemsPopup(object sender, EventArgs e)
         {
+            if (node.State["Info"] != null)
+            {
+                trait.Enabled = false;
+                return;
+            }
+
             items.MenuItems.Clear();
 
             var props = column.GetUnmappedProperties();
@@ -132,7 +138,6 @@ namespace WindowsClient.Models
             foreach (var prop in props)
                 items.MenuItems.Add(prop.Name, SetProperty);
         }
-
 
         private void SetProperty(object sender, EventArgs args)
         {
