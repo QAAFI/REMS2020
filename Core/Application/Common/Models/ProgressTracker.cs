@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common
 {
-    public delegate void InvalidsHandler(DataColumn[] items);
-
     public abstract class ProgressTracker : IProgressTracker
     {
         public abstract int Items { get; }
@@ -19,7 +17,7 @@ namespace Rems.Application.Common
         public event Action IncrementProgress;
         public event Action TaskFinished;
 
-        public event NextItemHandler NextItem;
+        public event StringSender NextItem;
         public event ExceptionHandler TaskFailed;
         public QueryHandler Query { get; set; }        
 

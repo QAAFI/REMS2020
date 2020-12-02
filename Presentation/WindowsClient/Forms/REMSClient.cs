@@ -52,21 +52,25 @@ namespace WindowsClient
         {
             var link = sender as ImportLink;
 
-            var tab = new TabPage(link.Label);
-
-            tab.Controls.Add(link.Importer);
             link.Importer.Query = _mediator.Send;
             link.Importer.DatabaseChanged += UpdateAllComponents;
 
-            notebook.TabPages.Add(tab);
-            notebook.SelectedTab = tab;
+            if (!notebook.TabPages.Contains(link.Tab))
+                notebook.TabPages.Add(link.Tab);
+            notebook.SelectedTab = link.Tab;
         }
 
         private async void UpdateAllComponents()
         {
-            LoadListView();
+            LoadListView("");
+            await experimentDetailer.RefreshContent();
+        }
+
+        private async void UpdateAllComponents(string file)
+        {            
+            LoadListView(file);
             await experimentDetailer.RefreshContent();          
-        }     
+        }
 
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
         {
@@ -75,8 +79,10 @@ namespace WindowsClient
             dataGridView.DataSource = await TryQueryREMS(new DataTableQuery() { TableName = item });
         }
 
-        private async void LoadListView()
+        private async void LoadListView(string file)
         {
+            Text = "REMS 2020 - " +Path.GetFileName(file);
+
             var items = await new GetTableListQuery().Send(TryQueryREMS);
 
             relationsListBox.Items.Clear();

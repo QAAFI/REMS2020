@@ -25,6 +25,10 @@ namespace WindowsClient.Controls
 
         public event Action DatabaseChanged;
 
+        public delegate void StageHandler(Stage stage);
+        public event StageHandler StageChanged;
+        public event StringSender FileChanged;
+
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         private ImageList images;
@@ -191,6 +195,9 @@ namespace WindowsClient.Controls
                     fileBox.Text = Path.GetFileName(open.FileName);
 
                     dataTree.SelectedNode = dataTree.TopNode;
+
+                    StageChanged?.Invoke(Stage.Validation);
+                    FileChanged?.Invoke(open.FileName);
                 }
                 catch (IOException error)
                 {
@@ -231,6 +238,8 @@ namespace WindowsClient.Controls
                 importer.Data = Data;
                 var dialog = new ProgressDialog(importer, "Importing...");
                 dialog.TaskComplete += DatabaseChanged;
+
+                StageChanged.Invoke(Stage.Imported);
             }
             catch (Exception error)
             {

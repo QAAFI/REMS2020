@@ -66,11 +66,10 @@ namespace WindowsClient.Forms
 
         private void OnTaskFinished()
         {
-            Thread.Sleep(1000);
-
-            Close();
+            Thread.Sleep(500);
 
             MessageBox.Show("No errors encountered.", "Task complete!");
+            Close();            
 
             TaskComplete?.Invoke();
         }
@@ -79,7 +78,7 @@ namespace WindowsClient.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new NextItemHandler(OnNextItem));
+                Invoke(new StringSender(OnNextItem));
                 return;
             }
 

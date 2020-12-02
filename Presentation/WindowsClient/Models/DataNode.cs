@@ -64,10 +64,11 @@ namespace WindowsClient.Models
         }
 
         public void ToggleIgnore(object sender, EventArgs args)
-        {
-            var item = sender as MenuItem;
-            item.Checked = !item.Checked;
-            UpdateState("Ignore", item.Checked);
+        {            
+            UpdateState("Ignore", !(bool)State["Ignore"]);
+            
+            if (sender is MenuItem item)
+                item.Checked = (bool)State["Ignore"];
         }
 
         public async void AddTrait(object sender, EventArgs args)
@@ -155,6 +156,8 @@ namespace WindowsClient.Models
         DataTable table;
 
         MenuItem ignore;
+        MenuItem addTraits;
+        MenuItem ignoreAll;
 
         public TableNodeMenu(DataNode node, DataTable table) : base()
         {
@@ -162,8 +165,26 @@ namespace WindowsClient.Models
             this.table = table;
 
             ignore = new MenuItem("Ignore", node.ToggleIgnore);
+            addTraits = new MenuItem("Add invalids as traits", AddTraits);
+            ignoreAll = new MenuItem("Ignore all invalids", IgnoreAll);
 
             MenuItems.Add(ignore);
+            MenuItems.Add(addTraits);
+            MenuItems.Add(ignoreAll);
+        }
+
+        public void AddTraits(object sender, EventArgs args)
+        {
+            foreach (DataNode n in node.Nodes)
+                if (n.State["Valid"] is false)
+                    n.AddTrait(sender, args);
+        }
+
+        private void IgnoreAll(object sender, EventArgs args)
+        {
+            foreach (DataNode n in node.Nodes)
+                if (n.State["Valid"] is false)
+                    n.ToggleIgnore(null, args);
         }
     }
 

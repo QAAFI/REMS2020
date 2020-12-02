@@ -18,8 +18,8 @@ namespace WindowsClient.Controls
     public partial class HomeScreen : UserControl
     {
         public event QueryHandler Query;
-        public event Action DBCreated;
-        public event Action DBOpened;
+        public event StringSender DBCreated;
+        public event StringSender DBOpened;
         public event EventHandler ImportRequested;
 
         private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -54,7 +54,7 @@ namespace WindowsClient.Controls
                 await Query.Invoke(new CreateDBCommand() { FileName = save.FileName });
                 await Query.Invoke(new OpenDBCommand() { FileName = save.FileName });
 
-                DBCreated?.Invoke();
+                DBCreated?.Invoke(save.FileName);
             }
         }
 
@@ -71,7 +71,7 @@ namespace WindowsClient.Controls
 
                 await Query.Invoke(new OpenDBCommand() { FileName = open.FileName });
 
-                DBOpened?.Invoke();
+                DBOpened?.Invoke(open.FileName);                
             }
         }
 

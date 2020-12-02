@@ -5,7 +5,7 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IProgressTracker
     {
-        event NextItemHandler NextItem;
+        event StringSender NextItem;
 
         event Action IncrementProgress;
 
