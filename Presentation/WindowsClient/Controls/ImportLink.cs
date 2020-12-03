@@ -18,15 +18,15 @@ namespace WindowsClient.Controls
         Imported
     }
 
+    public delegate void LinkAction(ImportLink link);
+
     public partial class ImportLink : UserControl
     {
-        public event EventHandler Clicked;
+        public event EventHandler Clicked;        
+        public event LinkAction ImportComplete;
+        public event LinkAction StageChanged;
 
-        public string File 
-        {
-            get => fileBox.Text;
-            set => fileBox.Text = value;
-        }
+        public string File { get; set; }
 
         private Stage stage;
         public Stage Stage
@@ -68,13 +68,28 @@ namespace WindowsClient.Controls
             Tab.Controls.Add(Importer);
             Importer.StageChanged += SetStage;
             Importer.FileChanged += SetFile;
+            Importer.FileImported += OnImportFinished;
+
+            label.Click += OnClick;
+            label.MouseEnter += LabelMouseEnter;
+            label.MouseLeave += LabelMouseLeave;
         }
+
+        private void OnImportFinished() => ImportComplete?.Invoke(this);
+
+        private void OnClick(object sender, EventArgs e) => Clicked?.Invoke(this, EventArgs.Empty);
+
+        private void LabelMouseEnter(object sender, EventArgs e) => label.ForeColor = SystemColors.MenuHighlight;
+
+        private void LabelMouseLeave(object sender, EventArgs e) => label.ForeColor = SystemColors.HotTrack;
 
         private void SetStage(Stage _stage)
         {
             stage = _stage;
 
             Image = Images.Images[_stage.ToString()];
+
+            StageChanged?.Invoke(this);
         }
 
         private void SetFile(string text) => File = Path.GetFileName(text);
@@ -82,9 +97,8 @@ namespace WindowsClient.Controls
         private void UpdateLabel(string text)
         {
             label.Text = text;
-            Tab.Text = text;
+            Tab.Text = "Import " + text;
         }
 
-        private void OnClick(object sender, EventArgs e) => Clicked?.Invoke(this, EventArgs.Empty);
     }
 }

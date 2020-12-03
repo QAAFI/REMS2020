@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +22,15 @@ namespace Rems.Application.CQRS
             _factory = factory;
         }
 
-        public Task<IRemsDbContext> Handle(CreateDBCommand request, CancellationToken cancellationToken) => Task.Run(() => _factory.Create(request.FileName));
+        public Task<IRemsDbContext> Handle(CreateDBCommand request, CancellationToken cancellationToken) 
+            => Task.Run(() => Handler(request));
+
+        private IRemsDbContext Handler(CreateDBCommand request)
+        {
+            File.Delete(request.FileName);
+            var context = _factory.Create(request.FileName);
+
+            return context;
+        }
     }
 }

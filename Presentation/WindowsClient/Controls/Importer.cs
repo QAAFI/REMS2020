@@ -23,7 +23,7 @@ namespace WindowsClient.Controls
     {
         public QueryHandler Query { get; set; }
 
-        public event Action DatabaseChanged;
+        public event Action FileImported;
 
         public delegate void StageHandler(Stage stage);
         public event StageHandler StageChanged;
@@ -176,14 +176,14 @@ namespace WindowsClient.Controls
             columnLabel.Text = e.Node.Text;
         }
 
-        private void OnLoadClicked(object sender, EventArgs e)
+        public bool SelectFile()
         {
             using (var open = new OpenFileDialog())
             {
                 open.InitialDirectory = Folder;
                 open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
 
-                if (open.ShowDialog() != DialogResult.OK) return;
+                if (open.ShowDialog() != DialogResult.OK) return false;
 
                 Folder = Path.GetDirectoryName(open.FileName);
 
@@ -198,11 +198,14 @@ namespace WindowsClient.Controls
 
                     StageChanged?.Invoke(Stage.Validation);
                     FileChanged?.Invoke(open.FileName);
+
+                    return true;
                 }
                 catch (IOException error)
                 {
                     MessageBox.Show(error.Message);
-                }
+                    return false;
+                }                
             }
         }
 
@@ -237,7 +240,7 @@ namespace WindowsClient.Controls
                 importer.Query = Query;
                 importer.Data = Data;
                 var dialog = new ProgressDialog(importer, "Importing...");
-                dialog.TaskComplete += DatabaseChanged;
+                dialog.TaskComplete += FileImported;
 
                 StageChanged.Invoke(Stage.Imported);
             }

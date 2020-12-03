@@ -30,7 +30,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        public async Task RefreshContent()
+        public async void RefreshContent(object sender, EventArgs e)
         {
             traitChart.REMS = REMS;
 

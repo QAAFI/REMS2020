@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
+using Rems.Infrastructure;
 using WindowsClient.Controls;
+using WindowsClient.Models;
 
 namespace WindowsClient
 {
@@ -40,12 +43,31 @@ namespace WindowsClient
 
             _mediator = provider.GetRequiredService<IMediator>();
 
-            experimentDetailer.REMS += _mediator.Send;
+            FormClosed += REMSClientFormClosed;
+
+            //experimentDetailer.REMS += _mediator.Send;
 
             homeScreen.Query += _mediator.Send;
             homeScreen.DBCreated += LoadListView;
-            homeScreen.DBOpened += UpdateAllComponents;
+            homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
+            homeScreen.ImportCompleted += OnImportCompleted;
+            homeScreen.SessionChanged += OnSessionChanged;
+            homeScreen.PageCreated += OnPageCreated;            
+        }
+
+        private void OnPageCreated(TabPage page)
+        {
+            notebook.TabPages.Add(page);
+        }
+
+        private void OnSessionChanged()
+        {
+            // Remove all pages except the homescreen
+            var pages = notebook.TabPages.Cast<TabPage>().Skip(2);
+
+            foreach (var page in pages)
+                notebook.TabPages.Remove(page);
         }
 
         private void OnImportRequested(object sender, EventArgs e)
@@ -53,23 +75,27 @@ namespace WindowsClient
             var link = sender as ImportLink;
 
             link.Importer.Query = _mediator.Send;
-            link.Importer.DatabaseChanged += UpdateAllComponents;
 
             if (!notebook.TabPages.Contains(link.Tab))
                 notebook.TabPages.Add(link.Tab);
             notebook.SelectedTab = link.Tab;
+
+            if (!link.Importer.SelectFile())
+                notebook.TabPages.Remove(link.Tab);
         }
 
-        private async void UpdateAllComponents()
+        private void OnImportCompleted(ImportLink link)
         {
-            LoadListView("");
-            await experimentDetailer.RefreshContent();
+            notebook.TabPages.Remove(link.Tab);
         }
 
-        private async void UpdateAllComponents(string file)
-        {            
+        private void OnDBOpened(string file)
+        {
+            // Update the title
+            Text = "REMS 2020 - " + Path.GetFileName(file);
+
+            // Update the tables
             LoadListView(file);
-            await experimentDetailer.RefreshContent();          
         }
 
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
@@ -81,8 +107,6 @@ namespace WindowsClient
 
         private async void LoadListView(string file)
         {
-            Text = "REMS 2020 - " +Path.GetFileName(file);
-
             var items = await new GetTableListQuery().Send(TryQueryREMS);
 
             relationsListBox.Items.Clear();
@@ -134,6 +158,11 @@ namespace WindowsClient
 
             builder.Replace("\r", "");
             return builder.ToString();
+        }
+
+        private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
+        {
+            homeScreen.Close();
         }
     }
 }

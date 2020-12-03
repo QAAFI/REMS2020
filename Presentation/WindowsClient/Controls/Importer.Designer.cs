@@ -28,21 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.columnLabel = new System.Windows.Forms.Label();
             this.stateBox = new System.Windows.Forms.PictureBox();
             this.importData = new System.Windows.Forms.DataGridView();
-            this.btnLoad = new System.Windows.Forms.Button();
             this.fileBox = new System.Windows.Forms.TextBox();
             this.splitter = new System.Windows.Forms.SplitContainer();
             this.dataTree = new System.Windows.Forms.TreeView();
             this.btnImport = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.cancel = new System.Windows.Forms.Button();
+            this.nodeInfoBox = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.stateBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).BeginInit();
             this.splitter.Panel1.SuspendLayout();
             this.splitter.Panel2.SuspendLayout();
             this.splitter.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // columnLabel
@@ -71,30 +74,20 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.Format = "N3";
-            dataGridViewCellStyle2.NullValue = null;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.importData.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.Format = "N3";
+            dataGridViewCellStyle1.NullValue = null;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.importData.DefaultCellStyle = dataGridViewCellStyle1;
             this.importData.Location = new System.Drawing.Point(3, 29);
             this.importData.Name = "importData";
             this.importData.Size = new System.Drawing.Size(451, 556);
             this.importData.TabIndex = 0;
-            // 
-            // btnLoad
-            // 
-            this.btnLoad.Location = new System.Drawing.Point(3, 29);
-            this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(91, 23);
-            this.btnLoad.TabIndex = 6;
-            this.btnLoad.Text = "Open";
-            this.btnLoad.UseVisualStyleBackColor = true;
-            this.btnLoad.Click += new System.EventHandler(this.OnLoadClicked);
             // 
             // fileBox
             // 
@@ -114,9 +107,8 @@
             // 
             // splitter.Panel1
             // 
+            this.splitter.Panel1.Controls.Add(this.panel1);
             this.splitter.Panel1.Controls.Add(this.dataTree);
-            this.splitter.Panel1.Controls.Add(this.btnImport);
-            this.splitter.Panel1.Controls.Add(this.btnLoad);
             this.splitter.Panel1.Controls.Add(this.fileBox);
             // 
             // splitter.Panel2
@@ -134,21 +126,50 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataTree.HideSelection = false;
-            this.dataTree.Location = new System.Drawing.Point(3, 59);
+            this.dataTree.Location = new System.Drawing.Point(3, 29);
             this.dataTree.Name = "dataTree";
-            this.dataTree.Size = new System.Drawing.Size(188, 526);
+            this.dataTree.Size = new System.Drawing.Size(188, 419);
             this.dataTree.TabIndex = 12;
             this.dataTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeAfterSelect);
             // 
             // btnImport
             // 
-            this.btnImport.Location = new System.Drawing.Point(100, 29);
+            this.btnImport.Location = new System.Drawing.Point(3, 105);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(91, 23);
+            this.btnImport.Size = new System.Drawing.Size(75, 23);
             this.btnImport.TabIndex = 11;
             this.btnImport.Text = "Import";
             this.btnImport.UseVisualStyleBackColor = true;
             this.btnImport.Click += new System.EventHandler(this.OnImportClicked);
+            // 
+            // panel1
+            // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.nodeInfoBox);
+            this.panel1.Controls.Add(this.cancel);
+            this.panel1.Controls.Add(this.btnImport);
+            this.panel1.Location = new System.Drawing.Point(3, 454);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(188, 131);
+            this.panel1.TabIndex = 13;
+            // 
+            // cancel
+            // 
+            this.cancel.Location = new System.Drawing.Point(84, 105);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(75, 23);
+            this.cancel.TabIndex = 12;
+            this.cancel.Text = "Cancel";
+            this.cancel.UseVisualStyleBackColor = true;
+            // 
+            // nodeInfoBox
+            // 
+            this.nodeInfoBox.Location = new System.Drawing.Point(3, 3);
+            this.nodeInfoBox.Name = "nodeInfoBox";
+            this.nodeInfoBox.Size = new System.Drawing.Size(182, 96);
+            this.nodeInfoBox.TabIndex = 13;
+            this.nodeInfoBox.Text = "";
             // 
             // Importer
             // 
@@ -165,18 +186,21 @@
             this.splitter.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).EndInit();
             this.splitter.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
         private System.Windows.Forms.DataGridView importData;
-        private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.TextBox fileBox;
         private System.Windows.Forms.SplitContainer splitter;
         private System.Windows.Forms.Label columnLabel;
         private System.Windows.Forms.PictureBox stateBox;
         private System.Windows.Forms.TreeView dataTree;
         private System.Windows.Forms.Button btnImport;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RichTextBox nodeInfoBox;
+        private System.Windows.Forms.Button cancel;
     }
 }
