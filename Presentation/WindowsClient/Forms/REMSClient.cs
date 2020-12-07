@@ -52,7 +52,7 @@ namespace WindowsClient
             homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
             homeScreen.ImportCompleted += OnImportCompleted;
-            homeScreen.SessionChanged += OnSessionChanged;
+            homeScreen.SessionChanging += OnSessionChanged;
             homeScreen.PageCreated += OnPageCreated;            
         }
 

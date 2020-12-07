@@ -162,18 +162,14 @@ namespace WindowsClient.Controls
 
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node.Tag is DataTable table)
+            if (e.Node is DataNode node)
             {
-                importData.DataSource = table;
+                importData.DataSource = node.Source;
+                columnLabel.Text = node.Text;
+                
+                adviceBox.Clear();
+                adviceBox.AddText(node.Advice);
             }
-
-            else if (e.Node.Tag is DataColumn col)
-            {
-                importData.DataSource = col.Table;
-            }
-
-            stateBox.Image = images.Images[e.Node.ImageKey];
-            columnLabel.Text = e.Node.Text;
         }
 
         public bool SelectFile()

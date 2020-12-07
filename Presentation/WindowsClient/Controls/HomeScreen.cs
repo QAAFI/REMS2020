@@ -27,7 +27,7 @@ namespace WindowsClient.Controls
 
         public event EventHandler ImportRequested;
         public event LinkAction ImportCompleted;
-        public event Action SessionChanged;
+        public event Action SessionChanging;
         public event PageAction PageCreated;
 
         /// <summary>
@@ -124,6 +124,8 @@ namespace WindowsClient.Controls
             // Ensure the current session is updated before changing out
             UpdateSession();
 
+            SessionChanging?.Invoke();
+
             // Open the DB from the new session
             await Query.Invoke(new OpenDBCommand() { FileName = session.DB });
             DBOpened?.Invoke(session.DB);
@@ -149,9 +151,7 @@ namespace WindowsClient.Controls
             {
                 Session.Experiments = false;
                 CreateExpsPage(expsLink);
-            }
-
-            SessionChanged?.Invoke();
+            }            
         }
 
         private async Task CreateSession(string file)

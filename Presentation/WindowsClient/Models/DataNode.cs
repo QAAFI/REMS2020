@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,24 +18,74 @@ namespace WindowsClient.Models
 
         public PropertyCollection State { get; }
 
+        public DataTable Source { get; }
+
+        public IEnumerable<RichText> Advice { get; set; }
+
+        private List<RichText> valid;
+        private List<RichText> invalid;
+
         public DataNode(DataColumn col) : base(col.ColumnName)
         {
             Tag = col;
             State = col.ExtendedProperties;
-           
+            Source = col.Table;
+
             ContextMenu = new ColumnNodeMenu(this, col);
 
             State["Ignore"] = false;
+
+            valid = new List<RichText>
+            { 
+                new RichText
+                { Text = "This column is valid and can be imported", Color = Color.Black }
+            };
+
+            invalid = new List<RichText>
+            {
+                new RichText
+                { Text = "The type of column could not be determined. ", Color = Color.Black },
+                new RichText
+                { Text = "Right click to view options. \n\n", Color = Color.Black },
+                new RichText
+                { Text = "Ignore\n", Color = Color.Blue },
+                new RichText
+                { Text = "    - The column is not imported\n\n", Color = Color.Black },                
+                new RichText
+                { Text = "Add trait\n", Color = Color.Blue },
+                new RichText
+                { Text = "    - Add a trait named for the column\n", Color = Color.Black },
+                new RichText
+                { Text = "    - Only valid traits are imported\n\n", Color = Color.Black },
+                new RichText
+                { Text = "Set property\n", Color = Color.Blue },
+                new RichText
+                { Text = "    - Match the column to a REMS property\n", Color = Color.Black }
+            };    
         }
 
         public DataNode(DataTable table) : base(table.TableName)
         {
             Tag = table;
             State = table.ExtendedProperties;
+            Source = table;
             ContextMenu = new TableNodeMenu(this, table);
 
             State["Valid"] = true;
             State["Ignore"] = false;
+
+            valid = new List<RichText>
+            {
+                new RichText
+                { Text = "This table is valid. Check the other tables prior to import.", Color = Color.Black }
+            };
+
+            invalid = new List<RichText>
+            {
+                new RichText
+                { Text = "This table contains columns that REMS does not recognise. " +
+                "Please fix the columns before importing", Color = Color.Black }
+            };
         }
 
         public void UpdateState(string state, object value)
@@ -44,9 +95,15 @@ namespace WindowsClient.Models
             string key = "";
 
             if (State["Valid"] is true)
+            {
                 key += "Valid";
+                Advice = valid;
+            }
             else
+            {
                 key += "Invalid";
+                Advice = invalid;
+            }
 
             if (State["Override"] is string s && s != "")
                 key = s;
