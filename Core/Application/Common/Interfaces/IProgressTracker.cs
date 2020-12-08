@@ -5,13 +5,13 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IProgressTracker
     {
-        event StringSender NextItem;
+        event Action<string> NextItem;
 
         event Action IncrementProgress;
 
         event Action TaskFinished;
 
-        event ExceptionHandler TaskFailed;
+        event Action<Exception> TaskFailed;
 
         QueryHandler Query { get; set; }
 

@@ -24,10 +24,8 @@ namespace WindowsClient.Controls
         public QueryHandler Query { get; set; }
 
         public event Action FileImported;
-
-        public delegate void StageHandler(Stage stage);
-        public event StageHandler StageChanged;
-        public event StringSender FileChanged;
+        public event Action<Stage> StageChanged;
+        public event Action<string> FileChanged;
 
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 

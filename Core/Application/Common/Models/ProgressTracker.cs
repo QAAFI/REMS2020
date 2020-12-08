@@ -17,8 +17,8 @@ namespace Rems.Application.Common
         public event Action IncrementProgress;
         public event Action TaskFinished;
 
-        public event StringSender NextItem;
-        public event ExceptionHandler TaskFailed;
+        public event Action<string> NextItem;
+        public event Action<Exception> TaskFailed;
         public QueryHandler Query { get; set; }        
 
         public abstract Task Run();

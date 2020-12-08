@@ -22,8 +22,8 @@ namespace WindowsClient.Controls
     public partial class HomeScreen : UserControl
     {
         public event QueryHandler Query;
-        public event StringSender DBCreated;
-        public event StringSender DBOpened;
+        public event Action<string> DBCreated;
+        public event Action<string> DBOpened;
 
         public event EventHandler ImportRequested;
         public event LinkAction ImportCompleted;

@@ -64,7 +64,7 @@ namespace WindowsClient.Controls
         {
             if (InvokeRequired)
             {
-                Invoke(new StringSender(OnNextItem));
+                Invoke(new Action<string>(OnNextItem));
                 return;
             }
 
