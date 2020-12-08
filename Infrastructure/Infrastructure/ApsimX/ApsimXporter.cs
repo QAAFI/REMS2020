@@ -8,6 +8,7 @@ using Rems.Application.CQRS;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -26,6 +27,8 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => OnQuery(new ExperimentCount());
         public override int Steps => Items * 30;
 
+        public IEnumerable<string> Experiments { get; set; }
+
         public async override Task Run()
         {
             var path = Path.Combine("DataFiles", "apsimx", "Sorghum.apsimx");
@@ -36,6 +39,8 @@ namespace Rems.Infrastructure.ApsimX
 
             foreach (var experiment in experiments)
             {
+                if (!Experiments.Contains(experiment.Value)) continue;
+
                 OnNextItem(experiment.Value);
                 await Task.Run(() =>
                 {

@@ -18,7 +18,7 @@ namespace WindowsClient.Controls
 
     public partial class ExperimentDetailer : UserControl
     {
-        public QueryHandler REMS;
+        public QueryHandler REMS { get; set; }
 
         public ExperimentDetailer()
         {
@@ -30,7 +30,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        public async void RefreshContent(object sender, EventArgs e)
+        public async void RefreshContent()
         {
             traitChart.REMS = REMS;
 
@@ -195,7 +195,12 @@ namespace WindowsClient.Controls
             };
             title.Font.Size = 8;
 
-            int increment = Convert.ToInt32(Math.Floor(data.Y.Cast<double>().Max() / 30)) * 10;
+            int increment = 1;
+            var ys = data.Y.Cast<double>();
+
+            if (ys.Any())
+                increment = Convert.ToInt32(Math.Floor(ys.Max() / 30)) * 10;
+
             var y = new Axis(chart)
             {
                 Title = title,

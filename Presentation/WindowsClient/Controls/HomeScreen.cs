@@ -49,33 +49,19 @@ namespace WindowsClient.Controls
             AttachLink(expsLink);
             AttachLink(dataLink);
 
-            expsLink.ImportComplete += CreateExpsPage;
-
-            Sessions = GetSessions();
+            Sessions = LoadSessions();
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
         }
 
-        private void CreateExpsPage(ImportLink link)
+        private void AddDetailerPage()
         {
-            if (!Session.Experiments)
-            {
-                var experiments = new TabPage("Experiment details");
+            Session.Detailer.REMS = Query;            
+            PageCreated?.Invoke(Session.Experiments);
+            Session.Detailer.RefreshContent();
 
-                var detailer = new ExperimentDetailer() 
-                { 
-                    Dock = DockStyle.Fill,
-                    REMS = Query
-                };
-                experiments.Controls.Add(detailer);
-
-                experiments.GotFocus += detailer.RefreshContent;
-
-                PageCreated?.Invoke(experiments);
-
-                Session.Experiments = true;
-            }            
+            LoadExportBox();
         }
 
         private void AttachLink(ImportLink link)
@@ -84,7 +70,7 @@ namespace WindowsClient.Controls
             link.ImportComplete += OnImportComplete;            
         }
 
-        private List<Session> GetSessions()
+        private List<Session> LoadSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
 
@@ -132,11 +118,9 @@ namespace WindowsClient.Controls
             folder = Path.GetDirectoryName(session.DB);
 
             Session = session;
+            await CheckTables(session);
 
             // Update the links
-            infoLink.Stage = session.Info;
-            expsLink.Stage = session.Exps;
-            dataLink.Stage = session.Data;
 
             infoLink.Importer.Data = null;
             expsLink.Importer.Data = null;
@@ -145,19 +129,26 @@ namespace WindowsClient.Controls
             // Reorder the list
             Sessions.Remove(session);
             Sessions.Add(session);
-            recentList.DataSource = snoisses;
+            recentList.DataSource = snoisses;      
+        }
 
-            if (Session.Experiments)
+        private async Task CheckTables(Session session)
+        {
+            if ((bool)await Query.Invoke(new LoadedInformation()))
+                infoLink.Stage = session.Info = Stage.Imported;
+
+            if ((bool)await Query.Invoke(new LoadedExperiments()))
             {
-                Session.Experiments = false;
-                CreateExpsPage(expsLink);
-            }            
+                expsLink.Stage = session.Exps = Stage.Imported;
+                AddDetailerPage();
+            }
+
+            if ((bool)await Query.Invoke(new LoadedData()))
+                dataLink.Stage = session.Data = Stage.Imported;
         }
 
         private async Task CreateSession(string file)
-        {
-            await Query.Invoke(new CreateDBCommand() { FileName = file });
-            DBCreated?.Invoke(file);
+        {           
 
             var session = new Session() { DB = file };
 
@@ -169,7 +160,22 @@ namespace WindowsClient.Controls
             await ChangeSession(session);            
         }
 
-        private void OnImportComplete(ImportLink link) => ImportCompleted?.Invoke(link);
+        private void OnImportComplete(ImportLink link)
+        {
+            ImportCompleted?.Invoke(link);
+
+            if (link == expsLink)
+                AddDetailerPage();
+        }
+
+        private async void LoadExportBox()
+        {
+            exportList.Items.Clear();
+
+            var exps = (await Query.Invoke(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+            var items = exps.Select(e => e.Value).ToArray();
+            exportList.Items.AddRange(items);
+        }
 
         private void LinkClicked(object sender, EventArgs e) => ImportRequested?.Invoke(sender, e);
 
@@ -183,7 +189,10 @@ namespace WindowsClient.Controls
                 save.RestoreDirectory = true;
 
                 if (save.ShowDialog() != DialogResult.OK) return;
-                
+
+                await Query.Invoke(new CreateDBCommand() { FileName = save.FileName });
+                DBCreated?.Invoke(save.FileName);
+
                 await CreateSession(save.FileName);                
             }
         }
@@ -226,7 +235,11 @@ namespace WindowsClient.Controls
 
                 try
                 {
-                    var exporter = new ApsimXporter();
+                    var exporter = new ApsimXporter
+                    {
+                        Experiments = exportList.CheckedItems.Cast<string>()
+                    };
+
                     exporter.Query += Query;
                     exporter.FileName = save.FileName;
                     var dialog = new ProgressDialog(exporter, "Exporting...");

@@ -37,7 +37,7 @@
             this.recentLabel = new System.Windows.Forms.Label();
             this.groupExport = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.exportList = new System.Windows.Forms.CheckedListBox();
             this.export = new System.Windows.Forms.Button();
             this.groupImport = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
@@ -135,7 +135,7 @@
             // groupExport
             // 
             this.groupExport.Controls.Add(this.label1);
-            this.groupExport.Controls.Add(this.checkedListBox1);
+            this.groupExport.Controls.Add(this.exportList);
             this.groupExport.Controls.Add(this.export);
             this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupExport.Location = new System.Drawing.Point(365, 3);
@@ -155,15 +155,15 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Experiments:";
             // 
-            // checkedListBox1
+            // exportList
             // 
-            this.checkedListBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.IntegralHeight = false;
-            this.checkedListBox1.Location = new System.Drawing.Point(6, 45);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(163, 309);
-            this.checkedListBox1.TabIndex = 1;
+            this.exportList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exportList.FormattingEnabled = true;
+            this.exportList.IntegralHeight = false;
+            this.exportList.Location = new System.Drawing.Point(6, 45);
+            this.exportList.Name = "exportList";
+            this.exportList.Size = new System.Drawing.Size(163, 309);
+            this.exportList.TabIndex = 1;
             // 
             // export
             // 
@@ -263,7 +263,7 @@
         private System.Windows.Forms.Label createLabel;
         private System.Windows.Forms.ListBox recentList;
         private System.Windows.Forms.Button export;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.CheckedListBox exportList;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupImport;
         private ImportLink dataLink;
