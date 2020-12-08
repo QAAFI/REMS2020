@@ -277,7 +277,6 @@
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\RichText.cs" />
     <Compile Include="Models\Session.cs" />
-    <Compile Include="Models\ValidaterRow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Forms\REMSClient.cs">

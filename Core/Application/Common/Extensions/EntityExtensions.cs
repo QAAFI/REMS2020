@@ -9,14 +9,6 @@ namespace Rems.Application.Common.Extensions
 {
     public static class EntityExtensions
     {
-        public static bool HasValue(this IEntity entity, object value)
-        {
-            var infos = entity.GetType().GetProperties();
-
-            foreach (var info in infos) if (info.GetValue(entity) == value) return true;
-            return false;
-        }
-
         public static bool HasValue(this IEntity entity, object value, PropertyInfo[] infos)
         {
             foreach (var info in infos)
