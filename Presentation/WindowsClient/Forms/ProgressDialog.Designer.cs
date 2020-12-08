@@ -38,6 +38,7 @@
             // 
             // label
             // 
+            this.label.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label.AutoSize = true;
             this.label.Location = new System.Drawing.Point(12, 17);
             this.label.Name = "label";
@@ -45,19 +46,22 @@
             this.label.TabIndex = 2;
             this.label.Text = "Initialising...";
             this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label.UseWaitCursor = true;
             // 
             // pctLabel
             // 
-            this.pctLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pctLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.pctLabel.Location = new System.Drawing.Point(234, 14);
             this.pctLabel.Name = "pctLabel";
             this.pctLabel.Size = new System.Drawing.Size(35, 19);
             this.pctLabel.TabIndex = 3;
             this.pctLabel.Text = "0%";
             this.pctLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.pctLabel.UseWaitCursor = true;
             // 
             // barPanel
             // 
+            this.barPanel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.barPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.barPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.barPanel.Controls.Add(this.bar);
@@ -65,6 +69,7 @@
             this.barPanel.Name = "barPanel";
             this.barPanel.Size = new System.Drawing.Size(338, 28);
             this.barPanel.TabIndex = 4;
+            this.barPanel.UseWaitCursor = true;
             // 
             // bar
             // 
@@ -74,15 +79,18 @@
             this.bar.Name = "bar";
             this.bar.Size = new System.Drawing.Size(338, 28);
             this.bar.TabIndex = 0;
+            this.bar.UseWaitCursor = true;
             // 
             // cancel
             // 
+            this.cancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.cancel.Location = new System.Drawing.Point(275, 12);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(75, 23);
             this.cancel.TabIndex = 5;
             this.cancel.Text = "Cancel";
             this.cancel.UseVisualStyleBackColor = true;
+            this.cancel.UseWaitCursor = true;
             this.cancel.Click += new System.EventHandler(this.cancel_Click);
             // 
             // ProgressDialog

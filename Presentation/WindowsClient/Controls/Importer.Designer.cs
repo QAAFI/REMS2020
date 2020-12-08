@@ -28,17 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.columnLabel = new System.Windows.Forms.Label();
             this.importData = new System.Windows.Forms.DataGridView();
             this.fileBox = new System.Windows.Forms.TextBox();
             this.splitter = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
             this.adviceBox = new System.Windows.Forms.RichTextBox();
-            this.cancel = new System.Windows.Forms.Button();
-            this.btnImport = new System.Windows.Forms.Button();
             this.dataTree = new System.Windows.Forms.TreeView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.tracker = new WindowsClient.Controls.TrackerBar();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).BeginInit();
             this.splitter.Panel1.SuspendLayout();
@@ -58,7 +57,7 @@
             this.columnLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.columnLabel.Location = new System.Drawing.Point(3, 7);
             this.columnLabel.Name = "columnLabel";
-            this.columnLabel.Size = new System.Drawing.Size(451, 17);
+            this.columnLabel.Size = new System.Drawing.Size(548, 17);
             this.columnLabel.TabIndex = 10;
             this.columnLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -70,19 +69,19 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.Format = "N3";
-            dataGridViewCellStyle5.NullValue = null;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.importData.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.Format = "N3";
+            dataGridViewCellStyle1.NullValue = null;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.importData.DefaultCellStyle = dataGridViewCellStyle1;
             this.importData.Location = new System.Drawing.Point(3, 29);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(451, 556);
+            this.importData.Size = new System.Drawing.Size(548, 538);
             this.importData.TabIndex = 0;
             // 
             // fileBox
@@ -93,7 +92,7 @@
             this.fileBox.Location = new System.Drawing.Point(4, 3);
             this.fileBox.Name = "fileBox";
             this.fileBox.ReadOnly = true;
-            this.fileBox.Size = new System.Drawing.Size(187, 20);
+            this.fileBox.Size = new System.Drawing.Size(216, 20);
             this.fileBox.TabIndex = 10;
             // 
             // splitter
@@ -110,19 +109,18 @@
             // 
             this.splitter.Panel2.Controls.Add(this.columnLabel);
             this.splitter.Panel2.Controls.Add(this.importData);
-            this.splitter.Size = new System.Drawing.Size(655, 588);
-            this.splitter.SplitterDistance = 194;
+            this.splitter.Size = new System.Drawing.Size(781, 570);
+            this.splitter.SplitterDistance = 223;
             this.splitter.TabIndex = 13;
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.tracker);
             this.panel1.Controls.Add(this.adviceBox);
-            this.panel1.Controls.Add(this.cancel);
-            this.panel1.Controls.Add(this.btnImport);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(194, 146);
+            this.panel1.Size = new System.Drawing.Size(223, 190);
             this.panel1.TabIndex = 13;
             // 
             // adviceBox
@@ -133,30 +131,9 @@
             this.adviceBox.Location = new System.Drawing.Point(3, 3);
             this.adviceBox.Name = "adviceBox";
             this.adviceBox.ReadOnly = true;
-            this.adviceBox.Size = new System.Drawing.Size(188, 111);
+            this.adviceBox.Size = new System.Drawing.Size(217, 123);
             this.adviceBox.TabIndex = 13;
             this.adviceBox.Text = "";
-            // 
-            // cancel
-            // 
-            this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cancel.Location = new System.Drawing.Point(84, 120);
-            this.cancel.Name = "cancel";
-            this.cancel.Size = new System.Drawing.Size(75, 23);
-            this.cancel.TabIndex = 12;
-            this.cancel.Text = "Cancel";
-            this.cancel.UseVisualStyleBackColor = true;
-            // 
-            // btnImport
-            // 
-            this.btnImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnImport.Location = new System.Drawing.Point(3, 120);
-            this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(75, 23);
-            this.btnImport.TabIndex = 11;
-            this.btnImport.Text = "Import";
-            this.btnImport.UseVisualStyleBackColor = true;
-            this.btnImport.Click += new System.EventHandler(this.OnImportClicked);
             // 
             // dataTree
             // 
@@ -166,7 +143,7 @@
             this.dataTree.HideSelection = false;
             this.dataTree.Location = new System.Drawing.Point(4, 29);
             this.dataTree.Name = "dataTree";
-            this.dataTree.Size = new System.Drawing.Size(187, 406);
+            this.dataTree.Size = new System.Drawing.Size(216, 344);
             this.dataTree.TabIndex = 12;
             this.dataTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeAfterSelect);
             // 
@@ -185,9 +162,18 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
-            this.splitContainer1.Size = new System.Drawing.Size(194, 588);
-            this.splitContainer1.SplitterDistance = 438;
+            this.splitContainer1.Size = new System.Drawing.Size(223, 570);
+            this.splitContainer1.SplitterDistance = 376;
             this.splitContainer1.TabIndex = 14;
+            // 
+            // tracker
+            // 
+            this.tracker.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tracker.Location = new System.Drawing.Point(4, 124);
+            this.tracker.Name = "tracker";
+            this.tracker.Size = new System.Drawing.Size(216, 63);
+            this.tracker.TabIndex = 14;
             // 
             // Importer
             // 
@@ -195,7 +181,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitter);
             this.Name = "Importer";
-            this.Size = new System.Drawing.Size(655, 588);
+            this.Size = new System.Drawing.Size(781, 570);
             ((System.ComponentModel.ISupportInitialize)(this.importData)).EndInit();
             this.splitter.Panel1.ResumeLayout(false);
             this.splitter.Panel2.ResumeLayout(false);
@@ -217,10 +203,9 @@
         private System.Windows.Forms.SplitContainer splitter;
         private System.Windows.Forms.Label columnLabel;
         private System.Windows.Forms.TreeView dataTree;
-        private System.Windows.Forms.Button btnImport;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RichTextBox adviceBox;
-        private System.Windows.Forms.Button cancel;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private TrackerBar tracker;
     }
 }

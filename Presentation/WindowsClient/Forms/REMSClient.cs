@@ -86,6 +86,8 @@ namespace WindowsClient
 
         private void OnImportCompleted(ImportLink link)
         {
+            MessageBox.Show("Import successful!", "");
+
             notebook.TabPages.Remove(link.Tab);
         }
 

@@ -249,6 +249,12 @@
     <Compile Include="Controls\ImportLink.Designer.cs">
       <DependentUpon>ImportLink.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TrackerBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TrackerBar.Designer.cs">
+      <DependentUpon>TrackerBar.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TraitChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -294,6 +300,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ImportLink.resx">
       <DependentUpon>ImportLink.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TrackerBar.resx">
+      <DependentUpon>TrackerBar.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>

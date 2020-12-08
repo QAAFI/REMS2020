@@ -4,6 +4,7 @@ using Rems.Application.CQRS;
 using System;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.Excel
@@ -24,6 +25,8 @@ namespace Rems.Infrastructure.Excel
 
                 foreach (DataTable table in Data.Tables)
                     await InsertTable(table);
+
+                Thread.Sleep(500);
 
                 OnTaskFinished();
             }

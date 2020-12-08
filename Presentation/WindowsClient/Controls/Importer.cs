@@ -47,8 +47,10 @@ namespace WindowsClient.Controls
             images.Images.Add("WarningOff", Properties.Resources.WarningOff);
             images.Images.Add("Add", Properties.Resources.Add);
 
-            dataTree.ImageList = images;            
-        }
+            dataTree.ImageList = images;
+
+            tracker.TaskBegun += TrackerTaskBegun;
+        }        
 
         #region Data
         public DataSet Data { get; set; } 
@@ -205,7 +207,7 @@ namespace WindowsClient.Controls
             }
         }
 
-        private async void OnImportClicked(object sender, EventArgs e)
+        private async void TrackerTaskBegun()
         {
             try
             {
@@ -215,7 +217,7 @@ namespace WindowsClient.Controls
                     MessageBox.Show("A database must be opened or created before importing");
                     return;
                 }
-                
+
                 if (Data is null)
                 {
                     MessageBox.Show("There is no loaded data to import. Please load and validate data.");
@@ -232,11 +234,20 @@ namespace WindowsClient.Controls
                     return;
                 }
 
-                var importer = new ExcelImporter();
-                importer.Query = Query;
-                importer.Data = Data;
-                var dialog = new ProgressDialog(importer, "Importing...");
-                dialog.TaskComplete += FileImported;
+                var importer = new ExcelImporter
+                {
+                    Query = Query,
+                    Data = Data
+                };
+
+                tracker.SetSteps(importer);
+
+                importer.NextItem += tracker.OnNextItem;
+                importer.IncrementProgress += tracker.OnProgressChanged;
+                importer.TaskFinished += FileImported;
+                importer.TaskFailed += tracker.OnTaskFailed;
+
+                await importer.Run();
 
                 StageChanged.Invoke(Stage.Imported);
             }
