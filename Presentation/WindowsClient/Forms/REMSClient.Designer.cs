@@ -53,7 +53,7 @@
             this.tablesPage.Location = new System.Drawing.Point(4, 22);
             this.tablesPage.Name = "tablesPage";
             this.tablesPage.Padding = new System.Windows.Forms.Padding(3);
-            this.tablesPage.Size = new System.Drawing.Size(749, 623);
+            this.tablesPage.Size = new System.Drawing.Size(1056, 655);
             this.tablesPage.TabIndex = 0;
             this.tablesPage.Text = "Tables";
             // 
@@ -70,8 +70,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView);
-            this.splitContainer1.Size = new System.Drawing.Size(743, 617);
-            this.splitContainer1.SplitterDistance = 161;
+            this.splitContainer1.Size = new System.Drawing.Size(1050, 649);
+            this.splitContainer1.SplitterDistance = 227;
             this.splitContainer1.TabIndex = 6;
             // 
             // relationsListBox
@@ -82,7 +82,7 @@
             this.relationsListBox.Location = new System.Drawing.Point(0, 0);
             this.relationsListBox.Name = "relationsListBox";
             this.relationsListBox.ScrollAlwaysVisible = true;
-            this.relationsListBox.Size = new System.Drawing.Size(161, 617);
+            this.relationsListBox.Size = new System.Drawing.Size(227, 649);
             this.relationsListBox.TabIndex = 3;
             this.relationsListBox.SelectedIndexChanged += new System.EventHandler(this.OnRelationsIndexChanged);
             // 
@@ -97,7 +97,7 @@
             this.dataGridView.Location = new System.Drawing.Point(0, 0);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.ReadOnly = true;
-            this.dataGridView.Size = new System.Drawing.Size(578, 617);
+            this.dataGridView.Size = new System.Drawing.Size(819, 649);
             this.dataGridView.TabIndex = 1;
             // 
             // notebook
@@ -108,7 +108,7 @@
             this.notebook.Location = new System.Drawing.Point(0, 0);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(793, 461);
+            this.notebook.Size = new System.Drawing.Size(1064, 681);
             this.notebook.TabIndex = 2;
             // 
             // homePage
@@ -117,7 +117,7 @@
             this.homePage.Location = new System.Drawing.Point(4, 22);
             this.homePage.Name = "homePage";
             this.homePage.Padding = new System.Windows.Forms.Padding(3);
-            this.homePage.Size = new System.Drawing.Size(785, 435);
+            this.homePage.Size = new System.Drawing.Size(1056, 655);
             this.homePage.TabIndex = 7;
             this.homePage.Text = "Home";
             this.homePage.UseVisualStyleBackColor = true;
@@ -127,14 +127,14 @@
             this.homeScreen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.homeScreen.Location = new System.Drawing.Point(3, 3);
             this.homeScreen.Name = "homeScreen";
-            this.homeScreen.Size = new System.Drawing.Size(779, 429);
+            this.homeScreen.Size = new System.Drawing.Size(1050, 649);
             this.homeScreen.TabIndex = 0;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(793, 461);
+            this.ClientSize = new System.Drawing.Size(1064, 681);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "REMSClient";
