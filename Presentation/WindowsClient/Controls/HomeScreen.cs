@@ -129,6 +129,11 @@ namespace WindowsClient.Controls
             // Reorder the list
             Sessions.Remove(session);
             Sessions.Add(session);
+
+            // Limit the number of sessions to 8
+            if (Sessions.Count > 8)
+                Sessions.RemoveAt(0);
+
             recentList.DataSource = snoisses;      
         }
 
@@ -262,22 +267,6 @@ namespace WindowsClient.Controls
                 await ChangeSession(session);
 
             recentList.SelectedIndex = -1;
-        }
-
-        private void clearLabel_Click(object sender, EventArgs e)
-        {
-            var result = MessageBox.Show("Are you sure you want to clear the recent items?",
-                "Confirm clear",
-                MessageBoxButtons.YesNo);
-
-            if (result == DialogResult.Yes)
-            {
-                Sessions.Clear();
-                if (Session != null)
-                    Sessions.Add(Session);
-
-                recentList.DataSource = snoisses;
-            }
         }
     }
 }
