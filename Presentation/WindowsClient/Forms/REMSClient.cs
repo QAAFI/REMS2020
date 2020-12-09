@@ -43,6 +43,8 @@ namespace WindowsClient
 
             _mediator = provider.GetRequiredService<IMediator>();
 
+            LoadSettings();
+            
             FormClosed += REMSClientFormClosed;
 
             //experimentDetailer.REMS += _mediator.Send;
@@ -53,7 +55,41 @@ namespace WindowsClient
             homeScreen.ImportRequested += OnImportRequested;
             homeScreen.ImportCompleted += OnImportCompleted;
             homeScreen.SessionChanging += OnSessionChanged;
-            homeScreen.PageCreated += OnPageCreated;            
+            homeScreen.PageCreated += OnPageCreated;
+        }
+
+        private void LoadSettings()
+        {
+            var local = Environment.SpecialFolder.LocalApplicationData;
+            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
+
+            if (File.Exists(path))
+            {
+                var stream = new FileStream(path, FileMode.Open);
+                var reader = new StreamReader(stream);
+
+                Width = Convert.ToInt32(reader.ReadLine());
+                Height = Convert.ToInt32(reader.ReadLine());
+                Left = Convert.ToInt32(reader.ReadLine());
+                Top  = Convert.ToInt32(reader.ReadLine());
+
+                reader.Close();
+            }
+        }
+
+        private void SaveSettings()
+        {
+            var local = Environment.SpecialFolder.LocalApplicationData;
+            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
+
+            var stream = new FileStream(path, FileMode.Create);
+            var writer = new StreamWriter(stream);
+
+            writer.WriteLine(Width);
+            writer.WriteLine(Height);
+            writer.WriteLine(Left);
+            writer.WriteLine(Top);
+            writer.Close();
         }
 
         private void OnPageCreated(TabPage page)
@@ -165,6 +201,7 @@ namespace WindowsClient
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             homeScreen.Close();
+            SaveSettings();
         }
     }
 }

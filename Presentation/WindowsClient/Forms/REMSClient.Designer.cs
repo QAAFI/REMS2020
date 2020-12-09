@@ -138,6 +138,7 @@
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "REMSClient";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "REMS 2020";
             this.tablesPage.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
