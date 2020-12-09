@@ -273,5 +273,7 @@ namespace WindowsClient.Controls
             if (map.ContainsKey(col.ColumnName))
                 col.ColumnName = map[col.ColumnName];
         }
+
+        private void OnFileButtonClicked(object sender, EventArgs e) => SelectFile();
     }
 }

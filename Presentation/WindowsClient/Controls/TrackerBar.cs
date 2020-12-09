@@ -17,6 +17,12 @@ namespace WindowsClient.Controls
     {
         public event Action TaskBegun;
 
+        public string ButtonText
+        {
+            get => runBtn.Text;
+            set => runBtn.Text = value;
+        }
+
         private int item = 0;
         private int items;
 
