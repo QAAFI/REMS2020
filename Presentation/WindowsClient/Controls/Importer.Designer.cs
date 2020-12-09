@@ -151,6 +151,7 @@
             this.dataTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataTree.FullRowSelect = true;
             this.dataTree.HideSelection = false;
             this.dataTree.Location = new System.Drawing.Point(4, 88);
             this.dataTree.Name = "dataTree";

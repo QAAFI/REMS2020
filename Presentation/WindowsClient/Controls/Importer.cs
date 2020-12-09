@@ -44,6 +44,7 @@ namespace WindowsClient.Controls
             images.Images.Add("WarningOn", Properties.Resources.WarningOn);
             images.Images.Add("WarningOff", Properties.Resources.WarningOff);
             images.Images.Add("Add", Properties.Resources.Add);
+            images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
 

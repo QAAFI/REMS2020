@@ -25,15 +25,20 @@ namespace WindowsClient.Models
         private List<RichText> valid;
         private List<RichText> invalid;
 
-        public DataNode(DataColumn col) : base(col.ColumnName)
+        private DataNode(string name) : base(name)
+        {
+            
+        }
+
+        public DataNode(DataColumn col) : this(col.ColumnName)
         {
             Tag = col;
             State = col.ExtendedProperties;
             Source = col.Table;
 
-            ContextMenu = new ColumnNodeMenu(this, col);
-
             State["Ignore"] = false;
+
+            ContextMenu = new ColumnNodeMenu(this, col);            
 
             valid = new List<RichText>
             { 
@@ -64,15 +69,15 @@ namespace WindowsClient.Models
             };    
         }
 
-        public DataNode(DataTable table) : base(table.TableName)
+        public DataNode(DataTable table) : this(table.TableName)
         {
             Tag = table;
             State = table.ExtendedProperties;
             Source = table;
             ContextMenu = new TableNodeMenu(this, table);
 
-            State["Valid"] = true;
             State["Ignore"] = false;
+            State["Valid"] = true;
 
             valid = new List<RichText>
             {
@@ -106,7 +111,10 @@ namespace WindowsClient.Models
             }
 
             if (State["Override"] is string s && s != "")
+            {
                 key = s;
+                Advice = invalid;
+            }
 
             if (State["Ignore"] is true)
                 key += "Off";
