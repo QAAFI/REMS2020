@@ -41,13 +41,13 @@
             // pctLabel
             // 
             this.pctLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pctLabel.Location = new System.Drawing.Point(125, 6);
+            this.pctLabel.Location = new System.Drawing.Point(209, 8);
+            this.pctLabel.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.pctLabel.Name = "pctLabel";
             this.pctLabel.Size = new System.Drawing.Size(35, 19);
             this.pctLabel.TabIndex = 7;
             this.pctLabel.Text = "0%";
             this.pctLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.pctLabel.UseWaitCursor = true;
             // 
             // barPanel
             // 
@@ -56,32 +56,30 @@
             this.barPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.barPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.barPanel.Controls.Add(this.bar);
-            this.barPanel.Location = new System.Drawing.Point(3, 32);
+            this.barPanel.Location = new System.Drawing.Point(2, 33);
             this.barPanel.Name = "barPanel";
-            this.barPanel.Size = new System.Drawing.Size(238, 28);
+            this.barPanel.Size = new System.Drawing.Size(242, 18);
             this.barPanel.TabIndex = 8;
-            this.barPanel.UseWaitCursor = true;
             // 
             // bar
             // 
             this.bar.BackColor = System.Drawing.Color.LimeGreen;
             this.bar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.bar.Cursor = System.Windows.Forms.Cursors.WaitCursor;
             this.bar.Location = new System.Drawing.Point(-1, -1);
             this.bar.Name = "bar";
-            this.bar.Size = new System.Drawing.Size(415, 28);
+            this.bar.Size = new System.Drawing.Size(241, 18);
             this.bar.TabIndex = 0;
-            this.bar.UseWaitCursor = true;
             // 
             // label
             // 
             this.label.AutoSize = true;
-            this.label.Location = new System.Drawing.Point(3, 9);
+            this.label.Location = new System.Drawing.Point(82, 11);
             this.label.Name = "label";
             this.label.Size = new System.Drawing.Size(61, 13);
             this.label.TabIndex = 6;
             this.label.Text = "Initialising...";
             this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label.UseWaitCursor = true;
             // 
             // panel1
             // 
@@ -92,15 +90,15 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(244, 63);
+            this.panel1.Size = new System.Drawing.Size(244, 53);
             this.panel1.TabIndex = 10;
             // 
             // runBtn
             // 
-            this.runBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.runBtn.Location = new System.Drawing.Point(166, 4);
+            this.runBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.runBtn.Location = new System.Drawing.Point(1, 2);
             this.runBtn.Name = "runBtn";
-            this.runBtn.Size = new System.Drawing.Size(75, 23);
+            this.runBtn.Size = new System.Drawing.Size(75, 30);
             this.runBtn.TabIndex = 9;
             this.runBtn.Text = "Run";
             this.runBtn.UseVisualStyleBackColor = true;
@@ -112,7 +110,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
             this.Name = "TrackerBar";
-            this.Size = new System.Drawing.Size(244, 63);
+            this.Size = new System.Drawing.Size(244, 53);
             this.barPanel.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
