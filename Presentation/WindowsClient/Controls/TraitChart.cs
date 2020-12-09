@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Steema.TeeChart;
-using Rems.Application.Common;
+
 using Steema.TeeChart.Styles;
-using MediatR;
+
+using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Application.Common.Interfaces;
-using Steema.TeeChart.Drawing;
+using System.Threading.Tasks;
 
 namespace WindowsClient.Controls
 {
@@ -25,54 +18,53 @@ namespace WindowsClient.Controls
         private TreeNode node;
         public TreeNode Node 
         {
-            get { return node; }
+            get => node;
             set
             {
                 node = value;
                 if (value is null)
                     chart.Series.Clear();
                 else
-                {
-                    RefreshSoilDataDates();
-                    RefreshChart();
-                }
+                    LoadTraitsBox();
             }
         }
 
-        public delegate Task<T> QueryHandler<T>(IRequest<T> query);
-        public event QueryHandler<SeriesData> SeriesQuery;
-        public event QueryHandler<string[]> StringsQuery;
-        public event QueryHandler<DateTime[]> DatesQuery;
-        public event QueryHandler<PlotDataBounds> BoundsQuery;
-
-        private DateTime[] dates = new DateTime[1];
-        private int date = 0;
+        public QueryHandler REMS;
 
         public TraitChart()
         {
             InitializeComponent();
 
+            chart.Chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
             chart.Axes.Left.AutomaticMinimum = false;
             chart.Axes.Left.Minimum = 0;
             chart.Text = "Crop Traits";
 
-            traitTypeBox.SelectedValueChanged += OnTraitChanged;
-            traitsBox.SelectedIndexChanged += OnItemCheck;
+            traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private void OnItemCheck(object sender, EventArgs e) => RefreshChart();
+        private async void OnTraitSelected(object sender, EventArgs e)
+        {
+            string trait = traitsBox.SelectedItem.ToString();
+            string type = await (new TraitTypeQuery() { Name = trait }).Send(REMS);
 
-        private void OnTraitChanged(object sender, EventArgs args) => RefreshTraitsList();
+            if (type == "Soil")
+                RefreshSoilLayerData();
+            else
+                RefreshCropData();
+        }
 
         private void PlotSeries(SeriesData series)
         {
             if (series is null) return;
             if (series.X.Length == 0) return;
 
+            chart.Text = series.Title;
             chart.Axes.Left.Title.Text = series.YLabel;
+            chart.Axes.Bottom.Title.Text = series.XLabel;
 
             Points points = new Points();
-            points.Legend.Text = series.Name;
+            points.Legend.Text = series.Title;
             points.Legend.Visible = false;
 
             Line line = new Line();
@@ -97,215 +89,172 @@ namespace WindowsClient.Controls
             line.Color = points.Color;
         }
 
-        private void RefreshChart()
-        {
-            if (node is null) 
-                return;            
-
-            else if (traitTypeBox.Text == "Crop") 
-                RefreshCropData();
-            
-            else if (traitTypeBox.Text == "SoilLayer")
-                RefreshSoilData();
-        }
-
-        // On Node changing
-        public void RefreshSoilDataDates()
-        {
-            date = 0;
-            
-            var tag = (NodeTag)node.Tag;
-            var query = new SoilLayerDatesQuery();
-            switch (tag.Type)
-            {
-                case TagType.Treatment:
-                    query.TreatmentId = tag.ID;                    
-                    break;
-
-                case TagType.Plot:
-                    query.TreatmentId = ((NodeTag)node.Parent.Tag).ID;
-                    break;
-
-                case TagType.Experiment:                    
-                    break;
-
-                default:
-                    if (node.Text == "All")
-                        query.TreatmentId = ((NodeTag)node.Parent.Tag).ID;
-                    break;
-            }
-            dates = DatesQuery.Invoke(query).Result;
-
-            if (dates.Length < 1) dates = new DateTime[1];
-        }
-
         public async void LoadTraitsBox()
         {
-            traitTypeBox.Items.Clear();
+            traitsBox.Items.Clear();
+
+            int id = GetNodeId();
+            if (id == -1) return;
 
             // Load the trait type box
-            var types = await StringsQuery?.Invoke(new TraitTypesQuery());
+            var types = await (new TreatmentTraitsQuery() { TreatmentId = id }).Send(REMS);
 
             if (types.Length == 0) return;
 
-            traitTypeBox.Items.AddRange(types);
-            traitTypeBox.SelectedIndex = 0;            
+            traitsBox.Items.AddRange(types);            
         }
 
-        public async void RefreshTraitsList()
+        private int GetNodeId()
         {
-            traitsBox.Items.Clear();
-            var query = new TraitsByTypeQuery() { Type = traitTypeBox.SelectedItem.ToString() };
-            var traits = await StringsQuery.Invoke(query);
-            traitsBox.Items.AddRange(traits);
-            traitsBox.Refresh();
+            var tag = (NodeTag)node.Tag;
+            switch (tag.Type)
+            {
+                case TagType.Treatment:
+                    return tag.ID;
 
-            RefreshChart();
-        }
+                case TagType.Plot:
+                    return ((NodeTag)node.Parent.Tag).ID;
 
-        private async void SetAxisBounds(string trait)
-        {
-            //var query = new PlotDataTraitBoundsQuery() { TraitName = trait };
-            //var bounds = await BoundsQuery.Invoke(query);
+                case TagType.Experiment:
+                    return -1;
 
-            //if (bounds.YMin < YAxis.Minimum) YAxis.Minimum = bounds.YMin - bounds.YMin / 10;
-            //if (bounds.YMax > YAxis.Maximum) YAxis.Maximum = bounds.YMax + bounds.YMax / 10;
+                default:
+                    if (node.Text == "All")
+                        return ((NodeTag)node.Parent.Tag).ID;
+                    return -1;
+            }
         }
 
         public async void RefreshCropData()
         {
-            leftBtn.Enabled = false;
-            rightBtn.Enabled = false;
-            dateLabel.Text = "";
+            listSplitter.Panel2Collapsed = true;
+            chart.Chart.Panel.MarginBottom = 50;
 
             chart.Series.Clear();
             chart.Text = "Crop Traits";
             chart.Axes.Left.Inverted = false;
             chart.Axes.Bottom.AutomaticMinimum = true;
 
-            foreach (string trait in traitsBox.CheckedItems)
+            string trait = traitsBox.SelectedItem.ToString();
+            var query = new PlotDataByTraitQuery() { TraitName = trait };
+
+            var tag = (NodeTag)node.Tag;
+            switch (tag.Type)
             {
-                SetAxisBounds(trait);
+                case TagType.Experiment:
+                    // TODO: Decide what to implement at experiment level
+                    break;
 
-                var query = new PlotDataByTraitQuery() { TraitName = trait };
+                case TagType.Treatment:
+                    var mean = new MeanTreatmentDataByTraitQuery()
+                    {
+                        TraitName = trait,
+                        TreatmentId = tag.ID
+                    };
+                    PlotSeries(await mean.Send(REMS));
+                    break;
 
-                var tag = (NodeTag)node.Tag;
-                switch (tag.Type)
-                {
-                    case TagType.Experiment:
-                        // TODO: Decide what to implement at experiment level
-                        break;
+                case TagType.Plot:
+                    query.PlotId = tag.ID;
+                    PlotSeries(await query.Send(REMS));
+                    break;
 
-                    case TagType.Treatment:
-                        var mean = new MeanTreatmentDataByTraitQuery()
+                default:
+                    if (node.Text == "All")
+                    {
+                        foreach (TreeNode plot in node.Parent.Nodes)
                         {
-                            TraitName = trait,
-                            TreatmentId = tag.ID
-                        };
-                        PlotSeries(await SeriesQuery.Invoke(mean));
-                        break;
-
-                    case TagType.Plot:
-                        query.PlotId = tag.ID;
-                        PlotSeries(await SeriesQuery.Invoke(query));
-                        break;
-
-                    default:
-                        if (node.Text == "All")
-                        {
-                            foreach (TreeNode plot in node.Parent.Nodes)
+                            if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                             {
-                                if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
-                                {
-                                    query.PlotId = t.ID;
-                                    PlotSeries(await SeriesQuery.Invoke(query));
-                                }
+                                query.PlotId = t.ID;
+                                PlotSeries(await query.Send(REMS));
                             }
                         }
-                        break;
-                }
+                    }
+                    break;
             }
-
         }
 
-        public async void RefreshSoilData()
+        public async void RefreshSoilLayerData()
         {
-            leftBtn.Enabled = true;
-            rightBtn.Enabled = true;
-            dateLabel.Visible = true;
+            listSplitter.Panel2Collapsed = false;
 
             chart.Series.Clear();
 
             chart.Axes.Left.Inverted = true;
             chart.Axes.Bottom.Minimum = 0;
             chart.Axes.Bottom.AutomaticMinimum = false;
+            
+            chart.Chart.Panel.MarginBottom = 20;
 
-            chart.Text = "Soil traits";
+            await LoadDatesBox();
+        }
 
-            dateLabel.Text = dates[date].ToString("dd/MM/yyyy");
+        private async Task LoadDatesBox()
+        {
+            datesBox.Items.Clear();
+
+            int id = GetNodeId();
+            if (id == -1) return;
+
+            var query = new SoilLayerDatesQuery() { TreatmentId = id };
+            var dates = await query.Send(REMS);
+            
+            foreach (var date in dates)
+                datesBox.Items.Add(date);
+        }
+
+        private async void OnDateSelected(object sender, EventArgs e)
+        {
+            chart.Series.Clear();
+
+            var date = Convert.ToDateTime(datesBox.SelectedItem);            
+
+            string trait = traitsBox.SelectedItem.ToString();
+            chart.Text = trait;            
 
             var query = new TraitDataOnDateQuery()
             {
-                Date = dates[date]
+                Date = date
             };
+            query.TraitName = trait;
 
-            foreach (string trait in traitsBox.CheckedItems)
+            var tag = (NodeTag)node.Tag;
+            switch (tag.Type)
             {
-                query.TraitName = trait;
+                case TagType.Experiment:
+                    // TODO: Decide what to implement at experiment level
+                    break;
 
-                var tag = (NodeTag)node.Tag;
-                switch (tag.Type)
-                {
-                    case TagType.Experiment:
-                        // TODO: Decide what to implement at experiment level
-                        break;
+                case TagType.Treatment:
+                    var mean = new MeanDataQuery()
+                    {
+                        Date = date,
+                        TraitName = trait,
+                        TreatmentId = tag.ID
+                    };
+                    PlotSeries(await mean.Send(REMS));
+                    break;
 
-                    case TagType.Treatment:
-                        var mean = new MeanDataQuery()
+                case TagType.Plot:
+                    query.PlotId = tag.ID;
+                    PlotSeries(await query.Send(REMS));
+                    break;
+
+                default:
+                    if (node.Text == "All")
+                    {
+                        foreach (TreeNode plot in node.Parent.Nodes)
                         {
-                            Date = dates[date],
-                            TraitName = trait,
-                            TreatmentId = tag.ID
-                        };
-                        PlotSeries(await SeriesQuery.Invoke(mean));
-                        break;
-
-                    case TagType.Plot:
-                        query.PlotId = tag.ID;
-                        PlotSeries(await SeriesQuery.Invoke(query));
-                        break;
-
-                    default:
-                        if (node.Text == "All")
-                        {
-                            foreach (TreeNode plot in node.Parent.Nodes)
+                            if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
                             {
-                                if (plot.Tag is NodeTag t && t.Type == TagType.Plot)
-                                {
-                                    query.PlotId = t.ID;
-                                    PlotSeries(await SeriesQuery.Invoke(query));
-                                }
+                                query.PlotId = t.ID;
+                                PlotSeries(await query.Send(REMS));
                             }
                         }
-                        break;
-                }                
+                    }
+                    break;
             }
-        }
-
-        private void LeftClicked(object sender, EventArgs e)
-        {
-            date--;
-            if (date < 0) date = dates.Length - 1;
-
-            RefreshSoilData();
-        }
-
-        private void RightClicked(object sender, EventArgs e)
-        {
-            date++;
-            if (date > dates.Length - 1) date = 0;
-
-            RefreshSoilData();
         }
     }
 }

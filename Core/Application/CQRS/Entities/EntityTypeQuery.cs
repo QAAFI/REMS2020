@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using MediatR;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -40,22 +41,19 @@ namespace Rems.Application.CQRS
             if (filtered.Count() == 1)
                 return filtered.Single().ClrType;
 
-            var args = new ItemNotFoundArgs() { Name = request.Name };
+            // Function to find the string which best matches the request
+            IEntityType findMatch(IEntityType a, IEntityType b)
+            {
+                var x = Math.Abs(a.ClrType.Name.Length - request.Name.Length);
+                var y = Math.Abs(b.ClrType.Name.Length - request.Name.Length);
 
-            // If there is no match, get a list of the possible types
-            if (filtered.Count() == 0)
-                args.Options = types.Select(t => t.ClrType.Name).ToArray();
-            // If there are multiple options left, get a list of those options
-            else
-                args.Options = filtered.Select(t => t.ClrType.Name).ToArray();
+                if (x < y)
+                    return a;
+                else
+                    return b;
+            }
 
-            // Ask the user to pick an entity type from the list of options
-            EventManager.InvokeItemNotFound(null, args);
-
-            if (args.Cancelled || args.Selection == "None")
-                return null;
-
-            return types.First(t => t.ClrType.Name == args.Selection).ClrType;
+            return filtered.Aggregate(findMatch).ClrType;
         }
     }
 }

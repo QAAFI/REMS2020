@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -15,16 +16,18 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertTraitTableCommand : IRequest<Unit>
+    public class InsertTraitTableCommand : IRequest
     {
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
 
         public Type Dependency { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
-    public class InsertTraitTableCommandHandler : IRequestHandler<InsertTraitTableCommand, Unit>
+    public class InsertTraitTableCommandHandler : IRequestHandler<InsertTraitTableCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -45,14 +48,14 @@ namespace Rems.Application.CQRS
             {
                 if (c.ColumnName.Contains("Column")) continue;
 
-                if (c.FindProperty(request.Type) is PropertyInfo info)
+                if (c.FindProperty() is PropertyInfo info)
                 {
                     infos.Add(info);
                 }
                 else
                 {
                     var trait = _context.Traits.FirstOrDefault(e => e.Name == c.ColumnName);
-                    if (trait is null) trait = _context.CreateTrait(c.ColumnName, request.Type.Name);
+                    if (trait is null) trait = _context.AddTrait(c.ColumnName, request.Type.Name);
 
                     traits.Add(trait);
                 }
@@ -75,14 +78,17 @@ namespace Rems.Application.CQRS
                     foreignInfo.SetValue(foreign, entity);
                     traitInfo.SetValue(foreign, trait.TraitId);
                     foreign.SetValue(valueInfo, value);
+                    entities.Add(foreign);
+                    //_context.Attach(foreign);
                 }
 
                 _context.Attach(entity);
 
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+                request.IncrementProgress();
             }
             _context.SaveChanges();
-
+            _context.AttachRange(entities.ToArray());
+            _context.SaveChanges();
             return Unit.Value;
         }
     }

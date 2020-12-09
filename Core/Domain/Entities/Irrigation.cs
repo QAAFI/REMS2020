@@ -18,7 +18,7 @@ namespace Rems.Domain.Entities
 
         public DateTime Date { get; set; }        
 
-        public int? Amount { get; set; }
+        public double? Amount { get; set; }
 
         public string Notes { get; set; }
 

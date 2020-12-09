@@ -12,12 +12,12 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertDesignsCommand : IRequest<Unit>
+    public class InsertDesignsCommand : IRequest
     {
         public DataTable Table { get; set; }
     }
 
-    public class InsertDesignsCommandHandler : IRequestHandler<InsertDesignsCommand, Unit>
+    public class InsertDesignsCommandHandler : IRequestHandler<InsertDesignsCommand>
     {
         private readonly IRemsDbContext _context;
 

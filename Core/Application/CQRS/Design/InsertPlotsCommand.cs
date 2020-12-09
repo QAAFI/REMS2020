@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -14,12 +15,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertPlotsCommand : IRequest<Unit>
+    public class InsertPlotsCommand : IRequest
     {
         public DataTable Table { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
-    public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand, Unit>
+    public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -35,7 +38,7 @@ namespace Rems.Application.CQRS
             var rows = request.Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
-            var eGroup = rows.GroupBy(row => row[0].ConvertDBValue<int>());
+            var eGroup = rows.GroupBy(row => Convert.ToInt32(row[0]));
 
             var plots = new List<Plot>();
 
@@ -54,12 +57,12 @@ namespace Rems.Application.CQRS
                         var plot = new Plot()
                         {
                             Treatment = treatment,
-                            Repetition = row[2].ConvertDBValue<int>(),
-                            Column = row[3].ConvertDBValue<int>()
+                            Repetition = Convert.ToInt32(row[2]),
+                            Column = Convert.ToInt32(row[3])
                         };
                         plots.Add(plot);
 
-                        EventManager.InvokeProgressIncremented(null, EventArgs.Empty);
+                        request.IncrementProgress();
                     }
                 }
             }

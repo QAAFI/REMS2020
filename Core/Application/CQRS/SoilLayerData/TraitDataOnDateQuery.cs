@@ -9,7 +9,7 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class TraitDataOnDateQuery : ITraitQuery<SeriesData>
+    public class TraitDataOnDateQuery : IRequest<SeriesData>
     {
         public DateTime Date { get; set; }
 
@@ -44,7 +44,7 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Name = name,
+                Title = name,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
                 XLabel = "Value",

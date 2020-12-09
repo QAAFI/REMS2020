@@ -63,9 +63,29 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap select_icon {
+        internal static System.Drawing.Bitmap Add {
             get {
-                object obj = ResourceManager.GetObject("select-icon", resourceCulture);
+                object obj = ResourceManager.GetObject("Add", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap InvalidOff {
+            get {
+                object obj = ResourceManager.GetObject("InvalidOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap InvalidOn {
+            get {
+                object obj = ResourceManager.GetObject("InvalidOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -89,7 +109,17 @@ namespace WindowsClient.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap select_icon {
+            get {
+                object obj = ResourceManager.GetObject("select-icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
@@ -97,6 +127,46 @@ namespace WindowsClient.Properties {
             get {
                 object obj = ResourceManager.GetObject("TeeChart", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ValidOff {
+            get {
+                object obj = ResourceManager.GetObject("ValidOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ValidOn {
+            get {
+                object obj = ResourceManager.GetObject("ValidOn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WarningOff {
+            get {
+                object obj = ResourceManager.GetObject("WarningOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WarningOn {
+            get {
+                object obj = ResourceManager.GetObject("WarningOn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

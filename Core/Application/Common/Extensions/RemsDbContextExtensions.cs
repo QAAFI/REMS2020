@@ -15,34 +15,31 @@ namespace Rems.Application.Common.Extensions
             //throw new NotImplementedException();
         }
 
-        internal static Trait GetTraitByName(this IRemsDbContext context, string name)
+        internal static bool NameMatches(this Trait trait, string name)
         {
-            var trait = context.Traits.FirstOrDefault(t => t.Name == name);
+            if (trait.Name == name)
+                return true;
 
-            if (trait == null)
+            if (trait.Name.ToLower() == name.ToLower())
             {
-                var args = new ItemNotFoundArgs()
-                {
-                    Options = context.Traits.Select(t => t.Name).ToArray(),
-                    Name = name
-                };
-
-                EventManager.InvokeItemNotFound(null, args);
-
-                if (args.Selection == "None")
-                {
-                    trait = new Trait() { Name = name };
-                    context.Add(trait);
-                }
-                else
-                {
-                    trait = context.Traits.FirstOrDefault(t => t.Name == args.Selection);
-                    trait.Name = name;
-                }
-                
-                context.SaveChanges();
+                trait.Name = name;
+                return true;
             }
 
+            return false;
+        }
+
+        internal static Trait GetTraitByName(this IRemsDbContext context, string name)
+        {
+            var trait = context.Traits.ToArray().FirstOrDefault(t => t.NameMatches(name));
+
+            if (trait is null)
+            {
+                trait = new Trait() { Name = name };
+                context.Add(trait);
+            }
+
+            context.SaveChanges();
             return trait;
         }
 
@@ -67,7 +64,7 @@ namespace Rems.Application.Common.Extensions
             return data.Select(v => v.Value.GetValueOrDefault()).ToArray();
         }
 
-        internal static Trait CreateTrait(this IRemsDbContext context, string name, string type)
+        internal static Trait AddTrait(this IRemsDbContext context, string name, string type)
         {
             var unit = context.Units.FirstOrDefault(u => u.Name == "-");
 
@@ -79,24 +76,25 @@ namespace Rems.Application.Common.Extensions
                 Type = type,
                 Unit = unit
             };
-            context.Attach(trait);
+            context.Add(trait);
+            context.SaveChanges();
             return trait;
         }
 
         internal static Trait[] GetTraitsFromColumns(this IRemsDbContext context, DataTable table, int skip, string type)
         {
+            Trait getTrait(DataColumn c)
+            {
+                var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
+                if (trait is null)
+                    trait = context.AddTrait(c.ColumnName, type);
+
+                return trait;
+            }
+
             return table.Columns.Cast<DataColumn>()
                 .Skip(skip)
-                .Select(c => {
-                    var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
-                    if (trait is null)
-                    {
-                        trait = context.CreateTrait(c.ColumnName, type);
-                        context.SaveChanges();
-                    }
-
-                    return trait;
-                })
+                .Select(c => getTrait(c))
                 .ToArray();
         }
 
@@ -106,13 +104,8 @@ namespace Rems.Application.Common.Extensions
             var set = context.GetSetAsEnumerable(temp);
             var props = type.GetProperties();
 
-            foreach (var entity in set)
-            {
-                if (entity.HasValue(value, props))
-                {
-                    return entity;
-                }
-            }
+            foreach (var entity in set)            
+                if (entity.HasValue(value, props)) return entity;            
 
             return null;
         }

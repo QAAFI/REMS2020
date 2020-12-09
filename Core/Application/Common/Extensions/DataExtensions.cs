@@ -32,7 +32,9 @@ namespace Rems.Application.Common.Extensions
             foreach (var info in infos)
             {
                 var value = row[info.Name];
-                if (value is DBNull) continue; // Use default value if DBNull
+
+                // Use default value if cell is empty
+                if (value is DBNull || value is "") continue;
 
                 var itype = info.PropertyType;
 
@@ -46,14 +48,23 @@ namespace Rems.Application.Common.Extensions
                         continue;
                     }
 
-                    // If the entity was not found, assume that it was referred
-                    // to by name, and create a new entity using the given value
-                    INamed named = Activator.CreateInstance(itype) as INamed;
-                    named.Name = value.ToString();
+                    // If the entity was not found create a new entity using the given value
+                    IEntity other = Activator.CreateInstance(itype) as IEntity;
+                    var name = other.GetType().GetProperty("Name");
+                    
+                    if (name is null)
+                    {
+                        var soil = other.GetType().GetProperty("SoilType");
+                        soil?.SetValue(other, value);
+                    }
+                    else
+                    {
+                        name.SetValue(other, value);
+                    }
 
-                    info.SetValue(entity, named);
+                    info.SetValue(entity, other);
 
-                    context.Attach(named);
+                    context.Attach(other);
                     context.SaveChanges();
                 }
                 else
@@ -64,79 +75,99 @@ namespace Rems.Application.Common.Extensions
 
             return entity;
         }
-
-        public static PropertyInfo FindProperty(this DataColumn col, Type type)
+        
+        public static IEnumerable<PropertyInfo> GetUnmappedProperties(this DataColumn col)
         {
-            var name = col.ColumnName;
-            var props = type.GetProperties();
+            // Find all the infos which are already mapped to a column
+            var infos = col.Table.Columns.Cast<DataColumn>()
+                .Select(c => c.ExtendedProperties["Info"])
+                .Where(o => o != null)
+                .Cast<PropertyInfo>();
 
-            // Look for the property by name
-            if (props.SingleOrDefault(p => p.Name == name) is PropertyInfo i) return i;
-
-            // Look for the property by coarse string matching
-            var infos = props.Where(p => p.Name.Contains(name) || name.Contains(p.Name));
-            if (infos.Count() <= 1) return infos.SingleOrDefault();
-
-            // If a property is not found, ask the user for input
-            var args = new ItemNotFoundArgs()
+            bool notEnum(PropertyInfo info)
             {
-                Name = name,
-                Options = props.Select(p => p.Name).ToArray()
-            };
-            EventManager.InvokeItemNotFound(null, args);
+                // TODO: Find a better way to test this
+                if (info.PropertyType.Name == typeof(ICollection<>).Name)
+                    return false;
 
-            if (args.Cancelled || args.Selection == "None")
-                return null;
-            else
-                return props.First(p => p.Name == args.Selection);
+                return true;
+            }
+
+            // Find all the non-mapped infos
+            var type = col.Table.ExtendedProperties["Type"] as Type;
+            var properties = type.GetProperties()
+                .Except(infos)
+                .Where(p => notEnum(p));
+
+            return properties;
         }
 
-        public static PropertyInfo FindInfo(this DataColumn col, Type type)
+        /// <summary>
+        /// A bunch of ugly string matching to find a property because unfiltered excel data
+        /// </summary>
+        public static PropertyInfo FindProperty(this DataColumn col)
         {
-            // Search for a property matching the column name
-            if (type.GetProperty(col.ColumnName) is PropertyInfo i)
+            // Be careful when changing the order of these tests - they look independent are not.
+            // Some of the later tests rely on assumptions that are excluded in the initial tests.
+
+            var type = col.Table.ExtendedProperties["Type"] as Type;
+            col.ExtendedProperties["Valid"] = true;
+
+            // Test for a direct match
+            if (type.GetProperty(col.ColumnName) is PropertyInfo x)
+                return x;
+
+            // Test if the column is called name
+            if (col.ColumnName == type.Name && type.GetProperty("Name") is PropertyInfo y)
             {
+                col.ColumnName = "Name";
+                return y;
+            }
+
+            // Trim the column and look for direct match again
+            var name = col.ColumnName.Replace("Name", "").Replace("name", "").Trim();
+            if (type.GetProperty(name) is PropertyInfo z)
+            {
+                col.ColumnName = name;
+                return z;
+            }
+
+            // Assume its called name
+            if (name == type.Name)
+            {
+                col.ColumnName = "Name";
+                return type.GetProperty("Name");
+            }
+
+            // Assume the column has the type name attached
+            var prop = col.ColumnName.Replace(type.Name, "").Trim();
+            if (type.GetProperty(prop) is PropertyInfo i)
+            {
+                col.ColumnName = prop;
                 return i;
             }
-            // Test if the column name matches the entity name
-            else if (col.ColumnName == type.Name)
+
+            // Check if there is a single umapped property which contains the column name
+            var s = col.GetUnmappedProperties()
+                .Where(p => col.ColumnName.ToLower().Contains(p.Name.ToLower()));
+
+            if (s.Count() == 1)
             {
-                // Guess that there is a column/property called Name.
-                // If not, defer back to user selection
-                col.ColumnName = "Name";
-                return col.FindInfo(type);
+                col.ColumnName = s.Single().Name;
+                return s.Single();
             }
-            else
-            {
-                var options = type.GetProperties()
-                    .Where(p => !(p.PropertyType is ICollection))
-                    .Select(e => e.Name)
-                    .Where(n => !n.Contains("Id"))
-                    .ToList();
 
-                var name = col.SelectName(options.ToArray());
-                if (name == null || name == "None") return null;
-
-                col.ColumnName = name;
-
-                // TODO: Rather than use recursion, this method can probably be separated into smaller methods
-                return col.FindInfo(type);
-            }
+            // If no property was found
+            col.ExtendedProperties["Valid"] = false;
+            return null;
         }
 
-        public static string SelectName(this DataColumn col, string[] options)
+        public static bool IsValid(this DataTable table)
         {
-            var args = new ItemNotFoundArgs()
-            {
-                Name = col.ColumnName,
-                Options = options
-            };
-            EventManager.InvokeItemNotFound(null, args);
-
-            if (args.Cancelled)
-                return null;
-            else
-                return args.Selection;
+            return table.Columns.Cast<DataColumn>()
+                .Select(c => c.ExtendedProperties["Valid"])
+                .Cast<bool>()
+                .Aggregate((a, b) => a |= b);
         }
     }
 

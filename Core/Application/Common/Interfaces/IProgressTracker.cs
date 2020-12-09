@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using static Rems.Application.EventManager;
+using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
 {
     public interface IProgressTracker
     {
-        event NextItemHandler NextProgress;
+        event Action<string> NextItem;
 
-        event EventHandler IncrementProgress;
+        event Action IncrementProgress;
 
-        event EventHandler StopProgress;
+        event Action TaskFinished;
 
-        event ExceptionHandler TaskFailed;
+        event Action<Exception> TaskFailed;
+
+        QueryHandler Query { get; set; }
 
         int Items { get; }
 
-        void Run();
+        int Steps { get; }
+
+        Task Run();
     }
 }

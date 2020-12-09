@@ -16,6 +16,8 @@ namespace Rems.Application.Common.Interfaces
 
         IModel Model { get; }
 
+        string FileName { get; set; }
+
         int SaveChanges();
 
         Task<int> SaveChangesAsync(CancellationToken token);

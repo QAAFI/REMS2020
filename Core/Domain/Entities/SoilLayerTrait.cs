@@ -4,9 +4,9 @@
     {
         public int SoilLayerTraitId { get; set; }
 
-        public int? SoilLayerId { get; set; }
+        public int SoilLayerId { get; set; }
 
-        public int? TraitId { get; set; }
+        public int TraitId { get; set; }
 
         public double? Value { get; set; }
 

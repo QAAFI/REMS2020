@@ -5,19 +5,22 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class InsertTableCommand : IRequest<Unit>
+    public class InsertTableCommand : IRequest
     {
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
+
+        public Action IncrementProgress { get; set; }
     }
 
-    public class InsertTableCommandHandler : IRequestHandler<InsertTableCommand, Unit>
+    public class InsertTableCommandHandler : IRequestHandler<InsertTableCommand>
     {
         private readonly IRemsDbContext _context;
 
@@ -26,13 +29,14 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
+        public Task<Unit> Handle(InsertTableCommand request, CancellationToken cancellationToken) 
+            => Task.Run(() => Handler(request));
 
         private Unit Handler(InsertTableCommand request)
         {
             var infos = request.Table.Columns.Cast<DataColumn>()
-                .Select(c => c.FindInfo(request.Type))
-                .Where(c => c != null)
+                .Select(c => c.FindProperty())
+                .Where(i => i != null)
                 .ToArray();
 
             foreach (DataRow row in request.Table.Rows)
@@ -40,7 +44,7 @@ namespace Rems.Application.CQRS
                 var entity = row.ToEntity(_context, request.Type, infos);
                 _context.Add(entity);
 
-                EventManager.InvokeProgressIncremented(null, EventArgs.Empty);                
+                request.IncrementProgress();
             }            
             _context.SaveChanges();
 

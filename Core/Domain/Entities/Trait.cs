@@ -36,8 +36,5 @@ namespace Rems.Domain.Entities
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }
         public virtual ICollection<SoilTrait> SoilTraits { get; set; }
         public virtual ICollection<Stat> Stats { get; set; }
-
-
-
     }
 }

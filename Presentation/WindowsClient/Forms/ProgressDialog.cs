@@ -1,11 +1,10 @@
-﻿using Rems.Application;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System;
 
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Rems.Application.EventManager;
 
 namespace WindowsClient.Forms
 {
@@ -19,22 +18,25 @@ namespace WindowsClient.Forms
         private double step;
         private double progress;
 
+        private Task task;
+
         public ProgressDialog(IProgressTracker tracker, string title)
         {
             InitializeComponent();
 
             items = tracker.Items;
             Text = title;
-            bar.Width = 0;            
+            bar.Width = 0;
+            step = ((double)barPanel.Width) / tracker.Steps;
 
             Show();
 
-            tracker.NextProgress += OnNextItem;
+            tracker.NextItem += OnNextItem;
             tracker.IncrementProgress += OnProgressChanged;
-            tracker.StopProgress += OnRunWorkerCompleted;
+            tracker.TaskFinished += OnTaskFinished;
             tracker.TaskFailed += OnTaskFailed;
 
-            tracker.Run();
+            task = tracker.Run();
         }
 
         private void OnTaskFailed(Exception error)
@@ -45,63 +47,50 @@ namespace WindowsClient.Forms
             Close();
         }
 
-        private void OnProgressChanged(object sender, EventArgs e)
+        private void OnProgressChanged()
         {
             if (InvokeRequired)
             {
-                Invoke(new EventHandler(OnProgressChanged));
+                Invoke(new Action(OnProgressChanged));
+                return;
             }
-            else
-            {
-                progress += step;
-                bar.Width = Convert.ToInt32(progress);
 
-                int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
-                pctLabel.Text = $"{pct}%";
+            progress += step;
+            bar.Width = Convert.ToInt32(progress);
 
-                Refresh();
-            }
+            int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+            pctLabel.Text = $"{pct}%";
+
+            Refresh();            
         }
 
-        private void OnRunWorkerCompleted(object sender, EventArgs e)
+        private void OnTaskFinished()
         {
-            Thread.Sleep(1500);
-
-            Close();
+            Thread.Sleep(500);
 
             MessageBox.Show("No errors encountered.", "Task complete!");
+            Close();            
 
             TaskComplete?.Invoke();
         }
 
-        private void OnNextItem(object sender, NextItemArgs args)
+        private void OnNextItem(string text)
         {
             if (InvokeRequired)
             {
-                Invoke(new NextItemHandler(OnNextItem));
+                Invoke(new Action<string>(OnNextItem));
+                return;
             }
-            else
-            {
-                item++;
-                label.Text = $"{item} of {items}: {args.Item}";
 
-                if (args.Maximum == 0)
-                {
-                    bar.Width = barPanel.Width;
-                    pctLabel.Text = $"100%";
+            item++;
+            label.Text = $"{item} of {items}: {text}";
 
-                    Refresh();
-                    return;
-                }
-
-                progress = 0;
-                step = ((double)barPanel.Width) / args.Maximum;
-                bar.Width = 0;
-                pctLabel.Text = $"0%";
-
-                Refresh();
-            }
+            Refresh();            
         }
 
+        private void cancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

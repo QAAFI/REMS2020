@@ -32,31 +32,36 @@
             this.pctLabel = new System.Windows.Forms.Label();
             this.barPanel = new System.Windows.Forms.Panel();
             this.bar = new System.Windows.Forms.Panel();
+            this.cancel = new System.Windows.Forms.Button();
             this.barPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // label
             // 
+            this.label.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label.AutoSize = true;
             this.label.Location = new System.Drawing.Point(12, 17);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(73, 13);
+            this.label.Size = new System.Drawing.Size(61, 13);
             this.label.TabIndex = 2;
-            this.label.Text = "Table 1 of 10:";
+            this.label.Text = "Initialising...";
             this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label.UseWaitCursor = true;
             // 
             // pctLabel
             // 
-            this.pctLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pctLabel.Location = new System.Drawing.Point(315, 17);
+            this.pctLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.pctLabel.Location = new System.Drawing.Point(234, 14);
             this.pctLabel.Name = "pctLabel";
-            this.pctLabel.Size = new System.Drawing.Size(35, 13);
+            this.pctLabel.Size = new System.Drawing.Size(35, 19);
             this.pctLabel.TabIndex = 3;
             this.pctLabel.Text = "0%";
             this.pctLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.pctLabel.UseWaitCursor = true;
             // 
             // barPanel
             // 
+            this.barPanel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.barPanel.BackColor = System.Drawing.SystemColors.ControlLight;
             this.barPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.barPanel.Controls.Add(this.bar);
@@ -64,6 +69,7 @@
             this.barPanel.Name = "barPanel";
             this.barPanel.Size = new System.Drawing.Size(338, 28);
             this.barPanel.TabIndex = 4;
+            this.barPanel.UseWaitCursor = true;
             // 
             // bar
             // 
@@ -73,20 +79,34 @@
             this.bar.Name = "bar";
             this.bar.Size = new System.Drawing.Size(338, 28);
             this.bar.TabIndex = 0;
+            this.bar.UseWaitCursor = true;
+            // 
+            // cancel
+            // 
+            this.cancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cancel.Location = new System.Drawing.Point(275, 12);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(75, 23);
+            this.cancel.TabIndex = 5;
+            this.cancel.Text = "Cancel";
+            this.cancel.UseVisualStyleBackColor = true;
+            this.cancel.UseWaitCursor = true;
+            this.cancel.Click += new System.EventHandler(this.cancel_Click);
             // 
             // ProgressDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 82);
-            this.Controls.Add(this.barPanel);
             this.Controls.Add(this.pctLabel);
+            this.Controls.Add(this.cancel);
+            this.Controls.Add(this.barPanel);
             this.Controls.Add(this.label);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ProgressDialog";
-            this.Text = "Importing";
+            this.UseWaitCursor = true;
             this.barPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -98,5 +118,6 @@
         private System.Windows.Forms.Label pctLabel;
         private System.Windows.Forms.Panel barPanel;
         private System.Windows.Forms.Panel bar;
+        private System.Windows.Forms.Button cancel;
     }
 }

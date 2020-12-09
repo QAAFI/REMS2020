@@ -10,8 +10,7 @@ using System.Windows.Forms;
 namespace WindowsClient
 {
     static class Program
-    {
-        
+    {        
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
