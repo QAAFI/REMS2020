@@ -28,17 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.columnLabel = new System.Windows.Forms.Label();
             this.importData = new System.Windows.Forms.DataGridView();
             this.fileBox = new System.Windows.Forms.TextBox();
             this.splitter = new System.Windows.Forms.SplitContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fileBtn = new System.Windows.Forms.Button();
+            this.tracker = new WindowsClient.Controls.TrackerBar();
             this.dataTree = new System.Windows.Forms.TreeView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.adviceBox = new System.Windows.Forms.RichTextBox();
-            this.tracker = new WindowsClient.Controls.TrackerBar();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).BeginInit();
             this.splitter.Panel1.SuspendLayout();
@@ -70,16 +70,16 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.Format = "N3";
-            dataGridViewCellStyle2.NullValue = null;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.importData.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.Format = "N3";
+            dataGridViewCellStyle1.NullValue = null;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.importData.DefaultCellStyle = dataGridViewCellStyle1;
             this.importData.Location = new System.Drawing.Point(3, 29);
             this.importData.Name = "importData";
             this.importData.Size = new System.Drawing.Size(730, 668);
@@ -139,12 +139,22 @@
             // 
             this.fileBtn.BackgroundImage = global::WindowsClient.Properties.Resources.select_icon;
             this.fileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.fileBtn.Location = new System.Drawing.Point(4, 4);
+            this.fileBtn.Location = new System.Drawing.Point(4, 3);
             this.fileBtn.Name = "fileBtn";
             this.fileBtn.Size = new System.Drawing.Size(20, 20);
             this.fileBtn.TabIndex = 15;
             this.fileBtn.UseVisualStyleBackColor = true;
             this.fileBtn.Click += new System.EventHandler(this.OnFileButtonClicked);
+            // 
+            // tracker
+            // 
+            this.tracker.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tracker.ButtonText = "Import";
+            this.tracker.Location = new System.Drawing.Point(3, 29);
+            this.tracker.Name = "tracker";
+            this.tracker.Size = new System.Drawing.Size(253, 53);
+            this.tracker.TabIndex = 14;
             // 
             // dataTree
             // 
@@ -179,16 +189,6 @@
             this.adviceBox.Size = new System.Drawing.Size(254, 169);
             this.adviceBox.TabIndex = 13;
             this.adviceBox.Text = "";
-            // 
-            // tracker
-            // 
-            this.tracker.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tracker.ButtonText = "Import";
-            this.tracker.Location = new System.Drawing.Point(3, 29);
-            this.tracker.Name = "tracker";
-            this.tracker.Size = new System.Drawing.Size(253, 53);
-            this.tracker.TabIndex = 14;
             // 
             // Importer
             // 

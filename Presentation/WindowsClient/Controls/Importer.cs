@@ -47,6 +47,9 @@ namespace WindowsClient.Controls
             images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
+            
+            // Force right click to select node
+            dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
 
             tracker.TaskBegun += TrackerTaskBegun;
         }        
