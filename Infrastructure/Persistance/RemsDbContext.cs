@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Internal;
 
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Mappings;
 using Rems.Domain.Entities;
 
 using System;
