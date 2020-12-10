@@ -44,6 +44,8 @@ namespace WindowsClient.Controls
             {
                 bar.Width = 0;
                 label.Text = "Waiting...";
+                pctLabel.Text = "0%";
+                item = 0;
             }
         }
 
