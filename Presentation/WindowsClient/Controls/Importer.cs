@@ -251,6 +251,8 @@ namespace WindowsClient.Controls
 
                 await importer.Run();
 
+                tracker.Reset();
+
                 StageChanged.Invoke(Stage.Imported);
             }
             catch (Exception error)

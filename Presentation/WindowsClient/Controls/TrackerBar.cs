@@ -36,6 +36,17 @@ namespace WindowsClient.Controls
             bar.Width = 0;
         }
 
+        public void Reset()
+        {
+            if (InvokeRequired)
+                Invoke(new Action(Reset));
+            else
+            {
+                bar.Width = 0;
+                label.Text = "Waiting...";
+            }
+        }
+
         public void SetSteps(IProgressTracker tracker)
         {
             items = tracker.Items;
@@ -52,32 +63,30 @@ namespace WindowsClient.Controls
         public void OnProgressChanged()
         {
             if (InvokeRequired)
-            {
                 Invoke(new Action(OnProgressChanged));
-                return;
+            else
+            {
+                progress += step;
+                bar.Width = Convert.ToInt32(progress);
+
+                int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+                pctLabel.Text = $"{pct}%";
+
+                Refresh();
             }
-
-            progress += step;
-            bar.Width = Convert.ToInt32(progress);
-
-            int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
-            pctLabel.Text = $"{pct}%";
-
-            Refresh();
         }
 
         public void OnNextItem(string text)
         {
             if (InvokeRequired)
-            {
                 Invoke(new Action<string>(OnNextItem));
-                return;
+            else
+            {
+                item++;
+                label.Text = $"{item} of {items}: {text}";
+
+                Refresh();
             }
-
-            item++;
-            label.Text = $"{item} of {items}: {text}";
-
-            Refresh();
         }
 
         private void RunClicked(object sender, EventArgs e) => TaskBegun?.Invoke();
