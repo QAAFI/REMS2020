@@ -141,6 +141,7 @@ namespace WindowsClient
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
             dataGridView.DataSource = await TryQueryREMS(new DataTableQuery() { TableName = item });
+            dataGridView.Format();
         }
 
         private async void LoadListView(string file)

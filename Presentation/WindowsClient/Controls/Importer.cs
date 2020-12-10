@@ -169,6 +169,8 @@ namespace WindowsClient.Controls
             if (e.Node is DataNode node)
             {
                 importData.DataSource = node.Source;
+                importData.Format();
+
                 columnLabel.Text = node.Text;
                 
                 adviceBox.Clear();

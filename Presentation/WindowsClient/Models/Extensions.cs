@@ -54,5 +54,29 @@ namespace WindowsClient.Models
 
             line.Color = points.Color;
         }
+        
+        public static void Format(this DataGridView grid)
+        {
+            foreach (DataGridViewColumn column in grid.Columns)
+            {
+                if (column.ValueType == typeof(double))                
+                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleRight,
+                        Format = "N3"
+                    };                
+                else if (column.ValueType == typeof(int) || column.ValueType == typeof(long))
+                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleRight,
+                        Format = "N0"
+                    };
+                else
+                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleLeft,
+                    };
+            }
+        }
     }
 }
