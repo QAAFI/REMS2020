@@ -43,11 +43,11 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Title = name,
+                Name = name,
                 X = Array.CreateInstance(typeof(DateTime), data.Count()),
                 Y = Array.CreateInstance(typeof(double), data.Count()),
-                XLabel = "Value",
-                YLabel = "Date"
+                XName = "Value",
+                YName = "Date"
             };
 
             for (int i = 0; i < data.Count(); i++)

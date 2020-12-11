@@ -27,8 +27,6 @@ namespace WindowsClient.Controls
 
         private Chart chart => tChart.Chart;
 
-        //private string trait => traitsBox.SelectedItem?.ToString();
-
         private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();
 
         public TraitChart()
@@ -58,9 +56,19 @@ namespace WindowsClient.Controls
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await ChangeData(plot, selected);
+        private async void OnTraitSelected(object sender, EventArgs e) => await ChangeData(selected);
 
-        public async Task RefreshData() => await ChangeData(plot, selected);
+        public async Task ChangeData(TreeNode node)
+        {
+            int id = treatment;
+
+            if (Updater == UpdateSingle) id = plot;
+
+            if (InvokeRequired)
+                Invoke(new Func<TreeNode, Task>(ChangeData), node);
+            else
+                await Task.Run(() => { if (Updater != null) Updater(id, node); });
+        }        
 
         public async Task LoadTraitsBox(int id)
         {
@@ -76,21 +84,14 @@ namespace WindowsClient.Controls
                 traitsBox.Items.Clear();
 
                 // Load the trait type box
-                var types = await DataRequested.Send(new TreatmentTraitsQuery() { TreatmentId = id });
+                var types = await DataRequested.Send(new CropTraitsQuery() { TreatmentId = id });
 
-                if (types.Length == 0) return;
+                if (types.Length < 1) return;
 
                 traitsBox.Items.AddRange(types);
+                traitsBox.SelectedIndex = 0;
             }
-        }
-
-        public async Task ChangeData(int id, TreeNode node)
-        {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(ChangeData), id, node);
-            else
-                await Task.Run(() => { if (Updater != null) Updater(id, node); });        
-        }
+        }        
 
         public async Task UpdateSingle(int id, TreeNode node)
         {
@@ -128,12 +129,12 @@ namespace WindowsClient.Controls
             {
                 chart.Series.Clear();
 
-                plot = id;
+                treatment = id;
                 selected = node;
 
                 foreach (string trait in traits)
                 {
-                    var query = new MeanTreatmentDataByTraitQuery
+                    var query = new MeanCropTraitDataQuery
                     {
                         TraitName = trait,
                         TreatmentId = id
@@ -157,11 +158,12 @@ namespace WindowsClient.Controls
 
                 if (node is null) return;
 
+                treatment = id;
                 selected = node;
 
                 foreach (string trait in traits)
                 {
-                    var query = new AllDataByTraitQuery
+                    var query = new AllCropTraitDataQuery
                     {
                         TraitName = trait,
                         TreatmentId = id

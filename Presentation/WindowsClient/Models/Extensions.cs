@@ -35,13 +35,16 @@ namespace WindowsClient.Models
             if (series.X.Length == 0) return;            
 
             Points points = new Points();
-            points.Legend.Text = series.Title;
+            points.Legend.Text = series.Name;
 
             Line line = new Line();
             line.Legend.Visible = false;
 
-            points.XValues.DateTime = true;
-            line.XValues.DateTime = true;
+            if (series.X.GetValue(0) is DateTime)
+            {
+                points.XValues.DateTime = true;
+                line.XValues.DateTime = true;
+            }
 
             line.Add(series.X, series.Y);
             points.Add(series.X, series.Y);

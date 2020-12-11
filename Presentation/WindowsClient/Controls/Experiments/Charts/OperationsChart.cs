@@ -95,7 +95,7 @@ namespace WindowsClient.Controls
 
             var title = new AxisTitle()
             {
-                Text = data.Title + " " + data.YLabel,
+                Text = data.Name + " " + data.YName,
                 Angle = 90
             };
             title.Font.Size = 8;
@@ -134,7 +134,7 @@ namespace WindowsClient.Controls
                 CustomBarWidth = 4,
                 CustomHorizAxis = x,
                 CustomVertAxis = y,
-                Title = data.Title
+                Title = data.Name
             };
             bar.Marks.Visible = false;
 

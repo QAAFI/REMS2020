@@ -10,14 +10,14 @@ using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
-    public class AllDataByTraitQuery : IRequest<IEnumerable<SeriesData>>
+    public class AllCropTraitDataQuery : IRequest<IEnumerable<SeriesData>>
     {
         public int TreatmentId { get; set; }
 
         public string TraitName { get; set; }
     }
 
-    public class AllDataByTraitQueryHandler : IRequestHandler<AllDataByTraitQuery, IEnumerable<SeriesData>>
+    public class AllDataByTraitQueryHandler : IRequestHandler<AllCropTraitDataQuery, IEnumerable<SeriesData>>
     {
         private readonly IRemsDbContext _context;
 
@@ -26,9 +26,9 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<IEnumerable<SeriesData>> Handle(AllDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<IEnumerable<SeriesData>> Handle(AllCropTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private IEnumerable<SeriesData> Handler(AllDataByTraitQuery request, CancellationToken token)
+        private IEnumerable<SeriesData> Handler(AllCropTraitDataQuery request, CancellationToken token)
         {
             var plots = _context.Treatments.Find(request.TreatmentId).Plots;
 
@@ -52,11 +52,11 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Title = name,
+                Name = name,
                 X = Array.CreateInstance(typeof(DateTime), data.Count()),
                 Y = Array.CreateInstance(typeof(double), data.Count()),
-                XLabel = "Value",
-                YLabel = "Date"
+                XName = "Value",
+                YName = "Date"
             };
 
             for (int i = 0; i < data.Count(); i++)

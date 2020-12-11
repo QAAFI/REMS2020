@@ -9,25 +9,25 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class MeanTreatmentDataByTraitQuery : IRequest<SeriesData>
+    public class MeanCropTraitDataQuery : IRequest<SeriesData>
     {
         public int TreatmentId { get; set; }
 
         public string TraitName { get; set; }
     }
 
-    public class MeanTreatmentDataByTraitQueryHandler : IRequestHandler<MeanTreatmentDataByTraitQuery, SeriesData>
+    public class MeanCropTraitDataQueryHandler : IRequestHandler<MeanCropTraitDataQuery, SeriesData>
     {
         private readonly IRemsDbContext _context;
 
-        public MeanTreatmentDataByTraitQueryHandler(IRemsDbContext context)
+        public MeanCropTraitDataQueryHandler(IRemsDbContext context)
         {
             _context = context;
         }
 
-        public Task<SeriesData> Handle(MeanTreatmentDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<SeriesData> Handle(MeanCropTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private SeriesData Handler(MeanTreatmentDataByTraitQuery request, CancellationToken token)
+        private SeriesData Handler(MeanCropTraitDataQuery request, CancellationToken token)
         {
             var data = _context.PlotData
                 .Where(p => p.Plot.TreatmentId == request.TreatmentId)
@@ -39,11 +39,11 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Title = request.TraitName,
+                Name = request.TraitName,
                 X = Array.CreateInstance(typeof(DateTime), data.Count()),
                 Y = Array.CreateInstance(typeof(double), data.Count()),
-                XLabel = "Date",
-                YLabel = "Value"
+                XName = "Date",
+                YName = "Value"
             };
 
             for (int i = 0; i < data.Count(); i++)

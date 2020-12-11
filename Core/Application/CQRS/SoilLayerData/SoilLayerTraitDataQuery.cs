@@ -9,7 +9,7 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class TraitDataOnDateQuery : IRequest<SeriesData>
+    public class SoilLayerTraitDataQuery : IRequest<SeriesData>
     {
         public DateTime Date { get; set; }
 
@@ -18,18 +18,18 @@ namespace Rems.Application.CQRS
         public string TraitName { get; set; }
     }
 
-    public class TraitDataOnDateQueryHandler : IRequestHandler<TraitDataOnDateQuery, SeriesData>
+    public class SoilLayerTraitDataQueryHandler : IRequestHandler<SoilLayerTraitDataQuery, SeriesData>
     {
         private readonly IRemsDbContext _context;
 
-        public TraitDataOnDateQueryHandler(IRemsDbContext context)
+        public SoilLayerTraitDataQueryHandler(IRemsDbContext context)
         {
             _context = context;
         }
 
-        public Task<SeriesData> Handle(TraitDataOnDateQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<SeriesData> Handle(SoilLayerTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private SeriesData Handler(TraitDataOnDateQuery request, CancellationToken token)
+        private SeriesData Handler(SoilLayerTraitDataQuery request, CancellationToken token)
         {
             var data = _context.SoilLayerDatas
                 .Where(d => d.PlotId == request.PlotId)
@@ -38,17 +38,17 @@ namespace Rems.Application.CQRS
                 .OrderBy(d => d.DepthFrom)
                 .ToArray();
 
-            var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
-            var x = rep.Select(p => p.Repetition).First();
-            string name = request.TraitName + " " + x;
+            var plot = _context.Plots.Find(request.PlotId);
+            var x = plot.Repetition.ToString();
+            string name = x + " " + request.TraitName + ", " + request.Date.ToString("dd/MM/yy");
 
             SeriesData series = new SeriesData()
             {
-                Title = name,
+                Name = name,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
-                XLabel = "Value",
-                YLabel = "Depth"
+                XName = "Value",
+                YName = "Depth"
             };
 
             for (int i = 0; i < data.Count(); i++)

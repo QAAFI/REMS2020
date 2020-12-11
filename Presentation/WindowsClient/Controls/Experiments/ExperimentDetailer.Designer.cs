@@ -56,9 +56,11 @@
             this.designBox = new System.Windows.Forms.TextBox();
             this.designData = new System.Windows.Forms.DataGridView();
             this.pageOperation = new System.Windows.Forms.TabPage();
+            this.operations = new WindowsClient.Controls.OperationsChart();
             this.pageData = new System.Windows.Forms.TabPage();
             this.traitChart = new WindowsClient.Controls.TraitChart();
-            this.operations = new WindowsClient.Controls.OperationsChart();
+            this.pageSoil = new System.Windows.Forms.TabPage();
+            this.soilsChart = new WindowsClient.Controls.SoilChart();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -70,6 +72,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.designData)).BeginInit();
             this.pageOperation.SuspendLayout();
             this.pageData.SuspendLayout();
+            this.pageSoil.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -104,6 +107,7 @@
             this.experimentDetails.Controls.Add(this.pageDesign);
             this.experimentDetails.Controls.Add(this.pageOperation);
             this.experimentDetails.Controls.Add(this.pageData);
+            this.experimentDetails.Controls.Add(this.pageSoil);
             this.experimentDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.experimentDetails.Location = new System.Drawing.Point(0, 0);
             this.experimentDetails.Name = "experimentDetails";
@@ -412,6 +416,14 @@
             this.pageOperation.TabIndex = 3;
             this.pageOperation.Text = "Operations";
             // 
+            // operations
+            // 
+            this.operations.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.operations.Location = new System.Drawing.Point(3, 3);
+            this.operations.Name = "operations";
+            this.operations.Size = new System.Drawing.Size(535, 583);
+            this.operations.TabIndex = 0;
+            // 
             // pageData
             // 
             this.pageData.BackColor = System.Drawing.Color.LightGray;
@@ -431,13 +443,24 @@
             this.traitChart.Size = new System.Drawing.Size(535, 583);
             this.traitChart.TabIndex = 0;
             // 
-            // operations
+            // pageSoil
             // 
-            this.operations.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.operations.Location = new System.Drawing.Point(3, 3);
-            this.operations.Name = "operations";
-            this.operations.Size = new System.Drawing.Size(535, 583);
-            this.operations.TabIndex = 0;
+            this.pageSoil.Controls.Add(this.soilsChart);
+            this.pageSoil.Location = new System.Drawing.Point(4, 22);
+            this.pageSoil.Name = "pageSoil";
+            this.pageSoil.Padding = new System.Windows.Forms.Padding(3);
+            this.pageSoil.Size = new System.Drawing.Size(541, 589);
+            this.pageSoil.TabIndex = 9;
+            this.pageSoil.Text = "Soil";
+            this.pageSoil.UseVisualStyleBackColor = true;
+            // 
+            // soilChart1
+            // 
+            this.soilsChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.soilsChart.Location = new System.Drawing.Point(3, 3);
+            this.soilsChart.Name = "soilChart1";
+            this.soilsChart.Size = new System.Drawing.Size(535, 583);
+            this.soilsChart.TabIndex = 0;
             // 
             // ExperimentDetailer
             // 
@@ -460,6 +483,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.designData)).EndInit();
             this.pageOperation.ResumeLayout(false);
             this.pageData.ResumeLayout(false);
+            this.pageSoil.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -497,5 +521,7 @@
         private TraitChart traitChart;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private OperationsChart operations;
+        private System.Windows.Forms.TabPage pageSoil;
+        private SoilChart soilsChart;
     }
 }
