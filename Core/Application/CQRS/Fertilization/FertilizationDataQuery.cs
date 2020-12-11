@@ -36,9 +36,9 @@ namespace Rems.Application.CQRS
             {
                 X = Array.CreateInstance(typeof(DateTime), fertilizations.Count()),
                 Y = Array.CreateInstance(typeof(double), fertilizations.Count()),
-                XLabel = "Date",
-                YLabel = "Amount",
-                Title = "Fertilizations"
+                XName = "Date",
+                YName = "Amount",
+                Name = "Fertilizations"
             };
 
             for (int i = 0; i < fertilizations.Length; i++)

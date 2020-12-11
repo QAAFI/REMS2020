@@ -30,6 +30,7 @@ namespace Rems.Application.CQRS
                 .Where(d => d.Plot.TreatmentId == request.TreatmentId)
                 .Select(d => d.Date)
                 .Distinct()
+                .OrderBy(d => d)
                 .ToArray();
         }
     }

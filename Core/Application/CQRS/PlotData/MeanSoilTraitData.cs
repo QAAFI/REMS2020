@@ -9,40 +9,42 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
-    public class MeanDataQuery : IRequest<SeriesData>
+    public class MeanSoilTraitDataQuery : IRequest<SeriesData>
     {
-        public DateTime Date { get; set; }
-
         public int TreatmentId { get; set; }
 
         public string TraitName { get; set; }
+
+        public DateTime Date { get; set; }
     }
 
-    public class MeanDataQueryHandler : IRequestHandler<MeanDataQuery, SeriesData>
+    public class MeanSoilTraitDataQueryHandler : IRequestHandler<MeanSoilTraitDataQuery, SeriesData>
     {
         private readonly IRemsDbContext _context;
 
-        public MeanDataQueryHandler(IRemsDbContext context)
+        public MeanSoilTraitDataQueryHandler(IRemsDbContext context)
         {
             _context = context;
         }
 
-        public Task<SeriesData> Handle(MeanDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<SeriesData> Handle(MeanSoilTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private SeriesData Handler(MeanDataQuery request, CancellationToken token)
+        private SeriesData Handler(MeanSoilTraitDataQuery request, CancellationToken token)
         {
             var data = _context.SoilLayerDatas
-                .Where(d => d.Plot.TreatmentId == request.TreatmentId)
-                .Where(d => d.Date == request.Date)
-                .Where(d => d.Trait.Name == request.TraitName)
-                .ToArray() // Required to support groupby
-                .GroupBy(d => d.DepthFrom)
+                .Where(p => p.Plot.TreatmentId == request.TreatmentId)
+                .Where(p => p.Trait.Name == request.TraitName)                
+                .Where(p => p.Date == request.Date)
+                .ToArray()
+                .GroupBy(p => p.DepthFrom)
                 .OrderBy(g => g.Key)
                 .ToArray();
 
+            string name = request.TraitName + ", " + request.Date.ToString("dd/MM/yy");
+
             SeriesData series = new SeriesData()
             {
-                Name = request.TraitName,
+                Name = name,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
                 XName = "Value",

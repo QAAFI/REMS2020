@@ -6,40 +6,49 @@ using System.Threading;
 using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
+using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
-    public class PlotDataByTraitQuery : IRequest<SeriesData>
+    public class AllCropTraitDataQuery : IRequest<IEnumerable<SeriesData>>
     {
-        public int PlotId { get; set; }
+        public int TreatmentId { get; set; }
 
         public string TraitName { get; set; }
     }
 
-    public class PlotDataByTraitQueryHandler : IRequestHandler<PlotDataByTraitQuery, SeriesData>
+    public class AllDataByTraitQueryHandler : IRequestHandler<AllCropTraitDataQuery, IEnumerable<SeriesData>>
     {
         private readonly IRemsDbContext _context;
 
-        public PlotDataByTraitQueryHandler(IRemsDbContext context)
+        public AllDataByTraitQueryHandler(IRemsDbContext context)
         {
             _context = context;
         }
 
-        public Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<IEnumerable<SeriesData>> Handle(AllCropTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
 
-        private SeriesData Handler(PlotDataByTraitQuery request, CancellationToken token)
+        private IEnumerable<SeriesData> Handler(AllCropTraitDataQuery request, CancellationToken token)
+        {
+            var plots = _context.Treatments.Find(request.TreatmentId).Plots;
+
+            foreach (var plot in plots)
+                yield return GetPlotData(plot.PlotId, request.TraitName);
+        }
+
+        private SeriesData GetPlotData(int id, string trait)
         {
             var data = _context.PlotData
-                .Where(p => p.Plot.PlotId == request.PlotId)
-                .Where(p => p.Trait.Name == request.TraitName)
+                .Where(p => p.Plot.PlotId == id)
+                .Where(p => p.Trait.Name == trait)
                 .OrderBy(p => p.Date)
                 .ToArray();
 
             if (data.Length == 0) return null;
 
-            var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
+            var rep = _context.Plots.Where(p => p.PlotId == id);
             var x = rep.Select(p => p.Repetition).First();
-            string name = request.TraitName + " " + x;
+            string name = trait + " " + x;
 
             SeriesData series = new SeriesData()
             {

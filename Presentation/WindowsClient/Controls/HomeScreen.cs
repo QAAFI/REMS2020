@@ -57,9 +57,9 @@ namespace WindowsClient.Controls
 
         private void AddDetailerPage()
         {
-            Session.Detailer.REMS = Query;            
+            Session.Detailer.REMS += (s, e) => Query?.Invoke(s, e);            
             PageCreated?.Invoke(Session.Experiments);
-            Session.Detailer.RefreshContent();
+            Session.Detailer.LoadNodes();
 
             LoadExportBox();
         }

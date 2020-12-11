@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Rems.Application.Common;
+using Steema.TeeChart;
+using Steema.TeeChart.Styles;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -24,6 +27,32 @@ namespace WindowsClient.Models
         {
             foreach (var rich in riches)
                 box.AddText(rich);
+        }
+
+        public static void AddToChart(this SeriesData series, Chart chart)
+        {
+            if (series is null) return;
+            if (series.X.Length == 0) return;            
+
+            Points points = new Points();
+            points.Legend.Text = series.Name;
+
+            Line line = new Line();
+            line.Legend.Visible = false;
+
+            if (series.X.GetValue(0) is DateTime)
+            {
+                points.XValues.DateTime = true;
+                line.XValues.DateTime = true;
+            }
+
+            line.Add(series.X, series.Y);
+            points.Add(series.X, series.Y);
+
+            chart.Series.Add(line);
+            chart.Series.Add(points);
+
+            line.Color = points.Color;
         }
     }
 }

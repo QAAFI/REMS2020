@@ -219,10 +219,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\ExperimentDetailer.cs">
+    <Compile Include="Controls\Experiments\Charts\OperationsChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ExperimentDetailer.Designer.cs">
+    <Compile Include="Controls\Experiments\Charts\OperationsChart.Designer.cs">
+      <DependentUpon>OperationsChart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Experiments\ExperimentDetailer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Experiments\ExperimentDetailer.Designer.cs">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\Exporter.cs">
@@ -255,10 +261,16 @@
     <Compile Include="Controls\TrackerBar.Designer.cs">
       <DependentUpon>TrackerBar.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TraitChart.cs">
+    <Compile Include="Controls\Experiments\Charts\SoilChart.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TraitChart.Designer.cs">
+    <Compile Include="Controls\Experiments\Charts\SoilChart.Designer.cs">
+      <DependentUpon>SoilChart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Experiments\Charts\TraitChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Experiments\Charts\TraitChart.Designer.cs">
       <DependentUpon>TraitChart.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\LabeledBox.cs">
@@ -285,7 +297,10 @@
     <Compile Include="Forms\REMSClient.Designer.cs">
       <DependentUpon>REMSClient.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Controls\ExperimentDetailer.resx">
+    <EmbeddedResource Include="Controls\Experiments\Charts\OperationsChart.resx">
+      <DependentUpon>OperationsChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Experiments\ExperimentDetailer.resx">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\Exporter.resx">
@@ -303,7 +318,10 @@
     <EmbeddedResource Include="Controls\TrackerBar.resx">
       <DependentUpon>TrackerBar.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TraitChart.resx">
+    <EmbeddedResource Include="Controls\Experiments\Charts\SoilChart.resx">
+      <DependentUpon>SoilChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Experiments\Charts\TraitChart.resx">
       <DependentUpon>TraitChart.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\LabeledBox.resx">

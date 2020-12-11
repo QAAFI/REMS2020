@@ -34,5 +34,8 @@ namespace Rems.Application.Common.Extensions
         {
             return (T) await handler(query);
         }
+
+        public async static Task<T> Send<T>(this QueryHandler handler, IRequest<T> request)
+            => (T)await handler?.Invoke(request);
     }
 }
