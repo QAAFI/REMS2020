@@ -14,12 +14,6 @@ namespace WindowsClient.Models
     {
         public string DB { get; set; }
 
-        public Stage Info { get; set; } = Stage.Missing;
-
-        public Stage Exps { get; set; } = Stage.Missing;
-
-        public Stage Data { get; set; } = Stage.Missing;
-
         [JsonIgnore]
         public TabPage Experiments { get; } = new TabPage("Experiment details");
 

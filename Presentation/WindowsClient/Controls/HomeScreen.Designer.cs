@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HomeScreen));
             this.groupFile = new System.Windows.Forms.GroupBox();
-            this.clearLabel = new System.Windows.Forms.Label();
             this.recentList = new System.Windows.Forms.ListBox();
             this.openLabel = new System.Windows.Forms.Label();
             this.createLabel = new System.Windows.Forms.Label();
@@ -51,7 +50,6 @@
             // 
             // groupFile
             // 
-            this.groupFile.Controls.Add(this.clearLabel);
             this.groupFile.Controls.Add(this.recentList);
             this.groupFile.Controls.Add(this.openLabel);
             this.groupFile.Controls.Add(this.createLabel);
@@ -63,21 +61,6 @@
             this.groupFile.TabIndex = 0;
             this.groupFile.TabStop = false;
             this.groupFile.Text = "File";
-            // 
-            // clearLabel
-            // 
-            this.clearLabel.AutoSize = true;
-            this.clearLabel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.clearLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.clearLabel.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.clearLabel.Location = new System.Drawing.Point(125, 57);
-            this.clearLabel.Margin = new System.Windows.Forms.Padding(3);
-            this.clearLabel.Name = "clearLabel";
-            this.clearLabel.Size = new System.Drawing.Size(44, 13);
-            this.clearLabel.TabIndex = 6;
-            this.clearLabel.Text = "Clear all";
-            this.clearLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.clearLabel.Click += new System.EventHandler(this.clearLabel_Click);
             // 
             // recentList
             // 
@@ -270,6 +253,5 @@
         private ImportLink expsLink;
         private ImportLink infoLink;
         private System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.Label clearLabel;
     }
 }

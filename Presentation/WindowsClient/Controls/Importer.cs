@@ -47,6 +47,9 @@ namespace WindowsClient.Controls
             images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
+            
+            // Force right click to select node
+            dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
 
             tracker.TaskBegun += TrackerTaskBegun;
         }        
@@ -166,6 +169,8 @@ namespace WindowsClient.Controls
             if (e.Node is DataNode node)
             {
                 importData.DataSource = node.Source;
+                importData.Format();
+
                 columnLabel.Text = node.Text;
                 
                 adviceBox.Clear();
@@ -247,6 +252,8 @@ namespace WindowsClient.Controls
                 importer.TaskFailed += tracker.OnTaskFailed;
 
                 await importer.Run();
+
+                tracker.Reset();
 
                 StageChanged.Invoke(Stage.Imported);
             }

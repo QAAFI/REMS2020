@@ -48,7 +48,7 @@
             this.textBox.Location = new System.Drawing.Point(3, 13);
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
-            this.textBox.Size = new System.Drawing.Size(194, 20);
+            this.textBox.Size = new System.Drawing.Size(144, 20);
             this.textBox.TabIndex = 1;
             this.textBox.WordWrap = false;
             // 
@@ -59,9 +59,9 @@
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.label);
             this.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.MinimumSize = new System.Drawing.Size(200, 36);
+            this.MinimumSize = new System.Drawing.Size(150, 36);
             this.Name = "LabeledBox";
-            this.Size = new System.Drawing.Size(200, 36);
+            this.Size = new System.Drawing.Size(150, 36);
             this.ResumeLayout(false);
             this.PerformLayout();
 

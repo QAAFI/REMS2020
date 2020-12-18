@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using Rems.Application.Common;
 using Rems.Application.CQRS;
-using System.IO;
-using WindowsClient.Forms;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure;
+
+using WindowsClient.Forms;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -66,7 +68,7 @@ namespace WindowsClient.Controls
 
         private void AttachLink(ImportLink link)
         {
-            link.Clicked += LinkClicked;
+            link.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
             link.ImportComplete += OnImportComplete;            
         }
 
@@ -85,20 +87,8 @@ namespace WindowsClient.Controls
 
             string file = Environment.GetFolderPath(local) + "\\REMS2020\\sessions.json";
 
-            UpdateSession();
+            //UpdateSession();
             JsonTools.SaveJson(file, Sessions);
-        }
-
-        /// <summary>
-        /// Updates the current session
-        /// </summary>
-        private void UpdateSession()
-        {
-            if (Session is null) return;
-
-            Session.Info = infoLink.Stage;
-            Session.Exps = expsLink.Stage;
-            Session.Data = dataLink.Stage;
         }
 
         /// <summary>
@@ -107,9 +97,6 @@ namespace WindowsClient.Controls
         /// <param name="session"></param>
         private async Task ChangeSession(Session session)
         {
-            // Ensure the current session is updated before changing out
-            UpdateSession();
-
             SessionChanging?.Invoke();
 
             // Open the DB from the new session
@@ -120,8 +107,10 @@ namespace WindowsClient.Controls
             Session = session;
             await CheckTables(session);
 
-            // Update the links
+            // Reset the export box
+            LoadExportBox();
 
+            // Clear the links
             infoLink.Importer.Data = null;
             expsLink.Importer.Data = null;
             dataLink.Importer.Data = null;
@@ -129,22 +118,33 @@ namespace WindowsClient.Controls
             // Reorder the list
             Sessions.Remove(session);
             Sessions.Add(session);
+
+            // Limit the number of sessions to 8
+            if (Sessions.Count > 8)
+                Sessions.RemoveAt(0);
+
             recentList.DataSource = snoisses;      
         }
 
         private async Task CheckTables(Session session)
         {
             if ((bool)await Query.Invoke(new LoadedInformation()))
-                infoLink.Stage = session.Info = Stage.Imported;
+                infoLink.Stage = /*session.Info =*/ Stage.Imported;
+            else
+                infoLink.Stage = Stage.Missing;
 
             if ((bool)await Query.Invoke(new LoadedExperiments()))
             {
-                expsLink.Stage = session.Exps = Stage.Imported;
+                expsLink.Stage = /*session.Exps =*/ Stage.Imported;
                 AddDetailerPage();
             }
+            else
+                expsLink.Stage = Stage.Missing;
 
             if ((bool)await Query.Invoke(new LoadedData()))
-                dataLink.Stage = session.Data = Stage.Imported;
+                dataLink.Stage = /*session.Data =*/ Stage.Imported;
+            else
+                dataLink.Stage = Stage.Missing;
         }
 
         private async Task CreateSession(string file)
@@ -165,7 +165,10 @@ namespace WindowsClient.Controls
             ImportCompleted?.Invoke(link);
 
             if (link == expsLink)
+            {
+                LoadExportBox();
                 AddDetailerPage();
+            }
         }
 
         private async void LoadExportBox()
@@ -176,8 +179,6 @@ namespace WindowsClient.Controls
             var items = exps.Select(e => e.Value).ToArray();
             exportList.Items.AddRange(items);
         }
-
-        private void LinkClicked(object sender, EventArgs e) => ImportRequested?.Invoke(sender, e);
 
         private async void OnCreateClick(object sender, EventArgs e)
         {
@@ -262,22 +263,6 @@ namespace WindowsClient.Controls
                 await ChangeSession(session);
 
             recentList.SelectedIndex = -1;
-        }
-
-        private void clearLabel_Click(object sender, EventArgs e)
-        {
-            var result = MessageBox.Show("Are you sure you want to clear the recent items?",
-                "Confirm clear",
-                MessageBoxButtons.YesNo);
-
-            if (result == DialogResult.Yes)
-            {
-                Sessions.Clear();
-                if (Session != null)
-                    Sessions.Add(Session);
-
-                recentList.DataSource = snoisses;
-            }
         }
     }
 }
