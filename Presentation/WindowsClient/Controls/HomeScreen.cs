@@ -39,7 +39,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when data has finished importing
         /// </summary>
-        public event LinkAction ImportCompleted;
+        public event Action<ImportLink> ImportCompleted;
 
         /// <summary>
         /// Occurs immediately before the session changes
