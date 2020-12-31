@@ -12,6 +12,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using WindowsClient.Forms;
@@ -21,7 +22,7 @@ namespace WindowsClient.Controls
 {    
     public partial class Importer : UserControl
     {
-        public QueryHandler Query { get; set; }
+        public event Func<object, Task<object>> Query;
 
         public event Action FileImported;
         public event Action<Stage> StageChanged;
@@ -108,7 +109,8 @@ namespace WindowsClient.Controls
 
         private TreeNode ValidateTable(DataTable table)
         {
-            var tnode = new DataNode(table) { Query = Query };
+            var tnode = new DataNode(table);
+            tnode.Query += Query;
 
             bool valid = true;
             // Prepare individual columns for import
@@ -125,7 +127,8 @@ namespace WindowsClient.Controls
                 ReplaceName(col);
 
                 // Create a node for the column
-                var cnode = new DataNode(col) { Query = Query };
+                var cnode = new DataNode(col);
+                cnode.Query += (o) => Query?.Invoke(o);
 
                 var info = col.FindProperty();
                 col.ExtendedProperties["Info"] = info;
@@ -238,11 +241,8 @@ namespace WindowsClient.Controls
                     return;
                 }
 
-                var importer = new ExcelImporter
-                {
-                    Query = Query,
-                    Data = Data
-                };
+                var importer = new ExcelImporter { Data = Data };
+                importer.Query += Query;
 
                 tracker.SetSteps(importer);
 

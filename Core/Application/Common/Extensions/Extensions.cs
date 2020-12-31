@@ -29,13 +29,5 @@ namespace Rems.Application.Common.Extensions
             else
                 throw new Exception($"Invalid parameter type. \n Expected: {typeof(T)} \n Received: {value.GetType()}");
         }
-
-        public async static Task<T> Send<T>(this IRequest<T> query, QueryHandler handler)
-        {
-            return (T) await handler(query);
-        }
-
-        public async static Task<T> Send<T>(this QueryHandler handler, IRequest<T> request)
-            => (T)await handler?.Invoke(request);
     }
 }

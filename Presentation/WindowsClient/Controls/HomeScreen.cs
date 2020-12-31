@@ -16,6 +16,7 @@ using Rems.Infrastructure;
 
 using WindowsClient.Forms;
 using WindowsClient.Models;
+using MediatR;
 
 namespace WindowsClient.Controls
 {
@@ -23,7 +24,6 @@ namespace WindowsClient.Controls
 
     public partial class HomeScreen : UserControl
     {
-        public event QueryHandler Query;
         public event Action<string> DBCreated;
         public event Action<string> DBOpened;
 
@@ -31,6 +31,9 @@ namespace WindowsClient.Controls
         public event LinkAction ImportCompleted;
         public event Action SessionChanging;
         public event PageAction PageCreated;
+
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         /// <summary>
         /// All known sessions
@@ -59,7 +62,7 @@ namespace WindowsClient.Controls
 
         private void AddDetailerPage()
         {
-            Session.Detailer.REMS += (s, e) => Query?.Invoke(s, e);            
+            Session.Detailer.Query += (o) => Query?.Invoke(o);
             PageCreated?.Invoke(Session.Experiments);
             Session.Detailer.LoadNodes();
 
@@ -128,12 +131,12 @@ namespace WindowsClient.Controls
 
         private async Task CheckTables(Session session)
         {
-            if ((bool)await Query.Invoke(new LoadedInformation()))
+            if ((bool)await InvokeQuery(new LoadedInformation()))
                 infoLink.Stage = /*session.Info =*/ Stage.Imported;
             else
                 infoLink.Stage = Stage.Missing;
 
-            if ((bool)await Query.Invoke(new LoadedExperiments()))
+            if ((bool)await InvokeQuery(new LoadedExperiments()))
             {
                 expsLink.Stage = /*session.Exps =*/ Stage.Imported;
                 AddDetailerPage();
@@ -141,7 +144,7 @@ namespace WindowsClient.Controls
             else
                 expsLink.Stage = Stage.Missing;
 
-            if ((bool)await Query.Invoke(new LoadedData()))
+            if ((bool)await InvokeQuery(new LoadedData()))
                 dataLink.Stage = /*session.Data =*/ Stage.Imported;
             else
                 dataLink.Stage = Stage.Missing;
@@ -175,7 +178,7 @@ namespace WindowsClient.Controls
         {
             exportList.Items.Clear();
 
-            var exps = (await Query.Invoke(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+            var exps = (await InvokeQuery(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).ToArray();
             exportList.Items.AddRange(items);
         }
@@ -191,7 +194,7 @@ namespace WindowsClient.Controls
 
                 if (save.ShowDialog() != DialogResult.OK) return;
 
-                await Query.Invoke(new CreateDBCommand() { FileName = save.FileName });
+                await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
                 DBCreated?.Invoke(save.FileName);
 
                 await CreateSession(save.FileName);                
@@ -214,7 +217,7 @@ namespace WindowsClient.Controls
 
                 folder = Path.GetDirectoryName(open.FileName);
 
-                await Query.Invoke(new OpenDBCommand() { FileName = open.FileName });                                
+                await InvokeQuery(new OpenDBCommand() { FileName = open.FileName });                                
             }
         }
 
@@ -241,7 +244,7 @@ namespace WindowsClient.Controls
                         Experiments = exportList.CheckedItems.Cast<string>()
                     };
 
-                    exporter.Query += Query;
+                    exporter.Query += (o) => Query?.Invoke(o);
                     exporter.FileName = save.FileName;
                     var dialog = new ProgressDialog(exporter, "Exporting...");
                 }

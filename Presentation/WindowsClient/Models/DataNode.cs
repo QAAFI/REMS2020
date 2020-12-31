@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
@@ -14,7 +15,8 @@ namespace WindowsClient.Models
 {
     public class DataNode : TreeNode
     {
-        public QueryHandler Query;
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public PropertyCollection State { get; }
 
@@ -143,7 +145,7 @@ namespace WindowsClient.Models
 
             var name = (Tag as DataColumn).ColumnName;
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            var result = await Query(new AddTraitCommand() { Name = name, Type = type.Name });
+            var result = await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
 
             if ((bool)result)
                 UpdateState("Valid", true);

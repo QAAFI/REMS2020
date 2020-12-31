@@ -11,12 +11,14 @@ using Steema.TeeChart;
 using System.Collections.Generic;
 using System.Linq;
 using WindowsClient.Models;
+using MediatR;
 
 namespace WindowsClient.Controls
 {
     public partial class SoilChart : UserControl
     {
-        public event QueryHandler DataRequested;
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public Func<int, TreeNode, Task> Updater;
 
@@ -88,7 +90,7 @@ namespace WindowsClient.Controls
                 traitsBox.Items.Clear();
 
                 // Load the trait type box
-                var items = await DataRequested.Send(new SoilTraitsQuery() { TreatmentId = id });
+                var items = await InvokeQuery(new SoilTraitsQuery() { TreatmentId = id });
 
                 if (items.Length < 1) return;
 
@@ -106,7 +108,7 @@ namespace WindowsClient.Controls
                 datesBox.Items.Clear();
 
                 var query = new SoilLayerDatesQuery() { TreatmentId = id };
-                var items = await DataRequested.Send(query);
+                var items = await InvokeQuery(query);
 
                 if (items.Length < 1) return;
 
@@ -140,7 +142,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var data = await DataRequested.Send(query);
+                        var data = await InvokeQuery(query);
                         data.AddToChart(chart);
                     }
                 }
@@ -170,7 +172,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var data = await DataRequested.Send(query);
+                        var data = await InvokeQuery(query);
                         data.AddToChart(chart);
                     }
                 }
@@ -203,7 +205,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var series = await DataRequested.Send(query);
+                        var series = await InvokeQuery(query);
 
                         foreach (var data in series)
                             data.AddToChart(chart);

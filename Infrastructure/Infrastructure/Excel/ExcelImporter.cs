@@ -20,7 +20,7 @@ namespace Rems.Infrastructure.Excel
         {
             try
             {
-                if (!OnQuery(new ConnectionExists()))
+                if (! await InvokeQuery(new ConnectionExists()))
                     throw new Exception("No existing database connection");
 
                 foreach (DataTable table in Data.Tables)
@@ -39,11 +39,11 @@ namespace Rems.Infrastructure.Excel
         /// <summary>
         /// Adds the given data table to the context
         /// </summary>
-        private Task InsertTable(DataTable table)
+        private async Task<Unit> InsertTable(DataTable table)
         {
             // Skip the empty / notes tables
             if (table.ExtendedProperties["Ignore"] is true)
-                return Task.Run(() => Unit.Value);
+                return Unit.Value;
 
             OnNextItem(table.TableName);
 
@@ -53,7 +53,7 @@ namespace Rems.Infrastructure.Excel
             switch (table.TableName)
             {
                 case "Design":
-                    OnQuery(new InsertDesignsCommand() { Table = table });
+                    await InvokeQuery(new InsertDesignsCommand() { Table = table });
                     command = new InsertPlotsCommand() 
                     { 
                         Table = table,
@@ -110,7 +110,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Name = type.Name + "Trait"
                     };
-                    var dependency = OnQuery(query);
+                    var dependency = await InvokeQuery(query);
 
                     command = new InsertTraitTableCommand()
                     {
@@ -130,7 +130,7 @@ namespace Rems.Infrastructure.Excel
                     };                    
                     break;
             }
-            return Task.Run(() => OnQuery(command));
+            return await InvokeQuery(command);
         }
 
     }

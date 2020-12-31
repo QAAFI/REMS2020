@@ -1,4 +1,5 @@
-﻿using Rems.Application.Common;
+﻿using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
@@ -18,7 +19,8 @@ namespace WindowsClient.Controls
 {
     public partial class OperationsChart : UserControl
     {
-        public event QueryHandler DataRequested;
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public int TreatmentID { get; private set; }
 
@@ -42,9 +44,9 @@ namespace WindowsClient.Controls
 
             TreatmentID = id;
 
-            var iData = await DataRequested.Send(new IrrigationDataQuery { TreatmentId = id });
-            var fData = await DataRequested.Send(new FertilizationDataQuery{ TreatmentId = id });
-            var tData = await DataRequested.Send(new TillagesDataQuery{ TreatmentId = id });
+            var iData = await InvokeQuery(new IrrigationDataQuery { TreatmentId = id });
+            var fData = await InvokeQuery(new FertilizationDataQuery{ TreatmentId = id });
+            var tData = await InvokeQuery(new TillagesDataQuery{ TreatmentId = id });
 
             chart.Series.Clear();
             chart.Axes.Custom.Clear();

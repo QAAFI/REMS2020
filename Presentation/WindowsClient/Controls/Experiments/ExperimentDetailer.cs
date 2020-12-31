@@ -44,7 +44,8 @@ namespace WindowsClient.Controls
         }
         #endregion
 
-        public event QueryHandler REMS;
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T) await Query(query);        
 
         public ExperimentDetailer()
         {
@@ -52,9 +53,9 @@ namespace WindowsClient.Controls
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
-            operations.DataRequested += (o, token) => REMS?.Invoke(o);
-            traitChart.DataRequested += (o, token) => REMS?.Invoke(o);
-            soilsChart.DataRequested += (o, token) => REMS?.Invoke(o);
+            operations.Query += (o) => Query?.Invoke(o);
+            traitChart.Query += (o) => Query?.Invoke(o);
+            soilsChart.Query += (o) => Query?.Invoke(o);
         }
 
         /// <summary>
@@ -64,13 +65,13 @@ namespace WindowsClient.Controls
         {
             experimentsTree.Nodes.Clear();
 
-            var exps = await REMS.Send(new ExperimentsQuery());
+            var exps = await InvokeQuery(new ExperimentsQuery());
 
             foreach (var exp in exps)
             {
                 ENode eNode = new ENode(exp.Value) { EID = exp.Key };
 
-                var treats = await REMS.Send(new TreatmentsQuery{ ExperimentId = exp.Key });
+                var treats = await InvokeQuery(new TreatmentsQuery{ ExperimentId = exp.Key });
 
                 foreach (var treat in treats)
                 {
@@ -78,7 +79,7 @@ namespace WindowsClient.Controls
 
                     tNode.Nodes.Add(new TNode("All") { EID = exp.Key, TID = treat.Key });
 
-                    var plots = await REMS.Send(new PlotsQuery{ TreatmentId = treat.Key });
+                    var plots = await InvokeQuery(new PlotsQuery{ TreatmentId = treat.Key });
 
                     tNode.Nodes.AddRange(plots.Select(p => 
                         new PNode(p.Value) { EID = exp.Key, TID = treat.Key, PID = p.Key}
@@ -147,7 +148,7 @@ namespace WindowsClient.Controls
 
             var query = new ExperimentSummary() { ExperimentId = id };
 
-            var experiment = await query.Send(REMS);
+            var experiment = await InvokeQuery(query);
 
             descriptionBox.Text = experiment["Description"];
             designBox.Text = experiment["Design"];
@@ -165,7 +166,7 @@ namespace WindowsClient.Controls
 
             notesBox.Text = experiment["Notes"];
 
-            var sowing = await REMS.Send(new SowingSummary() { ExperimentId = id });
+            var sowing = await InvokeQuery(new SowingSummary() { ExperimentId = id });
             sowingMethodBox.Content = sowing["Method"];
             sowingDateBox.Content = sowing["Date"];
             sowingDepthBox.Content = sowing["Depth"];
@@ -173,7 +174,7 @@ namespace WindowsClient.Controls
             sowingPopBox.Content = sowing["Pop"];
 
             var design = new DesignsTableQuery() { ExperimentId = id };
-            designData.DataSource = await REMS.Send(design);
+            designData.DataSource = await InvokeQuery(design);
             
         }        
     }

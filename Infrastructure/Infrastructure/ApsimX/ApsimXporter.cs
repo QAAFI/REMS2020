@@ -24,7 +24,7 @@ namespace Rems.Infrastructure.ApsimX
     {
         public string FileName { get; set; }
 
-        public override int Items => OnQuery(new ExperimentCount());
+        public override int Items => InvokeQuery(new ExperimentCount()).Result;
         public override int Steps => Items * 30;
 
         public IEnumerable<string> Experiments { get; set; }
@@ -35,18 +35,16 @@ namespace Rems.Infrastructure.ApsimX
             var simulations = JsonTools.LoadJson<Simulations>(path);
 
             var folder = new Folder() { Name = "Experiments" };
-            var experiments = OnQuery(new ExperimentsQuery());
+            var experiments = await InvokeQuery(new ExperimentsQuery());
 
             foreach (var experiment in experiments)
             {
                 if (!Experiments.Contains(experiment.Value)) continue;
 
                 OnNextItem(experiment.Value);
-                await Task.Run(() =>
-                {
-                    var model = CreateExperiment(experiment.Value, experiment.Key);
-                    folder.Children.Add(model);
-                });
+
+                var model = await CreateExperiment(experiment.Value, experiment.Key);
+                folder.Children.Add(model);
             }
 
             simulations.Children.Add(folder);
@@ -58,13 +56,13 @@ namespace Rems.Infrastructure.ApsimX
         }
 
         #region General
-        private IModel Query<R>(int id, IEnumerable<IModel> children = null)
+        private async Task<IModel> Request<R>(int id, IEnumerable<IModel> children = null)
             where R : IRequest<IModel>, IParameterised, new()
         {
             var request = new R();
             request.Parameterise(id);
 
-            var model = OnQuery(request);
+            var model = await InvokeQuery(request);
 
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
@@ -90,24 +88,24 @@ namespace Rems.Infrastructure.ApsimX
         }
         #endregion
 
-        private IModel CreateExperiment(string name, int id)
+        private async Task<IModel> CreateExperiment(string name, int id)
         {
             var experiment = 
             Create<Experiment>(name, new IModel[] {
                 Create<Factors>("Factors", new IModel[] {
-                    Query<PermutationQuery>(id ,null)}),
+                    await Request<PermutationQuery>(id ,null)}),
                 Create<Simulation>("Base", new IModel[] {
-                    Query<ClockQuery>(id, new IModel[] {
+                    await Request<ClockQuery>(id, new IModel[] {
                         Create<Summary>(),
-                        Query<WeatherQuery>(id),
+                        await Request<WeatherQuery>(id),
                         Create<SoilArbitrator>(),
-                        Query<ZoneQuery>(id, new IModel[] {
-                            Query<PlantQuery>(id),
-                            Query<SoilQuery>(id, new IModel[] {
-                                Query<PhysicalQuery>(id, new IModel[] {
-                                    Query<SoilCropQuery>(id)
+                        await Request<ZoneQuery>(id, new IModel[] {
+                            await Request<PlantQuery>(id),
+                            await Request<SoilQuery>(id, new IModel[] {
+                                await Request<PhysicalQuery>(id, new IModel[] {
+                                    await Request<SoilCropQuery>(id)
                                 }),
-                                Query<WaterBalanceQuery>(id),
+                                await Request<WaterBalanceQuery>(id),
                                 Create<SoilNitrogen>("SoilNitrogen", new IModel[] {
                                     Create<SoilNitrogenNH4>("NH4"),
                                     Create<SoilNitrogenNO3>("NO3"),
@@ -115,9 +113,9 @@ namespace Rems.Infrastructure.ApsimX
                                     Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
                                     Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
                                 }),
-                                Query<OrganicQuery>(id),
-                                Query<ChemicalQuery>(id),
-                                Query<SampleQuery>(id),
+                                await Request<OrganicQuery>(id),
+                                await Request<ChemicalQuery>(id),
+                                await Request<SampleQuery>(id),
                                 Create<CERESSoilTemperature>("SoilTemperature")
                             }),
                             CreateOrganicMatter(),

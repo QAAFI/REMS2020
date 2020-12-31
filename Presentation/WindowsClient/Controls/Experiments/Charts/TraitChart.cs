@@ -1,25 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Steema.TeeChart.Styles;
-
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
+using MediatR;
 using Rems.Application.CQRS;
-using System.Threading.Tasks;
-using WindowsClient.Models;
 using Steema.TeeChart;
-using Models;
-using System.Collections.Generic;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
     public partial class TraitChart : UserControl
     {
-        public event QueryHandler DataRequested;
-
         public Func<int, TreeNode, Task> Updater;
+
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);        
 
         private int treatment = -1;
         private int plot;
@@ -84,7 +81,7 @@ namespace WindowsClient.Controls
                 traitsBox.Items.Clear();
 
                 // Load the trait type box
-                var types = await DataRequested.Send(new CropTraitsQuery() { TreatmentId = id });
+                var types = await InvokeQuery(new CropTraitsQuery() { TreatmentId = id });
 
                 if (types.Length < 1) return;
 
@@ -113,7 +110,7 @@ namespace WindowsClient.Controls
                         PlotId = id
                     };
 
-                    var data = await DataRequested.Send(query);
+                    var data = await InvokeQuery(query);
                     data.AddToChart(chart);
                 }
 
@@ -140,7 +137,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var data = await DataRequested.Send(query);
+                    var data = await InvokeQuery(query);
                     data.AddToChart(chart);
                 }
 
@@ -169,7 +166,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var series = await DataRequested.Send(query);
+                    var series = await InvokeQuery(query);
 
                     foreach (var data in series)
                         data.AddToChart(chart);

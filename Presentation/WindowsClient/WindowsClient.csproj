@@ -231,12 +231,6 @@
     <Compile Include="Controls\Experiments\ExperimentDetailer.Designer.cs">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Exporter.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\Exporter.Designer.cs">
-      <DependentUpon>Exporter.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\HomeScreen.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -302,9 +296,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\Experiments\ExperimentDetailer.resx">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Exporter.resx">
-      <DependentUpon>Exporter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\HomeScreen.resx">
       <DependentUpon>HomeScreen.cs</DependentUpon>
