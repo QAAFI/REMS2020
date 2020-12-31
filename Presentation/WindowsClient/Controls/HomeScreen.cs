@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure;
@@ -20,30 +16,71 @@ using MediatR;
 
 namespace WindowsClient.Controls
 {
-    public delegate void PageAction(TabPage page);
-
+    /// <summary>
+    /// Manages database selection and file import/export
+    /// </summary>
     public partial class HomeScreen : UserControl
     {
+        /// <summary>
+        /// Occurs when a new database is created
+        /// </summary>
         public event Action<string> DBCreated;
+
+        /// <summary>
+        /// Occurs when a database is opened
+        /// </summary>
         public event Action<string> DBOpened;
 
+        /// <summary>
+        /// Occurs when excel data is requested
+        /// </summary>
         public event EventHandler ImportRequested;
-        public event LinkAction ImportCompleted;
-        public event Action SessionChanging;
-        public event PageAction PageCreated;
 
+        /// <summary>
+        /// Occurs when data has finished importing
+        /// </summary>
+        public event LinkAction ImportCompleted;
+
+        /// <summary>
+        /// Occurs immediately before the session changes
+        /// </summary>
+        public event Action SessionChanging;
+
+        /// <summary>
+        /// Occurs when a new page needs to be created
+        /// </summary>
+        public event Action<TabPage> PageCreated;
+
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
+        
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         /// <summary>
         /// All known sessions
         /// </summary>
         private List<Session> Sessions { get; }
+
+        /// <summary>
+        /// The list of sessions reversed
+        /// </summary>
         private List<Session> snoisses => Sessions.Reverse<Session>().ToList();
 
-
+        /// <summary>
+        /// The currently active session
+        /// </summary>
         private Session Session { get; set; }
 
+        /// <summary>
+        /// The most recently accessed folder
+        /// </summary>
         private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         public HomeScreen()
@@ -60,6 +97,9 @@ namespace WindowsClient.Controls
             recentList.DoubleClick += OnRecentListDoubleClick;
         }
 
+        /// <summary>
+        /// Adds an experiment detailer to the homescreen
+        /// </summary>
         private void AddDetailerPage()
         {
             Session.Detailer.Query += (o) => Query?.Invoke(o);
@@ -69,12 +109,20 @@ namespace WindowsClient.Controls
             LoadExportBox();
         }
 
+        /// <summary>
+        /// Connects the import link to the 
+        /// </summary>
+        /// <param name="link"></param>
         private void AttachLink(ImportLink link)
         {
             link.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
             link.ImportComplete += OnImportComplete;            
         }
 
+        /// <summary>
+        /// Loads the list of recent sessions
+        /// </summary>
+        /// <returns></returns>
         private List<Session> LoadSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -84,13 +132,15 @@ namespace WindowsClient.Controls
             return JsonTools.LoadJson<List<Session>>(file, JsonTools.JsonLoad.New);
         }
 
+        /// <summary>
+        /// Saves the list of recent sessions
+        /// </summary>
         private void SaveSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
 
             string file = Environment.GetFolderPath(local) + "\\REMS2020\\sessions.json";
 
-            //UpdateSession();
             JsonTools.SaveJson(file, Sessions);
         }
 
@@ -108,7 +158,7 @@ namespace WindowsClient.Controls
             folder = Path.GetDirectoryName(session.DB);
 
             Session = session;
-            await CheckTables(session);
+            await CheckTables();
 
             // Reset the export box
             LoadExportBox();
@@ -129,30 +179,37 @@ namespace WindowsClient.Controls
             recentList.DataSource = snoisses;      
         }
 
-        private async Task CheckTables(Session session)
+        /// <summary>
+        /// Check if any data has previously been loaded
+        /// </summary>
+        private async Task CheckTables()
         {
             if ((bool)await InvokeQuery(new LoadedInformation()))
-                infoLink.Stage = /*session.Info =*/ Stage.Imported;
+                infoLink.Stage = Stage.Imported;
             else
                 infoLink.Stage = Stage.Missing;
 
             if ((bool)await InvokeQuery(new LoadedExperiments()))
             {
-                expsLink.Stage = /*session.Exps =*/ Stage.Imported;
+                expsLink.Stage = Stage.Imported;
                 AddDetailerPage();
             }
             else
                 expsLink.Stage = Stage.Missing;
 
             if ((bool)await InvokeQuery(new LoadedData()))
-                dataLink.Stage = /*session.Data =*/ Stage.Imported;
+                dataLink.Stage = Stage.Imported;
             else
                 dataLink.Stage = Stage.Missing;
         }
 
+        /// <summary>
+        /// Create a new session for a database
+        /// </summary>
+        /// <param name="file">The path to the .db file</param>
+        /// <returns></returns>
         private async Task CreateSession(string file)
-        {           
-
+        {
             var session = new Session() { DB = file };
 
             // If overwriting a .db, remove the old session
@@ -163,6 +220,9 @@ namespace WindowsClient.Controls
             await ChangeSession(session);            
         }
 
+        /// <summary>
+        /// Handles the post-import functions
+        /// </summary>
         private void OnImportComplete(ImportLink link)
         {
             ImportCompleted?.Invoke(link);
@@ -174,6 +234,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Adds the available experiments to the export box
+        /// </summary>
         private async void LoadExportBox()
         {
             exportList.Items.Clear();
@@ -183,6 +246,9 @@ namespace WindowsClient.Controls
             exportList.Items.AddRange(items);
         }
 
+        /// <summary>
+        /// Handles the creation of a new database
+        /// </summary>
         private async void OnCreateClick(object sender, EventArgs e)
         {
             using (var save = new SaveFileDialog())
@@ -201,6 +267,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Handles the opening of an existing database
+        /// </summary>
         private async void OnOpenClick(object sender, EventArgs e)
         {
             using (var open = new OpenFileDialog())
@@ -221,8 +290,12 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Handles the export of .apsimx files
+        /// </summary>
         private async void OnExportClick(object sender, EventArgs e)
         {
+            // Check that a valid database exists
             bool connected = (bool)await Query(new ConnectionExists());
             if (!connected)
             {
@@ -255,11 +328,17 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Handles the closure of the control
+        /// </summary>
         public void Close()
         {
             SaveSessions();
         }
 
+        /// <summary>
+        /// Handles a change in the selected recent items
+        /// </summary>
         private async void OnRecentListDoubleClick(object sender, EventArgs e)
         {
             if (recentList.SelectedItem is Session session)

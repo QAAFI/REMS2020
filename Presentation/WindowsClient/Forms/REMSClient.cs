@@ -119,7 +119,7 @@ namespace WindowsClient
                 notebook.TabPages.Add(link.Tab);
             notebook.SelectedTab = link.Tab;
 
-            if (!link.Importer.SelectFile())
+            if (!link.Importer.OpenFile())
                 notebook.TabPages.Remove(link.Tab);
         }
 

@@ -1,7 +1,6 @@
 ﻿using ExcelDataReader;
 using Microsoft.EntityFrameworkCore.Internal;
 
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -15,21 +14,43 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using WindowsClient.Forms;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {    
+    /// <summary>
+    /// Enables the import of excel data
+    /// </summary>
     public partial class Importer : UserControl
     {
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
 
+        /// <summary>
+        /// Occurs after a file is imported
+        /// </summary>
         public event Action FileImported;
+
+        /// <summary>
+        /// Occurs when the current import stage has changed
+        /// </summary>
         public event Action<Stage> StageChanged;
+
+        /// <summary>
+        /// Occurs when the file to import from has changed
+        /// </summary>
         public event Action<string> FileChanged;
 
+        /// <summary>
+        /// The system folder most recently accessed by the user
+        /// </summary>
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+        /// <summary>
+        /// Collection of icons used by the data tree
+        /// </summary>
         private ImageList images;
 
         public Importer() : base()
@@ -37,6 +58,7 @@ namespace WindowsClient.Controls
             InitializeComponent();
             Dock = DockStyle.Fill;
 
+            // Add icons to the image list
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
             images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
@@ -52,12 +74,21 @@ namespace WindowsClient.Controls
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
 
-            tracker.TaskBegun += TrackerTaskBegun;
+            tracker.TaskBegun += RunImporter;
         }        
 
         #region Data
+        /// <summary>
+        /// The excel data
+        /// </summary>
         public DataSet Data { get; set; } 
 
+        /// <summary>
+        /// Reads the data from the given file
+        /// </summary>
+        /// <remarks>
+        /// It is assumed that the file is either of .xls or .xlsx format
+        /// </remarks>
         private DataSet ReadData(string filepath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -77,6 +108,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Attempts to sanitise raw excel data so it can be read into the database
+        /// </summary>        
         private void CleanData(DataSet data)
         {
             dataTree.Nodes.Clear();
@@ -107,6 +141,11 @@ namespace WindowsClient.Controls
             }            
         }
 
+        /// <summary>
+        /// Validate the contents of a table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         private TreeNode ValidateTable(DataTable table)
         {
             var tnode = new DataNode(table);
@@ -148,15 +187,19 @@ namespace WindowsClient.Controls
                     && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName);
                 };
 
+                // If the colum node is not valid for import, update the state to warn the user
                 if (info is null && !isTrait())
                     cnode.UpdateState("Valid", false);
                 else
                     cnode.UpdateState("Valid", true);
+
                 tnode.Nodes.Add(cnode);
 
+                // The table is only valid if all the columns are valid
                 valid &= (bool)col.ExtendedProperties["Valid"];
             }
 
+            // If the table node is not valid for import, update the state to warn the user
             if (valid)
                 tnode.UpdateState("Valid", true);     
             else
@@ -165,8 +208,28 @@ namespace WindowsClient.Controls
             return tnode;
         }
 
-        #endregion
+        private static Dictionary<string, string> map = new Dictionary<string, string>()
+        {
+            {"ExpID", "ExperimentId" },
+            {"ExpId", "ExperimentId" },
+            {"N%", "Nitrogen" },
+            {"P%", "Phosphorus" },
+            {"K%", "Potassium" },
+            {"Ca%", "Calcium" },
+            {"S%", "Sulfur" },
+            {"Other%", "OtherPercent" }
+        };
 
+        private void ReplaceName(DataColumn col)
+        {
+            if (map.ContainsKey(col.ColumnName))
+                col.ColumnName = map[col.ColumnName];
+        }
+
+        #endregion
+        /// <summary>
+        /// Handles the selection of a new node in the tree
+        /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node is DataNode node)
@@ -181,7 +244,11 @@ namespace WindowsClient.Controls
             }
         }
 
-        public bool SelectFile()
+        /// <summary>
+        /// Lets the user select a file to open for import
+        /// </summary>
+        /// <returns>True if the file is valid, false otherwise</returns>
+        public bool OpenFile()
         {
             using (var open = new OpenFileDialog())
             {
@@ -214,7 +281,10 @@ namespace WindowsClient.Controls
             }
         }
 
-        private async void TrackerTaskBegun()
+        /// <summary>
+        /// Runs the excel importer
+        /// </summary>
+        private async void RunImporter()
         {
             try
             {
@@ -262,26 +332,11 @@ namespace WindowsClient.Controls
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
             }
-        }
+        }        
 
-        private static Dictionary<string, string> map = new Dictionary<string, string>()
-        {
-            {"ExpID", "ExperimentId" },
-            {"ExpId", "ExperimentId" },
-            {"N%", "Nitrogen" },
-            {"P%", "Phosphorus" },
-            {"K%", "Potassium" },
-            {"Ca%", "Calcium" },
-            {"S%", "Sulfur" },
-            {"Other%", "OtherPercent" }
-        };
-
-        private void ReplaceName(DataColumn col)
-        {
-            if (map.ContainsKey(col.ColumnName))
-                col.ColumnName = map[col.ColumnName];
-        }
-
-        private void OnFileButtonClicked(object sender, EventArgs e) => SelectFile();
+        /// <summary>
+        /// Handles the file button click event
+        /// </summary>
+        private void OnFileButtonClicked(object sender, EventArgs e) => OpenFile();
     }
 }
