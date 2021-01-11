@@ -17,11 +17,26 @@ using static Steema.TeeChart.Axis;
 
 namespace WindowsClient.Controls
 {
+    /// <summary>
+    /// Manages the presentation of operation data for a treatment
+    /// </summary>
     public partial class OperationsChart : UserControl
     {
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
+
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
+        /// <summary>
+        /// The ID of the currently displayed treatment
+        /// </summary>
         public int TreatmentID { get; private set; }
 
         private Chart chart => tChart.Chart;
@@ -29,14 +44,38 @@ namespace WindowsClient.Controls
         public OperationsChart()
         {
             InitializeComponent();
+            InitialiseChart();            
+        }
 
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        private void InitialiseChart()
+        {
+            // General options
             tChart.Text = "Operations";
             chart.Panel.MarginUnits = PanelMarginUnits.Pixels;
             chart.Panel.MarginLeft = 70;
-            chart.Panel.MarginRight = 30;
-            chart.Panel.MarginBottom = 90;
+            chart.Panel.MarginRight = 15;
+            chart.Panel.MarginBottom = 10;
+
+            // X-Axis options
+            chart.Axes.Bottom.Title = new AxisTitle() { Text = "Date" };
+            chart.Axes.Bottom.AutomaticMaximum = true;
+            chart.Axes.Bottom.AutomaticMinimum = true;
+            chart.Axes.Bottom.Horizontal = true;
+            chart.Axes.Bottom.Labels.DateTimeFormat = "MMM-dd";
+            chart.Axes.Bottom.Labels.Angle = 60;
+            chart.Axes.Bottom.Ticks.Visible = true;
+            chart.Axes.Bottom.MinorGrid.Visible = true;
+            chart.Axes.Bottom.MinorGrid.Color = Color.LightGray;
+            chart.Axes.Bottom.Grid.Visible = true;
         }
 
+        /// <summary>
+        /// Updates the displayed data for a new treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         public async Task UpdateData(int id)
         {
             // Don't need to update if the ID matches
@@ -49,47 +88,21 @@ namespace WindowsClient.Controls
             var tData = await InvokeQuery(new TillagesDataQuery{ TreatmentId = id });
 
             chart.Series.Clear();
-            chart.Axes.Custom.Clear();
+            chart.Axes.Custom.Clear();            
 
-            var pen = new AxisLinePen(chart)
-            {
-                Visible = true,
-                Color = Color.Black,
-                Width = 2
-            };
-            chart.Axes.Right.AxisPen = pen;
-            chart.Axes.Right.Visible = true;
-
-            var x = new Axis(chart)
-            {
-                Title = new AxisTitle() { Text = "Date" },
-                AutomaticMaximum = true,
-                AutomaticMinimum = true,
-                Horizontal = true,
-            };
-            x.Labels.DateTimeFormat = "MMM-dd";
-            x.Labels.Angle = 60;
-            x.Ticks.Visible = true;
-            x.MinorGrid.Visible = true;
-            x.MinorGrid.Color = Color.LightGray;
-            x.Grid.Visible = true;
-
-            var y = new Axis(chart)
-            {
-                AxisPen = pen
-            };
-
-            chart.Axes.Custom.Add(x);
-            chart.Axes.Custom.Add(y);
-
-            chart.Series.Add(CreateBar(iData, x, 0));
-            chart.Series.Add(CreateBar(fData, x, 1));
-            chart.Series.Add(CreateBar(tData, x, 2));
+            chart.Series.Add(CreateBarPlot(iData, 0));
+            chart.Series.Add(CreateBarPlot(fData, 1));
+            chart.Series.Add(CreateBarPlot(tData, 2));
 
             chart.Draw();
         }
 
-        private Bar CreateBar(SeriesData data, Axis x, int pos)
+        /// <summary>
+        /// Creates a bar plot at the given position
+        /// </summary>
+        /// <param name="data">The data to plot</param>
+        /// <param name="pos">The position of the plot</param>
+        private Bar CreateBarPlot(SeriesData data, int pos)
         {
             int margin = 5 * pos;
             int start = 30 * pos + margin;
@@ -97,7 +110,7 @@ namespace WindowsClient.Controls
 
             var title = new AxisTitle()
             {
-                Text = data.Name + " " + data.YName,
+                Text = data.Name + "\n" + data.YName,
                 Angle = 90
             };
             title.Font.Size = 8;
@@ -108,20 +121,28 @@ namespace WindowsClient.Controls
             if (ys.Any())
                 increment = Convert.ToInt32(Math.Floor(ys.Max() / 30)) * 10;
 
+            var pen = new AxisLinePen(chart) 
+            { 
+                Visible = true, 
+                Width = 2, 
+                Color = Color.Black
+            };
+
             var y = new Axis(chart)
             {
                 Title = title,
                 StartPosition = start,
                 EndPosition = end,
                 MinorTickCount = 1,
-                Increment = increment
+                Increment = increment,
+                AxisPen = pen
             };
             y.MinorGrid.Visible = true;
             y.MinorGrid.Color = Color.LightGray;
 
             var b = new Axis(chart)
             {
-                AxisPen = new AxisLinePen(chart) { Visible = true, Width = 2, Color = Color.Black },
+                AxisPen = pen,
                 Horizontal = true,
                 Visible = true,
                 RelativePosition = start
@@ -134,7 +155,6 @@ namespace WindowsClient.Controls
             Bar bar = new Bar()
             {
                 CustomBarWidth = 4,
-                CustomHorizAxis = x,
                 CustomVertAxis = y,
                 Title = data.Name
             };
