@@ -231,6 +231,12 @@
     <Compile Include="Controls\Experiments\ExperimentDetailer.Designer.cs">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Experiments\ExperimentSummariser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Experiments\ExperimentSummariser.Designer.cs">
+      <DependentUpon>ExperimentSummariser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\HomeScreen.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -296,6 +302,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\Experiments\ExperimentDetailer.resx">
       <DependentUpon>ExperimentDetailer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Experiments\ExperimentSummariser.resx">
+      <DependentUpon>ExperimentSummariser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\HomeScreen.resx">
       <DependentUpon>HomeScreen.cs</DependentUpon>

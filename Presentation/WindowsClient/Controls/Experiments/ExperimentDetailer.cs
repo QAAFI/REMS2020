@@ -1,17 +1,14 @@
-﻿using System;
+﻿using MediatR;
+using Rems.Application.CQRS;
+using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using MediatR;
-using Rems.Application.CQRS;
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
-
 namespace WindowsClient.Controls
 {
-    
+
 
     public partial class ExperimentDetailer : UserControl
     {
@@ -53,6 +50,7 @@ namespace WindowsClient.Controls
 
             experimentsTree.AfterSelect += OnExperimentNodeChanged;
 
+            summariser.Query += (o) => Query?.Invoke(o);
             operations.Query += (o) => Query?.Invoke(o);
             traitChart.Query += (o) => Query?.Invoke(o);
             soilsChart.Query += (o) => Query?.Invoke(o);
@@ -102,12 +100,7 @@ namespace WindowsClient.Controls
             else if (node is TNode treatment)
                 await TreatmentSelected(treatment);
             else if (node is ENode experiment)
-                await ExperimentSelected(experiment);            
-        }
-
-        private async Task ExperimentSelected(ENode node)
-        {
-            await RefreshSummary(node.EID);
+                await RefreshSummary(experiment.EID);            
         }
 
         private async Task TreatmentSelected(TNode node)
@@ -146,36 +139,10 @@ namespace WindowsClient.Controls
             else
                 expid = id;
 
-            var query = new ExperimentSummary() { ExperimentId = id };
-
-            var experiment = await InvokeQuery(query);
-
-            descriptionBox.Text = experiment["Description"];
-            designBox.Text = experiment["Design"];
-            cropBox.Content = experiment["Crop"];
-            fieldBox.Content = experiment["Field"];
-            metBox.Content = experiment["Met"];
-            repsBox.Content = experiment["Reps"];
-            ratingBox.Content = experiment["Rating"];
-            startBox.Content = experiment["Start"];
-            endBox.Content = experiment["End"];
-
-            var items = experiment["List"].Split('\n');
-            researchersBox.Items.Clear();
-            researchersBox.Items.AddRange(items);
-
-            notesBox.Text = experiment["Notes"];
-
-            var sowing = await InvokeQuery(new SowingSummary() { ExperimentId = id });
-            sowingMethodBox.Content = sowing["Method"];
-            sowingDateBox.Content = sowing["Date"];
-            sowingDepthBox.Content = sowing["Depth"];
-            sowingRowBox.Content = sowing["Row"];
-            sowingPopBox.Content = sowing["Pop"];
+            await summariser.GetSummary(id);
 
             var design = new DesignsTableQuery() { ExperimentId = id };
             designData.DataSource = await InvokeQuery(design);
-            
-        }        
+        }
     }
 }
