@@ -8,8 +8,9 @@ using System.Windows.Forms;
 
 namespace WindowsClient.Controls
 {
-
-
+    /// <summary>
+    /// Manages the presentation of experiment data
+    /// </summary>
     public partial class ExperimentDetailer : UserControl
     {
         #region Nodes
@@ -41,14 +42,23 @@ namespace WindowsClient.Controls
         }
         #endregion
 
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
+        
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T) await Query(query);        
 
         public ExperimentDetailer()
         {
             InitializeComponent();          
 
-            experimentsTree.AfterSelect += OnExperimentNodeChanged;
+            experimentsTree.AfterSelect += OnNodeSelected;
 
             summariser.Query += (o) => Query?.Invoke(o);
             operations.Query += (o) => Query?.Invoke(o);
@@ -91,7 +101,10 @@ namespace WindowsClient.Controls
             experimentsTree.Refresh();
         }
 
-        private async void OnExperimentNodeChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Calls a function dependent on the type of node selected in the tree
+        /// </summary>
+        private async void OnNodeSelected(object sender, EventArgs e)
         {
             var node = experimentsTree.SelectedNode;
 
@@ -103,6 +116,10 @@ namespace WindowsClient.Controls
                 await RefreshSummary(experiment.EID);            
         }
 
+        /// <summary>
+        /// Updates the charts for the selected treatment
+        /// </summary>
+        /// <param name="node">The treatment node</param>
         private async Task TreatmentSelected(TNode node)
         {
             await operations.UpdateData(node.TID);
@@ -123,6 +140,10 @@ namespace WindowsClient.Controls
             await RefreshSummary(node.EID);
         }
 
+        /// <summary>
+        /// Updates the charts for the selected plot
+        /// </summary>
+        /// <param name="node">The plot node</param>
         private async Task PlotSelected(PNode node)
         {
             await operations.UpdateData(node.TID);
@@ -132,6 +153,10 @@ namespace WindowsClient.Controls
         }
 
         private int expid = -1;
+        /// <summary>
+        /// Loads the summary data for the current experiment
+        /// </summary>
+        /// <param name="id"></param>
         private async Task RefreshSummary(int id)
         {
             if (id == expid)

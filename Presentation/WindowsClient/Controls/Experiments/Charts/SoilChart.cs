@@ -1,33 +1,44 @@
 ﻿using System;
-using System.Windows.Forms;
-
-using Steema.TeeChart.Styles;
-
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
-using Rems.Application.CQRS;
-using System.Threading.Tasks;
-using Steema.TeeChart;
 using System.Collections.Generic;
 using System.Linq;
-using WindowsClient.Models;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
 using MediatR;
+using Rems.Application.CQRS;
+using Steema.TeeChart;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
+    /// <summary>
+    /// Manages the presentation of soil data for a treatment
+    /// </summary>
     public partial class SoilChart : UserControl
     {
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
+        /// <summary>
+        /// Tracks which update function to call when a trait is selected
+        /// </summary>
         public Func<int, TreeNode, Task> Updater;
+
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
+        public event Func<object, Task<object>> Query;
+
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         private int treatment = -1;
         private int plot;
         private TreeNode selected;
         private Chart chart => tChart.Chart;
+
         private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();
-        //private DateTime date => Convert.ToDateTime(datesBox.SelectedItem);
         private IEnumerable<DateTime> dates => datesBox.SelectedItems.Cast<DateTime>();
 
         public SoilChart()
@@ -39,13 +50,16 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Title.Text = "Depth";
             chart.Axes.Bottom.Title.Text = "Value";
 
+            // Set the margins
             chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
             chart.Panel.MarginBottom = 20;
 
+            // Y-Axis options
             chart.Axes.Left.AutomaticMinimum = false;
             chart.Axes.Left.Minimum = 0;
             chart.Axes.Left.Inverted = true;
 
+            // X-Axis options
             chart.Axes.Bottom.Minimum = 0;
             chart.Axes.Bottom.AutomaticMinimum = false;
             chart.Axes.Bottom.Maximum = 1;
@@ -54,22 +68,30 @@ namespace WindowsClient.Controls
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await ChangeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
 
-        private async void OnDateSelected(object sender, EventArgs e) => await ChangeData(selected);
+        private async void OnDateSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
 
-        public async Task ChangeData(TreeNode node)
+        /// <summary>
+        /// Displays the data for the given node
+        /// </summary>
+        /// <param name="node">The node</param>
+        public async Task DisplayNodeData(TreeNode node)
         {
             int id = treatment;
 
             if (Updater == UpdateSingle) id = plot;
 
             if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(ChangeData), node);
+                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
             else
                 await Task.Run(() => { if (Updater != null) Updater(id, node); });
         }
 
+        /// <summary>
+        /// Load the traits / dates box items for the treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         public async Task LoadBoxes(int id)
         {
             if (id == treatment)
@@ -81,6 +103,10 @@ namespace WindowsClient.Controls
             await LoadDatesBox(id);
         }
 
+        /// <summary>
+        /// Fills the traits box with all traits in a treatment that have graphable data
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox(int id)
         {
             if (InvokeRequired)
@@ -99,6 +125,10 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Fills the dates box with all dates in a treatment that have graphable data
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         private async Task LoadDatesBox(int id)
         {
             if (InvokeRequired)
@@ -117,8 +147,13 @@ namespace WindowsClient.Controls
 
                 datesBox.SelectedIndex = 0;
             }
-        }        
+        }
 
+        /// <summary>
+        /// Updates the displayed data for a single plot
+        /// </summary>
+        /// <param name="id">The plot ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateSingle(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -151,6 +186,11 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Updates the displayed data for the average of all plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateMean(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -181,6 +221,11 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Updates the displayed data for all the plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateAll(int id, TreeNode node)
         {
             if (InvokeRequired)

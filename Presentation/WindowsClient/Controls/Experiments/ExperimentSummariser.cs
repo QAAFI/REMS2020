@@ -14,9 +14,16 @@ namespace WindowsClient.Controls.Experiments
 {
     public partial class ExperimentSummariser : UserControl
     {
-        
-
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
+
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public ExperimentSummariser()
@@ -24,6 +31,10 @@ namespace WindowsClient.Controls.Experiments
             InitializeComponent();
         }
         
+        /// <summary>
+        /// Requests data on the given experiment and displays the results
+        /// </summary>
+        /// <param name="id">The experiment ID</param>
         public async Task GetSummary(int id)
         {
             var query = new ExperimentSummary() { ExperimentId = id };

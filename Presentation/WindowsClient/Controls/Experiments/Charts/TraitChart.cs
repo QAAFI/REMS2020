@@ -11,12 +11,27 @@ using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
+    /// <summary>
+    /// Manages the presentation of trait data for a treatment
+    /// </summary>
     public partial class TraitChart : UserControl
     {
+        /// <summary>
+        /// Tracks which update function to call when a trait is selected
+        /// </summary>
         public Func<int, TreeNode, Task> Updater;
 
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
         public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);        
+
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         private int treatment = -1;
         private int plot;
@@ -29,7 +44,16 @@ namespace WindowsClient.Controls
         public TraitChart()
         {
             InitializeComponent();
+            InitialiseChart();            
 
+            traitsBox.SelectedIndexChanged += OnTraitSelected;
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        private void InitialiseChart()
+        {
             // Set the titles
             tChart.Text = "Crop Traits";
             chart.Axes.Left.Title.Text = "Value";
@@ -38,7 +62,7 @@ namespace WindowsClient.Controls
             // Set the margins
             chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
             chart.Panel.MarginRight = 20;
-            chart.Panel.MarginBottom = 50;
+            chart.Panel.MarginBottom = 30;
 
             // Force the Y-Axis to stop at 0
             chart.Axes.Left.AutomaticMinimum = false;
@@ -49,24 +73,30 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Labels.Angle = 60;
             chart.Axes.Bottom.Ticks.Visible = true;
             chart.Axes.Bottom.Title.AutoPosition = true;
-
-            traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await ChangeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
 
-        public async Task ChangeData(TreeNode node)
+        /// <summary>
+        /// Displays the data for the given node
+        /// </summary>
+        /// <param name="node">The node</param>
+        public async Task DisplayNodeData(TreeNode node)
         {
             int id = treatment;
 
             if (Updater == UpdateSingle) id = plot;
 
             if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(ChangeData), node);
+                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
             else
                 await Task.Run(() => { if (Updater != null) Updater(id, node); });
         }        
 
+        /// <summary>
+        /// Fills the traits box with all traits in a treatment that have graphable data
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox(int id)
         {
             if (InvokeRequired)
@@ -90,6 +120,11 @@ namespace WindowsClient.Controls
             }
         }        
 
+        /// <summary>
+        /// Updates the displayed data for a single plot
+        /// </summary>
+        /// <param name="id">The plot ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateSingle(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -118,6 +153,11 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Updates the displayed data for the average of all plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateMean(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -145,6 +185,11 @@ namespace WindowsClient.Controls
             }            
         }
 
+        /// <summary>
+        /// Updates the displayed data for all the plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateAll(int id, TreeNode node)
         {
             if (InvokeRequired)
