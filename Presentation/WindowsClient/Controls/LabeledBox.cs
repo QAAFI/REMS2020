@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsClient.Controls
 {
+    /// <summary>
+    /// A textbox with a label attached to it
+    /// </summary>
     public partial class LabeledBox : UserControl
     {
+        /// <summary>
+        /// The label text of the box
+        /// </summary>
         public string Label 
         { 
             get 
@@ -24,6 +23,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// The text of the box itself
+        /// </summary>
         public string Content
         {
             get
@@ -36,6 +38,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// If the box is read only
+        /// </summary>
         public bool ReadOnly
         {
             get
@@ -51,15 +56,6 @@ namespace WindowsClient.Controls
         public LabeledBox()
         {
             InitializeComponent();
-
-            //label.SizeChanged += LabelSizeChanged;
         }
-
-        //private void LabelSizeChanged(object sender, EventArgs e)
-        //{
-        //    this.Width = textBox.Width + label.Width + 11;
-
-        //    textBox.Left = label.Right + 3;
-        //}
     }
 }

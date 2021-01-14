@@ -31,7 +31,7 @@ namespace Rems.Application.Common
             => IncrementProgress?.Invoke();
 
         protected void OnTaskFinished()
-            => TaskFinished.Invoke();
+            => TaskFinished?.Invoke();
 
         protected void OnTaskFailed(Exception error) 
             => TaskFailed?.Invoke(error);

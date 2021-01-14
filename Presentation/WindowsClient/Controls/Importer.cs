@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using MediatR;
 using Microsoft.EntityFrameworkCore.Internal;
 
 using Rems.Application.Common.Extensions;
@@ -42,6 +43,9 @@ namespace WindowsClient.Controls
         /// Occurs when the file to import from has changed
         /// </summary>
         public event Action<string> FileChanged;
+
+        private async Task<T> InvokeQuery<T>(IRequest<T> query)
+            => (T)await Query(query);
 
         /// <summary>
         /// The system folder most recently accessed by the user
@@ -111,7 +115,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Attempts to sanitise raw excel data so it can be read into the database
         /// </summary>        
-        private void CleanData(DataSet data)
+        private async Task CleanData(DataSet data)
         {
             dataTree.Nodes.Clear();
 
@@ -132,12 +136,12 @@ namespace WindowsClient.Controls
                 // Remove any duplicate rows from the table
                 table.RemoveDuplicateRows();
                 
-                var type = Query(new EntityTypeQuery() { Name = table.TableName }).Result;
+                var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
                 if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
                 table.ExtendedProperties.Add("Type", type);
                 
-                dataTree.Nodes.Add(ValidateTable(table));
+                dataTree.Nodes.Add(await ValidateTable(table));
             }            
         }
 
@@ -146,10 +150,10 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        private TreeNode ValidateTable(DataTable table)
+        private async Task<TreeNode> ValidateTable(DataTable table)
         {
             var tnode = new DataNode(table);
-            tnode.Query += Query;
+            tnode.Query += (o) => Query?.Invoke(o);
 
             bool valid = true;
             // Prepare individual columns for import
@@ -174,11 +178,11 @@ namespace WindowsClient.Controls
                 col.ExtendedProperties["Ignore"] = false;
 
                 // Test if a column without a matching property is a trait
-                bool isTrait()
+                async Task<bool> isTrait()
                 {
                     return
                     // Test if the trait is in the database
-                    (bool)Query(new TraitExistsQuery() { Name = col.ColumnName }).Result
+                    await InvokeQuery(new TraitExistsQuery() { Name = col.ColumnName })
                     // Or in the spreadsheet traits table
                     || table.DataSet.Tables["Traits"] is DataTable traits
                     // If it is, find the column of trait names
@@ -188,7 +192,7 @@ namespace WindowsClient.Controls
                 };
 
                 // If the colum node is not valid for import, update the state to warn the user
-                if (info is null && !isTrait())
+                if (info is null && ! await isTrait())
                     cnode.UpdateState("Valid", false);
                 else
                     cnode.UpdateState("Valid", true);
@@ -248,7 +252,7 @@ namespace WindowsClient.Controls
         /// Lets the user select a file to open for import
         /// </summary>
         /// <returns>True if the file is valid, false otherwise</returns>
-        public bool OpenFile()
+        public async Task<bool> OpenFile()
         {
             using (var open = new OpenFileDialog())
             {
@@ -262,7 +266,7 @@ namespace WindowsClient.Controls
                 try
                 {                    
                     Data = ReadData(open.FileName);
-                    CleanData(Data);
+                    await CleanData(Data);
 
                     fileBox.Text = Path.GetFileName(open.FileName);
 
@@ -288,7 +292,7 @@ namespace WindowsClient.Controls
         {
             try
             {
-                bool connected = (bool)await Query(new ConnectionExists());
+                bool connected = await InvokeQuery(new ConnectionExists());
                 if (!connected)
                 {
                     MessageBox.Show("A database must be opened or created before importing");
@@ -312,11 +316,11 @@ namespace WindowsClient.Controls
                 }
 
                 var importer = new ExcelImporter { Data = Data };
-                importer.Query += Query;
+                importer.Query += (o) => Query?.Invoke(o);
 
                 tracker.SetSteps(importer);
 
-                importer.NextItem += tracker.OnNextItem;
+                importer.NextItem += tracker.OnNextTask;
                 importer.IncrementProgress += tracker.OnProgressChanged;
                 importer.TaskFinished += FileImported;
                 importer.TaskFailed += tracker.OnTaskFailed;

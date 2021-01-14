@@ -35,14 +35,13 @@
             this.createLabel = new System.Windows.Forms.Label();
             this.recentLabel = new System.Windows.Forms.Label();
             this.groupExport = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.exportList = new System.Windows.Forms.CheckedListBox();
-            this.export = new System.Windows.Forms.Button();
             this.groupImport = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.dataLink = new WindowsClient.Controls.ImportLink();
             this.expsLink = new WindowsClient.Controls.ImportLink();
             this.infoLink = new WindowsClient.Controls.ImportLink();
+            this.exportTracker = new WindowsClient.Controls.TrackerBar();
             this.groupFile.SuspendLayout();
             this.groupExport.SuspendLayout();
             this.groupImport.SuspendLayout();
@@ -117,47 +116,26 @@
             // 
             // groupExport
             // 
-            this.groupExport.Controls.Add(this.label1);
+            this.groupExport.Controls.Add(this.exportTracker);
             this.groupExport.Controls.Add(this.exportList);
-            this.groupExport.Controls.Add(this.export);
             this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupExport.Location = new System.Drawing.Point(365, 3);
             this.groupExport.Name = "groupExport";
             this.groupExport.Size = new System.Drawing.Size(175, 360);
             this.groupExport.TabIndex = 3;
             this.groupExport.TabStop = false;
-            this.groupExport.Text = "Export";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(6, 21);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(67, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Experiments:";
+            this.groupExport.Text = "Experiments";
             // 
             // exportList
             // 
+            this.exportList.CheckOnClick = true;
             this.exportList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.exportList.FormattingEnabled = true;
             this.exportList.IntegralHeight = false;
-            this.exportList.Location = new System.Drawing.Point(6, 45);
+            this.exportList.Location = new System.Drawing.Point(6, 19);
             this.exportList.Name = "exportList";
-            this.exportList.Size = new System.Drawing.Size(163, 309);
+            this.exportList.Size = new System.Drawing.Size(163, 278);
             this.exportList.TabIndex = 1;
-            // 
-            // export
-            // 
-            this.export.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.export.Location = new System.Drawing.Point(107, 16);
-            this.export.Name = "export";
-            this.export.Size = new System.Drawing.Size(62, 23);
-            this.export.TabIndex = 0;
-            this.export.Text = "Export";
-            this.export.UseVisualStyleBackColor = true;
-            this.export.Click += new System.EventHandler(this.OnExportClick);
             // 
             // groupImport
             // 
@@ -220,6 +198,16 @@
             this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.infoLink.TabIndex = 0;
             // 
+            // exportTracker
+            // 
+            this.exportTracker.ButtonText = "Export";
+            this.exportTracker.DisplayTask = false;
+            this.exportTracker.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exportTracker.Location = new System.Drawing.Point(6, 301);
+            this.exportTracker.Name = "exportTracker";
+            this.exportTracker.Size = new System.Drawing.Size(163, 53);
+            this.exportTracker.TabIndex = 5;
+            // 
             // HomeScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -232,7 +220,6 @@
             this.groupFile.ResumeLayout(false);
             this.groupFile.PerformLayout();
             this.groupExport.ResumeLayout(false);
-            this.groupExport.PerformLayout();
             this.groupImport.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -245,13 +232,12 @@
         private System.Windows.Forms.Label openLabel;
         private System.Windows.Forms.Label createLabel;
         private System.Windows.Forms.ListBox recentList;
-        private System.Windows.Forms.Button export;
         private System.Windows.Forms.CheckedListBox exportList;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupImport;
         private ImportLink dataLink;
         private ImportLink expsLink;
         private ImportLink infoLink;
         private System.Windows.Forms.RichTextBox richTextBox1;
+        private TrackerBar exportTracker;
     }
 }

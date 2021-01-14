@@ -14,21 +14,10 @@ using WindowsClient.Models;
 
 namespace WindowsClient
 {
-    public enum TagType
-    {
-        Empty,
-        Experiment,
-        Treatment,
-        Plot
-    }
-
-    public struct NodeTag
-    {
-        public int ID { get; set; }
-
-        public TagType Type { get; set; }
-    }
-
+    /// <summary>
+    /// Manages and integrates the individual UI components in REMS.
+    /// Handles the connection to the database.
+    /// </summary>
     public partial class REMSClient : Form
     {
         private readonly IMediator _mediator;
@@ -52,15 +41,22 @@ namespace WindowsClient
             homeScreen.PageCreated += OnPageCreated;
         }
 
-        private async Task<object> SendQuery(object arg)
+        /// <summary>
+        /// Sends a query to the mediator
+        /// </summary>
+        /// <param name="query">The query object</param>
+        private async Task<object> SendQuery(object query)
         {
             Application.UseWaitCursor = true;
-            var result = await _mediator.Send(arg);
+            var result = await _mediator.Send(query);
             Application.UseWaitCursor = false;
 
             return result;
         }
 
+        /// <summary>
+        /// Loads the settings from file
+        /// </summary>
         private void LoadSettings()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -80,6 +76,9 @@ namespace WindowsClient
             }
         }
 
+        /// <summary>
+        /// Saves the settings to file
+        /// </summary>
         private void SaveSettings()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -109,7 +108,7 @@ namespace WindowsClient
                 notebook.TabPages.Remove(page);
         }
 
-        private void OnImportRequested(object sender, EventArgs e)
+        private async void OnImportRequested(object sender, EventArgs e)
         {
             var link = sender as ImportLink;
 
@@ -119,7 +118,7 @@ namespace WindowsClient
                 notebook.TabPages.Add(link.Tab);
             notebook.SelectedTab = link.Tab;
 
-            if (!link.Importer.OpenFile())
+            if (! await link.Importer.OpenFile())
                 notebook.TabPages.Remove(link.Tab);
         }
 

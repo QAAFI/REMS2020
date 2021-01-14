@@ -10,7 +10,6 @@ using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure;
 
-using WindowsClient.Forms;
 using WindowsClient.Models;
 using MediatR;
 
@@ -95,6 +94,7 @@ namespace WindowsClient.Controls
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
+            exportTracker.TaskBegun += OnExportClick;
         }
 
         /// <summary>
@@ -105,8 +105,6 @@ namespace WindowsClient.Controls
             Session.Detailer.Query += (o) => Query?.Invoke(o);
             PageCreated?.Invoke(Session.Experiments);
             Session.Detailer.LoadNodes();
-
-            LoadExportBox();
         }
 
         /// <summary>
@@ -184,12 +182,12 @@ namespace WindowsClient.Controls
         /// </summary>
         private async Task CheckTables()
         {
-            if ((bool)await InvokeQuery(new LoadedInformation()))
+            if (await InvokeQuery(new LoadedInformation()))
                 infoLink.Stage = Stage.Imported;
             else
                 infoLink.Stage = Stage.Missing;
 
-            if ((bool)await InvokeQuery(new LoadedExperiments()))
+            if (await InvokeQuery(new LoadedExperiments()))
             {
                 expsLink.Stage = Stage.Imported;
                 AddDetailerPage();
@@ -197,7 +195,7 @@ namespace WindowsClient.Controls
             else
                 expsLink.Stage = Stage.Missing;
 
-            if ((bool)await InvokeQuery(new LoadedData()))
+            if (await InvokeQuery(new LoadedData()))
                 dataLink.Stage = Stage.Imported;
             else
                 dataLink.Stage = Stage.Missing;
@@ -239,10 +237,10 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void LoadExportBox()
         {
-            exportList.Items.Clear();
-
             var exps = (await InvokeQuery(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
-            var items = exps.Select(e => e.Value).ToArray();
+            var items = exps.Select(e => e.Value).Distinct().ToArray();
+
+            exportList.Items.Clear();
             exportList.Items.AddRange(items);
         }
 
@@ -293,7 +291,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the export of .apsimx files
         /// </summary>
-        private async void OnExportClick(object sender, EventArgs e)
+        private async void OnExportClick()
         {
             // Check that a valid database exists
             bool connected = (bool)await Query(new ConnectionExists());
@@ -319,7 +317,17 @@ namespace WindowsClient.Controls
 
                     exporter.Query += (o) => Query?.Invoke(o);
                     exporter.FileName = save.FileName;
-                    var dialog = new ProgressDialog(exporter, "Exporting...");
+                    
+                    exportTracker.SetSteps(exporter);
+
+                    exporter.NextItem += exportTracker.OnNextTask;
+                    exporter.IncrementProgress += exportTracker.OnProgressChanged;
+                    exporter.TaskFinished += () => MessageBox.Show("Export complete!");
+                    exporter.TaskFailed += exportTracker.OnTaskFailed;
+
+                    await exporter.Run();
+
+                    exportTracker.Reset();
                 }
                 catch (Exception error)
                 {

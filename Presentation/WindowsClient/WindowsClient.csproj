@@ -279,12 +279,6 @@
     <Compile Include="Controls\LabeledBox.Designer.cs">
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ProgressDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProgressDialog.Designer.cs">
-      <DependentUpon>ProgressDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\DataNode.cs" />
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\RichText.cs" />
@@ -326,9 +320,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\LabeledBox.resx">
       <DependentUpon>LabeledBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProgressDialog.resx">
-      <DependentUpon>ProgressDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

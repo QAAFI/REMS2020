@@ -24,10 +24,14 @@ namespace Rems.Infrastructure.ApsimX
     {
         public string FileName { get; set; }
 
-        public override int Items => InvokeQuery(new ExperimentCount()).Result;
-        public override int Steps => Items * 30;
-
         public IEnumerable<string> Experiments { get; set; }
+
+        public override int Items 
+        { 
+            get => Experiments.Count();
+        }
+
+        public override int Steps => Items * 29;        
 
         public async override Task Run()
         {
