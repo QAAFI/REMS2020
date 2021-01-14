@@ -115,7 +115,11 @@ namespace WindowsClient
             link.Importer.Query += SendQuery;
 
             if (!notebook.TabPages.Contains(link.Tab))
+            {
                 notebook.TabPages.Add(link.Tab);
+                link.Tab.Leave += (s, o) => notebook.TabPages.Remove(link.Tab);
+            }
+                
             notebook.SelectedTab = link.Tab;
 
             if (! await link.Importer.OpenFile())
