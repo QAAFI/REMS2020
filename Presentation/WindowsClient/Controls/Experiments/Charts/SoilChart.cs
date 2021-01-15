@@ -163,6 +163,8 @@ namespace WindowsClient.Controls
                 if (node.Name != "All")
                     chart.Series.Clear();
 
+                tChart.Text = "Soil trait values for a single treatment plot";
+
                 plot = id;
                 selected = node;
 
@@ -199,6 +201,8 @@ namespace WindowsClient.Controls
             {
                 chart.Series.Clear();
 
+                tChart.Text = "Average soil trait values across all treatment plots";
+
                 treatment = id;
                 selected = node;
                 foreach (DateTime date in dates)
@@ -233,6 +237,8 @@ namespace WindowsClient.Controls
             else
             {
                 chart.Series.Clear();
+
+                tChart.Text = "Comparison of soil trait values across all treatment plots";
 
                 if (node is null) return;
 

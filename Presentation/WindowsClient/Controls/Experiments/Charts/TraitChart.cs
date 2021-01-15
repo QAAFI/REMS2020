@@ -134,6 +134,8 @@ namespace WindowsClient.Controls
                 if (node.Name != "All") 
                     chart.Series.Clear();
 
+                tChart.Text = "Trait values for a treatment plot";
+
                 plot = id;
                 selected = node;
 
@@ -166,6 +168,8 @@ namespace WindowsClient.Controls
             {
                 chart.Series.Clear();
 
+                tChart.Text = "Average trait values across all treatment plots";
+
                 treatment = id;
                 selected = node;
 
@@ -197,6 +201,8 @@ namespace WindowsClient.Controls
             else
             {
                 chart.Series.Clear();
+
+                tChart.Text = "Comparison of trait values across all treatment plots";
 
                 if (node is null) return;
 
