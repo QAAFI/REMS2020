@@ -124,16 +124,17 @@ namespace WindowsClient.Controls
         {
             await operations.UpdateData(node.TID);
 
+            await traitChart.LoadTraitsBox(node.TID);
+            await soilsChart.LoadBoxes(node.TID);
+
             if (node.Text == "All")
             {
                 await traitChart.UpdateAll(node.TID, node);
                 await soilsChart.UpdateAll(node.TID, node);
             }
             else
-            {
-                await traitChart.LoadTraitsBox(node.TID);
-                await traitChart.UpdateMean(node.TID, node);
-                await soilsChart.LoadBoxes(node.TID);
+            {                
+                await traitChart.UpdateMean(node.TID, node);                
                 await soilsChart.UpdateMean(node.TID, node);
             }
 
@@ -146,6 +147,9 @@ namespace WindowsClient.Controls
         /// <param name="node">The plot node</param>
         private async Task PlotSelected(PNode node)
         {
+            await traitChart.LoadTraitsBox(node.TID);
+            await soilsChart.LoadBoxes(node.TID);
+
             await operations.UpdateData(node.TID);
             await traitChart.UpdateSingle(node.PID, node);
             await soilsChart.UpdateSingle(node.PID, node);
