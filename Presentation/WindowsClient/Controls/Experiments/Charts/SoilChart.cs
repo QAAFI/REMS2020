@@ -38,6 +38,7 @@ namespace WindowsClient.Controls
         private TreeNode selected;
         private Chart chart => tChart.Chart;
 
+        private Dictionary<string, string> descriptions = new Dictionary<string, string>();
         private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();
         private IEnumerable<DateTime> dates => datesBox.SelectedItems.Cast<DateTime>();
 
@@ -65,12 +66,31 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Maximum = 1;
             chart.Axes.Bottom.AutomaticMaximum = false;
 
+            var tip = new ToolTip();
+
+            traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
         private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
 
         private async void OnDateSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+
+        /// <summary>
+        /// Sets the tool tip on mouse hover
+        /// </summary>
+        private void OnTraitMouseHover(ToolTip tip)
+        {
+            var mouse = MousePosition;
+            var client = traitsBox.PointToClient(mouse);
+            int index = traitsBox.IndexFromPoint(client);
+
+            if (index == -1) return;
+
+            var trait = traitsBox.Items[index].ToString();
+            var text = descriptions[trait];
+            tip.SetToolTip(traitsBox, text);
+        }
 
         /// <summary>
         /// Displays the data for the given node
@@ -116,11 +136,12 @@ namespace WindowsClient.Controls
                 traitsBox.Items.Clear();
 
                 // Load the trait type box
-                var items = await InvokeQuery(new SoilTraitsQuery() { TreatmentId = id });
+                var traits = await InvokeQuery(new SoilTraitsQuery() { TreatmentId = id });
+                descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
 
-                if (items.Length < 1) return;
+                if (traits.Length < 1) return;
 
-                traitsBox.Items.AddRange(items);
+                traitsBox.Items.AddRange(traits);
                 traitsBox.SelectedIndex = 0;
             }
         }
