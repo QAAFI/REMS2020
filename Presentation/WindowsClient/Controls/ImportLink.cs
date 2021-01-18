@@ -40,6 +40,13 @@ namespace WindowsClient.Controls
         /// </summary>
         public string File { get; set; }
 
+        private bool active = false;
+        public bool Active
+        {
+            get => active;
+            set => ToggleEnabled(value);
+        }
+
         private Stage stage;
         /// <summary>
         /// The current stage of the import process
@@ -115,17 +122,39 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnClick(object sender, EventArgs e) => Clicked?.Invoke(this, EventArgs.Empty);
+        private void OnClick(object sender, EventArgs e)
+        {
+            if (active)
+                Clicked?.Invoke(this, EventArgs.Empty);
+        }
 
         /// <summary>
         /// Changes the label colour on mouse enter
         /// </summary>
-        private void LabelMouseEnter(object sender, EventArgs e) => label.ForeColor = SystemColors.MenuHighlight;
+        private void LabelMouseEnter(object sender, EventArgs e)
+        {
+            if (active) 
+                label.ForeColor = SystemColors.MenuHighlight;
+        }
 
         /// <summary>
         /// Changes the label colour on mouse leave
         /// </summary>
-        private void LabelMouseLeave(object sender, EventArgs e) => label.ForeColor = SystemColors.HotTrack;
+        private void LabelMouseLeave(object sender, EventArgs e)
+        {
+            if (active)
+                label.ForeColor = SystemColors.HotTrack;
+        }
+
+        private void ToggleEnabled(bool value)
+        {
+            active = value;
+
+            if (active)
+                label.ForeColor = SystemColors.HotTrack;
+            else
+                label.ForeColor = SystemColors.GrayText;
+        }
 
         /// <summary>
         /// Sets the current stage of the link

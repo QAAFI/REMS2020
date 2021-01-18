@@ -143,6 +143,23 @@ namespace WindowsClient.Controls
         }
 
         /// <summary>
+        /// Create a new session for a database
+        /// </summary>
+        /// <param name="file">The path to the .db file</param>
+        /// <returns></returns>
+        private async Task CreateSession(string file)
+        {
+            var session = new Session() { DB = file };
+
+            // If overwriting a .db, remove the old session
+            if (Sessions.Find(s => s.DB == file) is Session S)
+                Sessions.Remove(S);
+
+            // Change to the new session
+            await ChangeSession(session);
+        }
+
+        /// <summary>
         /// Changes the current session
         /// </summary>
         /// <param name="session"></param>
@@ -154,6 +171,8 @@ namespace WindowsClient.Controls
             await Query.Invoke(new OpenDBCommand() { FileName = session.DB });
             DBOpened?.Invoke(session.DB);
             folder = Path.GetDirectoryName(session.DB);
+
+            EnableImport();
 
             Session = session;
             await CheckTables();
@@ -175,6 +194,22 @@ namespace WindowsClient.Controls
                 Sessions.RemoveAt(0);
 
             recentList.DataSource = snoisses;      
+        }
+
+        private void EnableImport()
+        {
+            importText.Text = "Select one of the above options to begin the import process."
+            + "\n\n"
+            + "The data must come from an excel document based on the template file,"
+            + "or the importer will not recognise it."
+            + "\n\n"
+            + "The data must be imported in the listed order (i.e., information before experiments)."
+            + "\n\n"
+            + "A green tick indicates that some data is already present in the database.";
+
+            infoLink.Active = true;
+            expsLink.Active = true;
+            dataLink.Active = true;
         }
 
         /// <summary>
@@ -199,23 +234,6 @@ namespace WindowsClient.Controls
                 dataLink.Stage = Stage.Imported;
             else
                 dataLink.Stage = Stage.Missing;
-        }
-
-        /// <summary>
-        /// Create a new session for a database
-        /// </summary>
-        /// <param name="file">The path to the .db file</param>
-        /// <returns></returns>
-        private async Task CreateSession(string file)
-        {
-            var session = new Session() { DB = file };
-
-            // If overwriting a .db, remove the old session
-            if (Sessions.Find(s => s.DB == file) is Session S)
-                Sessions.Remove(S);
-
-            // Change to the new session
-            await ChangeSession(session);            
         }
 
         /// <summary>

@@ -35,13 +35,13 @@
             this.createLabel = new System.Windows.Forms.Label();
             this.recentLabel = new System.Windows.Forms.Label();
             this.groupExport = new System.Windows.Forms.GroupBox();
+            this.exportTracker = new WindowsClient.Controls.TrackerBar();
             this.exportList = new System.Windows.Forms.CheckedListBox();
             this.groupImport = new System.Windows.Forms.GroupBox();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.importText = new System.Windows.Forms.RichTextBox();
             this.dataLink = new WindowsClient.Controls.ImportLink();
             this.expsLink = new WindowsClient.Controls.ImportLink();
             this.infoLink = new WindowsClient.Controls.ImportLink();
-            this.exportTracker = new WindowsClient.Controls.TrackerBar();
             this.groupFile.SuspendLayout();
             this.groupExport.SuspendLayout();
             this.groupImport.SuspendLayout();
@@ -126,6 +126,16 @@
             this.groupExport.TabStop = false;
             this.groupExport.Text = "Experiments";
             // 
+            // exportTracker
+            // 
+            this.exportTracker.ButtonText = "Export";
+            this.exportTracker.DisplayTask = false;
+            this.exportTracker.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exportTracker.Location = new System.Drawing.Point(6, 301);
+            this.exportTracker.Name = "exportTracker";
+            this.exportTracker.Size = new System.Drawing.Size(163, 53);
+            this.exportTracker.TabIndex = 5;
+            // 
             // exportList
             // 
             this.exportList.CheckOnClick = true;
@@ -139,7 +149,7 @@
             // 
             // groupImport
             // 
-            this.groupImport.Controls.Add(this.richTextBox1);
+            this.groupImport.Controls.Add(this.importText);
             this.groupImport.Controls.Add(this.dataLink);
             this.groupImport.Controls.Add(this.expsLink);
             this.groupImport.Controls.Add(this.infoLink);
@@ -151,19 +161,20 @@
             this.groupImport.TabStop = false;
             this.groupImport.Text = "Import";
             // 
-            // richTextBox1
+            // importText
             // 
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(6, 114);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(163, 240);
-            this.richTextBox1.TabIndex = 3;
-            this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
+            this.importText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.importText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.importText.Location = new System.Drawing.Point(6, 114);
+            this.importText.Name = "importText";
+            this.importText.ReadOnly = true;
+            this.importText.Size = new System.Drawing.Size(163, 240);
+            this.importText.TabIndex = 3;
+            this.importText.Text = "A database must be connected prior to importing data.";
             // 
             // dataLink
             // 
+            this.dataLink.Active = false;
             this.dataLink.File = null;
             this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
@@ -176,6 +187,7 @@
             // 
             // expsLink
             // 
+            this.expsLink.Active = false;
             this.expsLink.File = null;
             this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
@@ -188,6 +200,7 @@
             // 
             // infoLink
             // 
+            this.infoLink.Active = false;
             this.infoLink.File = null;
             this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
@@ -197,16 +210,6 @@
             this.infoLink.Size = new System.Drawing.Size(163, 25);
             this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.infoLink.TabIndex = 0;
-            // 
-            // exportTracker
-            // 
-            this.exportTracker.ButtonText = "Export";
-            this.exportTracker.DisplayTask = false;
-            this.exportTracker.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exportTracker.Location = new System.Drawing.Point(6, 301);
-            this.exportTracker.Name = "exportTracker";
-            this.exportTracker.Size = new System.Drawing.Size(163, 53);
-            this.exportTracker.TabIndex = 5;
             // 
             // HomeScreen
             // 
@@ -237,7 +240,7 @@
         private ImportLink dataLink;
         private ImportLink expsLink;
         private ImportLink infoLink;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox importText;
         private TrackerBar exportTracker;
     }
 }
