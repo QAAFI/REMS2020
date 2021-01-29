@@ -101,7 +101,11 @@ namespace WindowsClient.Models
 
             string key = "";
 
-            if (State["Valid"] is true)
+            if (State["Override"] is string s && s != "")
+            {
+                key = s;
+            }
+            else if (State["Valid"] is true)
             {
                 key += "Valid";
                 Advice = valid;
@@ -110,13 +114,7 @@ namespace WindowsClient.Models
             {
                 key += "Invalid";
                 Advice = invalid;
-            }
-
-            if (State["Override"] is string s && s != "")
-            {
-                key = s;
-                Advice = invalid;
-            }
+            }            
 
             if (State["Ignore"] is true)
                 key += "Off";
@@ -163,6 +161,17 @@ namespace WindowsClient.Models
                 else
                     node.UpdateState("Override", "");
             }
+        }
+
+        /// <summary>
+        /// Recursively validate a node and all its children
+        /// </summary>
+        public void ValidateAll()
+        {
+            UpdateState("Valid", true);
+
+            foreach (DataNode node in Nodes)
+                node.ValidateAll();
         }
     }
 

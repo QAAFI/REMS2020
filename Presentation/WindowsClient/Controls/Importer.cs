@@ -209,7 +209,42 @@ namespace WindowsClient.Controls
             else
                 tnode.UpdateState("Override", "Warning");
 
+            var validater = CreateTableValidater(tnode);
+            validater.Validate();
+
             return tnode;
+        }
+
+        public static IValidater CreateTableValidater(DataNode table)
+        {
+            switch (table.Text)
+            {
+                case "Design":
+                    return new DesignValidater(table);
+
+                case "HarvestData":
+                case "PlotData":
+                    return new DataValidater(table);
+
+                case "MetData":
+                    return new MetValidater(table);
+
+                case "SoilLayerData":
+                    return new SoilLayerValidater(table);
+
+                case "Irrigation":
+                case "Fertilization":
+                case "Tillage":
+                    return new OperationsValidater(table);
+
+                case "Soils":
+                case "SoilLayer":
+                case "SoilLayers":
+                    return new TableValidater(table);
+
+                default:
+                    return new TableValidater(table);
+            }
         }
 
         private static Dictionary<string, string> map = new Dictionary<string, string>()
@@ -341,6 +376,6 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the file button click event
         /// </summary>
-        private void OnFileButtonClicked(object sender, EventArgs e) => OpenFile();
+        private async void OnFileButtonClicked(object sender, EventArgs e) => await OpenFile();
     }
 }
