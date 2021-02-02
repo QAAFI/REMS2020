@@ -280,6 +280,7 @@
       <DependentUpon>LabeledBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DataNode.cs" />
+    <Compile Include="Models\ExcelData.cs" />
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\RichText.cs" />
     <Compile Include="Models\Session.cs" />

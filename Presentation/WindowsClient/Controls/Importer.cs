@@ -152,7 +152,7 @@ namespace WindowsClient.Controls
         /// <returns></returns>
         private async Task<TreeNode> ValidateTable(DataTable table)
         {
-            var tnode = new DataNode(table);
+            var tnode = new DataNode(new ExcelTable(table));
             tnode.Query += (o) => Query?.Invoke(o);
 
             bool valid = true;
@@ -170,7 +170,7 @@ namespace WindowsClient.Controls
                 ReplaceName(col);
 
                 // Create a node for the column
-                var cnode = new DataNode(col);
+                var cnode = new DataNode(new ExcelColumn(col));
                 cnode.Query += (o) => Query?.Invoke(o);
 
                 var info = col.FindProperty();
@@ -273,7 +273,7 @@ namespace WindowsClient.Controls
         {
             if (e.Node is DataNode node)
             {
-                importData.DataSource = node.Source;
+                importData.DataSource = node.Excel.Source;
                 importData.Format();
 
                 columnLabel.Text = node.Text;
