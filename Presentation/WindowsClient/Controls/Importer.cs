@@ -125,23 +125,9 @@ namespace WindowsClient.Controls
                 {
                     data.Tables.Remove(table);
                     continue;
-                }
-
-                // TODO: This is a quick workaround, find better way to handle factors/levels table
-                if (table.TableName == "Factors") table.TableName = "Levels";
-
-                // TODO: This is a quick workaround, find better way to handle planting/sowing table
-                if (table.TableName == "Planting") table.TableName = "Sowing";
-
-                // Remove any duplicate rows from the table
-                table.RemoveDuplicateRows();
+                }                
                 
-                var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
-                if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
-
-                table.ExtendedProperties.Add("Type", type);
-                
-                dataTree.Nodes.Add(await ValidateTable(table));
+                dataTree.Nodes.Add(await CreateTableNode(table));
             }            
         }
 
@@ -150,9 +136,12 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        private async Task<TreeNode> ValidateTable(DataTable table)
+        private async Task<TreeNode> CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
+            xt.Query += (o) => Query?.Invoke(o);
+            await xt.CleanTable();
+
             var tnode = new DataNode(xt);
             tnode.Query += (o) => Query?.Invoke(o);
 
@@ -209,9 +198,7 @@ namespace WindowsClient.Controls
                 default:
                     return new TableValidater(table);
             }
-        }
-
-        
+        }        
 
         #endregion
         /// <summary>

@@ -40,6 +40,9 @@ namespace WindowsClient.Models
 
         public object Tag => table;
 
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
+
         public event Action<string, object> StateChanged;
 
         public string Name
@@ -69,10 +72,27 @@ namespace WindowsClient.Models
 
         public ExcelTable(DataTable table)
         {
-            this.table = table;
+            this.table = table;           
 
             State["Ignore"] = false;
-            State["Valid"] = true;
+            State["Valid"] = true;            
+        }
+
+        public async Task CleanTable()
+        {
+            // TODO: This is a quick workaround, find better way to handle factors/levels table
+            if (table.TableName == "Factors") table.TableName = "Levels";
+
+            // TODO: This is a quick workaround, find better way to handle planting/sowing table
+            if (table.TableName == "Planting") table.TableName = "Sowing";
+
+            // Remove any duplicate rows from the table
+            table.RemoveDuplicateRows();
+
+            var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
+            if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
+
+            table.ExtendedProperties.Add("Type", type);
 
             // Remove empty columns
             var cols = table.Columns.Cast<DataColumn>().ToArray();
