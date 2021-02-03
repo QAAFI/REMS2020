@@ -53,8 +53,7 @@ namespace WindowsClient.Models
         private void OnPopup(object sender, EventArgs e)
         {
             Excel.StateChanged += OnStateChanged;
-            Excel.SetMenu(items.Cast<MenuItem>().ToArray());            
-            
+            Excel.SetMenu(items.Cast<MenuItem>().ToArray());
         }
 
         private void OnStateChanged(string state, object value)

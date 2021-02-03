@@ -130,6 +130,11 @@ namespace WindowsClient.Models
         {
             this.column = column;
 
+            // Use some default name replacement options
+            ReplaceName(column);
+
+            var info = column.FindProperty();
+            State["Info"] = info;
             State["Ignore"] = false;                       
         }
 
@@ -155,6 +160,24 @@ namespace WindowsClient.Models
             Name = item.Text;
             State["Info"] = column.FindProperty();
             StateChanged?.Invoke("Valid", true);
+        }
+
+        private static Dictionary<string, string> map = new Dictionary<string, string>()
+        {
+            {"ExpID", "ExperimentId" },
+            {"ExpId", "ExperimentId" },
+            {"N%", "Nitrogen" },
+            {"P%", "Phosphorus" },
+            {"K%", "Potassium" },
+            {"Ca%", "Calcium" },
+            {"S%", "Sulfur" },
+            {"Other%", "OtherPercent" }
+        };
+
+        private void ReplaceName(DataColumn col)
+        {
+            if (map.ContainsKey(col.ColumnName))
+                col.ColumnName = map[col.ColumnName];
         }
     }
 }

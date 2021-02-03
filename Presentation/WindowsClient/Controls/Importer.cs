@@ -152,7 +152,8 @@ namespace WindowsClient.Controls
         /// <returns></returns>
         private async Task<TreeNode> ValidateTable(DataTable table)
         {
-            var tnode = new DataNode(new ExcelTable(table));
+            var xt = new ExcelTable(table);
+            var tnode = new DataNode(xt);
             tnode.Query += (o) => Query?.Invoke(o);
 
             bool valid = true;
@@ -164,18 +165,12 @@ namespace WindowsClient.Controls
                 {
                     table.Columns.Remove(col);
                     continue;
-                }
-
-                // Use some default name replacement options
-                ReplaceName(col);
+                }                
 
                 // Create a node for the column
-                var cnode = new DataNode(new ExcelColumn(col));
+                var xc = new ExcelColumn(col);
+                var cnode = new DataNode(xc);
                 cnode.Query += (o) => Query?.Invoke(o);
-
-                var info = col.FindProperty();
-                col.ExtendedProperties["Info"] = info;
-                col.ExtendedProperties["Ignore"] = false;
 
                 // Test if a column without a matching property is a trait
                 async Task<bool> isTrait()
@@ -192,7 +187,7 @@ namespace WindowsClient.Controls
                 };
 
                 // If the colum node is not valid for import, update the state to warn the user
-                if (info is null && ! await isTrait())
+                if (xc.State["Info"] is null && ! await isTrait())
                     cnode.UpdateState("Valid", false);
                 else
                     cnode.UpdateState("Valid", true);
@@ -247,23 +242,7 @@ namespace WindowsClient.Controls
             }
         }
 
-        private static Dictionary<string, string> map = new Dictionary<string, string>()
-        {
-            {"ExpID", "ExperimentId" },
-            {"ExpId", "ExperimentId" },
-            {"N%", "Nitrogen" },
-            {"P%", "Phosphorus" },
-            {"K%", "Potassium" },
-            {"Ca%", "Calcium" },
-            {"S%", "Sulfur" },
-            {"Other%", "OtherPercent" }
-        };
-
-        private void ReplaceName(DataColumn col)
-        {
-            if (map.ContainsKey(col.ColumnName))
-                col.ColumnName = map[col.ColumnName];
-        }
+        
 
         #endregion
         /// <summary>
