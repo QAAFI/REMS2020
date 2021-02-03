@@ -6,8 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using MediatR;
 using Rems.Application.Common.Extensions;
+using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -29,6 +30,8 @@ namespace WindowsClient.Models
         List<MenuItem> Items { get; }
 
         void SetMenu(params MenuItem[] items);
+
+        Task Validate();
     }
 
     public class ExcelTable : IExcelData
@@ -76,6 +79,11 @@ namespace WindowsClient.Models
         {
             // Not used
         }
+
+        public Task Validate()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ExcelColumn : IExcelData
@@ -83,6 +91,9 @@ namespace WindowsClient.Models
         readonly DataColumn column;
 
         public object Tag => column;
+
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public event Action<string, object> StateChanged;
 
@@ -178,6 +189,28 @@ namespace WindowsClient.Models
         {
             if (map.ContainsKey(col.ColumnName))
                 col.ColumnName = map[col.ColumnName];
+        }
+
+        public async Task Validate()
+        {
+            // If the colum node is not valid for import, update the state to warn the user
+            if (State["Info"] is null && !await IsTrait())
+                StateChanged?.Invoke("Valid", false);
+            else
+                StateChanged?.Invoke("Valid", true);
+        }
+
+        private async Task<bool> IsTrait()
+        {
+            return
+                    // Test if the trait is in the database
+                    await InvokeQuery(new TraitExistsQuery() { Name = Name })
+                    // Or in the spreadsheet traits table
+                    || column.Table.DataSet.Tables["Traits"] is DataTable traits
+                    // If it is, find the column of trait names
+                    && traits.Columns["Name"] is DataColumn name
+                    // 
+                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == Name);
         }
     }
 }

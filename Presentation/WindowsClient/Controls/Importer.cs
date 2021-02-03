@@ -169,28 +169,12 @@ namespace WindowsClient.Controls
 
                 // Create a node for the column
                 var xc = new ExcelColumn(col);
+                xc.Query += (o) => Query?.Invoke(o);
+
                 var cnode = new DataNode(xc);
                 cnode.Query += (o) => Query?.Invoke(o);
 
-                // Test if a column without a matching property is a trait
-                async Task<bool> isTrait()
-                {
-                    return
-                    // Test if the trait is in the database
-                    await InvokeQuery(new TraitExistsQuery() { Name = col.ColumnName })
-                    // Or in the spreadsheet traits table
-                    || table.DataSet.Tables["Traits"] is DataTable traits
-                    // If it is, find the column of trait names
-                    && traits.Columns["Name"] is DataColumn name
-                    // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == col.ColumnName);
-                };
-
-                // If the colum node is not valid for import, update the state to warn the user
-                if (xc.State["Info"] is null && ! await isTrait())
-                    cnode.UpdateState("Valid", false);
-                else
-                    cnode.UpdateState("Valid", true);
+                await xc.Validate();
 
                 tnode.Nodes.Add(cnode);
 

@@ -31,6 +31,7 @@ namespace WindowsClient.Models
         {
             Excel = excel;
             Tag = Excel.Tag;
+            excel.StateChanged += UpdateState;
 
             ContextMenu = new ContextMenu(excel.Items.ToArray());    
 
