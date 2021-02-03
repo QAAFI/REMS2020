@@ -156,17 +156,9 @@ namespace WindowsClient.Controls
             var tnode = new DataNode(xt);
             tnode.Query += (o) => Query?.Invoke(o);
 
-            bool valid = true;
             // Prepare individual columns for import
             foreach (var col in table.Columns.Cast<DataColumn>().ToArray())
             {
-                // Remove empty columns
-                if (col.ColumnName.Contains("Column"))
-                {
-                    table.Columns.Remove(col);
-                    continue;
-                }                
-
                 // Create a node for the column
                 var xc = new ExcelColumn(col);
                 xc.Query += (o) => Query?.Invoke(o);
@@ -177,16 +169,9 @@ namespace WindowsClient.Controls
                 await xc.Validate();
 
                 tnode.Nodes.Add(cnode);
-
-                // The table is only valid if all the columns are valid
-                valid &= (bool)col.ExtendedProperties["Valid"];
             }
 
-            // If the table node is not valid for import, update the state to warn the user
-            if (valid)
-                tnode.UpdateState("Valid", true);     
-            else
-                tnode.UpdateState("Override", "Warning");
+            await xt.Validate();
 
             var validater = CreateTableValidater(tnode);
             validater.Validate();

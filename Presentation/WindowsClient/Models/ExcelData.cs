@@ -72,7 +72,13 @@ namespace WindowsClient.Models
             this.table = table;
 
             State["Ignore"] = false;
-            State["Valid"] = true;            
+            State["Valid"] = true;
+
+            // Remove empty columns
+            var cols = table.Columns.Cast<DataColumn>().ToArray();
+            foreach (var col in cols)
+                if (col.ColumnName.Contains("Column"))
+                    table.Columns.Remove(col);
         }
 
         public void SetMenu(params MenuItem[] items)
@@ -80,9 +86,18 @@ namespace WindowsClient.Models
             // Not used
         }
 
-        public Task Validate()
+        public async Task Validate()
         {
-            throw new NotImplementedException();
+            var valid = table.Columns
+                .Cast<DataColumn>()
+                .Select(c => (bool)c.ExtendedProperties["Valid"])
+                .Aggregate((v1, v2) => v1 &= v2);
+
+            if (valid)
+                StateChanged?.Invoke("Valid", true);
+            else
+                StateChanged?.Invoke("Override", "Warning");
+            return;
         }
     }
 
