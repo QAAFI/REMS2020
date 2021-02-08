@@ -138,16 +138,16 @@ namespace WindowsClient.Models
         {
             if (State["Info"] != null)
             {
-                items[1].Enabled = false;
+                items[2].Enabled = false;
                 return;
             }
 
-            items[2].MenuItems.Clear();
+            items[3].MenuItems.Clear();
 
             var props = column.GetUnmappedProperties();
 
             foreach (var prop in props)
-                items[2].MenuItems.Add(prop.Name, SetProperty);
+                items[3].MenuItems.Add(prop.Name, SetProperty);
         }
 
         private void SetProperty(object sender, EventArgs args)
