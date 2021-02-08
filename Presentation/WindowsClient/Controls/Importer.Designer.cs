@@ -35,10 +35,10 @@
             this.splitter = new System.Windows.Forms.SplitContainer();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.fileBtn = new System.Windows.Forms.Button();
+            this.tracker = new WindowsClient.Controls.TrackerBar();
             this.dataTree = new System.Windows.Forms.TreeView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.adviceBox = new System.Windows.Forms.RichTextBox();
-            this.tracker = new WindowsClient.Controls.TrackerBar();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).BeginInit();
             this.splitter.Panel1.SuspendLayout();
@@ -145,6 +145,17 @@
             this.fileBtn.UseVisualStyleBackColor = true;
             this.fileBtn.Click += new System.EventHandler(this.OnFileButtonClicked);
             // 
+            // tracker
+            // 
+            this.tracker.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tracker.ButtonText = "Import";
+            this.tracker.DisplayTask = true;
+            this.tracker.Location = new System.Drawing.Point(3, 29);
+            this.tracker.Name = "tracker";
+            this.tracker.Size = new System.Drawing.Size(253, 53);
+            this.tracker.TabIndex = 14;
+            // 
             // dataTree
             // 
             this.dataTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -152,6 +163,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataTree.FullRowSelect = true;
             this.dataTree.HideSelection = false;
+            this.dataTree.LabelEdit = true;
             this.dataTree.Location = new System.Drawing.Point(4, 88);
             this.dataTree.Name = "dataTree";
             this.dataTree.Size = new System.Drawing.Size(253, 430);
@@ -178,16 +190,6 @@
             this.adviceBox.Size = new System.Drawing.Size(254, 169);
             this.adviceBox.TabIndex = 13;
             this.adviceBox.Text = "";
-            // 
-            // tracker
-            // 
-            this.tracker.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tracker.ButtonText = "Import";
-            this.tracker.Location = new System.Drawing.Point(3, 29);
-            this.tracker.Name = "tracker";
-            this.tracker.Size = new System.Drawing.Size(253, 53);
-            this.tracker.TabIndex = 14;
             // 
             // Importer
             // 

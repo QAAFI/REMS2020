@@ -59,12 +59,14 @@ namespace WindowsClient.Models
         {
             foreach (DataGridViewColumn column in grid.Columns)
             {
-                if (column.ValueType == typeof(double))                
+                column.DisplayIndex = column.Index;
+
+                if (column.ValueType == typeof(double))
                     column.DefaultCellStyle = new DataGridViewCellStyle
                     {
                         Alignment = DataGridViewContentAlignment.MiddleRight,
                         Format = "N3"
-                    };                
+                    };
                 else if (column.ValueType == typeof(int) || column.ValueType == typeof(long))
                     column.DefaultCellStyle = new DataGridViewCellStyle
                     {

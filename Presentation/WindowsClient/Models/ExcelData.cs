@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
@@ -24,14 +23,11 @@ namespace WindowsClient.Models
 
         PropertyCollection State { get; }
 
-        List<RichText> valid { get; set; }
-        List<RichText> invalid { get; set; }
-
         List<MenuItem> Items { get; }
 
         void SetMenu(params MenuItem[] items);
 
-        Task Validate();
+        void Swap(int i);
     }
 
     public class ExcelTable : IExcelData
@@ -55,19 +51,6 @@ namespace WindowsClient.Models
 
         public PropertyCollection State => table.ExtendedProperties;
 
-        public List<RichText> valid { get; set; } = new List<RichText>
-        {
-            new RichText
-            { Text = "This table is valid. Check the other tables prior to import.", Color = Color.Black }
-        };
-
-        public List<RichText> invalid { get; set; } = new List<RichText>
-        {
-            new RichText
-            { Text = "This table contains columns that REMS does not recognise. " +
-            "Please fix the columns before importing", Color = Color.Black }
-        };
-
         public List<MenuItem> Items { get; } = new List<MenuItem>();
 
         public ExcelTable(DataTable table)
@@ -78,46 +61,16 @@ namespace WindowsClient.Models
             State["Valid"] = true;            
         }
 
-        public async Task CleanTable()
-        {
-            // TODO: This is a quick workaround, find better way to handle factors/levels table
-            if (table.TableName == "Factors") table.TableName = "Levels";
-
-            // TODO: This is a quick workaround, find better way to handle planting/sowing table
-            if (table.TableName == "Planting") table.TableName = "Sowing";
-
-            // Remove any duplicate rows from the table
-            table.RemoveDuplicateRows();
-
-            var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
-            if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
-
-            table.ExtendedProperties.Add("Type", type);
-
-            // Remove empty columns
-            var cols = table.Columns.Cast<DataColumn>().ToArray();
-            foreach (var col in cols)
-                if (col.ColumnName.Contains("Column"))
-                    table.Columns.Remove(col);
-        }
+        
 
         public void SetMenu(params MenuItem[] items)
         {
             // Not used
         }
 
-        public async Task Validate()
+        public void Swap(int i)
         {
-            var valid = table.Columns
-                .Cast<DataColumn>()
-                .Select(c => (bool)c.ExtendedProperties["Valid"])
-                .Aggregate((v1, v2) => v1 &= v2);
-
-            if (valid)
-                StateChanged?.Invoke("Valid", true);
-            else
-                StateChanged?.Invoke("Override", "Warning");
-            return;
+            throw new NotImplementedException();
         }
     }
 
@@ -126,9 +79,6 @@ namespace WindowsClient.Models
         readonly DataColumn column;
 
         public object Tag => column;
-
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public event Action<string, object> StateChanged;
 
@@ -226,26 +176,9 @@ namespace WindowsClient.Models
                 col.ColumnName = map[col.ColumnName];
         }
 
-        public async Task Validate()
+        public void Swap(int index)
         {
-            // If the colum node is not valid for import, update the state to warn the user
-            if (State["Info"] is null && !await IsTrait())
-                StateChanged?.Invoke("Valid", false);
-            else
-                StateChanged?.Invoke("Valid", true);
-        }
-
-        private async Task<bool> IsTrait()
-        {
-            return
-                    // Test if the trait is in the database
-                    await InvokeQuery(new TraitExistsQuery() { Name = Name })
-                    // Or in the spreadsheet traits table
-                    || column.Table.DataSet.Tables["Traits"] is DataTable traits
-                    // If it is, find the column of trait names
-                    && traits.Columns["Name"] is DataColumn name
-                    // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == Name);
+            column.SetOrdinal(index);
         }
     }
 }

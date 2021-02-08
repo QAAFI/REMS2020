@@ -7,7 +7,6 @@ using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -77,11 +76,22 @@ namespace WindowsClient.Controls
             
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
+            dataTree.AfterLabelEdit += AfterLabelEdit;
 
             tracker.TaskBegun += RunImporter;
-        }        
+        }
+
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.Node is DataNode node && e.Label != null)
+            {
+                node.Excel.Name = e.Label;
+                node.Validate();
+            }
+        }
 
         #region Data
+
         /// <summary>
         /// The excel data
         /// </summary>
@@ -125,10 +135,37 @@ namespace WindowsClient.Controls
                 {
                     data.Tables.Remove(table);
                     continue;
-                }                
-                
-                dataTree.Nodes.Add(await CreateTableNode(table));
-            }            
+                }
+
+                await CleanTable(table);                                
+            }
+
+            // Separate loop to avoid ordering problems from async code
+            foreach (var table in data.Tables.Cast<DataTable>().ToArray())
+                dataTree.Nodes.Add(CreateTableNode(table));
+        }
+
+        public async Task CleanTable(DataTable table)
+        {
+            // TODO: This is a quick workaround, find better way to handle factors/levels table
+            if (table.TableName == "Factors") table.TableName = "Levels";
+
+            // TODO: This is a quick workaround, find better way to handle planting/sowing table
+            if (table.TableName == "Planting") table.TableName = "Sowing";
+
+            // Remove any duplicate rows from the table
+            table.RemoveDuplicateRows();
+
+            var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
+            if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
+
+            table.ExtendedProperties.Add("Type", type);
+
+            // Remove empty columns
+            var cols = table.Columns.Cast<DataColumn>().ToArray();
+            foreach (var col in cols)
+                if (col.ColumnName.Contains("Column"))
+                    table.Columns.Remove(col);
         }
 
         /// <summary>
@@ -136,59 +173,82 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        private async Task<TreeNode> CreateTableNode(DataTable table)
+        private TreeNode CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
             xt.Query += (o) => Query?.Invoke(o);
-            await xt.CleanTable();
 
-            var tnode = new DataNode(xt);
+            var vt = CreateTableValidater(table);
+            vt.SetAdvice += a => { adviceBox.Clear(); adviceBox.AddText(a); };
+
+            var tnode = new DataNode(xt, vt);
             tnode.Query += (o) => Query?.Invoke(o);
 
             // Prepare individual columns for import
-            foreach (var col in table.Columns.Cast<DataColumn>().ToArray())
+            for (int i = 0; i < table.Columns.Count; i++)
             {
+                var col = table.Columns[i];
+
                 // Create a node for the column
                 var xc = new ExcelColumn(col);
-                xc.Query += (o) => Query?.Invoke(o);
 
-                var cnode = new DataNode(xc);
+                INodeValidater vc;
+                if (vt is CustomTableValidater ctv)
+                {
+                    if (i < ctv.columns.Length)
+                        vc = new OrdinalValidater(col, i, ctv.columns[i]);
+                    else
+                        vc = new NullValidater();
+                }                    
+                else
+                {
+                    var validater = new ColumnValidater(col);
+                    validater.Query += (o) => Query?.Invoke(o);
+                    vc = validater;
+                }
+                vc.SetAdvice += a => { adviceBox.Clear();  adviceBox.AddText(a); };
+
+                var cnode = new DataNode(xc, vc);
                 cnode.Query += (o) => Query?.Invoke(o);
+                cnode.Updated += () => { importData.DataSource = xc.Source; importData.Format(); };
 
-                await xc.Validate();
+                vc.Validate();
 
                 tnode.Nodes.Add(cnode);
             }
-
-            await xt.Validate();
-
-            var validater = CreateTableValidater(tnode);
-            validater.Validate();
+            
+            vt.Validate();
 
             return tnode;
         }
 
-        public static IValidater CreateTableValidater(DataNode table)
+        public static INodeValidater CreateTableValidater(DataTable table)
         {
-            switch (table.Text)
+            string[] cols;
+            switch (table.TableName)
             {
                 case "Design":
-                    return new DesignValidater(table);
+                    cols = new string[] { "ExperimentId", "Treatment", "Repetition", "Plot" };
+                    return new CustomTableValidater(table, cols);
 
                 case "HarvestData":
                 case "PlotData":
-                    return new DataValidater(table);
+                    cols = new string[] { "ExperimentId", "Plot", "Date", "Sample" };
+                    return new CustomTableValidater(table, cols);
 
                 case "MetData":
-                    return new MetValidater(table);
+                    cols = new string[] { "MetStation", "Date" };
+                    return new CustomTableValidater(table, cols);
 
                 case "SoilLayerData":
-                    return new SoilLayerValidater(table);
+                    cols = new string[] { "ExperimentId", "Plot", "Date", "DepthFrom", "DepthTo" };
+                    return new CustomTableValidater(table, cols);
 
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    return new OperationsValidater(table);
+                    cols = new string[] { "ExperimentId", "Treatment" };
+                    return new CustomTableValidater(table, cols);
 
                 case "Soils":
                 case "SoilLayer":
@@ -208,13 +268,13 @@ namespace WindowsClient.Controls
         {
             if (e.Node is DataNode node)
             {
-                importData.DataSource = node.Excel.Source;
-                importData.Format();
+                importData.DataSource = node.Excel.Source;                
+                importData.Format();                
 
                 columnLabel.Text = node.Text;
                 
-                adviceBox.Clear();
-                adviceBox.AddText(node.Advice);
+                //adviceBox.Clear();
+                //adviceBox.AddText(node.Advice);
             }
         }
 
