@@ -69,7 +69,7 @@ namespace WindowsClient.Controls
             else
             {
                 bar.Width = 0;
-                label.Text = "Waiting...";
+                label.Text = "";
                 pctLabel.Text = "0%";
                 task = 0;
             }
