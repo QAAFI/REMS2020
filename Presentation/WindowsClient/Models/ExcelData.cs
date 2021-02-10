@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Rems.Application.Common.Extensions;
-using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -91,34 +88,6 @@ namespace WindowsClient.Models
         public DataTable Source => column.Table;
 
         public PropertyCollection State => column.ExtendedProperties;
-
-        public List<RichText> valid { get; set; } = new List<RichText>
-        {
-            new RichText
-            { Text = "This column is valid and can be imported", Color = Color.Black }
-        }; 
-        
-        public List<RichText> invalid { get; set; } = new List<RichText>
-        {
-            new RichText
-            { Text = "The type of column could not be determined. ", Color = Color.Black },
-            new RichText
-            { Text = "Right click to view options. \n\n", Color = Color.Black },
-            new RichText
-            { Text = "Ignore\n", Color = Color.Blue },
-            new RichText
-            { Text = "    - The column is not imported\n\n", Color = Color.Black },
-            new RichText
-            { Text = "Add trait\n", Color = Color.Blue },
-            new RichText
-            { Text = "    - Add a trait named for the column\n", Color = Color.Black },
-            new RichText
-            { Text = "    - Only valid traits are imported\n\n", Color = Color.Black },
-            new RichText
-            { Text = "Set property\n", Color = Color.Blue },
-            new RichText
-            { Text = "    - Match the column to a REMS property\n", Color = Color.Black }
-        };
 
         public List<MenuItem> Items { get; } = new List<MenuItem>();
 

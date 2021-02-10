@@ -272,9 +272,12 @@ namespace WindowsClient.Controls
                 importData.Format();                
 
                 columnLabel.Text = node.Text;
-                
-                //adviceBox.Clear();
-                //adviceBox.AddText(node.Advice);
+
+                adviceBox.Clear();
+                if (node.Advice.Any())
+                    adviceBox.AddText(node.Advice);                
+                else if (node.Parent is DataNode parent)
+                    adviceBox.AddText(parent.Advice);
             }
         }
 

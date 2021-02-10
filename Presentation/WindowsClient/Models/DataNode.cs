@@ -17,6 +17,8 @@ namespace WindowsClient.Models
         public event Func<object, Task<object>> Query;
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
+        public IEnumerable<RichText> Advice { get; set; } = new RichText[0];
+
         public INodeValidater Validater { get; set; }
 
         public IExcelData Excel { get; }
@@ -30,6 +32,7 @@ namespace WindowsClient.Models
             excel.StateChanged += UpdateState;
 
             validater.StateChanged += UpdateState;
+            validater.SetAdvice += a => Advice = a;
             Validater = validater;
 
             ContextMenu = new ContextMenu(excel.Items.ToArray());
@@ -56,14 +59,11 @@ namespace WindowsClient.Models
 
         #region State functions
 
-        private void OnStateChanged(string state, object value)
-        {
-            Text = Excel.Name;
-            UpdateState(state, value);
-        }
-
         public void UpdateState(string state, object value)
         {
+            // Prevent recursively updating states
+            if (Excel.State[state] == value) return;
+
             Excel.State[state] = value;
 
             string key = "";
@@ -84,19 +84,9 @@ namespace WindowsClient.Models
             SelectedImageKey = key;
 
             // Update the node parent
-            CheckState(Parent as DataNode);
-        }
-
-        private void CheckState(DataNode node)
-        {
-            if (node?.Tag is DataTable table)
-            {
-                var cols = table.Columns.Cast<DataColumn>();
-                if (cols.Any(c => c.ExtendedProperties["Valid"] is false && c.ExtendedProperties["Ignore"] is false))
-                    node.UpdateState("Override", "Warning");
-                else
-                    node.UpdateState("Override", "");
-            }
+            //CheckState(Parent as DataNode);
+            if (Parent is DataNode parent) 
+                parent.Validater.Validate();
         }
 
         #endregion region
@@ -105,7 +95,7 @@ namespace WindowsClient.Models
 
         private void OnPopup(object sender, EventArgs e)
         {
-            Excel.StateChanged += OnStateChanged;
+            Text = Excel.Name;
             Excel.SetMenu(items.Cast<MenuItem>().ToArray());
         }
 
@@ -162,6 +152,9 @@ namespace WindowsClient.Models
                 Excel.Swap(i - 1);
             }
 
+            ((DataNode)p.Nodes[i]).Validate();
+            Validate();
+
             Updated?.Invoke();
         }
 
@@ -178,6 +171,12 @@ namespace WindowsClient.Models
                 TreeView.SelectedNode = this;
                 Excel.Swap(i + 1);
             }
+
+            //if (p is DataNode parent)
+            //    parent.Validate();
+
+            ((DataNode)p.Nodes[i]).Validate();
+            Validate();
 
             Updated?.Invoke();
         }

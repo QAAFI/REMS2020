@@ -26,14 +26,6 @@ namespace WindowsClient.Models
         public void Validate()
         {
             StateChanged?.Invoke("Valid", true);
-
-            var text = new RichText[]
-            {
-                new RichText
-                { Text = "Ready to be imported.\n", Color = Color.Black }
-            };
-
-            SetAdvice?.Invoke(text);
         }
     }
 
@@ -116,12 +108,13 @@ namespace WindowsClient.Models
             if (valid)
             {
                 StateChanged?.Invoke("Valid", true);
+                StateChanged?.Invoke("Override", "");
 
                 var advice = new RichText[]
                 {
                     new RichText
                     {
-                        Text = "This table is valid. Check the other tables prior to import.",
+                        Text = "Ready for import.",
                         Color = Color.Black
                     }
                 };
@@ -132,10 +125,34 @@ namespace WindowsClient.Models
                 var advice = new List<RichText>
                 {
                     new RichText
-                    { Text = "This table contains mismatched columns. \n\n" +
-                    "To enable import, please verify that the highlighted (!) columns contain the expected data. \n\n" +
-                    "If necessary, ignore any (X) columns.", Color = Color.Black }
+                    { Text = "Mismatch in expected node order. \n\n" +
+                    $"{"EXPECTED:", -20}{"DETECTED:", -20}\n", Color = Color.Black }
                 };
+
+                for (int i = 0; i < columns.Length; i++)
+                {
+                    Color color;
+
+                    string name = table.Columns[i].ColumnName;
+                    string need = columns[i];
+
+                    if (name == need)
+                        color = SystemColors.HotTrack;
+                    else
+                        color = Color.MediumVioletRed;
+
+                    advice.Add(new RichText
+                    {
+                        Text = $"{columns[i],-20}{name,-20}\n",
+                        Color = color
+                    });
+                }
+
+                advice.Add(new RichText
+                {
+                    Text = "\nRight-click nodes to see options.",
+                    Color = Color.Black
+                });
 
                 SetAdvice?.Invoke(advice);
                 StateChanged?.Invoke("Override", "Warning");
@@ -167,9 +184,46 @@ namespace WindowsClient.Models
         {
             // If the colum node is not valid for import, update the state to warn the user
             if (column.ExtendedProperties["Info"] is null && !await IsTrait())
+            {
                 StateChanged?.Invoke("Valid", false);
+
+                var advice = new RichText[]
+                {
+                    new RichText
+                    { Text = "The type of column could not be determined. ", Color = Color.Black },
+                    new RichText
+                    { Text = "Right click to view options. \n\n", Color = Color.Black },
+                    new RichText
+                    { Text = "Ignore\n", Color = Color.Blue },
+                    new RichText
+                    { Text = "    - The column is not imported\n\n", Color = Color.Black },
+                    new RichText
+                    { Text = "Add trait\n", Color = Color.Blue },
+                    new RichText
+                    { Text = "    - Add a trait named for the column\n", Color = Color.Black },
+                    new RichText
+                    { Text = "    - Only valid traits are imported\n\n", Color = Color.Black },
+                    new RichText
+                    { Text = "Set property\n", Color = Color.Blue },
+                    new RichText
+                    { Text = "    - Match the column to a REMS property\n", Color = Color.Black }
+                };
+
+                SetAdvice?.Invoke(advice);
+            }
             else
+            {
                 StateChanged?.Invoke("Valid", true);
+                StateChanged?.Invoke("Override", "");
+
+                var advice = new RichText[]
+                {
+                    new RichText
+                    { Text = "Ready to be imported.\n", Color = Color.Black }
+                };
+
+                SetAdvice?.Invoke(advice);
+            }
         }
 
         private async Task<bool> IsTrait()
@@ -208,28 +262,10 @@ namespace WindowsClient.Models
             {
                 StateChanged?.Invoke("Valid", true);
                 StateChanged?.Invoke("Override", "");
-
-                var advice = new RichText[]
-                {
-                    new RichText
-                    { Text = "Ready to be imported.\n", Color = Color.Black }
-                };
-
-                SetAdvice?.Invoke(advice);
-            }                
+            }
             else
             {
-                var advice = new RichText[]
-                {
-                    new RichText
-                    { Text = "Column does not match the expected data\n", Color = Color.Black },
-                    new RichText
-                    { Text = "Expected: " + name + "\n", Color = Color.Black },
-                    new RichText
-                    { Text = "Detected: " + col.ColumnName + "\n", Color = Color.Black }
-                };
-
-                SetAdvice?.Invoke(advice);
+                StateChanged?.Invoke("Valid", false);
                 StateChanged?.Invoke("Override", "Warning");
             }
         }
