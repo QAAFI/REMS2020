@@ -13,7 +13,7 @@ namespace Rems.Application.Common.Interfaces
 
         event Action<Exception> TaskFailed;
 
-        QueryHandler Query { get; set; }
+        event Func<object, Task<object>> Query;
 
         int Items { get; }
 

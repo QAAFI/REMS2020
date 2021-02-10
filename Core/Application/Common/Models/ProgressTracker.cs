@@ -19,27 +19,23 @@ namespace Rems.Application.Common
 
         public event Action<string> NextItem;
         public event Action<Exception> TaskFailed;
-        public QueryHandler Query { get; set; }        
+        public event Func<object, Task<object>> Query;
+
+        protected async Task<T> InvokeQuery<T>(IRequest<T> query) 
+            => (T)await Query(query);        
+
+        protected void OnNextItem(string item) 
+            => NextItem?.Invoke(item);
+
+        protected void OnIncrementProgress() 
+            => IncrementProgress?.Invoke();
+
+        protected void OnTaskFinished()
+            => TaskFinished?.Invoke();
+
+        protected void OnTaskFailed(Exception error) 
+            => TaskFailed?.Invoke(error);
 
         public abstract Task Run();
-
-        protected void OnNextItem(string item) =>
-            NextItem?.Invoke(item);        
-
-        protected void OnIncrementProgress() =>
-            IncrementProgress?.Invoke();
-
-        protected void OnTaskFinished() =>
-            TaskFinished.Invoke();
-
-        protected void OnTaskFailed(Exception error) =>
-            TaskFailed?.Invoke(error);
-
-        protected T OnQuery<T>(IRequest<T> query)
-        {
-            var task = Query.Invoke(query);
-            task.Wait();
-            return (T)task.Result;
-        }
     }
 }

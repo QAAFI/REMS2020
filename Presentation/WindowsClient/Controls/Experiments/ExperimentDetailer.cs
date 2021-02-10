@@ -1,18 +1,16 @@
-﻿using System;
+﻿using MediatR;
+using Rems.Application.CQRS;
+using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using MediatR;
-using Rems.Application.CQRS;
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
-
 namespace WindowsClient.Controls
 {
-    
-
+    /// <summary>
+    /// Manages the presentation of experiment data
+    /// </summary>
     public partial class ExperimentDetailer : UserControl
     {
         #region Nodes
@@ -44,17 +42,28 @@ namespace WindowsClient.Controls
         }
         #endregion
 
-        public event QueryHandler REMS;
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
+        public event Func<object, Task<object>> Query;
+        
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T) await Query(query);        
 
         public ExperimentDetailer()
         {
             InitializeComponent();          
 
-            experimentsTree.AfterSelect += OnExperimentNodeChanged;
+            experimentsTree.AfterSelect += OnNodeSelected;
 
-            operations.DataRequested += (o, token) => REMS?.Invoke(o);
-            traitChart.DataRequested += (o, token) => REMS?.Invoke(o);
-            soilsChart.DataRequested += (o, token) => REMS?.Invoke(o);
+            summariser.Query += (o) => Query?.Invoke(o);
+            operations.Query += (o) => Query?.Invoke(o);
+            traitChart.Query += (o) => Query?.Invoke(o);
+            soilsChart.Query += (o) => Query?.Invoke(o);
         }
 
         /// <summary>
@@ -64,13 +73,13 @@ namespace WindowsClient.Controls
         {
             experimentsTree.Nodes.Clear();
 
-            var exps = await REMS.Send(new ExperimentsQuery());
+            var exps = await InvokeQuery(new ExperimentsQuery());
 
             foreach (var exp in exps)
             {
                 ENode eNode = new ENode(exp.Value) { EID = exp.Key };
 
-                var treats = await REMS.Send(new TreatmentsQuery{ ExperimentId = exp.Key });
+                var treats = await InvokeQuery(new TreatmentsQuery{ ExperimentId = exp.Key });
 
                 foreach (var treat in treats)
                 {
@@ -78,7 +87,7 @@ namespace WindowsClient.Controls
 
                     tNode.Nodes.Add(new TNode("All") { EID = exp.Key, TID = treat.Key });
 
-                    var plots = await REMS.Send(new PlotsQuery{ TreatmentId = treat.Key });
+                    var plots = await InvokeQuery(new PlotsQuery{ TreatmentId = treat.Key });
 
                     tNode.Nodes.AddRange(plots.Select(p => 
                         new PNode(p.Value) { EID = exp.Key, TID = treat.Key, PID = p.Key}
@@ -92,7 +101,10 @@ namespace WindowsClient.Controls
             experimentsTree.Refresh();
         }
 
-        private async void OnExperimentNodeChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Calls a function dependent on the type of node selected in the tree
+        /// </summary>
+        private async void OnNodeSelected(object sender, EventArgs e)
         {
             var node = experimentsTree.SelectedNode;
 
@@ -101,17 +113,19 @@ namespace WindowsClient.Controls
             else if (node is TNode treatment)
                 await TreatmentSelected(treatment);
             else if (node is ENode experiment)
-                await ExperimentSelected(experiment);            
+                await RefreshSummary(experiment.EID);            
         }
 
-        private async Task ExperimentSelected(ENode node)
-        {
-            await RefreshSummary(node.EID);
-        }
-
+        /// <summary>
+        /// Updates the charts for the selected treatment
+        /// </summary>
+        /// <param name="node">The treatment node</param>
         private async Task TreatmentSelected(TNode node)
         {
             await operations.UpdateData(node.TID);
+
+            await traitChart.LoadTraitsBox(node.TID);
+            await soilsChart.LoadBoxes(node.TID);
 
             if (node.Text == "All")
             {
@@ -119,18 +133,23 @@ namespace WindowsClient.Controls
                 await soilsChart.UpdateAll(node.TID, node);
             }
             else
-            {
-                await traitChart.LoadTraitsBox(node.TID);
-                await traitChart.UpdateMean(node.TID, node);
-                await soilsChart.LoadBoxes(node.TID);
+            {                
+                await traitChart.UpdateMean(node.TID, node);                
                 await soilsChart.UpdateMean(node.TID, node);
             }
 
             await RefreshSummary(node.EID);
         }
 
+        /// <summary>
+        /// Updates the charts for the selected plot
+        /// </summary>
+        /// <param name="node">The plot node</param>
         private async Task PlotSelected(PNode node)
         {
+            await traitChart.LoadTraitsBox(node.TID);
+            await soilsChart.LoadBoxes(node.TID);
+
             await operations.UpdateData(node.TID);
             await traitChart.UpdateSingle(node.PID, node);
             await soilsChart.UpdateSingle(node.PID, node);
@@ -138,6 +157,10 @@ namespace WindowsClient.Controls
         }
 
         private int expid = -1;
+        /// <summary>
+        /// Loads the summary data for the current experiment
+        /// </summary>
+        /// <param name="id"></param>
         private async Task RefreshSummary(int id)
         {
             if (id == expid)
@@ -145,36 +168,10 @@ namespace WindowsClient.Controls
             else
                 expid = id;
 
-            var query = new ExperimentSummary() { ExperimentId = id };
-
-            var experiment = await query.Send(REMS);
-
-            descriptionBox.Text = experiment["Description"];
-            designBox.Text = experiment["Design"];
-            cropBox.Content = experiment["Crop"];
-            fieldBox.Content = experiment["Field"];
-            metBox.Content = experiment["Met"];
-            repsBox.Content = experiment["Reps"];
-            ratingBox.Content = experiment["Rating"];
-            startBox.Content = experiment["Start"];
-            endBox.Content = experiment["End"];
-
-            var items = experiment["List"].Split('\n');
-            researchersBox.Items.Clear();
-            researchersBox.Items.AddRange(items);
-
-            notesBox.Text = experiment["Notes"];
-
-            var sowing = await REMS.Send(new SowingSummary() { ExperimentId = id });
-            sowingMethodBox.Content = sowing["Method"];
-            sowingDateBox.Content = sowing["Date"];
-            sowingDepthBox.Content = sowing["Depth"];
-            sowingRowBox.Content = sowing["Row"];
-            sowingPopBox.Content = sowing["Pop"];
+            await summariser.GetSummary(id);
 
             var design = new DesignsTableQuery() { ExperimentId = id };
-            designData.DataSource = await REMS.Send(design);
-            
-        }        
+            designData.DataSource = await InvokeQuery(design);
+        }
     }
 }

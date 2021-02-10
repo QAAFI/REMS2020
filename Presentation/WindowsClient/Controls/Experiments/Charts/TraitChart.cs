@@ -1,25 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Steema.TeeChart.Styles;
-
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
+using MediatR;
 using Rems.Application.CQRS;
-using System.Threading.Tasks;
-using WindowsClient.Models;
 using Steema.TeeChart;
-using Models;
-using System.Collections.Generic;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
+    /// <summary>
+    /// Manages the presentation of trait data for a treatment
+    /// </summary>
     public partial class TraitChart : UserControl
     {
-        public event QueryHandler DataRequested;
-
+        /// <summary>
+        /// Tracks which update function to call when a trait is selected
+        /// </summary>
         public Func<int, TreeNode, Task> Updater;
+
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
+        public event Func<object, Task<object>> Query;
+
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         private int treatment = -1;
         private int plot;
@@ -27,12 +39,25 @@ namespace WindowsClient.Controls
 
         private Chart chart => tChart.Chart;
 
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();
+        private Dictionary<string, string> descriptions = new Dictionary<string, string>();
+        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();        
 
         public TraitChart()
         {
             InitializeComponent();
+            InitialiseChart();
 
+            var tip = new ToolTip();
+
+            traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
+            traitsBox.SelectedIndexChanged += OnTraitSelected;            
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        private void InitialiseChart()
+        {
             // Set the titles
             tChart.Text = "Crop Traits";
             chart.Axes.Left.Title.Text = "Value";
@@ -41,7 +66,7 @@ namespace WindowsClient.Controls
             // Set the margins
             chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
             chart.Panel.MarginRight = 20;
-            chart.Panel.MarginBottom = 50;
+            chart.Panel.MarginBottom = 30;
 
             // Force the Y-Axis to stop at 0
             chart.Axes.Left.AutomaticMinimum = false;
@@ -52,24 +77,46 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Labels.Angle = 60;
             chart.Axes.Bottom.Ticks.Visible = true;
             chart.Axes.Bottom.Title.AutoPosition = true;
-
-            traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await ChangeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
 
-        public async Task ChangeData(TreeNode node)
+        /// <summary>
+        /// Sets the tool tip on mouse hover
+        /// </summary>
+        private void OnTraitMouseHover(ToolTip tip)
+        {
+            var mouse = MousePosition;
+            var client = traitsBox.PointToClient(mouse);
+            int index = traitsBox.IndexFromPoint(client);
+
+            if (index == -1) return;
+
+            var trait = traitsBox.Items[index].ToString();
+            var text = descriptions[trait];
+            tip.SetToolTip(traitsBox, text);
+        }
+
+        /// <summary>
+        /// Displays the data for the given node
+        /// </summary>
+        /// <param name="node">The node</param>
+        public async Task DisplayNodeData(TreeNode node)
         {
             int id = treatment;
 
             if (Updater == UpdateSingle) id = plot;
 
             if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(ChangeData), node);
+                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
             else
                 await Task.Run(() => { if (Updater != null) Updater(id, node); });
         }        
 
+        /// <summary>
+        /// Fills the traits box with all traits in a treatment that have graphable data
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox(int id)
         {
             if (InvokeRequired)
@@ -84,15 +131,21 @@ namespace WindowsClient.Controls
                 traitsBox.Items.Clear();
 
                 // Load the trait type box
-                var types = await DataRequested.Send(new CropTraitsQuery() { TreatmentId = id });
+                var traits = await InvokeQuery(new CropTraitsQuery() { TreatmentId = id });
+                descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
 
-                if (types.Length < 1) return;
+                if (traits.Length < 1) return;
 
-                traitsBox.Items.AddRange(types);
+                traitsBox.Items.AddRange(traits);
                 traitsBox.SelectedIndex = 0;
             }
         }        
 
+        /// <summary>
+        /// Updates the displayed data for a single plot
+        /// </summary>
+        /// <param name="id">The plot ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateSingle(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -101,6 +154,8 @@ namespace WindowsClient.Controls
             {
                 if (node.Name != "All") 
                     chart.Series.Clear();
+
+                tChart.Text = "Trait values for a treatment plot";
 
                 plot = id;
                 selected = node;
@@ -113,7 +168,7 @@ namespace WindowsClient.Controls
                         PlotId = id
                     };
 
-                    var data = await DataRequested.Send(query);
+                    var data = await InvokeQuery(query);
                     data.AddToChart(chart);
                 }
 
@@ -121,6 +176,11 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Updates the displayed data for the average of all plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateMean(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -128,6 +188,8 @@ namespace WindowsClient.Controls
             else
             {
                 chart.Series.Clear();
+
+                tChart.Text = "Average trait values across all treatment plots";
 
                 treatment = id;
                 selected = node;
@@ -140,7 +202,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var data = await DataRequested.Send(query);
+                    var data = await InvokeQuery(query);
                     data.AddToChart(chart);
                 }
 
@@ -148,6 +210,11 @@ namespace WindowsClient.Controls
             }            
         }
 
+        /// <summary>
+        /// Updates the displayed data for all the plots in a treatment
+        /// </summary>
+        /// <param name="id">The treatment ID</param>
+        /// <param name="node">The selected node</param>
         public async Task UpdateAll(int id, TreeNode node)
         {
             if (InvokeRequired)
@@ -155,6 +222,8 @@ namespace WindowsClient.Controls
             else
             {
                 chart.Series.Clear();
+
+                tChart.Text = "Comparison of trait values across all treatment plots";
 
                 if (node is null) return;
 
@@ -169,7 +238,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var series = await DataRequested.Send(query);
+                    var series = await InvokeQuery(query);
 
                     foreach (var data in series)
                         data.AddToChart(chart);

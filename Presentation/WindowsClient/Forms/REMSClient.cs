@@ -8,31 +8,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Infrastructure;
 using WindowsClient.Controls;
 using WindowsClient.Models;
 
 namespace WindowsClient
 {
-    public enum TagType
-    {
-        Empty,
-        Experiment,
-        Treatment,
-        Plot
-    }
-
-    public struct NodeTag
-    {
-        public int ID { get; set; }
-
-        public TagType Type { get; set; }
-    }
-
+    /// <summary>
+    /// Manages and integrates the individual UI components in REMS.
+    /// Handles the connection to the database.
+    /// </summary>
     public partial class REMSClient : Form
     {
         private readonly IMediator _mediator;
@@ -47,9 +32,7 @@ namespace WindowsClient
             
             FormClosed += REMSClientFormClosed;
 
-            //experimentDetailer.REMS += _mediator.Send;
-
-            homeScreen.Query += _mediator.Send;
+            homeScreen.Query += SendQuery;
             homeScreen.DBCreated += LoadListView;
             homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
@@ -58,6 +41,22 @@ namespace WindowsClient
             homeScreen.PageCreated += OnPageCreated;
         }
 
+        /// <summary>
+        /// Sends a query to the mediator
+        /// </summary>
+        /// <param name="query">The query object</param>
+        private async Task<object> SendQuery(object query)
+        {
+            Application.UseWaitCursor = true;
+            var result = await _mediator.Send(query);
+            Application.UseWaitCursor = false;
+
+            return result;
+        }
+
+        /// <summary>
+        /// Loads the settings from file
+        /// </summary>
         private void LoadSettings()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -77,6 +76,9 @@ namespace WindowsClient
             }
         }
 
+        /// <summary>
+        /// Saves the settings to file
+        /// </summary>
         private void SaveSettings()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -106,19 +108,25 @@ namespace WindowsClient
                 notebook.TabPages.Remove(page);
         }
 
-        private void OnImportRequested(object sender, EventArgs e)
+        private async void OnImportRequested(object sender, EventArgs e)
         {
             var link = sender as ImportLink;
 
-            link.Importer.Query = _mediator.Send;
+            link.Importer.Query += SendQuery;
 
             if (!notebook.TabPages.Contains(link.Tab))
+            {
                 notebook.TabPages.Add(link.Tab);
+                link.Tab.Leave += (s, o) => notebook.TabPages.Remove(link.Tab);
+            }
+                
             notebook.SelectedTab = link.Tab;
 
-            if (!link.Importer.SelectFile())
+            if (! await link.Importer.OpenFile())
                 notebook.TabPages.Remove(link.Tab);
         }
+
+         
 
         private void OnImportCompleted(ImportLink link)
         {
@@ -140,30 +148,27 @@ namespace WindowsClient
         {
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
-            dataGridView.DataSource = await TryQueryREMS(new DataTableQuery() { TableName = item });
+            dataGridView.DataSource = await TrySendQuery(new DataTableQuery() { TableName = item });
             dataGridView.Format();
         }
 
         private async void LoadListView(string file)
         {
-            var items = await new GetTableListQuery().Send(TryQueryREMS);
+            var query = new GetTableNamesQuery();
+            var items = await TrySendQuery(query);
 
             relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(items.ToArray());
+            relationsListBox.Items.AddRange(items);
         }
 
-        public Task<object> TryQueryREMS(object request, CancellationToken token = default)
-        {
-            Application.UseWaitCursor = true;
+        public async Task<T> TrySendQuery<T>(IRequest<T> request, CancellationToken token = default)
+        {           
 
             List<Exception> errors = new List<Exception>();
 
             try
             {
-                var task = _mediator.Send(request);
-
-                Application.UseWaitCursor = false;
-                return task;
+                return (T) await SendQuery(request);
             }
             catch (Exception error)
             {
@@ -174,15 +179,13 @@ namespace WindowsClient
             var builder = new StringBuilder();
 
             foreach (var error in errors)
-            {
-                builder.AppendLine(error.Message + "at\n" + error.StackTrace + "\n");
-            }
+                builder.AppendLine(error.Message + "at\n" + error.StackTrace + "\n");            
 
             MessageBox.Show(builder.ToString(), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             Application.UseWaitCursor = false;
 
-            return null;
+            return default;
         }
 
         public string ParseText(string file)

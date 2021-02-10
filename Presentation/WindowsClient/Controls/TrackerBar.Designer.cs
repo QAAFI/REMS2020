@@ -76,9 +76,8 @@
             this.label.AutoSize = true;
             this.label.Location = new System.Drawing.Point(82, 11);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(52, 13);
+            this.label.Size = new System.Drawing.Size(0, 13);
             this.label.TabIndex = 6;
-            this.label.Text = "Waiting...";
             this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel1

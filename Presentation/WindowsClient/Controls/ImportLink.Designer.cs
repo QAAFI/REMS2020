@@ -40,7 +40,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label.Cursor = System.Windows.Forms.Cursors.Hand;
             this.label.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.label.ForeColor = System.Drawing.SystemColors.GrayText;
             this.label.Location = new System.Drawing.Point(26, 3);
             this.label.Name = "label";
             this.label.Size = new System.Drawing.Size(168, 19);

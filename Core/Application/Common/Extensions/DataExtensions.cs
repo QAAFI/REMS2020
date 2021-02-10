@@ -113,6 +113,9 @@ namespace Rems.Application.Common.Extensions
             var type = col.Table.ExtendedProperties["Type"] as Type;
             col.ExtendedProperties["Valid"] = true;
 
+            // Trim whitespace
+            col.ColumnName = col.ColumnName.Replace(" ", "");
+
             // Test for a direct match
             if (type.GetProperty(col.ColumnName) is PropertyInfo x)
                 return x;

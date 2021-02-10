@@ -1,46 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure;
 
-using WindowsClient.Forms;
 using WindowsClient.Models;
+using MediatR;
 
 namespace WindowsClient.Controls
 {
-    public delegate void PageAction(TabPage page);
-
+    /// <summary>
+    /// Manages database selection and file import/export
+    /// </summary>
     public partial class HomeScreen : UserControl
     {
-        public event QueryHandler Query;
+        /// <summary>
+        /// Occurs when a new database is created
+        /// </summary>
         public event Action<string> DBCreated;
+
+        /// <summary>
+        /// Occurs when a database is opened
+        /// </summary>
         public event Action<string> DBOpened;
 
+        /// <summary>
+        /// Occurs when excel data is requested
+        /// </summary>
         public event EventHandler ImportRequested;
-        public event LinkAction ImportCompleted;
+
+        /// <summary>
+        /// Occurs when data has finished importing
+        /// </summary>
+        public event Action<ImportLink> ImportCompleted;
+
+        /// <summary>
+        /// Occurs immediately before the session changes
+        /// </summary>
         public event Action SessionChanging;
-        public event PageAction PageCreated;
+
+        /// <summary>
+        /// Occurs when a new page needs to be created
+        /// </summary>
+        public event Action<TabPage> PageCreated;
+
+        /// <summary>
+        /// Occurs when data is requested from the mediator
+        /// </summary>
+        public event Func<object, Task<object>> Query;
+        
+        /// <summary>
+        /// Safely handles a query
+        /// </summary>
+        /// <typeparam name="T">The type of data requested</typeparam>
+        /// <param name="query">The request object</param>
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         /// <summary>
         /// All known sessions
         /// </summary>
         private List<Session> Sessions { get; }
+
+        /// <summary>
+        /// The list of sessions reversed
+        /// </summary>
         private List<Session> snoisses => Sessions.Reverse<Session>().ToList();
 
-
+        /// <summary>
+        /// The currently active session
+        /// </summary>
         private Session Session { get; set; }
 
+        /// <summary>
+        /// The most recently accessed folder
+        /// </summary>
         private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         public HomeScreen()
@@ -55,23 +94,33 @@ namespace WindowsClient.Controls
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
+            exportTracker.TaskBegun += OnExportClick;
         }
 
+        /// <summary>
+        /// Adds an experiment detailer to the homescreen
+        /// </summary>
         private void AddDetailerPage()
         {
-            Session.Detailer.REMS += (s, e) => Query?.Invoke(s, e);            
+            Session.Detailer.Query += (o) => Query?.Invoke(o);
             PageCreated?.Invoke(Session.Experiments);
             Session.Detailer.LoadNodes();
-
-            LoadExportBox();
         }
 
+        /// <summary>
+        /// Connects the import link to the 
+        /// </summary>
+        /// <param name="link"></param>
         private void AttachLink(ImportLink link)
         {
             link.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
             link.ImportComplete += OnImportComplete;            
         }
 
+        /// <summary>
+        /// Loads the list of recent sessions
+        /// </summary>
+        /// <returns></returns>
         private List<Session> LoadSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
@@ -81,14 +130,33 @@ namespace WindowsClient.Controls
             return JsonTools.LoadJson<List<Session>>(file, JsonTools.JsonLoad.New);
         }
 
+        /// <summary>
+        /// Saves the list of recent sessions
+        /// </summary>
         private void SaveSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
 
             string file = Environment.GetFolderPath(local) + "\\REMS2020\\sessions.json";
 
-            //UpdateSession();
             JsonTools.SaveJson(file, Sessions);
+        }
+
+        /// <summary>
+        /// Create a new session for a database
+        /// </summary>
+        /// <param name="file">The path to the .db file</param>
+        /// <returns></returns>
+        private async Task CreateSession(string file)
+        {
+            var session = new Session() { DB = file };
+
+            // If overwriting a .db, remove the old session
+            if (Sessions.Find(s => s.DB == file) is Session S)
+                Sessions.Remove(S);
+
+            // Change to the new session
+            await ChangeSession(session);
         }
 
         /// <summary>
@@ -104,8 +172,10 @@ namespace WindowsClient.Controls
             DBOpened?.Invoke(session.DB);
             folder = Path.GetDirectoryName(session.DB);
 
+            EnableImport();
+
             Session = session;
-            await CheckTables(session);
+            await CheckTables();
 
             // Reset the export box
             LoadExportBox();
@@ -126,40 +196,49 @@ namespace WindowsClient.Controls
             recentList.DataSource = snoisses;      
         }
 
-        private async Task CheckTables(Session session)
+        private void EnableImport()
         {
-            if ((bool)await Query.Invoke(new LoadedInformation()))
-                infoLink.Stage = /*session.Info =*/ Stage.Imported;
+            importText.Text = "Select one of the above options to begin the import process."
+            + "\n\n"
+            + "The data must come from an excel document based on the template file,"
+            + "or the importer will not recognise it."
+            + "\n\n"
+            + "The data must be imported in the listed order (i.e., information before experiments)."
+            + "\n\n"
+            + "A green tick indicates that some data is already present in the database.";
+
+            infoLink.Active = true;
+            expsLink.Active = true;
+            dataLink.Active = true;
+        }
+
+        /// <summary>
+        /// Check if any data has previously been loaded
+        /// </summary>
+        private async Task CheckTables()
+        {
+            if (await InvokeQuery(new LoadedInformation()))
+                infoLink.Stage = Stage.Imported;
             else
                 infoLink.Stage = Stage.Missing;
 
-            if ((bool)await Query.Invoke(new LoadedExperiments()))
+            if (await InvokeQuery(new LoadedExperiments()))
             {
-                expsLink.Stage = /*session.Exps =*/ Stage.Imported;
+                expsLink.Stage = Stage.Imported;
                 AddDetailerPage();
             }
             else
                 expsLink.Stage = Stage.Missing;
 
-            if ((bool)await Query.Invoke(new LoadedData()))
-                dataLink.Stage = /*session.Data =*/ Stage.Imported;
+            if (await InvokeQuery(new LoadedData()))
+                dataLink.Stage = Stage.Imported;
             else
                 dataLink.Stage = Stage.Missing;
         }
 
-        private async Task CreateSession(string file)
-        {           
-
-            var session = new Session() { DB = file };
-
-            // If overwriting a .db, remove the old session
-            if (Sessions.Find(s => s.DB == file) is Session S)
-                Sessions.Remove(S);
-
-            // Change to the new session
-            await ChangeSession(session);            
-        }
-
+        /// <summary>
+        /// Handles the post-import functions
+        /// </summary>
         private void OnImportComplete(ImportLink link)
         {
             ImportCompleted?.Invoke(link);
@@ -171,15 +250,21 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Adds the available experiments to the export box
+        /// </summary>
         private async void LoadExportBox()
         {
-            exportList.Items.Clear();
+            var exps = (await InvokeQuery(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+            var items = exps.Select(e => e.Value).Distinct().ToArray();
 
-            var exps = (await Query.Invoke(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
-            var items = exps.Select(e => e.Value).ToArray();
+            exportList.Items.Clear();
             exportList.Items.AddRange(items);
         }
 
+        /// <summary>
+        /// Handles the creation of a new database
+        /// </summary>
         private async void OnCreateClick(object sender, EventArgs e)
         {
             using (var save = new SaveFileDialog())
@@ -191,13 +276,16 @@ namespace WindowsClient.Controls
 
                 if (save.ShowDialog() != DialogResult.OK) return;
 
-                await Query.Invoke(new CreateDBCommand() { FileName = save.FileName });
+                await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
                 DBCreated?.Invoke(save.FileName);
 
                 await CreateSession(save.FileName);                
             }
         }
 
+        /// <summary>
+        /// Handles the opening of an existing database
+        /// </summary>
         private async void OnOpenClick(object sender, EventArgs e)
         {
             using (var open = new OpenFileDialog())
@@ -214,12 +302,16 @@ namespace WindowsClient.Controls
 
                 folder = Path.GetDirectoryName(open.FileName);
 
-                await Query.Invoke(new OpenDBCommand() { FileName = open.FileName });                                
+                await InvokeQuery(new OpenDBCommand() { FileName = open.FileName });                                
             }
         }
 
-        private async void OnExportClick(object sender, EventArgs e)
+        /// <summary>
+        /// Handles the export of .apsimx files
+        /// </summary>
+        private async void OnExportClick()
         {
+            // Check that a valid database exists
             bool connected = (bool)await Query(new ConnectionExists());
             if (!connected)
             {
@@ -241,9 +333,19 @@ namespace WindowsClient.Controls
                         Experiments = exportList.CheckedItems.Cast<string>()
                     };
 
-                    exporter.Query += Query;
+                    exporter.Query += (o) => Query?.Invoke(o);
                     exporter.FileName = save.FileName;
-                    var dialog = new ProgressDialog(exporter, "Exporting...");
+                    
+                    exportTracker.SetSteps(exporter);
+
+                    exporter.NextItem += exportTracker.OnNextTask;
+                    exporter.IncrementProgress += exportTracker.OnProgressChanged;
+                    exporter.TaskFinished += () => MessageBox.Show("Export complete!");
+                    exporter.TaskFailed += exportTracker.OnTaskFailed;
+
+                    await exporter.Run();
+
+                    exportTracker.Reset();
                 }
                 catch (Exception error)
                 {
@@ -252,11 +354,17 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Handles the closure of the control
+        /// </summary>
         public void Close()
         {
             SaveSessions();
         }
 
+        /// <summary>
+        /// Handles a change in the selected recent items
+        /// </summary>
         private async void OnRecentListDoubleClick(object sender, EventArgs e)
         {
             if (recentList.SelectedItem is Session session)

@@ -1,122 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
+using MediatR;
 using Rems.Application.CQRS;
+using static System.Windows.Forms.Menu;
 
 namespace WindowsClient.Models
 {
     public class DataNode : TreeNode
     {
-        public QueryHandler Query;
+        public event Action Updated;
 
-        public PropertyCollection State { get; }
+        public event Func<object, Task<object>> Query;
+        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
-        public DataTable Source { get; }
+        public IEnumerable<RichText> Advice { get; set; } = new RichText[0];
 
-        public IEnumerable<RichText> Advice { get; set; }
+        public INodeValidater Validater { get; set; }
 
-        private List<RichText> valid;
-        private List<RichText> invalid;
+        public IExcelData Excel { get; }
 
-        private DataNode(string name) : base(name)
+        MenuItemCollection items => ContextMenu.MenuItems;
+
+        public DataNode(IExcelData excel, INodeValidater validater) : base(excel.Name)
         {
-            
+            Excel = excel;
+            Tag = Excel.Tag;
+            excel.StateChanged += UpdateState;
+
+            validater.StateChanged += UpdateState;
+            validater.SetAdvice += a => Advice = a;
+            Validater = validater;
+
+            ContextMenu = new ContextMenu(excel.Items.ToArray());
+
+            items.Add(new MenuItem("Rename", Rename));
+            items.Add(new MenuItem("Ignore", ToggleIgnore));
+
+            if (excel is ExcelColumn)
+            {
+                ContextMenu.Popup += OnPopup;
+                
+                items.Add(new MenuItem("Add as trait", AddTrait));
+                items.Add(new MenuItem("Set property"));
+                items.Add("-");
+                items.Add(new MenuItem("Move up", MoveUp));
+                items.Add(new MenuItem("Move down", MoveDown));
+            }
+            else if (excel is ExcelTable)
+            {
+                items.Add(new MenuItem("Add invalids as traits", AddTraits));
+                items.Add(new MenuItem("Ignore all invalids", IgnoreAll));
+            }
         }
 
-        public DataNode(DataColumn col) : this(col.ColumnName)
-        {
-            Tag = col;
-            State = col.ExtendedProperties;
-            Source = col.Table;
-
-            State["Ignore"] = false;
-
-            ContextMenu = new ColumnNodeMenu(this, col);            
-
-            valid = new List<RichText>
-            { 
-                new RichText
-                { Text = "This column is valid and can be imported", Color = Color.Black }
-            };
-
-            invalid = new List<RichText>
-            {
-                new RichText
-                { Text = "The type of column could not be determined. ", Color = Color.Black },
-                new RichText
-                { Text = "Right click to view options. \n\n", Color = Color.Black },
-                new RichText
-                { Text = "Ignore\n", Color = Color.Blue },
-                new RichText
-                { Text = "    - The column is not imported\n\n", Color = Color.Black },                
-                new RichText
-                { Text = "Add trait\n", Color = Color.Blue },
-                new RichText
-                { Text = "    - Add a trait named for the column\n", Color = Color.Black },
-                new RichText
-                { Text = "    - Only valid traits are imported\n\n", Color = Color.Black },
-                new RichText
-                { Text = "Set property\n", Color = Color.Blue },
-                new RichText
-                { Text = "    - Match the column to a REMS property\n", Color = Color.Black }
-            };    
-        }
-
-        public DataNode(DataTable table) : this(table.TableName)
-        {
-            Tag = table;
-            State = table.ExtendedProperties;
-            Source = table;
-            ContextMenu = new TableNodeMenu(this, table);
-
-            State["Ignore"] = false;
-            State["Valid"] = true;
-
-            valid = new List<RichText>
-            {
-                new RichText
-                { Text = "This table is valid. Check the other tables prior to import.", Color = Color.Black }
-            };
-
-            invalid = new List<RichText>
-            {
-                new RichText
-                { Text = "This table contains columns that REMS does not recognise. " +
-                "Please fix the columns before importing", Color = Color.Black }
-            };
-        }
+        #region State functions
 
         public void UpdateState(string state, object value)
         {
-            State[state] = value;
+            // Prevent recursively updating states
+            if (Excel.State[state] == value) return;
+
+            Excel.State[state] = value;
 
             string key = "";
 
-            if (State["Valid"] is true)
-            {
-                key += "Valid";
-                Advice = valid;
-            }
-            else
-            {
-                key += "Invalid";
-                Advice = invalid;
-            }
-
-            if (State["Override"] is string s && s != "")
-            {
+            if (Excel.State["Override"] is string s && s != "")
                 key = s;
-                Advice = invalid;
-            }
+            else if (Excel.State["Valid"] is true)
+                key += "Valid";
+            else
+                key += "Invalid";
 
-            if (State["Ignore"] is true)
+            if (Excel.State["Ignore"] is true)
                 key += "Off";
             else
                 key += "On";
@@ -125,15 +84,43 @@ namespace WindowsClient.Models
             SelectedImageKey = key;
 
             // Update the node parent
-            CheckState(Parent as DataNode);
+            //CheckState(Parent as DataNode);
+            if (Parent is DataNode parent) 
+                parent.Validater.Validate();
+        }
+
+        #endregion region
+
+        #region Menu functions
+
+        private void OnPopup(object sender, EventArgs e)
+        {
+            Text = Excel.Name;
+            Excel.SetMenu(items.Cast<MenuItem>().ToArray());
+        }
+
+        private void Rename(object sender, EventArgs args) => BeginEdit();
+        
+        public void AddTraits(object sender, EventArgs args)
+        {
+            foreach (DataNode n in Nodes)
+                if (n.Excel.State["Valid"] is false)
+                    n.AddTrait(sender, args);
+        }
+
+        private void IgnoreAll(object sender, EventArgs args)
+        {
+            foreach (DataNode n in Nodes)
+                if (n.Excel.State["Valid"] is false)
+                    n.ToggleIgnore(null, args);
         }
 
         public void ToggleIgnore(object sender, EventArgs args)
         {            
-            UpdateState("Ignore", !(bool)State["Ignore"]);
+            UpdateState("Ignore", !(bool)Excel.State["Ignore"]);
             
             if (sender is MenuItem item)
-                item.Checked = (bool)State["Ignore"];
+                item.Checked = (bool)Excel.State["Ignore"];
         }
 
         public async void AddTrait(object sender, EventArgs args)
@@ -143,114 +130,84 @@ namespace WindowsClient.Models
 
             var name = (Tag as DataColumn).ColumnName;
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            var result = await Query(new AddTraitCommand() { Name = name, Type = type.Name });
+            var result = await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
 
-            if ((bool)result)
+            if (result)
                 UpdateState("Valid", true);
             else
                 MessageBox.Show("The trait could not be added");
         }
 
-        private void CheckState(DataNode node)
+        public void MoveUp(object sender, EventArgs args)
         {
-            if (node?.Tag is DataTable table)
+            // Store references so they are not lost on removal
+            int i = Index;
+            var p = Parent;
+
+            if (i > 0)
             {
-                var cols = table.Columns.Cast<DataColumn>();
-                if (cols.Any(c => c.ExtendedProperties["Valid"] is false && c.ExtendedProperties["Ignore"] is false))
-                    node.UpdateState("Override", "Warning");
-                else
-                    node.UpdateState("Override", "");
-            }
-        }
-    }
-
-    public class ColumnNodeMenu : ContextMenu
-    {
-        DataNode node;
-        DataColumn column;
-
-        MenuItem ignore;
-        MenuItem trait;
-        MenuItem items;
-
-        public ColumnNodeMenu(DataNode node, DataColumn column) : base()
-        {
-            this.column = column;
-            this.node = node;
-
-            ignore = new MenuItem("Ignore", node.ToggleIgnore);
-            trait = new MenuItem("Add trait", node.AddTrait);
-            items = new MenuItem("Set property");
-            
-            MenuItems.Add(ignore);
-            MenuItems.Add(trait);
-            MenuItems.Add(items);
-
-            Popup += ItemsPopup;
-        }        
-
-        private void ItemsPopup(object sender, EventArgs e)
-        {
-            if (node.State["Info"] != null)
-            {
-                trait.Enabled = false;
-                return;
+                p.Nodes.Remove(this);
+                p.Nodes.Insert(i - 1, this);
+                TreeView.SelectedNode = this;
+                Excel.Swap(i - 1);
             }
 
-            items.MenuItems.Clear();
+            ((DataNode)p.Nodes[i]).Validate();
+            Validate();
 
-            var props = column.GetUnmappedProperties();
-
-            foreach (var prop in props)
-                items.MenuItems.Add(prop.Name, SetProperty);
+            Updated?.Invoke();
         }
 
-        private void SetProperty(object sender, EventArgs args)
+        public void MoveDown(object sender, EventArgs args)
         {
-            var item = sender as MenuItem;
-            column.ColumnName = item.Text;
-            node.State["Info"] = column.FindProperty();
-            node.Text = item.Text;
-            node.UpdateState("Valid", true);
+            // Store references so they are not lost on removal
+            int i = Index;
+            var p = Parent;
+
+            if (i + 1 < p.Nodes.Count)
+            {
+                p.Nodes.Remove(this);
+                p.Nodes.Insert(i + 1, this);
+                TreeView.SelectedNode = this;
+                Excel.Swap(i + 1);
+            }
+
+            //if (p is DataNode parent)
+            //    parent.Validate();
+
+            ((DataNode)p.Nodes[i]).Validate();
+            Validate();
+
+            Updated?.Invoke();
         }
-    }
 
-    public class TableNodeMenu : ContextMenu
-    {
-        DataNode node;
-        DataTable table;
+        #endregion
 
-        MenuItem ignore;
-        MenuItem addTraits;
-        MenuItem ignoreAll;
+        #region Validation 
 
-        public TableNodeMenu(DataNode node, DataTable table) : base()
+        /// <summary>
+        /// Recursively confirm a node and its children as valid
+        /// </summary>
+        public void ForceValidate()
         {
-            this.node = node;
-            this.table = table;
+            UpdateState("Valid", true);
 
-            ignore = new MenuItem("Ignore", node.ToggleIgnore);
-            addTraits = new MenuItem("Add invalids as traits", AddTraits);
-            ignoreAll = new MenuItem("Ignore all invalids", IgnoreAll);
-
-            MenuItems.Add(ignore);
-            MenuItems.Add(addTraits);
-            MenuItems.Add(ignoreAll);
+            foreach (DataNode node in Nodes)
+                node.ForceValidate();
         }
 
-        public void AddTraits(object sender, EventArgs args)
+        /// <summary>
+        /// Recursively test a node and its children for validity
+        /// </summary>
+        public void Validate()
         {
-            foreach (DataNode n in node.Nodes)
-                if (n.State["Valid"] is false)
-                    n.AddTrait(sender, args);
+            foreach (DataNode node in Nodes)
+                node.Validate();
+
+            Validater.Validate();
         }
 
-        private void IgnoreAll(object sender, EventArgs args)
-        {
-            foreach (DataNode n in node.Nodes)
-                if (n.State["Valid"] is false)
-                    n.ToggleIgnore(null, args);
-        }
+        #endregion
     }
 
 }

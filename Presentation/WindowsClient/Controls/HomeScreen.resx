@@ -126,13 +126,6 @@
   <metadata name="groupImport.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
-  <data name="richTextBox1.Text" xml:space="preserve">
-    <value>Select one of the above options to begin the import process.
-
-The data must come from an excel document based on the template file, or the importer will not recognise it.
-
-The data must be imported in the presented order (for example, information before experiments)</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="dataLink.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
