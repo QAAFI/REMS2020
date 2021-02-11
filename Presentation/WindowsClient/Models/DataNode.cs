@@ -61,6 +61,8 @@ namespace WindowsClient.Models
 
         public void UpdateState(string state, object value)
         {
+            Text = Excel.Name;
+
             // Prevent recursively updating states
             if (Excel.State[state] == value) return;
 
@@ -93,11 +95,7 @@ namespace WindowsClient.Models
 
         #region Menu functions
 
-        private void OnPopup(object sender, EventArgs e)
-        {
-            Text = Excel.Name;
-            Excel.SetMenu(items.Cast<MenuItem>().ToArray());
-        }
+        private void OnPopup(object sender, EventArgs args) => Excel.SetMenu(items.Cast<MenuItem>().ToArray());        
 
         private void Rename(object sender, EventArgs args) => BeginEdit();
         
