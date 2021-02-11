@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Researcher : INamed
+    public class Researcher : IEntity
     {
         public Researcher()
         {

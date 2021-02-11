@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Fertilizer : INamed
+    public class Fertilizer : IEntity
     {
         public Fertilizer()
         {

@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class SoilData : ITrait
+    public class SoilData : IEntity
     {
        public int SoilDataId { get; set; }
 
