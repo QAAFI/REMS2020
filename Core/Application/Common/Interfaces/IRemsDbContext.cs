@@ -38,6 +38,8 @@ namespace Rems.Application.Common.Interfaces
 
         #region Sets
 
+        DbSet<T> GetSet<T>() where T : class;
+
         DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
         DbSet<Crop> Crops { get; set; }
@@ -112,12 +114,8 @@ namespace Rems.Application.Common.Interfaces
 
         DbSet<Unit> Units { get; set; }
 
-        #endregion
+        #endregion        
 
-        
-
-        IEnumerable<string> Names { get; }
-
-        IEnumerable<T> GetSetAsEnumerable<T>(T t) where T : class, IEntity;
+        IEnumerable<string> Names { get; }        
     }
 }

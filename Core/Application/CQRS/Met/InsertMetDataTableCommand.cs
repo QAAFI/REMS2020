@@ -56,7 +56,7 @@ namespace Rems.Application.CQRS
                         Trait = traits[i - 2],
                         Date = Convert.ToDateTime(row[1]),
                         Value = Convert.ToDouble(row[i])
-                    };
+                    };                    
 
                     _context.Attach(data);
                 }
