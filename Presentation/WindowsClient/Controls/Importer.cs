@@ -137,12 +137,11 @@ namespace WindowsClient.Controls
                     continue;
                 }
 
-                await CleanTable(table);                                
-            }
+                await CleanTable(table);
+                var node = CreateTableNode(table);
 
-            // Separate loop to avoid ordering problems from async code
-            foreach (var table in data.Tables.Cast<DataTable>().ToArray())
-                dataTree.Nodes.Add(CreateTableNode(table));
+                dataTree.Nodes.Add(node);
+            }
         }
 
         public async Task CleanTable(DataTable table)

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Rems.Application.CQRS;
-using static System.Windows.Forms.Menu;
 
 namespace WindowsClient.Models
 {
@@ -23,7 +22,7 @@ namespace WindowsClient.Models
 
         public IExcelData Excel { get; }
 
-        MenuItemCollection items => ContextMenu.MenuItems;
+        Menu.MenuItemCollection items => ContextMenu.MenuItems;
 
         public DataNode(IExcelData excel, INodeValidater validater) : base(excel.Name)
         {
