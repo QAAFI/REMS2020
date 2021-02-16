@@ -31,12 +31,12 @@ namespace Rems.Application.CQRS
 
             var d = new Dictionary<string, string>
             {
-                { "Method", sow.Method.Name },
-                { "Cultivar", sow.Cultivar },
-                { "Date", sow.Date.ToString("dd - MM - yyyy") },
-                { "Depth", sow.Depth.ToString() },
-                { "Row", sow.RowSpace.ToString() },
-                { "Pop", sow.Population.ToString() }
+                { "Method", sow?.Method.Name },
+                { "Cultivar", sow?.Cultivar },
+                { "Date", sow?.Date.ToString("dd - MM - yyyy") },
+                { "Depth", sow?.Depth.ToString() },
+                { "Row", sow?.RowSpace.ToString() },
+                { "Pop", sow?.Population.ToString() }
             };
 
             return d;
