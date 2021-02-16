@@ -11,15 +11,25 @@ namespace Rems.Persistence.Configurations
         {
             builder.HasKey(e => e.ExperimentInfoId)
                 .HasName("PrimaryKey");
+
             builder.HasIndex(e => e.ExperimentInfoId)
                 .HasName("ExperimentInfoId")
                 .IsUnique();
-            builder.Property(e => e.ExperimentInfoId).ValueGeneratedOnAdd();
 
-            builder.Property(e => e.ExperimentId).HasDefaultValueSql("0");
-            builder.Property(e => e.InfoType).HasMaxLength(1);
-            builder.Property(e => e.Value).HasMaxLength(20);
-            builder.Property(e => e.Variable).HasMaxLength(20);
+            builder.Property(e => e.ExperimentInfoId)
+                .ValueGeneratedOnAdd();
+
+            builder.Property(e => e.ExperimentId)
+                .HasDefaultValueSql("0");
+
+            builder.Property(e => e.InfoType)
+                .HasMaxLength(1);
+
+            builder.Property(e => e.Value)
+                .HasMaxLength(20);
+
+            builder.Property(e => e.Variable)
+                .HasMaxLength(20);
 
             // Define the foreign key constraints
             builder.HasOne(d => d.Experiment)
