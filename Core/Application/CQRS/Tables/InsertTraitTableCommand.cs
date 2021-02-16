@@ -40,26 +40,7 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertTraitTableCommand request)
         {
-            var columns = request.Table.Columns.Cast<DataColumn>().Where(c => !c.ColumnName.Contains("Column"));
-            var infos = new List<PropertyInfo>();
-            var traits = new List<Trait>();
-
-            foreach (DataColumn c in request.Table.Columns)
-            {
-                if (c.ColumnName.Contains("Column")) continue;
-
-                if (c.FindProperty() is PropertyInfo info)
-                {
-                    infos.Add(info);
-                }
-                else
-                {
-                    var trait = _context.Traits.FirstOrDefault(e => e.Name == c.ColumnName);
-                    if (trait is null) trait = _context.AddTrait(c.ColumnName, request.Type.Name);
-
-                    traits.Add(trait);
-                }
-            }
+            GetTraits(request, out PropertyInfo[] infos, out Trait[] traits);            
 
             var foreignInfo = request.Dependency.GetProperties().First(p => p.PropertyType == request.Type);
             var traitInfo = request.Dependency.GetProperty("TraitId");
@@ -79,7 +60,6 @@ namespace Rems.Application.CQRS
                     traitInfo.SetValue(foreign, trait.TraitId);
                     foreign.SetValue(valueInfo, value);
                     entities.Add(foreign);
-                    //_context.Attach(foreign);
                 }
 
                 _context.Attach(entity);
@@ -90,6 +70,32 @@ namespace Rems.Application.CQRS
             _context.AttachRange(entities.ToArray());
             _context.SaveChanges();
             return Unit.Value;
+        }
+
+        private void GetTraits(InsertTraitTableCommand request, out PropertyInfo[] infos, out Trait[] traits)
+        {
+            var i = new List<PropertyInfo>();
+            var t = new List<Trait>();
+
+            foreach (DataColumn c in request.Table.Columns)
+            {
+                if (c.ColumnName.Contains("Column")) continue;
+
+                if (c.FindProperty() is PropertyInfo info)
+                {
+                    i.Add(info);
+                }
+                else
+                {
+                    var trait = _context.Traits.FirstOrDefault(e => e.Name == c.ColumnName);
+                    if (trait is null) trait = _context.AddTrait(c.ColumnName, request.Type.Name);
+
+                    t.Add(trait);
+                }
+            }
+
+            infos = i.ToArray();
+            traits = t.ToArray();
         }
     }
 }

@@ -40,5 +40,22 @@ namespace Rems.Application.Common.Extensions
 
             return;
         }
+
+        /// <summary>
+        /// Test if two entities match based on the given properties
+        /// </summary>
+        public static bool Matches(this IEntity entity, IEntity other, PropertyInfo[] infos)
+        {
+            foreach (var info in infos)
+            {
+                var x = info.GetValue(other)?.ToString();
+                var y = info.GetValue(entity)?.ToString();
+
+                if (x != y)
+                    return false;
+            }
+                
+            return true;
+        }
     }
 }
