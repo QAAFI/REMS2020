@@ -42,15 +42,15 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
+            Experiment FindExperiment(string name) => _context.Experiments.Single(e => e.Name == name);
+
             // Group into experiments
             var exps = request.Table.Rows
                 .Cast<DataRow>()
-                .GroupBy(r => r.ItemArray[0]);
+                .GroupBy(r => FindExperiment(r.ItemArray[0].ToString()));
 
             foreach (var exp in exps)
-            {
-                var id = Convert.ToInt32(exp.Key);
-
+            {                
                 // Group into plots
                 var plts = exp.GroupBy(r => r.ItemArray[1]);
 
@@ -59,7 +59,7 @@ namespace Rems.Application.CQRS
                     var col = Convert.ToInt32(plt.Key);
 
                     var plot = _context.Plots
-                    .Where(p => p.Treatment.ExperimentId == id)
+                    .Where(p => p.Treatment.Experiment == exp.Key)
                     .Where(p => p.Column == col)
                     .FirstOrDefault();
 

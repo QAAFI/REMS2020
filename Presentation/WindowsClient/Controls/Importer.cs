@@ -3,10 +3,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore.Internal;
 
 using Rems.Application.Common.Extensions;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -129,6 +131,9 @@ namespace WindowsClient.Controls
         {
             dataTree.Nodes.Clear();
 
+            //await InvokeQuery(new DataSetExperimentsQuery{ Data = data });
+            data.FindExperiments();
+
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
             {   
                 if (table.TableName == "Notes" || table.Rows.Count == 0)
@@ -138,6 +143,9 @@ namespace WindowsClient.Controls
                 }
 
                 await CleanTable(table);
+
+                table.ConvertExperiments();
+
                 var node = CreateTableNode(table);
 
                 dataTree.Nodes.Add(node);
@@ -158,13 +166,15 @@ namespace WindowsClient.Controls
             var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
             if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
-            table.ExtendedProperties.Add("Type", type);
+            table.ExtendedProperties["Type"] = type;
 
-            // Remove empty columns
+            // Clean columns
             var cols = table.Columns.Cast<DataColumn>().ToArray();
             foreach (var col in cols)
                 if (col.ColumnName.Contains("Column"))
                     table.Columns.Remove(col);
+                else
+                    col.ReplaceName();
         }
 
         /// <summary>
@@ -227,12 +237,12 @@ namespace WindowsClient.Controls
             switch (table.TableName)
             {
                 case "Design":
-                    cols = new string[] { "ExperimentId", "Treatment", "Repetition", "Plot" };
+                    cols = new string[] { "Experiment", "Treatment", "Repetition", "Plot" };
                     return new CustomTableValidater(table, cols);
 
                 case "HarvestData":
                 case "PlotData":
-                    cols = new string[] { "ExperimentId", "Plot", "Date", "Sample" };
+                    cols = new string[] { "Experiment", "Plot", "Date", "Sample" };
                     return new CustomTableValidater(table, cols);
 
                 case "MetData":
@@ -240,13 +250,13 @@ namespace WindowsClient.Controls
                     return new CustomTableValidater(table, cols);
 
                 case "SoilLayerData":
-                    cols = new string[] { "ExperimentId", "Plot", "Date", "DepthFrom", "DepthTo" };
+                    cols = new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" };
                     return new CustomTableValidater(table, cols);
 
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    cols = new string[] { "ExperimentId", "Treatment" };
+                    cols = new string[] { "Experiment", "Treatment" };
                     return new CustomTableValidater(table, cols);
 
                 case "Soils":
