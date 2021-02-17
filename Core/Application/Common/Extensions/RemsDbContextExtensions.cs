@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -100,8 +101,12 @@ namespace Rems.Application.Common.Extensions
 
         internal static IEntity FindMatchingEntity(this IRemsDbContext context, Type type, object value)
         {
-            var temp = Activator.CreateInstance(type) as IEntity;
-            var set = context.GetSetAsEnumerable(temp);
+            var set = context.GetType()
+                .GetMethod("GetSet")
+                .MakeGenericMethod(type)
+                .Invoke(context, new object[0]) 
+                as IEnumerable<IEntity>;
+
             var props = type.GetProperties();
 
             foreach (var entity in set)            

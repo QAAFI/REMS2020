@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class PlotData : ITrait
+    public class PlotData : IEntity
     {
         public int PlotDataId { get; set; }
 

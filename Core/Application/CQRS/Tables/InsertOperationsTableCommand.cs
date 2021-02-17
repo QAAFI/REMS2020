@@ -46,6 +46,13 @@ namespace Rems.Application.CQRS
 
             var info = request.Type.GetProperty("TreatmentId");
 
+            void insertTreatment(DataRow row, Treatment treatment)
+            {
+                var result = row.ToEntity(_context, request.Type, infos.ToArray());
+                result.SetValue(info, treatment.TreatmentId);
+                _context.Attach(result);
+            }
+
             var entities = new List<IEntity>();
 
             foreach (DataRow row in request.Table.Rows)
@@ -57,16 +64,11 @@ namespace Rems.Application.CQRS
                 var name = row[1].ToString();
 
                 var treatments = _context.Treatments.AsNoTracking()
-                    .Where(t => t.ExperimentId == id);
 
                 if (name.ToLower() == "all")
                 {
-                    foreach (var t in treatments)
-                    {
-                        var result = row.ToEntity(_context, request.Type, infos.ToArray());
-                        result.SetValue(info, t.TreatmentId);
-                        _context.Attach(result);
-                    }
+                    foreach (var treatment in treatments)
+                        insertTreatment(row, treatment);
                 }
                 else
                 {
@@ -75,9 +77,7 @@ namespace Rems.Application.CQRS
                     // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
                     if (treatment is null) continue;
 
-                    var result = row.ToEntity(_context, request.Type, infos.ToArray());
-                    result.SetValue(info, treatment.TreatmentId);
-                    _context.Attach(result);
+                    insertTreatment(row, treatment);
                 }
 
                 request.IncrementProgress();

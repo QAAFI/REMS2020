@@ -164,14 +164,6 @@ namespace Rems.Application.Common.Extensions
             col.ExtendedProperties["Valid"] = false;
             return null;
         }
-
-        public static bool IsValid(this DataTable table)
-        {
-            return table.Columns.Cast<DataColumn>()
-                .Select(c => c.ExtendedProperties["Valid"])
-                .Cast<bool>()
-                .Aggregate((a, b) => a |= b);
-        }
     }
 
     public class DataRowItemComparer : IEqualityComparer<DataRow>

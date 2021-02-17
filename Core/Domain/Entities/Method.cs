@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class Method : INamed
+    public class Method : IEntity
     {
         public Method()
         {

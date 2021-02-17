@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Rems.Application.CQRS;
-using static System.Windows.Forms.Menu;
 
 namespace WindowsClient.Models
 {
@@ -23,7 +22,7 @@ namespace WindowsClient.Models
 
         public IExcelData Excel { get; }
 
-        MenuItemCollection items => ContextMenu.MenuItems;
+        Menu.MenuItemCollection items => ContextMenu.MenuItems;
 
         public DataNode(IExcelData excel, INodeValidater validater) : base(excel.Name)
         {
@@ -61,6 +60,8 @@ namespace WindowsClient.Models
 
         public void UpdateState(string state, object value)
         {
+            Text = Excel.Name;
+
             // Prevent recursively updating states
             if (Excel.State[state] == value) return;
 
@@ -93,11 +94,7 @@ namespace WindowsClient.Models
 
         #region Menu functions
 
-        private void OnPopup(object sender, EventArgs e)
-        {
-            Text = Excel.Name;
-            Excel.SetMenu(items.Cast<MenuItem>().ToArray());
-        }
+        private void OnPopup(object sender, EventArgs args) => Excel.SetMenu(items.Cast<MenuItem>().ToArray());        
 
         private void Rename(object sender, EventArgs args) => BeginEdit();
         

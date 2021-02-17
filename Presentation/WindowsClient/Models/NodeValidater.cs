@@ -53,6 +53,7 @@ namespace WindowsClient.Models
             if (valid)
             {
                 StateChanged?.Invoke("Valid", true);
+                StateChanged?.Invoke("Override", "");
 
                 var advice = new RichText[]
                 {

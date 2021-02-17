@@ -90,7 +90,6 @@ namespace Rems.Application.CQRS
                         }
 
                         request.IncrementProgress();
-                        //EventManager.InvokeProgressIncremented();
                     }
                 }
             }

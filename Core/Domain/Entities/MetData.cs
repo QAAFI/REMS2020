@@ -2,7 +2,7 @@
 
 namespace Rems.Domain.Entities
 {
-    public class MetData : ITrait
+    public class MetData : IEntity
     {
         public int MetStationId { get; set; }
 
