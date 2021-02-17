@@ -45,9 +45,12 @@ namespace Rems.Application.CQRS
                 var result = _context.PlotData
                     .Where(p => p.Trait == data.Trait)
                     .Where(p => p.Plot == data.Plot)
-                    .Where(p => p.Date == data.Date);                
+                    .Where(p => p.Date == data.Date);
 
-                return result.Single();
+                if (result.Any())
+                    return result.Single();
+                else
+                    return null;
             }
 
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
