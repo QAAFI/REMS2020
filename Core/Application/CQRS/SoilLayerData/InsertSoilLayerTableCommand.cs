@@ -45,12 +45,12 @@ namespace Rems.Application.CQRS
             {
                 List<Plot> plots = new List<Plot>(); 
 
-                var id = Convert.ToInt32(row[0]);
+                var name = row[0].ToString();
 
                 if (row[1].ToString() == "ALL")
                 {
                     var all = _context.Plots
-                        .Where(p => p.Treatment.ExperimentId == id);
+                        .Where(p => p.Treatment.Experiment.Name == name);
 
                     if (all.Any()) 
                         plots.AddRange(all);
@@ -59,7 +59,7 @@ namespace Rems.Application.CQRS
                 {
                     var col = Convert.ToInt32(row[1]);
                     var plot = _context.Plots
-                        .Where(p => p.Treatment.ExperimentId == id)
+                        .Where(p => p.Treatment.Experiment.Name == name)
                         .Where(p => p.Column == col)
                         .SingleOrDefault();
 

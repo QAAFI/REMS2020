@@ -50,15 +50,25 @@ namespace Rems.Application.CQRS
                 {
                     if (row[i] is DBNull || row[i] is "") continue;
 
-                    var data = new MetData()
-                    {
-                        MetStationId = station.MetStationId,
-                        Trait = traits[i - 2],
-                        Date = Convert.ToDateTime(row[1]),
-                        Value = Convert.ToDouble(row[i])
-                    };                    
+                    var trait = traits[i - 2];
+                    var date = Convert.ToDateTime(row[1]);
+                    var value = Convert.ToDouble(row[i]);
 
-                    _context.Attach(data);
+                    var data = _context.MetDatas.Find(station.MetStationId, trait.TraitId, date);
+
+                    if (data is null)
+                    {
+                        data = new MetData
+                        {
+                            MetStationId = station.MetStationId,
+                            Trait = trait,
+                            Date = date,
+                            Value = value
+                        };
+                        _context.Attach(data);
+                    }
+                    else
+                        data.Value = value;                    
                 }
 
                 request.IncrementProgress();

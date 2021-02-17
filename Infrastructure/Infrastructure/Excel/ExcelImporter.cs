@@ -30,6 +30,10 @@ namespace Rems.Infrastructure.Excel
 
                 OnTaskFinished();
             }
+            catch (InvalidOperationException e)
+            {
+                OnTaskFailed(new Exception("Import failed. Data contains duplicate measurements."));
+            }
             catch (Exception e)
             {
                 OnTaskFailed(e);

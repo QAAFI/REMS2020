@@ -40,6 +40,16 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertPlotDataTableCommand request)
         {
+            PlotData findMatch (PlotData data)
+            {
+                var result = _context.PlotData
+                    .Where(p => p.Trait == data.Trait)
+                    .Where(p => p.Plot == data.Plot)
+                    .Where(p => p.Date == data.Date);                
+
+                return result.Single();
+            }
+
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
             Experiment FindExperiment(string name) => _context.Experiments.Single(e => e.Name == name);
@@ -76,6 +86,7 @@ namespace Rems.Application.CQRS
                             if (row[i] is DBNull || row[i] is "") continue;
 
                             var trait = traits[i - 4];
+                            var value = Convert.ToDouble(row[i]);
 
                             var data = new PlotData()
                             {
@@ -83,10 +94,14 @@ namespace Rems.Application.CQRS
                                 Trait = trait,
                                 Date = date,
                                 Sample = sample,
-                                Value = Convert.ToDouble(row[i]),
+                                Value = value,
                                 UnitId = trait.UnitId
                             };
-                            _context.Attach(data);
+
+                            if (findMatch(data) is PlotData pd)
+                                pd.Value = value;
+                            else
+                                _context.Attach(data);
                         }
 
                         request.IncrementProgress();

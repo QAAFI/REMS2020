@@ -136,8 +136,9 @@ namespace WindowsClient.Controls
         private void SaveSessions()
         {
             var local = Environment.SpecialFolder.LocalApplicationData;
-
-            string file = Environment.GetFolderPath(local) + "\\REMS2020\\sessions.json";
+            var path = Environment.GetFolderPath(local);
+            Directory.CreateDirectory(path + "\\REMS2020");
+            string file = path + "\\REMS2020\\sessions.json";
 
             JsonTools.SaveJson(file, Sessions);
         }
