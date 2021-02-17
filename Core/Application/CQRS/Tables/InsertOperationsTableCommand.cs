@@ -57,13 +57,11 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in request.Table.Rows)
             {
-                // Assume that in a 'treatment' row, the first column is the experiment ID
-                // and the second column is the treatment name
+                // Assume that the second column is the treatment name
 
-                var id = Convert.ToInt32(row[0]);
                 var name = row[1].ToString();
 
-                var treatments = _context.Treatments.AsNoTracking()
+                var treatments = _context.Treatments.AsNoTracking();
 
                 if (name.ToLower() == "all")
                 {

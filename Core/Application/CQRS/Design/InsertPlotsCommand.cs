@@ -38,7 +38,7 @@ namespace Rems.Application.CQRS
             var rows = request.Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
-            var eGroup = rows.GroupBy(row => Convert.ToInt32(row[0]));
+            var eGroup = rows.GroupBy(row => row[0].ToString());
 
             var plots = new List<Plot>();
 
@@ -73,11 +73,11 @@ namespace Rems.Application.CQRS
             return Unit.Value;
         }
 
-        private Treatment CreateTreatment(int exp, string name, string[] levels)
+        private Treatment CreateTreatment(string exp, string name, string[] levels)
         {
             var treatment = new Treatment()
             {
-                ExperimentId = exp,
+                Experiment = _context.Experiments.Single(e => e.Name == exp),
                 Name = name
             };
             _context.Add(treatment);

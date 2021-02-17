@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
+using Rems.Domain.Entities;
+
+using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
@@ -34,15 +38,58 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertTableCommand request)
         {
+            // All the property infos for an entity
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Select(c => c.FindProperty())
                 .Where(i => i != null)
                 .ToArray();
 
+            // All the primary and foreign keys for an entity
+            var type = _context.Model.GetEntityTypes()
+                .First(e => e.ClrType == request.Type);
+
+            var primaries = type
+                .FindPrimaryKey()
+                .Properties
+                .Select(p => p.PropertyInfo);
+
+            var foreigns = type
+                .GetForeignKeys()
+                .SelectMany(k => k.Properties.Select(p => p.PropertyInfo));
+
+            // All the non-primary fields of an entity
+            var fields = request.Type
+                .GetProperties()
+                .Where(p => !p.PropertyType.IsGenericType)
+                .Where(p => p.PropertyType.IsValueType || p.PropertyType.IsInstanceOfType(""))
+                .Except(primaries)
+                .Except(foreigns)
+                .ToArray();
+
+            // The DbSet for the entity type
+            var set = _context.GetType()
+                .GetMethod("GetSet")
+                .MakeGenericMethod(request.Type)
+                .Invoke(_context, new object[0])
+                as IEnumerable<IEntity>;
+
+            // A check for if the context contains an entity
+            bool contains(IEntity entity)
+            {
+                foreach (var item in set)
+                    if (entity.Matches(item, fields))
+                        return true;
+
+                return false;
+            }
+
+            // Add all the rows as entities, if the data is not already in the DB
             foreach (DataRow row in request.Table.Rows)
             {
                 var entity = row.ToEntity(_context, request.Type, infos);
-                _context.Add(entity);
+                
+                if (!contains(entity))
+                    _context.Add(entity);
 
                 request.IncrementProgress();
             }            

@@ -11,6 +11,22 @@ namespace Rems.Application.Common.Extensions
 {
     public static class DataExtensions
     {
+        public static void FindExperiments(this DataSet data)
+        {
+            if (!(data.Tables["Experiments"] is DataTable table))
+                return;
+
+            var es = table.Rows
+                .Cast<DataRow>()
+                .ToDictionary
+                (
+                    r => Convert.ToInt32(r[0]),
+                    r => r[1].ToString()
+                );
+
+            data.ExtendedProperties["Experiments"] = es;
+        }
+
         public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {
             if (comparer == null) 
@@ -25,6 +41,39 @@ namespace Rems.Application.Common.Extensions
             foreach (var row in rows) table.Rows.Add(row);
         }
 
+        /// <summary>
+        /// Replace an ExperimentId column with an Experiment column,
+        /// referencing the experiments which belong to the DataSet the table is in.
+        /// </summary>
+        /// <param name="table"></param>
+        public static void ConvertExperiments(this DataTable table)
+        {
+            // There needs to be an IDs column to convert
+            if (!(table.Columns["ExperimentId"] is DataColumn ids))
+                return;
+
+            // An experiments table is handled seperately
+            if (table.TableName == "Experiments")
+            {
+                table.Columns.Remove(ids);
+                return;
+            }
+
+            if (!(table.DataSet.ExtendedProperties["Experiments"] is Dictionary<int, string> keys))
+                return;
+
+            int ord = ids.Ordinal;
+
+            var exps = new DataColumn("Experiment", typeof(string));
+            table.Columns.Add(exps);
+            exps.SetOrdinal(ord);
+
+            foreach (DataRow row in table.Rows)
+                row[exps] = keys[Convert.ToInt32(row[ids])];
+
+            table.Columns.Remove(ids);
+        }
+
         public static IEntity ToEntity(this DataRow row, IRemsDbContext context, Type type, PropertyInfo[] infos)
         {
             IEntity entity = Activator.CreateInstance(type) as IEntity;
@@ -37,7 +86,7 @@ namespace Rems.Application.Common.Extensions
                 if (value is DBNull || value is "") continue;
 
                 var itype = info.PropertyType;
-
+                                
                 // Is the property an entity?
                 if (typeof(IEntity).IsAssignableFrom(itype)) 
                 {
@@ -69,6 +118,23 @@ namespace Rems.Application.Common.Extensions
                 }
                 else
                 {
+                    if (info.Name == "Name")
+                    {
+                        var set = context.GetType()
+                            .GetMethod("GetSet")
+                            .MakeGenericMethod(type)
+                            .Invoke(context, new object[0])
+                            as IEnumerable<IEntity>;
+
+                        var found = set.FirstOrDefault(v => info.GetValue(v)?.ToString() == value.ToString());
+
+                        if (found != null)
+                        {
+                            entity = found;
+                            continue;
+                        }
+                    }
+
                     entity.SetValue(info, value);
                 }
             }
@@ -163,6 +229,26 @@ namespace Rems.Application.Common.Extensions
             // If no property was found
             col.ExtendedProperties["Valid"] = false;
             return null;
+        }
+
+        private static readonly Dictionary<string, string> map = new Dictionary<string, string>()
+        {
+            {"ExpID", "ExperimentId" },
+            {"ExpId", "ExperimentId" },
+            {"N%", "Nitrogen" },
+            {"P%", "Phosphorus" },
+            {"K%", "Potassium" },
+            {"Ca%", "Calcium" },
+            {"S%", "Sulfur" },
+            {"Other%", "OtherPercent" },
+            {"amp", "Amplitude" },
+            {"tav", "TemperatureAverage" }
+        };
+
+        public static void ReplaceName(this DataColumn col)
+        {
+            if (map.ContainsKey(col.ColumnName))
+                col.ColumnName = map[col.ColumnName];
         }
     }
 
