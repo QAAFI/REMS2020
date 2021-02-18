@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
+using System.Linq.Expressions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
+using Rems.Domain.Interfaces;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -113,6 +114,23 @@ namespace Rems.Application.Common.Extensions
                 if (entity.HasValue(value, props)) return entity;            
 
             return null;
+        }
+
+        /// <summary>
+        /// Add a measurement to the context, overwriting the value if a matching entry already exists
+        /// </summary>
+        internal static void InsertData<T>(this IRemsDbContext context, Expression<Func<T, bool>> comparer, T data, double value) 
+            where T : class, IEntity, IValue
+        {
+            var set = context.GetSet<T>();
+            var found = set
+                .Where(comparer)
+                .SingleOrDefault();
+
+            if (found != null)
+                found.Value = value;
+            else
+                set.Attach(data);
         }
     }
 }

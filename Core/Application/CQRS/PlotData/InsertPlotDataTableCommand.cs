@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,19 +41,6 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertPlotDataTableCommand request)
         {
-            PlotData findMatch(PlotData data)
-            {
-                var result = _context.PlotData
-                    .Where(p => p.TraitId == data.TraitId)
-                    .Where(p => p.PlotId == data.PlotId)
-                    .Where(p => p.Date == data.Date);
-
-                if (result.Any())
-                    return result.Single();
-                else
-                    return null;
-            }
-
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
             var rows = request.Table.Rows.Cast<DataRow>();
@@ -105,10 +93,12 @@ namespace Rems.Application.CQRS
                         UnitId = trait.UnitId
                     };
 
-                    if (findMatch(data) is PlotData pd)
-                        pd.Value = value;
-                    else
-                        _context.Attach(data);
+                    Expression<Func<PlotData, bool>> comparer = e =>
+                            e.Date == data.Date
+                            && e.TraitId == data.TraitId
+                            && e.PlotId == data.PlotId;
+
+                    _context.InsertData(comparer, data, value);
                 }
 
                 request.IncrementProgress();

@@ -20,25 +20,21 @@ namespace Rems.Application.Common.Interfaces
 
         int SaveChanges();
 
-        Task<int> SaveChangesAsync(CancellationToken token);
-
-        ChangeTracker ChangeTracker { get; }
-
         EntityEntry Add(object entity);
 
         EntityEntry Attach(object entity);
 
-        void AddRange(params object[] entities);
-
         void AttachRange(params object[] entities);
 
-        void UpdateRange(params object[] entities);
+        EntityEntry Entry(object entity);
+
+        EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
         #endregion
 
         #region Sets
 
-        DbSet<T> GetSet<T>() where T : class;
+        DbSet<T> GetSet<T>() where T : class, IEntity;
 
         DbSet<ChemicalApplication> ChemicalApplications { get; set; }
 
