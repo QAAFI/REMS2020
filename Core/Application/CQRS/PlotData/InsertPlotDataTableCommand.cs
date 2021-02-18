@@ -43,8 +43,8 @@ namespace Rems.Application.CQRS
             PlotData findMatch (PlotData data)
             {
                 var result = _context.PlotData
-                    .Where(p => p.Trait == data.Trait)
-                    .Where(p => p.Plot == data.Plot)
+                    .Where(p => p.TraitId == data.TraitId)
+                    .Where(p => p.PlotId == data.PlotId)
                     .Where(p => p.Date == data.Date);
 
                 if (result.Any())
@@ -55,61 +55,63 @@ namespace Rems.Application.CQRS
 
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
-            Experiment FindExperiment(string name) => _context.Experiments.Single(e => e.Name == name);
+            var rows = request.Table.Rows.Cast<DataRow>();
 
-            // Group into experiments
-            var exps = request.Table.Rows
-                .Cast<DataRow>()
-                .GroupBy(r => FindExperiment(r.ItemArray[0].ToString()));
+            var exps = rows.Select(r => r[0])
+                .Distinct()
+                .ToDictionary
+                (
+                    o => o,
+                    o => _context.Experiments.Single(e => e.Name == o.ToString())
+                );
 
-            foreach (var exp in exps)
-            {                
-                // Group into plots
-                var plts = exp.GroupBy(r => r.ItemArray[1]);
+            Plot findPlot(object key, int col)
+            {
+                var plot = _context.Plots
+                .Where(p => p.Treatment.ExperimentId == exps[key].ExperimentId)
+                .Where(p => p.Column == col)
+                .FirstOrDefault();
 
-                foreach (var plt in plts)
+                return plot;
+            }
+
+            var plts = rows.Select(r => new { key = r[0], col = r[1] })
+                .Distinct()
+                .ToDictionary
+                (
+                    a => a.col,
+                    a => findPlot(a.key, Convert.ToInt32(a.col))
+                );
+
+            foreach (var row in rows)
+            {
+                var date = Convert.ToDateTime(row[2]);
+                var sample = row[3].ToString();
+
+                for (int i = 4; i < row.ItemArray.Length; i++)
                 {
-                    var col = Convert.ToInt32(plt.Key);
+                    if (row[i] is DBNull || row[i] is "") continue;
 
-                    var plot = _context.Plots
-                    .Where(p => p.Treatment.Experiment == exp.Key)
-                    .Where(p => p.Column == col)
-                    .FirstOrDefault();
+                    var trait = traits[i - 4];
+                    var value = Convert.ToDouble(row[i]);
 
-                    if (plot is null) continue;
-
-                    // Add the data in each plot
-                    foreach (var row in plt)
+                    var data = new PlotData()
                     {
-                        var date = Convert.ToDateTime(row[2]);
-                        var sample = row[3].ToString();
+                        Plot = plts[row[1]],
+                        TraitId = trait.TraitId,
+                        Date = date,
+                        Sample = sample,
+                        Value = value,
+                        UnitId = trait.UnitId
+                    };
 
-                        for (int i = 4; i < row.ItemArray.Length; i++)
-                        {
-                            if (row[i] is DBNull || row[i] is "") continue;
-
-                            var trait = traits[i - 4];
-                            var value = Convert.ToDouble(row[i]);
-
-                            var data = new PlotData()
-                            {
-                                Plot = plot,
-                                Trait = trait,
-                                Date = date,
-                                Sample = sample,
-                                Value = value,
-                                UnitId = trait.UnitId
-                            };
-
-                            if (findMatch(data) is PlotData pd)
-                                pd.Value = value;
-                            else
-                                _context.Attach(data);
-                        }
-
-                        request.IncrementProgress();
-                    }
+                    if (findMatch(data) is PlotData pd)
+                        pd.Value = value;
+                    else
+                        _context.Attach(data);
                 }
+
+                request.IncrementProgress();
             }
 
             _context.SaveChanges();
