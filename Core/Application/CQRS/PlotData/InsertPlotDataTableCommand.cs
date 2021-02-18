@@ -40,7 +40,7 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertPlotDataTableCommand request)
         {
-            PlotData findMatch (PlotData data)
+            PlotData findMatch(PlotData data)
             {
                 var result = _context.PlotData
                     .Where(p => p.TraitId == data.TraitId)
@@ -75,7 +75,7 @@ namespace Rems.Application.CQRS
                 return plot;
             }
 
-            var plts = rows.Select(r => new { key = r[0], col = r[1] })
+            var plots = rows.Select(r => new { key = r[0], col = r[1] })
                 .Distinct()
                 .ToDictionary
                 (
@@ -97,7 +97,7 @@ namespace Rems.Application.CQRS
 
                     var data = new PlotData()
                     {
-                        Plot = plts[row[1]],
+                        PlotId = plots[row[1]].PlotId,
                         TraitId = trait.TraitId,
                         Date = date,
                         Sample = sample,

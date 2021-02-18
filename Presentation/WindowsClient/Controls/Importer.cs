@@ -49,6 +49,11 @@ namespace WindowsClient.Controls
             => (T)await Query(query);
 
         /// <summary>
+        /// The excel data
+        /// </summary>
+        public DataSet Data { get; set; }
+
+        /// <summary>
         /// The system folder most recently accessed by the user
         /// </summary>
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -94,10 +99,7 @@ namespace WindowsClient.Controls
 
         #region Data
 
-        /// <summary>
-        /// The excel data
-        /// </summary>
-        public DataSet Data { get; set; } 
+        
 
         /// <summary>
         /// Reads the data from the given file
