@@ -46,10 +46,23 @@ namespace Rems.Application.CQRS
             var traitInfo = request.Dependency.GetProperty("TraitId");
             var valueInfo = request.Dependency.GetProperty("Value");
 
+            // The DbSet for the entity type
+            var set = _context.GetType()
+                .GetMethod("GetSet")
+                .MakeGenericMethod(request.Type)
+                .Invoke(_context, new object[0])
+                as IQueryable<IEntity>;
+
+            // All the non-key properties of an entity
+            var props = _context.GetEntityProperties(request.Type);
+            IEntity entity = null;
+            Func<IEntity, bool> matches = other =>
+                    props.All(i => i.GetValue(entity)?.ToString() == i.GetValue(other)?.ToString());
+
             var entities = new List<IEntity>();
             foreach (DataRow r in request.Table.Rows)
             {
-                var entity = r.ToEntity(_context, request.Type, infos.ToArray());
+                entity = r.ToEntity(_context, request.Type, infos.ToArray());
 
                 foreach (var trait in traits)
                 {
@@ -62,12 +75,26 @@ namespace Rems.Application.CQRS
                     entities.Add(foreign);
                 }
 
-                _context.Attach(entity);
+                if (!set.Any() || !set.All(matches))
+                    _context.Attach(entity);
 
                 request.IncrementProgress();
             }
             _context.SaveChanges();
-            _context.AttachRange(entities.ToArray());
+
+            var fset = _context.GetType()
+                .GetMethod("GetSet")
+                .MakeGenericMethod(foreignInfo.DeclaringType)
+                .Invoke(_context, new object[0])
+                as IQueryable<IEntity>;
+
+            foreach (var e in entities)
+            {
+                entity = e;
+
+                if (!fset.Any() || !fset.All(matches))
+                    _context.Attach(entity);
+            }            
             _context.SaveChanges();
             return Unit.Value;
         }

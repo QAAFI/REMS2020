@@ -108,19 +108,20 @@ namespace Rems.Infrastructure.Excel
                     break;
 
                 case "Soils":
-                case "SoilLayer":
-                case "SoilLayers":
-                    var query = new EntityTypeQuery() 
-                    { 
-                        Name = type.Name + "Trait"
-                    };
-                    var dependency = await InvokeQuery(query);
-
-                    command = new InsertTraitTableCommand()
+                    command = new InsertSoilTableCommand
                     {
                         Table = table,
                         Type = type,
-                        Dependency = dependency,
+                        IncrementProgress = OnIncrementProgress
+                    };
+                    break;
+
+                case "SoilLayer":
+                case "SoilLayers":
+                    command = new InsertSoilLayerTraitsCommand()
+                    {
+                        Table = table,
+                        Type = type,
                         IncrementProgress = OnIncrementProgress
                     };
                     break;

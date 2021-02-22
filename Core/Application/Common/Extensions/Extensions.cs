@@ -29,5 +29,28 @@ namespace Rems.Application.Common.Extensions
             else
                 throw new Exception($"Invalid parameter type. \n Expected: {typeof(T)} \n Received: {value.GetType()}");
         }
+
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            if (source == null) throw new ArgumentNullException(source.ToString());
+            if (action == null) throw new ArgumentNullException(action.ToString());
+
+            foreach (T element in source)
+                action(element);
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
+        {
+            if (source == null) throw new ArgumentNullException(source.ToString());
+            if (action == null) throw new ArgumentNullException(action.ToString());
+
+            int index = -1;
+            
+            foreach (T element in source)
+            {
+                checked { index++; }
+                action(element, index);
+            }
+        }
     }
 }
