@@ -47,10 +47,12 @@ namespace Rems.Application.CQRS
             Func<IEntity, bool> soil_matches = other =>
                     soil_props.All(i => i.GetValue(soil)?.ToString() == i.GetValue(other)?.ToString());
 
-            var trait_props = _context.GetEntityProperties(typeof(SoilTrait));
+            //var trait_props = _context.GetEntityProperties(typeof(SoilTrait));
             IEntity trait = null;
-            Func<IEntity, bool> trait_matches = other =>
-                    trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
+            //Func<IEntity, bool> trait_matches = other =>
+            //        trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
+
+            var entities = new List<IEntity>();
 
             foreach (DataRow r in request.Table.Rows)
             {
@@ -60,15 +62,15 @@ namespace Rems.Application.CQRS
                     Notes = r[1].ToString()
                 };
 
-                if (_context.Soils.SingleOrDefault(soil_matches) is SoilLayer layer)
+                if (_context.Soils.SingleOrDefault(soil_matches) is Soil layer)
                     soil = layer;
                 else
                     _context.Attach(soil);
 
                 var soils = traits.Select((t, i) => new SoilTrait
                 {
-                    TraitId = t.TraitId,
-                    SoilId = ((Soil)soil).SoilId,
+                    Trait = t,
+                    Soil = ((Soil)soil),
                     Value = Convert.ToDouble(r[i + 2])
                 });
 
@@ -76,15 +78,20 @@ namespace Rems.Application.CQRS
                 {
                     trait = t;
 
-                    if (_context.SoilTraits.SingleOrDefault(trait_matches) is SoilLayerTrait slt)
+                    if (_context.SoilTraits.SingleOrDefault(s => s.Trait == t.Trait && s.Soil == (Soil)soil) is SoilTrait slt)
                         slt.Value = Convert.ToDouble(r[i + 2]);
                     else
-                        _context.Attach(trait);
+                        entities.Add(trait);
                 });
 
                 request.IncrementProgress();
             }
             _context.SaveChanges();
+
+            // Add the traits once the soils have been saved
+            _context.AttachRange(entities.ToArray());
+            _context.SaveChanges();
+
             return Unit.Value;
         }
     }

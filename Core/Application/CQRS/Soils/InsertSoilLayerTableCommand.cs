@@ -54,6 +54,8 @@ namespace Rems.Application.CQRS
             Func<IEntity, bool> trait_matches = other =>
                     trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
 
+            var entities = new List<IEntity>();
+
             foreach (DataRow r in request.Table.Rows)
             {
                 layer = new SoilLayer
@@ -70,24 +72,34 @@ namespace Rems.Application.CQRS
 
                 var soils = traits.Select((t, i) => new SoilLayerTrait
                 {
-                    TraitId = t.TraitId,
-                    SoilLayerId = ((SoilLayer)layer).SoilLayerId,
-                    Value = Convert.ToDouble(r[i + 3])
+                    Trait = t,
+                    SoilLayer = ((SoilLayer)layer)                    
                 });
+
+                
 
                 soils.ForEach((t, i) => 
                 {
                     trait = t;
 
-                    if (_context.SoilLayerTraits.SingleOrDefault(trait_matches) is SoilLayerTrait slt)
+                    var value = r[i + 3];
+
+                    if (value is DBNull) return;
+
+                    if (_context.SoilLayerTraits.SingleOrDefault(s => s.Trait == t.Trait && s.SoilLayer == (SoilLayer)layer) is SoilLayerTrait slt)
                         slt.Value = Convert.ToDouble(r[i + 3]);
                     else
-                        _context.Attach(trait);
-                });
+                        entities.Add(trait);
+                });                
 
                 request.IncrementProgress();
             }
             _context.SaveChanges();
+
+            // Add the traits once the soils have been saved
+            _context.AttachRange(entities.ToArray());
+            _context.SaveChanges();
+
             return Unit.Value;
         }
     }
