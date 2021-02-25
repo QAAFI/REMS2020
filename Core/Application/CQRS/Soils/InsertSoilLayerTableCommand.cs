@@ -49,24 +49,28 @@ namespace Rems.Application.CQRS
             Func<IEntity, bool> layer_matches = other =>
                     layer_props.All(i => i.GetValue(layer)?.ToString() == i.GetValue(other)?.ToString());
 
-            var trait_props = _context.GetEntityProperties(typeof(SoilLayerTrait));
+            //var trait_props = _context.GetEntityProperties(typeof(SoilLayerTrait));
             IEntity trait = null;
-            Func<IEntity, bool> trait_matches = other =>
-                    trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
+            //Func<IEntity, bool> trait_matches = other =>
+            //        trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
 
             var entities = new List<IEntity>();
 
             foreach (DataRow r in request.Table.Rows)
             {
+                var soil = _context.Soils.FirstOrDefault(s => s.SoilType == r[0].ToString());
+                int fd = Convert.ToInt32(r[1]);
+                int td = Convert.ToInt32(r[2]);
+
                 layer = new SoilLayer
                 {
-                    Soil = _context.Soils.FirstOrDefault(s => s.SoilType == r[0].ToString()),
-                    FromDepth = Convert.ToInt32(r[1]),
-                    ToDepth = Convert.ToInt32(r[2])
+                    Soil = soil,
+                    FromDepth = fd,
+                    ToDepth = td
                 };
 
-                if (_context.SoilLayers.SingleOrDefault(layer_matches) is SoilLayer soil)
-                    layer = soil;
+                if (_context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == fd && s.ToDepth == td) is SoilLayer sl)
+                    layer = sl;
                 else
                     _context.Attach(layer);
 
@@ -74,9 +78,7 @@ namespace Rems.Application.CQRS
                 {
                     Trait = t,
                     SoilLayer = ((SoilLayer)layer)                    
-                });
-
-                
+                });                
 
                 soils.ForEach((t, i) => 
                 {
