@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Rems.Domain.Interfaces;
+using System;
 
 namespace Rems.Domain.Entities
 {
-    public class PlotData : IEntity
+    public class PlotData : IEntity, IValue
     {
         public int PlotDataId { get; set; }
 
-        public int? PlotId { get; set; }
+        public int PlotId { get; set; }
 
         public int TraitId { get; set; }
 

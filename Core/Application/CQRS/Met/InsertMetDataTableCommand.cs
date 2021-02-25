@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,15 +51,24 @@ namespace Rems.Application.CQRS
                 {
                     if (row[i] is DBNull || row[i] is "") continue;
 
-                    var data = new MetData()
+                    var trait = traits[i - 2];
+                    var date = Convert.ToDateTime(row[1]);
+                    var value = Convert.ToDouble(row[i]);
+
+                    var data = new MetData
                     {
                         MetStationId = station.MetStationId,
-                        Trait = traits[i - 2],
-                        Date = Convert.ToDateTime(row[1]),
-                        Value = Convert.ToDouble(row[i])
-                    };                    
+                        Trait = trait,
+                        Date = date,
+                        Value = value
+                    };
 
-                    _context.Attach(data);
+                    Expression<Func<MetData, bool>> comparer = e =>
+                        e.Date == date
+                        && e.TraitId == trait.TraitId
+                        && e.MetStationId == station.MetStationId;
+
+                    _context.InsertData(comparer, data, value);
                 }
 
                 request.IncrementProgress();

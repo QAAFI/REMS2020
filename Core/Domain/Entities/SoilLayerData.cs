@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Rems.Domain.Interfaces;
+using System;
 
 namespace Rems.Domain.Entities
 {
-    public class SoilLayerData : IEntity
+    public class SoilLayerData : IEntity, IValue
     {
         public int SoilLayerDataId { get; set; }
 

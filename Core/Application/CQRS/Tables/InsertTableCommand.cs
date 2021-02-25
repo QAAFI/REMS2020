@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,54 +43,29 @@ namespace Rems.Application.CQRS
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Select(c => c.FindProperty())
                 .Where(i => i != null)
-                .ToArray();
-
-            // All the primary and foreign keys for an entity
-            var type = _context.Model.GetEntityTypes()
-                .First(e => e.ClrType == request.Type);
-
-            var primaries = type
-                .FindPrimaryKey()
-                .Properties
-                .Select(p => p.PropertyInfo);
-
-            var foreigns = type
-                .GetForeignKeys()
-                .SelectMany(k => k.Properties.Select(p => p.PropertyInfo));
-
-            // All the non-primary fields of an entity
-            var fields = request.Type
-                .GetProperties()
-                .Where(p => !p.PropertyType.IsGenericType)
-                .Where(p => p.PropertyType.IsValueType || p.PropertyType.IsInstanceOfType(""))
-                .Except(primaries)
-                .Except(foreigns)
-                .ToArray();
+                .ToArray();            
 
             // The DbSet for the entity type
             var set = _context.GetType()
                 .GetMethod("GetSet")
                 .MakeGenericMethod(request.Type)
                 .Invoke(_context, new object[0])
-                as IEnumerable<IEntity>;
+                as IQueryable<IEntity>;
 
-            // A check for if the context contains an entity
-            bool contains(IEntity entity)
-            {
-                foreach (var item in set)
-                    if (entity.Matches(item, fields))
-                        return true;
+            // All the non-key properties of an entity
+            var props = _context.GetEntityProperties(request.Type);
 
-                return false;
-            }
+            IEntity entity = null;
+            Func<IEntity, bool> matches = other =>
+                    props.All(i => i.GetValue(entity)?.ToString() == i.GetValue(other)?.ToString());
 
             // Add all the rows as entities, if the data is not already in the DB
             foreach (DataRow row in request.Table.Rows)
             {
-                var entity = row.ToEntity(_context, request.Type, infos);
-                
-                if (!contains(entity))
-                    _context.Add(entity);
+                entity = row.ToEntity(_context, request.Type, infos);                
+
+                if (!set.Any() || !set.All(matches))
+                    _context.Attach(entity);
 
                 request.IncrementProgress();
             }            

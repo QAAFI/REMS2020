@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,56 +43,65 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
-            Experiment FindExperiment(string name) => _context.Experiments.Single(e => e.Name == name);
+            var rows = request.Table.Rows.Cast<DataRow>();
 
-            // Group into experiments
-            var exps = request.Table.Rows
-                .Cast<DataRow>()
-                .GroupBy(r => FindExperiment(r.ItemArray[0].ToString()));
+            var exps = rows.Select(r => r[0])
+                .Distinct()
+                .ToDictionary
+                (
+                    o => o,
+                    o => _context.Experiments.Single(e => e.Name == o.ToString())
+                );
 
-            foreach (var exp in exps)
-            {                
-                // Group into plots
-                var plts = exp.GroupBy(r => r.ItemArray[1]);
+            Plot findPlot(object key, int col)
+            {
+                var plot = _context.Plots
+                .Where(p => p.Treatment.ExperimentId == exps[key].ExperimentId)
+                .Where(p => p.Column == col)
+                .FirstOrDefault();
 
-                foreach (var plt in plts)
+                return plot;
+            }
+
+            var plots = rows.Select(r => new { key = r[0], col = r[1] })
+                .Distinct()
+                .ToDictionary
+                (
+                    a => a.col,
+                    a => findPlot(a.key, Convert.ToInt32(a.col))
+                );
+
+            foreach (var row in rows)
+            {
+                var date = Convert.ToDateTime(row[2]);
+                var sample = row[3].ToString();
+
+                for (int i = 4; i < row.ItemArray.Length; i++)
                 {
-                    var col = Convert.ToInt32(plt.Key);
+                    if (row[i] is DBNull || row[i] is "") continue;
 
-                    var plot = _context.Plots
-                    .Where(p => p.Treatment.Experiment == exp.Key)
-                    .Where(p => p.Column == col)
-                    .FirstOrDefault();
+                    var trait = traits[i - 4];
+                    var value = Convert.ToDouble(row[i]);
 
-                    if (plot is null) continue;
-
-                    // Add the data in each plot
-                    foreach (var row in plt)
+                    var data = new PlotData()
                     {
-                        var date = Convert.ToDateTime(row[2]);
-                        var sample = row[3].ToString();
+                        PlotId = plots[row[1]].PlotId,
+                        TraitId = trait.TraitId,
+                        Date = date,
+                        Sample = sample,
+                        Value = value,
+                        UnitId = trait.UnitId
+                    };
 
-                        for (int i = 4; i < row.ItemArray.Length; i++)
-                        {
-                            if (row[i] is DBNull || row[i] is "") continue;
+                    Expression<Func<PlotData, bool>> comparer = e =>
+                            e.Date == data.Date
+                            && e.TraitId == data.TraitId
+                            && e.PlotId == data.PlotId;
 
-                            var trait = traits[i - 4];
-
-                            var data = new PlotData()
-                            {
-                                Plot = plot,
-                                Trait = trait,
-                                Date = date,
-                                Sample = sample,
-                                Value = Convert.ToDouble(row[i]),
-                                UnitId = trait.UnitId
-                            };
-                            _context.Attach(data);
-                        }
-
-                        request.IncrementProgress();
-                    }
+                    _context.InsertData(comparer, data, value);
                 }
+
+                request.IncrementProgress();
             }
 
             _context.SaveChanges();

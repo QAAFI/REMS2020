@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
+using System.Linq.Expressions;
+using System.Reflection;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
+using Rems.Domain.Interfaces;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -99,6 +101,32 @@ namespace Rems.Application.Common.Extensions
                 .ToArray();
         }
 
+        internal static IEnumerable<PropertyInfo> GetEntityProperties(this IRemsDbContext context, Type type)
+        {
+            // All the primary and foreign keys for an entity
+            var entity = context.Model.GetEntityTypes()
+                .First(e => e.ClrType == type);
+
+            var primaries = entity
+                .FindPrimaryKey()
+                .Properties
+                .Select(p => p.PropertyInfo);
+
+            var foreigns = entity
+                .GetForeignKeys()
+                .SelectMany(k => k.Properties.Select(p => p.PropertyInfo));
+
+            // All the non-primary fields of an entity
+            var props = type
+                .GetProperties()
+                .Where(p => !p.PropertyType.IsGenericType)
+                .Where(p => p.PropertyType.IsValueType || p.PropertyType.IsInstanceOfType(""))
+                .Except(primaries)
+                .Except(foreigns);
+
+            return props;
+        }
+
         internal static IEntity FindMatchingEntity(this IRemsDbContext context, Type type, object value)
         {
             var set = context.GetType()
@@ -110,9 +138,27 @@ namespace Rems.Application.Common.Extensions
             var props = type.GetProperties();
 
             foreach (var entity in set)            
-                if (entity.HasValue(value, props)) return entity;            
+                if (entity.HasValue(value, props)) 
+                    return entity;            
 
             return null;
+        }
+
+        /// <summary>
+        /// Add a measurement to the context, overwriting the value if a matching entry already exists
+        /// </summary>
+        internal static void InsertData<T>(this IRemsDbContext context, Expression<Func<T, bool>> comparer, T data, double value) 
+            where T : class, IEntity, IValue
+        {
+            var set = context.GetSet<T>();
+            var found = set
+                .Where(comparer)
+                .SingleOrDefault();
+
+            if (found != null)
+                found.Value = value;
+            else
+                set.Attach(data);
         }
     }
 }

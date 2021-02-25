@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,48 +42,40 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
+            SoilLayerData data;
+
             foreach (DataRow row in request.Table.Rows)
             {
-                List<Plot> plots = new List<Plot>(); 
+                var all = _context.Plots
+                        .Where(p => p.Treatment.Experiment.Name == row[0].ToString());
 
-                var id = Convert.ToInt32(row[0]);
+                if (row[1].ToString().ToLower() != "all")
+                    all = all.Where(p => p.Column == Convert.ToInt32(row[1]));
 
-                if (row[1].ToString() == "ALL")
-                {
-                    var all = _context.Plots
-                        .Where(p => p.Treatment.ExperimentId == id);
-
-                    if (all.Any()) 
-                        plots.AddRange(all);
-                }
-                else
-                {
-                    var col = Convert.ToInt32(row[1]);
-                    var plot = _context.Plots
-                        .Where(p => p.Treatment.ExperimentId == id)
-                        .Where(p => p.Column == col)
-                        .SingleOrDefault();
-
-                    if (plot is Plot)
-                        plots.Add(plot);
-                }
-
-                foreach (var plot in plots)
+                foreach (var plot in all)
                 {
                     for (int i = 5; i < row.ItemArray.Length; i++)
                     {
                         if (row[i] is DBNull || row[i] is "") continue;
 
-                        var data = new SoilLayerData()
+                        var value = Convert.ToDouble(row[i]);
+                        data = new SoilLayerData()
                         {
-                            Plot = plot,
-                            Trait = traits[i - 5],
+                            PlotId = plot.PlotId,
+                            TraitId = traits[i - 5].TraitId,
                             Date = Convert.ToDateTime(row[2]),
                             DepthFrom = Convert.ToInt32(row[3]),
                             DepthTo = Convert.ToInt32(row[4]),
-                            Value = Convert.ToDouble(row[i])
+                            Value = value
                         };
-                        _context.Attach(data);
+
+                        Expression<Func<SoilLayerData, bool>> comparer = e =>
+                            e.Date == data.Date
+                            && e.TraitId == data.TraitId
+                            && e.PlotId == data.PlotId
+                            && e.DepthFrom == data.DepthFrom;
+
+                        _context.InsertData(comparer, data, value);
                     }
                 }
                 request.IncrementProgress();

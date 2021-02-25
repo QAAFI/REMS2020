@@ -168,7 +168,7 @@ namespace Rems.Persistence
             }
         }        
 
-        public DbSet<T> GetSet<T>() where T : class => SetMap[typeof(T).Name] as DbSet<T>;
+        public DbSet<T> GetSet<T>() where T : class, IEntity => SetMap[typeof(T).Name] as DbSet<T>;
 
         private void DefineSets()
         {

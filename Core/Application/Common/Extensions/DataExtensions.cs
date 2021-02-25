@@ -242,7 +242,8 @@ namespace Rems.Application.Common.Extensions
             {"S%", "Sulfur" },
             {"Other%", "OtherPercent" },
             {"amp", "Amplitude" },
-            {"tav", "TemperatureAverage" }
+            {"tav", "TemperatureAverage" },
+            {"PlotID", "Plot" }
         };
 
         public static void ReplaceName(this DataColumn col)
