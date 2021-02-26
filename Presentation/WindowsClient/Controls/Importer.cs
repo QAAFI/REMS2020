@@ -88,18 +88,8 @@ namespace WindowsClient.Controls
             tracker.TaskBegun += RunImporter;
         }
 
-        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
-        {
-            if (e.Node is DataNode node && e.Label != null)
-            {
-                node.Excel.Name = e.Label;
-                node.Validate();
-            }
-        }
-
-        #region Data
-
         
+        #region Methods        
 
         /// <summary>
         /// Reads the data from the given file
@@ -271,26 +261,7 @@ namespace WindowsClient.Controls
             }
         }        
 
-        #endregion
-        /// <summary>
-        /// Handles the selection of a new node in the tree
-        /// </summary>
-        private void TreeAfterSelect(object sender, TreeViewEventArgs e)
-        {
-            if (e.Node is DataNode node)
-            {
-                importData.DataSource = node.Excel.Source;                
-                importData.Format();                
-
-                columnLabel.Text = node.Text;
-
-                adviceBox.Clear();
-                if (node.Advice.Any())
-                    adviceBox.AddText(node.Advice);                
-                else if (node.Parent is DataNode parent)
-                    adviceBox.AddText(parent.Advice);
-            }
-        }
+        #endregion Methods        
 
         /// <summary>
         /// Lets the user select a file to open for import
@@ -380,11 +351,45 @@ namespace WindowsClient.Controls
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
             }
-        }        
+        }
+
+        #region Event handlers
 
         /// <summary>
         /// Handles the file button click event
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) => await OpenFile();
+
+        /// <summary>
+        /// Handles the selection of a new node in the tree
+        /// </summary>
+        private void TreeAfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node is DataNode node)
+            {
+                importData.DataSource = node.Excel.Source;
+                importData.Format();
+
+                columnLabel.Text = node.Text;
+
+                adviceBox.Clear();
+                if (node.Advice.Any())
+                    adviceBox.AddText(node.Advice);
+                else if (node.Parent is DataNode parent)
+                    adviceBox.AddText(parent.Advice);
+            }
+        }
+
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.Node is DataNode node && e.Label != null)
+            {
+                node.Excel.Name = e.Label;
+                node.Validate();
+            }
+        }
+
+
+        #endregion Event handlers
     }
 }

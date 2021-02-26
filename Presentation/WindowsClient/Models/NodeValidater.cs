@@ -47,9 +47,10 @@ namespace WindowsClient.Models
         {
             var valid = table.Columns
                 .Cast<DataColumn>()
-                .Select(c => (bool)c.ExtendedProperties["Valid"])
+                .Select(c => (bool)c.ExtendedProperties["Valid"] || (bool)c.ExtendedProperties["Ignore"])
                 .Aggregate((v1, v2) => v1 &= v2);
 
+            // A table is valid if all of its columns are valid or ignored
             if (valid)
             {
                 StateChanged?.Invoke("Valid", true);
