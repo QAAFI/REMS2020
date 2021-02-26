@@ -72,6 +72,7 @@ namespace WindowsClient.Controls
                 label.Text = "";
                 pctLabel.Text = "0%";
                 task = 0;
+                progress = 0;
             }
         }
 
@@ -93,6 +94,7 @@ namespace WindowsClient.Controls
         {
             while (error.InnerException != null) error = error.InnerException;
             MessageBox.Show(error.Message, "Import failed!");
+            Reset();
         }
 
         /// <summary>

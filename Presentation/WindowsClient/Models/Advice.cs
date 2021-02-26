@@ -18,7 +18,7 @@ namespace WindowsClient.Models
 
     public class Advice
     {
-        public bool Empty => Message.Any();
+        public bool Empty => !Message.Any();
 
         private List<RichText> Message = new List<RichText>();
 

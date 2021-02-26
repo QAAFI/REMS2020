@@ -181,11 +181,6 @@ namespace WindowsClient.Controls
             // Reset the export box
             LoadExportBox();
 
-            // Clear the links
-            infoLink.Importer.Data = null;
-            expsLink.Importer.Data = null;
-            dataLink.Importer.Data = null;
-
             // Reorder the list
             Sessions.Remove(session);
             Sessions.Add(session);
