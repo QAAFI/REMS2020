@@ -180,7 +180,7 @@ namespace WindowsClient.Controls
             xt.Query += (o) => Query?.Invoke(o);
 
             var vt = CreateTableValidater(table);
-            vt.SetAdvice += a => { adviceBox.Clear(); adviceBox.AddText(a); };
+            vt.SetAdvice += a => a.AddToTextBox(adviceBox);
 
             var tnode = new DataNode(xt, vt);
             tnode.Query += (o) => Query?.Invoke(o);
@@ -207,7 +207,7 @@ namespace WindowsClient.Controls
                     validater.Query += (o) => Query?.Invoke(o);
                     vc = validater;
                 }
-                vc.SetAdvice += a => { adviceBox.Clear();  adviceBox.AddText(a); };
+                vc.SetAdvice += a => a.AddToTextBox(adviceBox);
 
                 var cnode = new DataNode(xc, vc);
                 cnode.Query += (o) => Query?.Invoke(o);
@@ -372,11 +372,10 @@ namespace WindowsClient.Controls
 
                 columnLabel.Text = node.Text;
 
-                adviceBox.Clear();
-                if (node.Advice.Any())
-                    adviceBox.AddText(node.Advice);
+                if (!node.Advice.Empty)
+                    node.Advice.AddToTextBox(adviceBox);
                 else if (node.Parent is DataNode parent)
-                    adviceBox.AddText(parent.Advice);
+                    parent.Advice.AddToTextBox(adviceBox);
             }
         }
 

@@ -282,7 +282,7 @@
     <Compile Include="Models\DataNode.cs" />
     <Compile Include="Models\ExcelData.cs" />
     <Compile Include="Models\Extensions.cs" />
-    <Compile Include="Models\RichText.cs" />
+    <Compile Include="Models\Advice.cs" />
     <Compile Include="Models\Session.cs" />
     <Compile Include="Models\NodeValidater.cs" />
     <Compile Include="Program.cs" />

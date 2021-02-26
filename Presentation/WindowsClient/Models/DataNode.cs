@@ -17,7 +17,7 @@ namespace WindowsClient.Models
         public event Func<object, Task<object>> Query;
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
-        public IEnumerable<RichText> Advice { get; set; } = new RichText[0];
+        public Advice Advice { get; set; } = new Advice();
 
         public INodeValidater Validater { get; set; }
 
@@ -122,11 +122,10 @@ namespace WindowsClient.Models
             item.Checked = (bool)Excel.State["Ignore"];
 
             if (item.Checked)
-                Advice = new RichText[]
-                {
-                    new RichText
-                    { Text = "Ignored items will not be imported.\n", Color = Color.Black }
-                };
+            {
+                Advice.Clear();
+                Advice.Include("Ignored items will not be imported.\n", Color.Black);
+            }
             else
                 Validate();
         }
