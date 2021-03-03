@@ -63,6 +63,7 @@ namespace WindowsClient.Models
             }
             else
             {
+                StateChanged?.Invoke("Valid", false);
                 StateChanged?.Invoke("Override", "Warning");
 
                 var advice = new Advice();
@@ -129,6 +130,7 @@ namespace WindowsClient.Models
                 advice.Include("\nRight-click nodes to see options.", Color.Black);
 
                 SetAdvice?.Invoke(advice);
+                StateChanged?.Invoke("Valid", false);
                 StateChanged?.Invoke("Override", "Warning");
             }
                 
