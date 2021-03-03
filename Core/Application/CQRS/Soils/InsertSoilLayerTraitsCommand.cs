@@ -85,7 +85,7 @@ namespace Rems.Application.CQRS
                     if (value is DBNull) return;
 
                     if (_context.SoilLayerTraits.SingleOrDefault(s => s.Trait == t.Trait && s.SoilLayer == (SoilLayer)layer) is SoilLayerTrait slt)
-                        slt.Value = Convert.ToDouble(r[i + 3]);
+                        slt.Value = Convert.ToDouble(value);
                     else
                         entities.Add(trait);
                 });                
