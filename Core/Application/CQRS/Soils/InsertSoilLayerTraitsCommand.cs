@@ -49,11 +49,7 @@ namespace Rems.Application.CQRS
             Func<IEntity, bool> layer_matches = other =>
                     layer_props.All(i => i.GetValue(layer)?.ToString() == i.GetValue(other)?.ToString());
 
-            //var trait_props = _context.GetEntityProperties(typeof(SoilLayerTrait));
             IEntity trait = null;
-            //Func<IEntity, bool> trait_matches = other =>
-            //        trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
-
             var entities = new List<IEntity>();
 
             foreach (DataRow r in request.Table.Rows)

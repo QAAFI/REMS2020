@@ -67,39 +67,6 @@ namespace Rems.Application.CQRS
                 }
             }
 
-            //foreach (DataRow row in request.Table.Rows)
-            //{
-            //    // Look for the station which sourced the data, create one if it isn't found
-            //    var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());
-            //    if (station is null) continue;
-
-            //    for (int i = 2; i < row.ItemArray.Length; i++)
-            //    {
-            //        if (row[i] is DBNull || row[i] is "") continue;
-
-            //        var trait = traits[i - 2];
-            //        var date = Convert.ToDateTime(row[1]);
-            //        var value = Convert.ToDouble(row[i]);
-
-            //        var data = new MetData
-            //        {
-            //            MetStationId = station.MetStationId,
-            //            Trait = trait,
-            //            Date = date,
-            //            Value = value
-            //        };
-
-            //        Expression<Func<MetData, bool>> comparer = e =>
-            //            e.Date == date
-            //            && e.TraitId == trait.TraitId
-            //            && e.MetStationId == station.MetStationId;
-
-            //        _context.InsertData(comparer, data, value);
-            //    }
-
-            //    request.IncrementProgress();
-            //}
-
             var datas = request.Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
                 .Distinct();
