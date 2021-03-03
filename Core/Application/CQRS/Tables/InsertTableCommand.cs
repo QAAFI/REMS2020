@@ -57,7 +57,7 @@ namespace Rems.Application.CQRS
 
             IEntity entity = null;
             Func<IEntity, bool> matches = other =>
-                    props.All(i => i.GetValue(entity)?.ToString() == i.GetValue(other)?.ToString());
+                    props.All(i => i.GetValue(entity)?.ToString().ToLower() == i.GetValue(other)?.ToString().ToLower());
 
             // Add all the rows as entities, if the data is not already in the DB
             foreach (DataRow row in request.Table.Rows)
