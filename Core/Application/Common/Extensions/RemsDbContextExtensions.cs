@@ -88,7 +88,7 @@ namespace Rems.Application.Common.Extensions
         {
             Trait getTrait(DataColumn c)
             {
-                var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
+                var trait = context.Traits.FirstOrDefault(t => t.Name.ToLower() == c.ColumnName.ToLower());
                 if (trait is null)
                     trait = context.AddTrait(c.ColumnName, type);
 

@@ -198,7 +198,7 @@ namespace WindowsClient.Models
                     // If it is, find the column of trait names
                     && traits.Columns["Name"] is DataColumn name
                     // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == column.ColumnName);
+                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString().ToLower() == column.ColumnName.ToLower());
         }
     }
 
