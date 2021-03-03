@@ -13,7 +13,7 @@ namespace WindowsClient.Models
     {
         event Action<string, object> StateChanged;
 
-        event Action<IEnumerable<RichText>> SetAdvice;
+        event Action<Advice> SetAdvice;
 
         void Validate();
     }
@@ -21,7 +21,7 @@ namespace WindowsClient.Models
     public class NullValidater : INodeValidater
     {
         public event Action<string, object> StateChanged;
-        public event Action<IEnumerable<RichText>> SetAdvice;
+        public event Action<Advice> SetAdvice;
 
         public void Validate()
         {
@@ -34,7 +34,7 @@ namespace WindowsClient.Models
     public class TableValidater : INodeValidater
     {
         public event Action<string, object> StateChanged;
-        public event Action<IEnumerable<RichText>> SetAdvice;
+        public event Action<Advice> SetAdvice;
 
         readonly DataTable table;
 
@@ -47,37 +47,27 @@ namespace WindowsClient.Models
         {
             var valid = table.Columns
                 .Cast<DataColumn>()
-                .Select(c => (bool)c.ExtendedProperties["Valid"])
+                .Select(c => (bool)c.ExtendedProperties["Valid"] || (bool)c.ExtendedProperties["Ignore"])
                 .Aggregate((v1, v2) => v1 &= v2);
 
+            // A table is valid if all of its columns are valid or ignored
             if (valid)
             {
                 StateChanged?.Invoke("Valid", true);
                 StateChanged?.Invoke("Override", "");
 
-                var advice = new RichText[]
-                {
-                    new RichText
-                    { 
-                        Text = "This table is valid. Check the other tables prior to import.", 
-                        Color = Color.Black
-                    }
-                };
+                var advice = new Advice();
+                advice.Include("This table is valid. Check the other tables prior to import.", Color.Black);
+
                 SetAdvice?.Invoke(advice);
             }
             else
             {
                 StateChanged?.Invoke("Override", "Warning");
 
-                var advice = new RichText[]
-                {
-                    new RichText
-                    {
-                        Text = "This table contains columns that REMS does not recognise. "
-                            + "Please fix the columns before importing",
-                        Color = Color.Black
-                    }
-                };
+                var advice = new Advice();
+                advice.Include("This table contains columns that REMS does not recognise." +
+                    " Please fix the columns before importing", Color.Black);
                 SetAdvice?.Invoke(advice);
             }
         }
@@ -85,7 +75,7 @@ namespace WindowsClient.Models
 
     public class CustomTableValidater : INodeValidater
     {
-        public event Action<IEnumerable<RichText>> SetAdvice;
+        public event Action<Advice> SetAdvice;
 
         public event Action<string, object> StateChanged;
 
@@ -111,24 +101,15 @@ namespace WindowsClient.Models
                 StateChanged?.Invoke("Valid", true);
                 StateChanged?.Invoke("Override", "");
 
-                var advice = new RichText[]
-                {
-                    new RichText
-                    {
-                        Text = "Ready for import.",
-                        Color = Color.Black
-                    }
-                };
+                var advice = new Advice();
+                advice.Include("Ready for import.", Color.Black);
                 SetAdvice?.Invoke(advice);
             }
             else
             {
-                var advice = new List<RichText>
-                {
-                    new RichText
-                    { Text = "Mismatch in expected node order. \n\n" +
-                    $"{"EXPECTED:", -20}{"DETECTED:", -20}\n", Color = Color.Black }
-                };
+                var advice = new Advice();
+                advice.Include("Mismatch in expected node order. \n\n" +
+                    $"{"EXPECTED:", -20}{"DETECTED:", -20}\n",  Color.Black);
 
                 for (int i = 0; i < columns.Length; i++)
                 {
@@ -142,18 +123,10 @@ namespace WindowsClient.Models
                     else
                         color = Color.MediumVioletRed;
 
-                    advice.Add(new RichText
-                    {
-                        Text = $"{columns[i],-20}{name,-20}\n",
-                        Color = color
-                    });
+                    advice.Include($"{columns[i],-20}{name,-20}\n", color);
                 }
 
-                advice.Add(new RichText
-                {
-                    Text = "\nRight-click nodes to see options.",
-                    Color = Color.Black
-                });
+                advice.Include("\nRight-click nodes to see options.", Color.Black);
 
                 SetAdvice?.Invoke(advice);
                 StateChanged?.Invoke("Override", "Warning");
@@ -172,7 +145,7 @@ namespace WindowsClient.Models
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         public event Action<string, object> StateChanged;
-        public event Action<IEnumerable<RichText>> SetAdvice;
+        public event Action<Advice> SetAdvice;
 
         readonly DataColumn column;
 
@@ -188,27 +161,16 @@ namespace WindowsClient.Models
             {
                 StateChanged?.Invoke("Valid", false);
 
-                var advice = new RichText[]
-                {
-                    new RichText
-                    { Text = "The type of column could not be determined. ", Color = Color.Black },
-                    new RichText
-                    { Text = "Right click to view options. \n\n", Color = Color.Black },
-                    new RichText
-                    { Text = "Ignore\n", Color = Color.Blue },
-                    new RichText
-                    { Text = "    - The column is not imported\n\n", Color = Color.Black },
-                    new RichText
-                    { Text = "Add trait\n", Color = Color.Blue },
-                    new RichText
-                    { Text = "    - Add a trait named for the column\n", Color = Color.Black },
-                    new RichText
-                    { Text = "    - Only valid traits are imported\n\n", Color = Color.Black },
-                    new RichText
-                    { Text = "Set property\n", Color = Color.Blue },
-                    new RichText
-                    { Text = "    - Match the column to a REMS property\n", Color = Color.Black }
-                };
+                var advice = new Advice();
+                advice.Include("The type of column could not be determined. ", Color.Black);
+                advice.Include("Right click to view options. \n\n", Color.Black);
+                advice.Include("Ignore\n", Color.Blue);
+                advice.Include("    - The column is not imported\n\n", Color.Black);
+                advice.Include("Add trait\n", Color.Blue);
+                advice.Include("    - Add a trait named for the column\n", Color.Black );
+                advice.Include("    - Only valid traits are imported\n\n", Color.Black );
+                advice.Include("Set property\n", Color.Blue);
+                advice.Include("    - Match the column to a REMS property\n", Color.Black );
 
                 SetAdvice?.Invoke(advice);
             }
@@ -217,11 +179,8 @@ namespace WindowsClient.Models
                 StateChanged?.Invoke("Valid", true);
                 StateChanged?.Invoke("Override", "");
 
-                var advice = new RichText[]
-                {
-                    new RichText
-                    { Text = "Ready to be imported.\n", Color = Color.Black }
-                };
+                var advice = new Advice();
+                advice.Include("Ready to be imported.\n", Color.Black);
 
                 SetAdvice?.Invoke(advice);
             }
@@ -244,7 +203,7 @@ namespace WindowsClient.Models
     public class OrdinalValidater : INodeValidater
     {
         public event Action<string, object> StateChanged;
-        public event Action<IEnumerable<RichText>> SetAdvice;
+        public event Action<Advice> SetAdvice;
 
         readonly DataColumn col;
         readonly int ordinal;

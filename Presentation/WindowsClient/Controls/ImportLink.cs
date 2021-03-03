@@ -63,7 +63,7 @@ namespace WindowsClient.Controls
         public string Label
         {
             get => label.Text;
-            set => UpdateLabel(value);
+            set => label.Text = value;
         }
 
         /// <summary>
@@ -83,12 +83,12 @@ namespace WindowsClient.Controls
         /// <summary>
         /// The tab page created by the link
         /// </summary>
-        public TabPage Tab { get; } = new TabPage();
+        public TabPage Tab { get; private set; }
 
         /// <summary>
         /// The importer used by the tab
         /// </summary>
-        public Importer Importer { get; } = new Importer();
+        public Importer Importer { get; private set; }
 
         public ImportLink()
         {
@@ -100,12 +100,7 @@ namespace WindowsClient.Controls
             Images.Images.Add("Missing", Properties.Resources.InvalidOn);
             Images.Images.Add("Validation", Properties.Resources.WarningOn);
 
-            SetStage(Stage.Missing);
-
-            Tab.Controls.Add(Importer);
-            Importer.StageChanged += SetStage;
-            Importer.FileChanged += SetFile;
-            Importer.FileImported += OnImportFinished;
+            SetStage(Stage.Missing);                       
 
             label.Click += OnClick;
             label.MouseEnter += LabelMouseEnter;
@@ -115,7 +110,11 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Invokes the ImportComplete event
         /// </summary>
-        private void OnImportFinished() => ImportComplete?.Invoke(this);
+        private void OnImportFinished()
+        {
+            Tab.Dispose();
+            ImportComplete?.Invoke(this);
+        }
 
         /// <summary>
         /// Invokes the Clicked
@@ -124,8 +123,20 @@ namespace WindowsClient.Controls
         /// <param name="e"></param>
         private void OnClick(object sender, EventArgs e)
         {
-            if (active)
-                Clicked?.Invoke(this, EventArgs.Empty);
+            if (!active)
+                return;
+
+            Tab = new TabPage();
+
+            Importer = new Importer();
+            Importer.StageChanged += SetStage;
+            Importer.FileChanged += SetFile;
+            Importer.FileImported += OnImportFinished;
+
+            Tab.Controls.Add(Importer);
+            Tab.Text = "Import " + label.Text;
+
+            Clicked?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -172,15 +183,5 @@ namespace WindowsClient.Controls
         /// Sets the file to import
         /// </summary>
         private void SetFile(string text) => File = Path.GetFileName(text);
-
-        /// <summary>
-        /// Changes the label text
-        /// </summary>
-        private void UpdateLabel(string text)
-        {
-            label.Text = text;
-            Tab.Text = "Import " + text;
-        }
-
     }
 }

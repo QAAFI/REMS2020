@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,7 +17,7 @@ namespace WindowsClient.Models
         public event Func<object, Task<object>> Query;
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
-        public IEnumerable<RichText> Advice { get; set; } = new RichText[0];
+        public Advice Advice { get; set; } = new Advice();
 
         public INodeValidater Validater { get; set; }
 
@@ -85,7 +86,6 @@ namespace WindowsClient.Models
             SelectedImageKey = key;
 
             // Update the node parent
-            //CheckState(Parent as DataNode);
             if (Parent is DataNode parent) 
                 parent.Validater.Validate();
         }
@@ -115,9 +115,19 @@ namespace WindowsClient.Models
         public void ToggleIgnore(object sender, EventArgs args)
         {            
             UpdateState("Ignore", !(bool)Excel.State["Ignore"]);
-            
-            if (sender is MenuItem item)
-                item.Checked = (bool)Excel.State["Ignore"];
+
+            if (!(sender is MenuItem item))
+                return;
+
+            item.Checked = (bool)Excel.State["Ignore"];
+
+            if (item.Checked)
+            {
+                Advice.Clear();
+                Advice.Include("Ignored items will not be imported.\n", Color.Black);
+            }
+            else
+                Validate();
         }
 
         public async void AddTrait(object sender, EventArgs args)

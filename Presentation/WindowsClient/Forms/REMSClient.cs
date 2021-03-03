@@ -124,9 +124,7 @@ namespace WindowsClient
 
             if (! await link.Importer.OpenFile())
                 notebook.TabPages.Remove(link.Tab);
-        }
-
-         
+        }         
 
         private void OnImportCompleted(ImportLink link)
         {

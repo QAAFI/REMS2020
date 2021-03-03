@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -41,11 +42,12 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
-            foreach (DataRow row in request.Table.Rows)
+            IEnumerable<MetData> convertRow(DataRow row)
             {
                 // Look for the station which sourced the data, create one if it isn't found
                 var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());
-                if (station is null) continue;
+
+                request.IncrementProgress();
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
@@ -55,28 +57,77 @@ namespace Rems.Application.CQRS
                     var date = Convert.ToDateTime(row[1]);
                     var value = Convert.ToDouble(row[i]);
 
-                    var data = new MetData
+                    yield return new MetData
                     {
-                        MetStationId = station.MetStationId,
+                        MetStationId = station?.MetStationId ?? 0,
                         Trait = trait,
                         Date = date,
                         Value = value
                     };
-
-                    Expression<Func<MetData, bool>> comparer = e =>
-                        e.Date == date
-                        && e.TraitId == trait.TraitId
-                        && e.MetStationId == station.MetStationId;
-
-                    _context.InsertData(comparer, data, value);
                 }
-
-                request.IncrementProgress();
             }
+
+            //foreach (DataRow row in request.Table.Rows)
+            //{
+            //    // Look for the station which sourced the data, create one if it isn't found
+            //    var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());
+            //    if (station is null) continue;
+
+            //    for (int i = 2; i < row.ItemArray.Length; i++)
+            //    {
+            //        if (row[i] is DBNull || row[i] is "") continue;
+
+            //        var trait = traits[i - 2];
+            //        var date = Convert.ToDateTime(row[1]);
+            //        var value = Convert.ToDouble(row[i]);
+
+            //        var data = new MetData
+            //        {
+            //            MetStationId = station.MetStationId,
+            //            Trait = trait,
+            //            Date = date,
+            //            Value = value
+            //        };
+
+            //        Expression<Func<MetData, bool>> comparer = e =>
+            //            e.Date == date
+            //            && e.TraitId == trait.TraitId
+            //            && e.MetStationId == station.MetStationId;
+
+            //        _context.InsertData(comparer, data, value);
+            //    }
+
+            //    request.IncrementProgress();
+            //}
+
+            var datas = request.Table.Rows.Cast<DataRow>()
+                .SelectMany(r => convertRow(r))
+                .Distinct();
+
+            if (_context.MetDatas.Any())
+                datas = datas.Except(_context.MetDatas);
+
+            _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
 
             return Unit.Value;
         }
+    }
 
+    internal class MetDataComparer : IEqualityComparer<MetData>
+    {
+        public bool Equals(MetData x, MetData y)
+        {
+            return x.Date == y.Date
+                && x.TraitId == y.TraitId
+                && x.MetStationId == y.MetStationId;
+        }
+
+        public int GetHashCode(MetData obj)
+        {
+            var a = obj.Date.GetHashCode();
+
+            return a ^ obj.TraitId ^ obj.MetStationId;
+        }
     }
 }

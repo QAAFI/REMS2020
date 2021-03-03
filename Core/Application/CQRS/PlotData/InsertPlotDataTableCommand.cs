@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
@@ -49,11 +50,11 @@ namespace Rems.Application.CQRS
                 .Distinct()
                 .ToDictionary
                 (
-                    o => o,
+                    o => o.ToString(),
                     o => _context.Experiments.Single(e => e.Name == o.ToString())
                 );
 
-            Plot findPlot(object key, int col)
+            Plot findPlot(string key, int col)
             {
                 var plot = _context.Plots
                 .Where(p => p.Treatment.ExperimentId == exps[key].ExperimentId)
@@ -63,18 +64,20 @@ namespace Rems.Application.CQRS
                 return plot;
             }
 
-            var plots = rows.Select(r => new { key = r[0], col = r[1] })
+            var plots = rows.Select(r => new { key = r[0].ToString(), col = r[1] })
                 .Distinct()
                 .ToDictionary
                 (
-                    a => a.col,
+                    a => a,
                     a => findPlot(a.key, Convert.ToInt32(a.col))
                 );
 
-            foreach (var row in rows)
+            IEnumerable<PlotData> convertRow(DataRow row)
             {
                 var date = Convert.ToDateTime(row[2]);
                 var sample = row[3].ToString();
+
+                request.IncrementProgress();
 
                 for (int i = 4; i < row.ItemArray.Length; i++)
                 {
@@ -83,29 +86,47 @@ namespace Rems.Application.CQRS
                     var trait = traits[i - 4];
                     var value = Convert.ToDouble(row[i]);
 
-                    var data = new PlotData()
+                    var x = new { key = row[0].ToString(), col = row[1] };
+
+                    yield return new PlotData()
                     {
-                        PlotId = plots[row[1]].PlotId,
+                        PlotId = plots[x].PlotId,
                         TraitId = trait.TraitId,
                         Date = date,
                         Sample = sample,
                         Value = value,
                         UnitId = trait.UnitId
                     };
-
-                    Expression<Func<PlotData, bool>> comparer = e =>
-                            e.Date == data.Date
-                            && e.TraitId == data.TraitId
-                            && e.PlotId == data.PlotId;
-
-                    _context.InsertData(comparer, data, value);
                 }
-
-                request.IncrementProgress();
             }
 
+            var datas = rows.SelectMany(r => convertRow(r))
+                .Distinct();                
+            
+            if (_context.PlotData.Any())
+                datas = datas.Except(_context.PlotData, new PlotDataComparer());
+
+            _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
+
             return Unit.Value;
+        }
+    }
+
+    internal class PlotDataComparer : IEqualityComparer<PlotData>
+    {
+        public bool Equals(PlotData x, PlotData y)
+        {
+            return x.Date == y.Date
+                && x.TraitId == y.TraitId
+                && x.PlotId == y.PlotId;
+        }
+
+        public int GetHashCode(PlotData obj)
+        {
+            var a = obj.Date.GetHashCode();
+
+            return a ^ obj.TraitId ^ obj.PlotId;
         }
     }
 }
