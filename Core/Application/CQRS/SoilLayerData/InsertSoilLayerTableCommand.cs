@@ -42,8 +42,6 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
 
-            SoilLayerData data;
-
             IEnumerable<SoilLayerData> convertRow(DataRow row)
             {
                 var all = _context.Plots
@@ -79,7 +77,7 @@ namespace Rems.Application.CQRS
                 .Distinct();
 
             if (_context.SoilLayerDatas.Any())
-                datas = datas.Except(_context.SoilLayerDatas);
+                datas = datas.Except(_context.SoilLayerDatas, new SoilLayerComparer());
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();

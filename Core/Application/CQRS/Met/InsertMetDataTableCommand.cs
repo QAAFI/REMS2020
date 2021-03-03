@@ -72,7 +72,7 @@ namespace Rems.Application.CQRS
                 .Distinct();
 
             if (_context.MetDatas.Any())
-                datas = datas.Except(_context.MetDatas);
+                datas = datas.Except(_context.MetDatas, new MetDataComparer());
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
