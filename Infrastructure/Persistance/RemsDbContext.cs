@@ -1,15 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Extensions;
 using Rems.Domain.Entities;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Reflection;
 
 namespace Rems.Persistence
 {
-    public class EntitySet : Attribute
+    internal class EntitySet : Attribute
     { }
 
     public class RemsDbContext: DbContext, IRemsDbContext

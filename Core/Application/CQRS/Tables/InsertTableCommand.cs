@@ -47,7 +47,7 @@ namespace Rems.Application.CQRS
 
             // The DbSet for the entity type
             var set = _context.GetType()
-                .GetMethod("GetSet")
+                .GetMethod(nameof(_context.GetSet))
                 .MakeGenericMethod(request.Type)
                 .Invoke(_context, new object[0])
                 as IQueryable<IEntity>;

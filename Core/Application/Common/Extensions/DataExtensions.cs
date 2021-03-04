@@ -78,6 +78,10 @@ namespace Rems.Application.Common.Extensions
         {
             IEntity entity = Activator.CreateInstance(type) as IEntity;
 
+            var getset = context.GetType()
+                            .GetMethod(nameof(context.GetSet))
+                            .MakeGenericMethod(type);
+
             foreach (var info in infos)
             {
                 var value = row[info.Name];
@@ -99,17 +103,12 @@ namespace Rems.Application.Common.Extensions
 
                     // If the entity was not found create a new entity using the given value
                     IEntity other = Activator.CreateInstance(itype) as IEntity;
-                    var name = other.GetType().GetProperty("Name");
+                    var name = itype.GetProperty("Name");
                     
-                    if (name is null)
-                    {
-                        var soil = other.GetType().GetProperty("SoilType");
-                        soil?.SetValue(other, value);
-                    }
+                    if (name is null)                    
+                        itype.GetProperty("SoilType")?.SetValue(other, value);                    
                     else
-                    {
-                        name.SetValue(other, value);
-                    }
+                        name?.SetValue(other, value);
 
                     info.SetValue(entity, other);
 
@@ -120,11 +119,7 @@ namespace Rems.Application.Common.Extensions
                 {
                     if (info.Name == "Name")
                     {
-                        var set = context.GetType()
-                            .GetMethod("GetSet")
-                            .MakeGenericMethod(type)
-                            .Invoke(context, new object[0])
-                            as IEnumerable<IEntity>;
+                        var set = getset.Invoke(context, new object[0]) as IEnumerable<IEntity>;
 
                         var found = set.FirstOrDefault(v => info.GetValue(v)?.ToString() == value.ToString());
 
@@ -135,7 +130,10 @@ namespace Rems.Application.Common.Extensions
                         }
                     }
 
-                    entity.SetValue(info, value);
+                    if (Nullable.GetUnderlyingType(itype) is Type nullable)
+                        entity.SetValue(info, Convert.ChangeType(value, nullable));
+                    else
+                        entity.SetValue(info, Convert.ChangeType(value, itype));
                 }
             }
 
