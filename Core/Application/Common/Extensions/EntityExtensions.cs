@@ -12,7 +12,7 @@ namespace Rems.Application.Common.Extensions
         public static bool HasValue(this IEntity entity, object value, PropertyInfo[] infos)
         {
             foreach (var info in infos)
-                if (info.GetValue(entity)?.ToString() == value.ToString()) 
+                if (info.GetValue(entity)?.ToString().ToLower() == value.ToString().ToLower()) 
                     return true;
             return false;
         }

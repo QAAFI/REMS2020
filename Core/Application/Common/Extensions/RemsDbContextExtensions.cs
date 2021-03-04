@@ -88,7 +88,7 @@ namespace Rems.Application.Common.Extensions
         {
             Trait getTrait(DataColumn c)
             {
-                var trait = context.Traits.FirstOrDefault(t => t.Name == c.ColumnName);
+                var trait = context.Traits.FirstOrDefault(t => t.Name.ToLower() == c.ColumnName.ToLower());
                 if (trait is null)
                     trait = context.AddTrait(c.ColumnName, type);
 
@@ -101,7 +101,7 @@ namespace Rems.Application.Common.Extensions
                 .ToArray();
         }
 
-        internal static IEnumerable<PropertyInfo> GetEntityProperties(this IRemsDbContext context, Type type)
+        public static IEnumerable<PropertyInfo> GetEntityProperties(this IRemsDbContext context, Type type)
         {
             // All the primary and foreign keys for an entity
             var entity = context.Model.GetEntityTypes()
@@ -127,7 +127,7 @@ namespace Rems.Application.Common.Extensions
             return props;
         }
 
-        internal static IEntity FindMatchingEntity(this IRemsDbContext context, Type type, object value)
+        public static IEntity FindMatchingEntity(this IRemsDbContext context, Type type, object value)
         {
             var set = context.GetType()
                 .GetMethod("GetSet")
@@ -147,7 +147,7 @@ namespace Rems.Application.Common.Extensions
         /// <summary>
         /// Add a measurement to the context, overwriting the value if a matching entry already exists
         /// </summary>
-        internal static void InsertData<T>(this IRemsDbContext context, Expression<Func<T, bool>> comparer, T data, double value) 
+        public static void InsertData<T>(this IRemsDbContext context, Expression<Func<T, bool>> comparer, T data, double value) 
             where T : class, IEntity, IValue
         {
             var set = context.GetSet<T>();

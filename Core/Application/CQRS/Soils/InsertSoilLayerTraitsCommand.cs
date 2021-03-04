@@ -49,11 +49,7 @@ namespace Rems.Application.CQRS
             Func<IEntity, bool> layer_matches = other =>
                     layer_props.All(i => i.GetValue(layer)?.ToString() == i.GetValue(other)?.ToString());
 
-            //var trait_props = _context.GetEntityProperties(typeof(SoilLayerTrait));
             IEntity trait = null;
-            //Func<IEntity, bool> trait_matches = other =>
-            //        trait_props.All(i => i.GetValue(trait)?.ToString() == i.GetValue(other)?.ToString());
-
             var entities = new List<IEntity>();
 
             foreach (DataRow r in request.Table.Rows)
@@ -89,7 +85,7 @@ namespace Rems.Application.CQRS
                     if (value is DBNull) return;
 
                     if (_context.SoilLayerTraits.SingleOrDefault(s => s.Trait == t.Trait && s.SoilLayer == (SoilLayer)layer) is SoilLayerTrait slt)
-                        slt.Value = Convert.ToDouble(r[i + 3]);
+                        slt.Value = Convert.ToDouble(value);
                     else
                         entities.Add(trait);
                 });                

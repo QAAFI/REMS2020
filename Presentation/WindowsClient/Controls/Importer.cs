@@ -87,7 +87,6 @@ namespace WindowsClient.Controls
 
             tracker.TaskBegun += RunImporter;
         }
-
         
         #region Methods        
 
@@ -123,7 +122,6 @@ namespace WindowsClient.Controls
         {
             dataTree.Nodes.Clear();
 
-            //await InvokeQuery(new DataSetExperimentsQuery{ Data = data });
             data.FindExperiments();
 
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
@@ -155,10 +153,9 @@ namespace WindowsClient.Controls
             // Remove any duplicate rows from the table
             table.RemoveDuplicateRows();
 
-            var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
-            if (type == null) throw new Exception("Cannot import unrecognised table: " + table.TableName);
+            var entityType = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
 
-            table.ExtendedProperties["Type"] = type;
+            table.ExtendedProperties["Type"] = type ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
             // Clean columns
             var cols = table.Columns.Cast<DataColumn>().ToArray();
@@ -326,7 +323,7 @@ namespace WindowsClient.Controls
 
                 if (states.Any())
                 {
-                    MessageBox.Show("There errors in the data preventing import.");
+                    MessageBox.Show("All nodes must be valid or ignored before attempting to import");
                     return;
                 }
 

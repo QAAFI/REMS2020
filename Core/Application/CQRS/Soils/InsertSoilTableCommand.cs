@@ -78,8 +78,12 @@ namespace Rems.Application.CQRS
                 {
                     trait = t;
 
+                    var value = r[i + 2];
+
+                    if (value is DBNull) return;
+
                     if (_context.SoilTraits.SingleOrDefault(s => s.Trait == t.Trait && s.Soil == (Soil)soil) is SoilTrait slt)
-                        slt.Value = Convert.ToDouble(r[i + 2]);
+                        slt.Value = Convert.ToDouble(value);
                     else
                         entities.Add(trait);
                 });

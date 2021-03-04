@@ -63,6 +63,7 @@ namespace WindowsClient.Models
             }
             else
             {
+                StateChanged?.Invoke("Valid", false);
                 StateChanged?.Invoke("Override", "Warning");
 
                 var advice = new Advice();
@@ -129,6 +130,7 @@ namespace WindowsClient.Models
                 advice.Include("\nRight-click nodes to see options.", Color.Black);
 
                 SetAdvice?.Invoke(advice);
+                StateChanged?.Invoke("Valid", false);
                 StateChanged?.Invoke("Override", "Warning");
             }
                 
@@ -196,7 +198,7 @@ namespace WindowsClient.Models
                     // If it is, find the column of trait names
                     && traits.Columns["Name"] is DataColumn name
                     // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString() == column.ColumnName);
+                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString().ToLower() == column.ColumnName.ToLower());
         }
     }
 
