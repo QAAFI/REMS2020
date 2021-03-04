@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -18,12 +19,21 @@ namespace Rems.Application.CQRS
 {
     public class InsertSoilLayerTableCommand : IRequest
     {
+        /// <summary>
+        /// A table of soil layer data.
+        /// </summary>
+        /// <remarks>
+        /// The data within must map onto <see cref="SoilLayerData"/> entities.
+        /// </remarks>
         public DataTable Table { get; set; }
 
         public int Skip { get; set; }
 
         public string Type { get; set; }
 
+        /// <summary>
+        /// Alert the request sender that progress has been made on the command
+        /// </summary>
         public Action IncrementProgress { get; set; }
     }
 
@@ -44,16 +54,20 @@ namespace Rems.Application.CQRS
 
             IEnumerable<SoilLayerData> convertRow(DataRow row)
             {
-                var all = _context.Plots
+                // Find all plots in the treatment
+                var plots = _context.Plots
                         .Where(p => p.Treatment.Experiment.Name == row[0].ToString());
 
+                var cols = row[1].ToString().Split(',').Select(i => Convert.ToInt32(i));
+                // If the treatment does not specify 'all' plots, filter based on the column
                 if (row[1].ToString().ToLower() != "all")
-                    all = all.Where(p => p.Column == Convert.ToInt32(row[1]));
+                    plots = plots.Where(p => cols.Contains(p.Column.GetValueOrDefault()));
 
                 request.IncrementProgress();
 
-                foreach (var plot in all)
+                foreach (var plot in plots)
                 {
+                    // Convert all values from the 6th column onwards into SoilLayerData entities
                     for (int i = 5; i < row.ItemArray.Length; i++)
                     {
                         if (row[i] is DBNull || row[i] is "") continue;
@@ -74,10 +88,11 @@ namespace Rems.Application.CQRS
 
             var datas = request.Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
-                .Distinct();
+                .Distinct()
+                .ToArray();
 
             if (_context.SoilLayerDatas.Any())
-                datas = datas.Except(_context.SoilLayerDatas, new SoilLayerComparer());
+                datas = datas.Except(_context.SoilLayerDatas, new SoilLayerComparer()).ToArray();
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
