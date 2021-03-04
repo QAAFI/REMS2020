@@ -60,7 +60,7 @@ namespace Rems.Application.CQRS
                     yield return new MetData
                     {
                         MetStationId = station?.MetStationId ?? 0,
-                        Trait = trait,
+                        TraitId = trait.TraitId,
                         Date = date,
                         Value = value
                     };
