@@ -153,7 +153,7 @@ namespace WindowsClient.Controls
             // Remove any duplicate rows from the table
             table.RemoveDuplicateRows();
 
-            var type = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
+            var entityType = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
 
             table.ExtendedProperties["Type"] = type ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
