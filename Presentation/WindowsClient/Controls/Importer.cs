@@ -104,9 +104,9 @@ namespace WindowsClient.Controls
             {
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-                    return reader.AsDataSet(new ExcelDataSetConfiguration()
+                    return reader.AsDataSet(new ExcelDataSetConfiguration
                     {
-                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration
                         {
                             UseHeaderRow = true
                         }
@@ -126,6 +126,7 @@ namespace WindowsClient.Controls
 
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
             {   
+                // Don't import notes or empty tables
                 if (table.TableName == "Notes" || table.Rows.Count == 0)
                 {
                     data.Tables.Remove(table);
@@ -144,18 +145,15 @@ namespace WindowsClient.Controls
 
         public async Task CleanTable(DataTable table)
         {
-            // TODO: This is a quick workaround, find better way to handle factors/levels table
+            // TODO: This is a quick workaround, find better way to unknown tables
             if (table.TableName == "Factors") table.TableName = "Levels";
-
-            // TODO: This is a quick workaround, find better way to handle planting/sowing table
             if (table.TableName == "Planting") table.TableName = "Sowing";
 
-            // Remove any duplicate rows from the table
             table.RemoveDuplicateRows();
 
+            // Find the type of data stored in the table
             var entityType = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
-
-            table.ExtendedProperties["Type"] = type ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
+            table.ExtendedProperties["Type"] = entityType ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
             // Clean columns
             var cols = table.Columns.Cast<DataColumn>().ToArray();
@@ -185,68 +183,40 @@ namespace WindowsClient.Controls
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var col = table.Columns[i];
+                var cnode = vt.CreateColumnNode(i, Query);
 
-                // Create a node for the column
-                var xc = new ExcelColumn(col);
-
-                INodeValidater vc;
-                if (vt is CustomTableValidater ctv)
-                {
-                    if (i < ctv.columns.Length)
-                        vc = new OrdinalValidater(col, i, ctv.columns[i]);
-                    else
-                        vc = new NullValidater();
-                }                    
-                else
-                {
-                    var validater = new ColumnValidater(col);
-                    validater.Query += (o) => Query?.Invoke(o);
-                    vc = validater;
-                }
-                vc.SetAdvice += a => a.AddToTextBox(adviceBox);
-
-                var cnode = new DataNode(xc, vc);
                 cnode.Query += (o) => Query?.Invoke(o);
-                cnode.Updated += () => { importData.DataSource = xc.Source; importData.Format(); };
-
-                vc.Validate();
+                cnode.Updated += () => { importData.DataSource = cnode.Excel.Source; importData.Format(); };
 
                 tnode.Nodes.Add(cnode);
             }
-            
-            vt.Validate();
+
+            tnode.Validate();
 
             return tnode;
         }
 
-        public static INodeValidater CreateTableValidater(DataTable table)
+        private ITableValidater CreateTableValidater(DataTable table)
         {
-            string[] cols;
             switch (table.TableName)
             {
                 case "Design":
-                    cols = new string[] { "Experiment", "Treatment", "Repetition", "Plot" };
-                    return new CustomTableValidater(table, cols);
+                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
 
                 case "HarvestData":
                 case "PlotData":
-                    cols = new string[] { "Experiment", "Plot", "Date", "Sample" };
-                    return new CustomTableValidater(table, cols);
+                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
 
                 case "MetData":
-                    cols = new string[] { "MetStation", "Date" };
-                    return new CustomTableValidater(table, cols);
+                    return new CustomTableValidater(table, new string[] { "MetStation", "Date" });
 
                 case "SoilLayerData":
-                    cols = new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" };
-                    return new CustomTableValidater(table, cols);
+                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
 
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    cols = new string[] { "Experiment", "Treatment" };
-                    return new CustomTableValidater(table, cols);
+                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment" });
 
                 case "Soils":
                 case "SoilLayer":
