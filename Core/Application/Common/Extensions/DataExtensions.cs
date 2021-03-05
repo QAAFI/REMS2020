@@ -77,61 +77,23 @@ namespace Rems.Application.Common.Extensions
         {
             IEntity entity = Activator.CreateInstance(type) as IEntity;
 
-            var getset = context.GetType()
-                            .GetMethod(nameof(context.GetSet))
-                            .MakeGenericMethod(type);
-
             foreach (var info in infos)
             {
-                var value = row[info.Name];
+                object value = row[info.Name];
 
                 // Use default value if cell is empty
                 if (value is DBNull || value is "") continue;
 
                 var itype = info.PropertyType;
                                 
-                // Is the property an entity?
-                if (typeof(IEntity).IsAssignableFrom(itype)) 
-                {
-                    // Does the entity already exist?
-                    if (context.FindMatchingEntity(itype, value) is IEntity e) 
-                    {
-                        info.SetValue(entity, e);
-                        continue;
-                    }
-
-                    // If the entity was not found create a new entity using the given value
-                    IEntity other = Activator.CreateInstance(itype) as IEntity;
-                    var name = itype.GetProperty("Name");
-                    
-                    if (name is null)                    
-                        itype.GetProperty("SoilType")?.SetValue(other, value);                    
-                    else
-                        name?.SetValue(other, value);
-
-                    info.SetValue(entity, other);
-
-                    context.Attach(other);
-                    context.SaveChanges();
-                }
+                // If the property is an entity, find or create the matching entity
+                if (typeof(IEntity).IsAssignableFrom(itype))
+                    value = context.FindMatchingEntity(itype, value) ?? context.CreateEntity(itype, value);                
                 else
-                {
-                    if (info.Name == "Name")
-                    {
-                        var set = getset.Invoke(context, new object[0]) as IEnumerable<IEntity>;
-
-                        var found = set.FirstOrDefault(v => info.GetValue(v)?.ToString() == value.ToString());
-
-                        if (found != null)
-                        {
-                            entity = found;
-                            continue;
-                        }
-                    }
-
-                    Type nullable = Nullable.GetUnderlyingType(itype) ?? itype;
-                    info.SetValue(entity, Convert.ChangeType(value, nullable));
-                }
+                    // If the value is nullable, convert its type
+                    value = Convert.ChangeType(value, Nullable.GetUnderlyingType(itype) ?? itype);
+                
+                info.SetValue(entity, value);
             }
 
             return entity;

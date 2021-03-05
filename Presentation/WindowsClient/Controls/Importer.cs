@@ -127,7 +127,10 @@ namespace WindowsClient.Controls
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
             {   
                 // Don't import notes or empty tables
-                if (table.TableName == "Notes" || table.Rows.Count == 0)
+                if (table.TableName == "Notes" 
+                    || table.Rows.Count == 0
+                    || (table.TableName == "Experiments" && table.Columns.Count < 3)
+                )
                 {
                     data.Tables.Remove(table);
                     continue;
