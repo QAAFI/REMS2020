@@ -21,28 +21,22 @@ namespace Rems.Persistence.Configurations
                 .HasMaxLength(60);
 
             builder.Property(e => e.Calcium)
-                .HasColumnName("Calcium")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Calcium %");
 
             builder.Property(e => e.Potassium)
-                .HasColumnName("Potassium")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Potassium %");
 
             builder.Property(e => e.Nitrogen)
-                .HasColumnName("Nitrogen")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Nitrogen %");
 
             builder.Property(e => e.Phosphorus)
-                .HasColumnName("Phosphorus")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Phosphorus %");
 
             builder.Property(e => e.Sulfur)
-                .HasColumnName("Sulfur")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Sulfur %");
 
             builder.Property(e => e.OtherPercent)
-                .HasColumnName("OtherPercent")
-                .HasDefaultValueSql("0");
+                .HasColumnName("Other %");
 
             builder.Property(e => e.Other)
                 .HasColumnName("Other")
