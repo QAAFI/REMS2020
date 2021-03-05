@@ -135,13 +135,10 @@ namespace Rems.Application.Common.Extensions
                 .Invoke(context, new object[0]) 
                 as IEnumerable<IEntity>;
 
-            var props = type.GetProperties();
+            var infos = type.GetProperties();
+            var test = value.ToString().ToLower();
 
-            foreach (var entity in set)            
-                if (entity.HasValue(value, props)) 
-                    return entity;            
-
-            return null;
+            return set.FirstOrDefault(e => infos.Any(i => i.GetValue(e)?.ToString().ToLower() == test));
         }
 
         /// <summary>

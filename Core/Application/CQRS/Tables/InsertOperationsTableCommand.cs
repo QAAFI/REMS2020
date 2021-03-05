@@ -49,7 +49,7 @@ namespace Rems.Application.CQRS
             void insertTreatment(DataRow row, Treatment treatment)
             {
                 var result = row.ToEntity(_context, request.Type, infos.ToArray());
-                result.SetValue(info, treatment.TreatmentId);
+                info.SetValue(result, treatment.TreatmentId);
                 _context.Attach(result);
             }
 

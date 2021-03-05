@@ -28,9 +28,8 @@ namespace Rems.Application.Common.Extensions
         }
 
         public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
-        {
-            if (comparer == null) 
-                comparer = new DataRowItemComparer();
+        {            
+            comparer = comparer ?? new DataRowItemComparer();
 
             var rows = table.Rows.Cast<DataRow>()
                 .Distinct(comparer)
@@ -130,10 +129,8 @@ namespace Rems.Application.Common.Extensions
                         }
                     }
 
-                    if (Nullable.GetUnderlyingType(itype) is Type nullable)
-                        entity.SetValue(info, Convert.ChangeType(value, nullable));
-                    else
-                        entity.SetValue(info, Convert.ChangeType(value, itype));
+                    Type nullable = Nullable.GetUnderlyingType(itype) ?? itype;
+                    info.SetValue(entity, Convert.ChangeType(value, nullable));
                 }
             }
 

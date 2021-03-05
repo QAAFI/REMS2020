@@ -355,7 +355,6 @@ namespace WindowsClient.Controls
             }
         }
 
-
         #endregion Event handlers
     }
 }
