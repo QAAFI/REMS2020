@@ -18,6 +18,11 @@ namespace WindowsClient.Models
         void Validate();
     }
 
+    public interface ITableValidater : INodeValidater
+    {
+        DataNode CreateColumnNode(int i, Func<object, Task<object>> query);
+    }
+
     public class NullValidater : INodeValidater
     {
         public event Action<string, object> StateChanged;
@@ -31,7 +36,7 @@ namespace WindowsClient.Models
 
     #region Table validation
 
-    public class TableValidater : INodeValidater
+    public class TableValidater : ITableValidater
     {
         public event Action<string, object> StateChanged;
         public event Action<Advice> SetAdvice;
@@ -72,9 +77,21 @@ namespace WindowsClient.Models
                 SetAdvice?.Invoke(advice);
             }
         }
+
+        public DataNode CreateColumnNode(int i, Func<object, Task<object>> query)
+        {
+            var col = table.Columns[i];
+            var excel = new ExcelColumn(col);
+            var validater = new ColumnValidater(col);
+
+            validater.Query += (o) => query?.Invoke(o);            
+            validater.SetAdvice += a => SetAdvice?.Invoke(a);
+
+            return new DataNode(excel, validater);
+        }
     }
 
-    public class CustomTableValidater : INodeValidater
+    public class CustomTableValidater : ITableValidater
     {
         public event Action<Advice> SetAdvice;
 
@@ -134,6 +151,20 @@ namespace WindowsClient.Models
                 StateChanged?.Invoke("Override", "Warning");
             }
                 
+        }
+
+        public DataNode CreateColumnNode(int i, Func<object, Task<object>> query)
+        {
+            var col = table.Columns[i];
+            var excel = new ExcelColumn(col);
+
+            INodeValidater validater = (i < columns.Length) ? 
+                new OrdinalValidater(col, i, columns[i]) as INodeValidater : 
+                new NullValidater();
+            
+            validater.SetAdvice += a => SetAdvice?.Invoke(a);
+
+            return new DataNode(excel, validater);
         }
     }
 

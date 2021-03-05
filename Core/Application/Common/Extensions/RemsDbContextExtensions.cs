@@ -127,6 +127,13 @@ namespace Rems.Application.Common.Extensions
             return props;
         }
 
+        /// <summary>
+        /// Search the context for the first entity of the given type which has a property that matches
+        /// the given value
+        /// </summary>
+        /// <remarks>
+        /// This is intended to be used to find related entities by name
+        /// </remarks>
         public static IEntity FindMatchingEntity(this IRemsDbContext context, Type type, object value)
         {
             var set = context.GetType()
@@ -135,13 +142,26 @@ namespace Rems.Application.Common.Extensions
                 .Invoke(context, new object[0]) 
                 as IEnumerable<IEntity>;
 
-            var props = type.GetProperties();
+            var infos = type.GetProperties();
+            var test = value.ToString().ToLower();
 
-            foreach (var entity in set)            
-                if (entity.HasValue(value, props)) 
-                    return entity;            
+            return set.FirstOrDefault(e => infos.Any(i => i.GetValue(e)?.ToString().ToLower() == test));
+        }
 
-            return null;
+        public static IEntity CreateEntity(this IRemsDbContext context, Type type, object value)
+        {
+            IEntity entity = Activator.CreateInstance(type) as IEntity;
+            var name = type.GetProperty("Name");
+
+            if (name is null)
+                type.GetProperty("SoilType")?.SetValue(entity, value);
+            else
+                name?.SetValue(entity, value);
+            
+            context.Attach(entity);
+            context.SaveChanges();
+
+            return entity;
         }
 
         /// <summary>
