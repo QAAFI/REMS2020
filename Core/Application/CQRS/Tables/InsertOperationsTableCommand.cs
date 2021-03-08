@@ -61,7 +61,7 @@ namespace Rems.Application.CQRS
 
                 var name = row[1].ToString();
 
-                var treatments = _context.Treatments.AsNoTracking();
+                var treatments = _context.Treatments.Where(t => t.Experiment.Name == row[0].ToString()).AsNoTracking();
 
                 if (name.ToLower() == "all")
                 {
