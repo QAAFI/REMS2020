@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,47 +7,73 @@ using Rems.Application.Common.Extensions;
 
 namespace WindowsClient.Models
 {
+    /// <summary>
+    /// Manages data taken from an excel spreadsheet
+    /// </summary>
     public interface IExcelData
     {
+        /// <summary>
+        /// Occurs when the data is changed
+        /// </summary>
         event Action<string, object> StateChanged;
 
-        object Tag { get; }
+        /// <summary>
+        /// The raw data
+        /// </summary>
+        object Data { get; }
 
+        /// <summary>
+        /// The name of the data
+        /// </summary>
         string Name { get; set; }
 
+        /// <summary>
+        /// The table which the data is sourced from
+        /// </summary>
         DataTable Source { get; }
 
+        /// <summary>
+        /// The state of the data
+        /// </summary>
         PropertyCollection State { get; }
 
-        List<MenuItem> Items { get; }
+        /// <summary>
+        /// Connects the given menu items to the data, allowing modification
+        /// </summary>
+        void ConfigureMenu(params MenuItem[] items);
 
-        void SetMenu(params MenuItem[] items);
-
-        void Swap(int i);
+        /// <summary>
+        /// If the data is a column, swap its position to the given index
+        /// </summary>
+        void Swap(int index);
     }
 
     public class ExcelTable : IExcelData
     {
         readonly DataTable table;
 
-        public object Tag => table;
+        /// <inheritdoc/>
+        public object Data => table;
 
+        /// <inheritdoc/>
         public event Func<object, Task<object>> Query;
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
 
+        /// <inheritdoc/>
         public string Name
         {
             get => table.TableName;
             set => table.TableName = value;
         }
 
+        /// <inheritdoc/>
         public DataTable Source => table;
 
+        /// <inheritdoc/>
         public PropertyCollection State => table.ExtendedProperties;
-
-        public List<MenuItem> Items { get; } = new List<MenuItem>();
 
         public ExcelTable(DataTable table)
         {
@@ -58,13 +83,13 @@ namespace WindowsClient.Models
             State["Valid"] = true;            
         }
 
-        
-
-        public void SetMenu(params MenuItem[] items)
+        /// <inheritdoc/>
+        public void ConfigureMenu(params MenuItem[] items)
         {
             // Not used
         }
 
+        /// <inheritdoc/>
         public void Swap(int i)
         {
             throw new NotImplementedException();
@@ -75,21 +100,24 @@ namespace WindowsClient.Models
     {
         readonly DataColumn column;
 
-        public object Tag => column;
+        /// <inheritdoc/>
+        public object Data => column;
 
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
 
+        /// <inheritdoc/>
         public string Name
         {
             get => column.ColumnName;
             set => column.ColumnName = value;
         }
 
+        /// <inheritdoc/>
         public DataTable Source => column.Table;
 
+        /// <inheritdoc/>
         public PropertyCollection State => column.ExtendedProperties;
-
-        public List<MenuItem> Items { get; } = new List<MenuItem>();
 
         public ExcelColumn(DataColumn column)
         {
@@ -100,7 +128,8 @@ namespace WindowsClient.Models
             State["Ignore"] = false;                       
         }
 
-        public void SetMenu(params MenuItem[] items)
+        /// <inheritdoc/>
+        public void ConfigureMenu(params MenuItem[] items)
         {
             if (State["Info"] != null)
             {
@@ -116,6 +145,7 @@ namespace WindowsClient.Models
                 items[3].MenuItems.Add(prop.Name, SetProperty);
         }
 
+        /// <inheritdoc/>
         private void SetProperty(object sender, EventArgs args)
         {
             var item = sender as MenuItem;
@@ -124,6 +154,7 @@ namespace WindowsClient.Models
             StateChanged?.Invoke("Valid", true);
         }
 
+        /// <inheritdoc/>
         public void Swap(int index)
         {
             column.SetOrdinal(index);

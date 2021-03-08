@@ -3,12 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore.Internal;
 
 using Rems.Application.Common.Extensions;
-using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -146,9 +144,12 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Sanitise a single excel table for import
+        /// </summary>
         public async Task CleanTable(DataTable table)
         {
-            // TODO: This is a quick workaround, find better way to unknown tables
+            // TODO: This is a quick workaround, find better way to handle unknown tables
             if (table.TableName == "Factors") table.TableName = "Levels";
             if (table.TableName == "Planting") table.TableName = "Sowing";
 
@@ -199,6 +200,9 @@ namespace WindowsClient.Controls
             return tnode;
         }
 
+        /// <summary>
+        /// Generate a validater for a data table
+        /// </summary>
         private ITableValidater CreateTableValidater(DataTable table)
         {
             switch (table.TableName)
@@ -349,6 +353,9 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Handles the renaming of a node in the tree
+        /// </summary>
         private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             if (e.Node is DataNode node && e.Label != null)

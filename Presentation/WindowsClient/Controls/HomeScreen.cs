@@ -192,6 +192,9 @@ namespace WindowsClient.Controls
             recentList.DataSource = snoisses;      
         }
 
+        /// <summary>
+        /// Activates the <see cref="ImportLink"/> controls if a database is connected
+        /// </summary>
         private void EnableImport()
         {
             importText.Text = "Select one of the above options to begin the import process."
