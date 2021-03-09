@@ -92,7 +92,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public void Swap(int i)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Cannot swap the ordinal of a table");
         }
     }
 
