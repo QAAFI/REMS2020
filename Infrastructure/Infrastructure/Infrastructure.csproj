@@ -7,16 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ApsimX\DemoModels\Soil_BW5.cs" />
-    <Compile Remove="ApsimX\DemoModels\Soil_BW8.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="ApsimX\DemoModels\Soil_BW5.cs" />
-    <None Include="ApsimX\DemoModels\Soil_BW8.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

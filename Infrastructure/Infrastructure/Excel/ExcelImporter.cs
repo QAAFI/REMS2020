@@ -9,13 +9,24 @@ using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.Excel
 {
+    /// <summary>
+    /// Manages the validation and import process of data from excel spreadsheets
+    /// </summary>
     public class ExcelImporter : ProgressTracker
     {
+        /// <summary>
+        /// The set of data tables to import
+        /// </summary>
         public DataSet Data { get; set; }
 
+        /// <inheritdoc/>
         public override int Items => Data.Tables.Count;
+        /// <inheritdoc/>
         public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);        
  
+        /// <summary>
+        /// Sequentially insert each table into the database
+        /// </summary>
         public async override Task Run()
         {
             try
@@ -45,7 +56,7 @@ namespace Rems.Infrastructure.Excel
         /// </summary>
         private async Task<Unit> InsertTable(DataTable table)
         {
-            // Skip the empty / notes tables
+            // Skip any table that the importer is ignoring
             if (table.ExtendedProperties["Ignore"] is true)
                 return Unit.Value;
 
@@ -54,6 +65,8 @@ namespace Rems.Infrastructure.Excel
             var type = table.ExtendedProperties["Type"] as Type;
 
             IRequest command;
+
+            //Change the insertion process depending on the table being added
             switch (table.TableName)
             {
                 case "Design":
