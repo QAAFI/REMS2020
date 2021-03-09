@@ -8,10 +8,17 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Requests an Apsim Plant model from the specified experiment
+    /// </summary>
     public class PlantQuery : IRequest<Plant>, IParameterised
     {   
+        /// <summary>
+        /// The experiment to generate the plant model from
+        /// </summary>
         public int ExperimentId { get; set; }
 
+        /// <inheritdoc/>
         public void Parameterise(params object[] args)
         {
             if (args.Length != 1) 

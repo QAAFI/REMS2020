@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
 {
+    /// <summary>
+    /// Enables a process to report its progress and request data
+    /// </summary>
     public interface IProgressTracker
     {
         /// <summary>

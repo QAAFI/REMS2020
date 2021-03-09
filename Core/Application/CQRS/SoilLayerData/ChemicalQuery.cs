@@ -21,7 +21,7 @@ namespace Rems.Application.CQRS
             if (args.Length != count) 
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
-            ExperimentId = this.SetParam<int>(args[0]);
+            ExperimentId = this.CastParam<int>(args[0]);
         }        
     }
 
