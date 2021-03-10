@@ -10,8 +10,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Search for an entity type based on name
+    /// </summary>
     public class EntityTypeQuery : IRequest<Type>
     {
+        /// <summary>
+        /// The name of the entity type to search for
+        /// </summary>
         public string Name { get; set; }
     }
 

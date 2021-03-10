@@ -10,12 +10,24 @@ using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find soil trait data for all plots in a treatment on a given date
+    /// </summary>
     public class AllSoilTraitDataQuery : IRequest<IEnumerable<SeriesData>>
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
 
+        /// <summary>
+        /// The trait
+        /// </summary>
         public string TraitName { get; set; }
 
+        /// <summary>
+        /// The date
+        /// </summary>
         public DateTime Date { get; set; }
     }
 

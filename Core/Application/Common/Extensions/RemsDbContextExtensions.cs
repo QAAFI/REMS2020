@@ -12,12 +12,9 @@ namespace Rems.Application.Common.Extensions
 {
     public static class RemsDbContextExtensions
     {
-        public static void Close(this IRemsDbContext context)
-        {
-            /// TODO: Implement this
-            //throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Tests if the trait name matches the given string
+        /// </summary>
         internal static bool NameMatches(this Trait trait, string name)
         {
             if (trait.Name == name)
@@ -32,6 +29,9 @@ namespace Rems.Application.Common.Extensions
             return false;
         }
 
+        /// <summary>
+        /// Searches the context for a trait that matches the given name, creating one if none are found
+        /// </summary>
         internal static Trait GetTraitByName(this IRemsDbContext context, string name)
         {
             var trait = context.Traits.ToArray().FirstOrDefault(t => t.NameMatches(name));
@@ -46,6 +46,9 @@ namespace Rems.Application.Common.Extensions
             return trait;
         }
 
+        /// <summary>
+        /// Gets all the soil layers from a given experiment
+        /// </summary>
         internal static SoilLayer[] GetSoilLayers(this IRemsDbContext context, int experimentId)
         {
             var soil = context.Experiments.Find(experimentId).Field.Soil;
@@ -58,6 +61,9 @@ namespace Rems.Application.Common.Extensions
             return layers;
         }
 
+        /// <summary>
+        /// Gets the requested trait data for the given soil layers
+        /// </summary>
         internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name)
         {
             var trait = context.GetTraitByName(name);
@@ -67,6 +73,12 @@ namespace Rems.Application.Common.Extensions
             return data.Select(v => v.Value.GetValueOrDefault()).ToArray();
         }
 
+        /// <summary>
+        /// Adds a trait to the database
+        /// </summary>
+        /// <param name="name">Trait name</param>
+        /// <param name="type">Trait type</param>
+        /// <returns></returns>
         internal static Trait AddTrait(this IRemsDbContext context, string name, string type)
         {
             var unit = context.Units.FirstOrDefault(u => u.Name == "-");
@@ -84,6 +96,14 @@ namespace Rems.Application.Common.Extensions
             return trait;
         }
 
+        /// <summary>
+        /// Attempts to find a database trait which matches the columns in a data table
+        /// </summary>
+        /// <param name="context">The database context to search</param>
+        /// <param name="table">The table containing the columns</param>
+        /// <param name="skip">The number of initial columns to skip</param>
+        /// <param name="type">The trait type</param>
+        /// <returns></returns>
         internal static Trait[] GetTraitsFromColumns(this IRemsDbContext context, DataTable table, int skip, string type)
         {
             Trait getTrait(DataColumn c)
@@ -101,6 +121,9 @@ namespace Rems.Application.Common.Extensions
                 .ToArray();
         }
 
+        /// <summary>
+        /// Find the properties on an entity that contain data
+        /// </summary>
         public static IEnumerable<PropertyInfo> GetEntityProperties(this IRemsDbContext context, Type type)
         {
             // All the primary and foreign keys for an entity
@@ -148,6 +171,14 @@ namespace Rems.Application.Common.Extensions
             return set.FirstOrDefault(e => infos.Any(i => i.GetValue(e)?.ToString().ToLower() == test));
         }
 
+        /// <summary>
+        /// Create an entity of the given type, and attach it to the database after attempting to assign 
+        /// one of its properties the given value
+        /// </summary>
+        /// <param name="context">The context to attach the entity to</param>
+        /// <param name="type">The CLR type of the <see cref="IEntity"/></param>
+        /// <param name="value">The value to attempt to assign</param>
+        /// <returns></returns>
         public static IEntity CreateEntity(this IRemsDbContext context, Type type, object value)
         {
             IEntity entity = Activator.CreateInstance(type) as IEntity;

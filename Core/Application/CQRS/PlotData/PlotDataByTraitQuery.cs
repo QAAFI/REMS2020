@@ -9,10 +9,19 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Finds data for a trait in a plot
+    /// </summary>
     public class PlotDataByTraitQuery : IRequest<SeriesData>
     {
+        /// <summary>
+        /// The source plot
+        /// </summary>
         public int PlotId { get; set; }
 
+        /// <summary>
+        /// The trait to search for
+        /// </summary>
         public string TraitName { get; set; }
     }
 

@@ -10,11 +10,15 @@ using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find all soil traits in a treatment that have data
+    /// </summary>
     public class SoilTraitsQuery : IRequest<string[]> 
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
-
-        public string Type { get; set; }
     }
 
     public class SoilTraitsQueryHandler : IRequestHandler<SoilTraitsQuery, string[]>

@@ -9,8 +9,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find data on irrigation operations for a treatment
+    /// </summary>
     public class IrrigationDataQuery : IRequest<SeriesData>
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
     }
 

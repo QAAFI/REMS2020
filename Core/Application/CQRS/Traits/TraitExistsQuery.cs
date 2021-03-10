@@ -4,13 +4,18 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Check if a trait exists in the database
+    /// </summary>
     public class TraitExistsQuery : IRequest<bool>
     {
+        /// <summary>
+        /// The trait name
+        /// </summary>
         public string Name { get; set; }
     }
 

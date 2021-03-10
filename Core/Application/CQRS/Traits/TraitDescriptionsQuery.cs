@@ -10,8 +10,14 @@ using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find the description for each of the given traits
+    /// </summary>
     public class TraitDescriptionsQuery : IRequest<Dictionary<string, string>>
     {
+        /// <summary>
+        /// The traits to find descriptions for
+        /// </summary>
         public IEnumerable<string> Traits { get; set; }
     }
 

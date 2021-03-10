@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -16,8 +14,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Inserts the measured traits of soil layers into the database
+    /// </summary>
     public class InsertSoilLayerTraitsCommand : IRequest
     {
+        /// <summary>
+        /// The source data
+        /// </summary>
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
@@ -54,6 +58,7 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow r in request.Table.Rows)
             {
+                // Create a soil layer entity
                 var soil = _context.Soils.FirstOrDefault(s => s.SoilType == r[0].ToString());
                 int fd = Convert.ToInt32(r[1]);
                 int td = Convert.ToInt32(r[2]);
@@ -65,17 +70,20 @@ namespace Rems.Application.CQRS
                     ToDepth = td
                 };
 
+                // Test if the layer already has a value in the database
                 if (_context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == fd && s.ToDepth == td) is SoilLayer sl)
                     layer = sl;
                 else
                     _context.Attach(layer);
 
+                // Find the traits of the soil layer
                 var soils = traits.Select((t, i) => new SoilLayerTrait
                 {
                     Trait = t,
                     SoilLayer = ((SoilLayer)layer)                    
                 });                
 
+                // Find the values of each trait
                 soils.ForEach((t, i) => 
                 {
                     trait = t;

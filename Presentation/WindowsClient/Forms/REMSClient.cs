@@ -94,11 +94,14 @@ namespace WindowsClient
             writer.Close();
         }
 
-        private void OnPageCreated(TabPage page)
-        {
-            notebook.TabPages.Add(page);
-        }
+        /// <summary>
+        /// When a new tab is added to the client
+        /// </summary>
+        private void OnPageCreated(TabPage page) => notebook.TabPages.Add(page);
 
+        /// <summary>
+        /// When the client connects to a different database
+        /// </summary>
         private void OnSessionChanged()
         {
             // Remove all pages except the homescreen
@@ -108,6 +111,9 @@ namespace WindowsClient
                 notebook.TabPages.Remove(page);
         }
 
+        /// <summary>
+        /// When an import link starts the import process
+        /// </summary>
         private async void OnImportRequested(object sender, EventArgs e)
         {
             var link = sender as ImportLink;
@@ -126,6 +132,9 @@ namespace WindowsClient
                 notebook.TabPages.Remove(link.Tab);
         }         
 
+        /// <summary>
+        /// When an import link confirms the import has finished
+        /// </summary>
         private void OnImportCompleted(ImportLink link)
         {
             MessageBox.Show("Import successful!", "");
@@ -133,6 +142,9 @@ namespace WindowsClient
             notebook.TabPages.Remove(link.Tab);
         }
 
+        /// <summary>
+        /// When a new database is opened
+        /// </summary>
         private void OnDBOpened(string file)
         {
             // Update the title
@@ -142,6 +154,9 @@ namespace WindowsClient
             LoadListView(file);
         }
 
+        /// <summary>
+        /// When a different item in the list box is selected
+        /// </summary>
         private async void OnRelationsIndexChanged(object sender, EventArgs e)
         {
             var item = (string)relationsListBox.SelectedItem;
@@ -150,6 +165,9 @@ namespace WindowsClient
             dataGridView.Format();
         }
 
+        /// <summary>
+        /// Fills the listbox
+        /// </summary>
         private async void LoadListView(string file)
         {
             var query = new GetTableNamesQuery();
@@ -159,9 +177,11 @@ namespace WindowsClient
             relationsListBox.Items.AddRange(items);
         }
 
+        /// <summary>
+        /// Attempts to send a query to the mediator
+        /// </summary>
         public async Task<T> TrySendQuery<T>(IRequest<T> request, CancellationToken token = default)
-        {           
-
+        {
             List<Exception> errors = new List<Exception>();
 
             try
@@ -186,20 +206,9 @@ namespace WindowsClient
             return default;
         }
 
-        public string ParseText(string file)
-        {
-            var filePath = Path.Combine("DataFiles", "apsimx", file);
-            StringBuilder builder = new StringBuilder();
-
-            using (var reader = new StreamReader(filePath))
-            {
-                while (!reader.EndOfStream) builder.AppendLine(reader.ReadLine());
-            }
-
-            builder.Replace("\r", "");
-            return builder.ToString();
-        }
-
+        /// <summary>
+        /// When the client is closed
+        /// </summary>
         private void REMSClientFormClosed(object sender, FormClosedEventArgs e)
         {
             homeScreen.Close();

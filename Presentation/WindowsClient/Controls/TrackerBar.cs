@@ -132,7 +132,11 @@ namespace WindowsClient.Controls
             }
         }
 
+        /// <summary>
+        /// Invokes the TaskBegun event when the run button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RunClicked(object sender, EventArgs e) => TaskBegun?.Invoke();
-
     }
 }

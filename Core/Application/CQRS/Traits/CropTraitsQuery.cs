@@ -1,20 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
 using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find all the crop traits with data in a treatment
+    /// </summary>
     public class CropTraitsQuery : IRequest<string[]> 
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
-
-        public string Type { get; set; }
     }
 
     public class CropTraitsQueryHandler : IRequestHandler<CropTraitsQuery, string[]>

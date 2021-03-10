@@ -11,8 +11,14 @@ using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM WaterBalance model for an experiment
+    /// </summary>
     public class WaterBalanceQuery : IRequest<WaterBalance>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)
@@ -21,7 +27,7 @@ namespace Rems.Application.CQRS
             if (args.Length != count)
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
-            ExperimentId = this.SetParam<int>(args[0]);
+            ExperimentId = this.CastParam<int>(args[0]);
         }
     }
 

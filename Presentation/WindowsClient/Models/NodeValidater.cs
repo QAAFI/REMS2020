@@ -9,25 +9,53 @@ using System.Threading.Tasks;
 
 namespace WindowsClient.Models
 {
+    /// <summary>
+    /// Manages the validation of a node containing excel data
+    /// </summary>
     public interface INodeValidater
     {
+        /// <summary>
+        /// Occurs when the data is modified
+        /// </summary>
         event Action<string, object> StateChanged;
 
+        /// <summary>
+        /// Occurs when the advice provided to the user is changed
+        /// </summary>
         event Action<Advice> SetAdvice;
 
+        /// <summary>
+        /// Checks if the node is ready to be imported and updates the state accordingly
+        /// </summary>
         void Validate();
     }
 
+    /// <summary>
+    /// Extends <see cref="INodeValidater"/> to handle the creation of column nodes dependent on the table
+    /// </summary>
     public interface ITableValidater : INodeValidater
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
         DataNode CreateColumnNode(int i, Func<object, Task<object>> query);
     }
 
+    /// <summary>
+    /// A default implementation of <see cref="INodeValidater"/> that always validates
+    /// </summary>
     public class NullValidater : INodeValidater
     {
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
+
+        /// <inheritdoc/>
         public event Action<Advice> SetAdvice;
 
+        /// <inheritdoc/>
         public void Validate()
         {
             StateChanged?.Invoke("Valid", true);
@@ -36,9 +64,15 @@ namespace WindowsClient.Models
 
     #region Table validation
 
+    /// <summary>
+    /// A simple implementation of <see cref="ITableValidater"/>, for generic excel table data
+    /// </summary>
     public class TableValidater : ITableValidater
     {
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
+
+        /// <inheritdoc/>
         public event Action<Advice> SetAdvice;
 
         readonly DataTable table;
@@ -48,6 +82,7 @@ namespace WindowsClient.Models
             this.table = table;
         }
 
+        /// <inheritdoc/>
         public void Validate()
         {
             var valid = table.Columns
@@ -78,6 +113,7 @@ namespace WindowsClient.Models
             }
         }
 
+        /// <inheritdoc/>
         public DataNode CreateColumnNode(int i, Func<object, Task<object>> query)
         {
             var col = table.Columns[i];
@@ -91,10 +127,15 @@ namespace WindowsClient.Models
         }
     }
 
+    /// <summary>
+    /// Implements <see cref="ITableValidater"/> with handling for specialised tables
+    /// </summary>
     public class CustomTableValidater : ITableValidater
     {
+        /// <inheritdoc/>
         public event Action<Advice> SetAdvice;
 
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
 
         public readonly string[] columns;
@@ -107,6 +148,7 @@ namespace WindowsClient.Models
             this.columns = columns;
         }
 
+        /// <inheritdoc/>
         public void Validate()
         {
             bool valid = true;
@@ -153,6 +195,7 @@ namespace WindowsClient.Models
                 
         }
 
+        /// <inheritdoc/>
         public DataNode CreateColumnNode(int i, Func<object, Task<object>> query)
         {
             var col = table.Columns[i];
@@ -171,13 +214,18 @@ namespace WindowsClient.Models
     #endregion
 
     #region Column validation
-
+    /// <summary>
+    /// A simple implementation of <see cref="INodeValidater"/> for generic columns of excel data
+    /// </summary>
     public class ColumnValidater : INodeValidater
     {
         public event Func<object, Task<object>> Query;
         private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
+
+        /// <inheritdoc/>
         public event Action<Advice> SetAdvice;
 
         readonly DataColumn column;
@@ -187,6 +235,7 @@ namespace WindowsClient.Models
             this.column = column;
         }
 
+        /// <inheritdoc/>
         public async void Validate()
         {
             // If the colum node is not valid for import, update the state to warn the user
@@ -219,6 +268,9 @@ namespace WindowsClient.Models
             }
         }
 
+        /// <summary>
+        /// Tests if the column is referring to a known database trait
+        /// </summary>
         private async Task<bool> IsTrait()
         {
             return
@@ -233,9 +285,15 @@ namespace WindowsClient.Models
         }
     }
 
+    /// <summary>
+    /// Implements <see cref="INodeValidater"/> for ordinal columns
+    /// </summary>
     public class OrdinalValidater : INodeValidater
     {
+        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
+
+        /// <inheritdoc/>
         public event Action<Advice> SetAdvice;
 
         readonly DataColumn col;
@@ -249,6 +307,7 @@ namespace WindowsClient.Models
             name = n;
         }
 
+        /// <inheritdoc/>
         public void Validate()
         {
             if (col.Ordinal == ordinal && col.ColumnName == name)

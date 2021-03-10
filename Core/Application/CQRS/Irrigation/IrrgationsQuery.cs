@@ -9,9 +9,15 @@ using Rems.Application.Common.Interfaces;
 
 
 namespace Rems.Application.CQRS
-{ 
+{
+    /// <summary>
+    /// Generates an APSIM Operation model for irrigation operations
+    /// </summary>
     public class IrrigationsQuery : IRequest<Operation[]>, IParameterised
     {   
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
 
         public void Parameterise(params object[] args)

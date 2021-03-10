@@ -9,12 +9,24 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Finds the average value of a trait across a treatment on a date
+    /// </summary>
     public class MeanDataQuery : IRequest<SeriesData>
     {
+        /// <summary>
+        /// The date
+        /// </summary>
         public DateTime Date { get; set; }
 
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
 
+        /// <summary>
+        /// The trait
+        /// </summary>
         public string TraitName { get; set; }
     }
 

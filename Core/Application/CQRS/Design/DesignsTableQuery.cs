@@ -9,8 +9,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Searches the database for information to populate an experiment design table
+    /// </summary>
     public class DesignsTableQuery : IRequest<DataTable>
     {
+        /// <summary>
+        /// The experiment to find design data for
+        /// </summary>
         public int ExperimentId { get; set; }
     }
 

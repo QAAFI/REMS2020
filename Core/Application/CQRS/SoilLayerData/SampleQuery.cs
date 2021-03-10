@@ -7,12 +7,17 @@ using MediatR;
 using Models.Soils;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Sample model for an experiment
+    /// </summary>
     public class SampleQuery : IRequest<Sample>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)
@@ -21,7 +26,7 @@ namespace Rems.Application.CQRS
             if (args.Length != count)
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
-            ExperimentId = this.SetParam<int>(args[0]);
+            ExperimentId = this.CastParam<int>(args[0]);
         }
     }
 

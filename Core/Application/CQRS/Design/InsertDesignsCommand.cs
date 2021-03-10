@@ -12,8 +12,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Inserts design data into the database
+    /// </summary>
     public class InsertDesignsCommand : IRequest
     {
+        /// <summary>
+        /// The table containing design data
+        /// </summary>
         public DataTable Table { get; set; }
     }
 
@@ -30,10 +36,13 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertDesignsCommand request)
         {
+            // Assume the first four columns contain other data
+            var cols = request.Table.Columns.Cast<DataColumn>().Skip(4);
             var rows = request.Table.Rows.Cast<DataRow>();
-
-            foreach (var c in request.Table.Columns.Cast<DataColumn>().Skip(4))
+            
+            foreach (var c in cols)
             {
+                // Find or create a factor for the column
                 var factor = _context.Factors.FirstOrDefault(f => f.Name == c.ColumnName);
                 if (factor is null)
                 {
@@ -41,6 +50,7 @@ namespace Rems.Application.CQRS
                     _context.Attach(factor);
                 }
 
+                // For the factor column, convert each row into a level
                 var levels = rows
                     .Select(r => r[c])
                     .Where(o => !(o is DBNull))
@@ -48,6 +58,7 @@ namespace Rems.Application.CQRS
                     .Distinct()
                     .ToArray();
 
+                // Add the levels as entities
                 foreach (string name in levels)
                 {
                     var level = _context.Levels.Where(l => l.Name == name)

@@ -1,15 +1,15 @@
 ﻿using MediatR;
 using Rems.Application.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Checks if the database has loaded any fields
+    /// </summary>
     public class LoadedInformation : IRequest<bool>
     { }
 
