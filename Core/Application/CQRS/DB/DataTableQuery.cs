@@ -9,9 +9,15 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Accesses a table in the database by its name
+    /// </summary>
     public class DataTableQuery : IRequest<DataTable>
     {
-        public string TableName { get; set; }        
+        /// <summary>
+        /// The table name
+        /// </summary>
+        public string TableName { get; set; }
     }
 
     public class DataTableQueryHandler : IRequestHandler<DataTableQuery, DataTable>

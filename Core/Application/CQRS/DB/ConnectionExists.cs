@@ -1,14 +1,15 @@
 ﻿using MediatR;
 using Rems.Application.Common.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Checks if there is a connection to a database
+    /// </summary>
     public class ConnectionExists : IRequest<bool>
     {
     }

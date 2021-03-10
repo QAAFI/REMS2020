@@ -11,8 +11,14 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Permutation model for an experiment
+    /// </summary>
     public class PermutationQuery : IRequest<Permutation>, IParameterised
     {
+        /// <summary>
+        /// The experiment to model
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)

@@ -7,8 +7,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Opens a connection to a local database
+    /// </summary>
     public class OpenDBCommand : IRequest<Unit>
     {
+        /// <summary>
+        /// The database to connect to
+        /// </summary>
         public string FileName { get; set; }        
     }
 
