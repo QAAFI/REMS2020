@@ -16,8 +16,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Insert a table of operations data to the database
+    /// </summary>
     public class InsertOperationsTableCommand : IRequest
     {
+        /// <summary>
+        /// The source data
+        /// </summary>
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
@@ -38,6 +44,7 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertOperationsTableCommand request)
         {
+            // Find the properties of each columnm assuming the first two columns do not contain property data
             var infos = request.Table.Columns.Cast<DataColumn>()
                 .Skip(2)
                 .Select(c => c.FindProperty())
@@ -46,6 +53,7 @@ namespace Rems.Application.CQRS
 
             var info = request.Type.GetProperty("TreatmentId");
 
+            // Insert a treatment to the database
             void insertTreatment(DataRow row, Treatment treatment)
             {
                 var result = row.ToEntity(_context, request.Type, infos.ToArray());
@@ -58,7 +66,6 @@ namespace Rems.Application.CQRS
             foreach (DataRow row in request.Table.Rows)
             {
                 // Assume that the second column is the treatment name
-
                 var name = row[1].ToString();
 
                 var treatments = _context.Treatments.AsNoTracking();

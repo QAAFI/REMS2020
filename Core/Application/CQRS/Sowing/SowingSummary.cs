@@ -9,8 +9,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Produce a summary of sowing information for an experiment
+    /// </summary>
     public class SowingSummary : IRequest<Dictionary<string, string>>
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
     }
 

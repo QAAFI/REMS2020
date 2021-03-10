@@ -8,6 +8,9 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find the names of all the tables in the database
+    /// </summary>
     public class GetTableNamesQuery : IRequest<string[]> 
     { }
 
@@ -20,6 +23,7 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<string[]> Handle(GetTableNamesQuery request, CancellationToken cancellationToken) => Task.Run(() => _context.Names.ToArray());
+        public Task<string[]> Handle(GetTableNamesQuery request, CancellationToken cancellationToken) 
+            => Task.Run(() => _context.Names.ToArray());
     }
 }

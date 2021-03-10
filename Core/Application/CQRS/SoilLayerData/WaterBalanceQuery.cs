@@ -11,8 +11,14 @@ using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM WaterBalance model for an experiment
+    /// </summary>
     public class WaterBalanceQuery : IRequest<WaterBalance>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)

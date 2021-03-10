@@ -7,12 +7,16 @@ using MediatR;
 using Models.Soils;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common;
-
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Physical model for an experiment
+    /// </summary>
     public class PhysicalQuery : IRequest<Physical>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)

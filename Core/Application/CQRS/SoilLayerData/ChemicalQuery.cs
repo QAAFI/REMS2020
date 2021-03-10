@@ -11,8 +11,14 @@ using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Chemical model for an experiment
+    /// </summary>
     public class ChemicalQuery : IRequest<Chemical>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }  
 
         public void Parameterise(params object[] args)
