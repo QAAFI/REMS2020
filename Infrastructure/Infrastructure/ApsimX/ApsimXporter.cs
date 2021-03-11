@@ -136,7 +136,7 @@ namespace Rems.Infrastructure.ApsimX
             Create<Experiment>(name, new IModel[] {
                 Create<Factors>("Factors", new IModel[] {
                     await Request<PermutationQuery>(id ,null)}),
-                Create<Simulation>("Base", new IModel[] {
+                Create<Simulation>(name, new IModel[] {
                     await Request<ClockQuery>(id),
                     Create<Summary>(),
                     await Request<WeatherQuery>(id),
