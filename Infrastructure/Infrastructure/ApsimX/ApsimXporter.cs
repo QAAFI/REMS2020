@@ -158,14 +158,14 @@ namespace Rems.Infrastructure.ApsimX
                             await Request<OrganicQuery>(id),
                             await Request<ChemicalQuery>(id),
                             await Request<SampleQuery>(id),
-                            Create<CERESSoilTemperature>("SoilTemperature")
+                            Create<CERESSoilTemperature>("Temperature")
                         }),
                         CreateOrganicMatter(),
                         Create<Operations>(),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
-                        Create<Report>("Daily"),
-                        Create<Report>("Harvest")
+                        Create<Report>("DailyReport"),
+                        Create<Report>("HarvestReport")
                     })                    
                 })
             });

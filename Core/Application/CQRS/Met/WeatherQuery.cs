@@ -55,7 +55,7 @@ namespace Rems.Application.CQRS
                 .Name;
 
             // Create a .met file to output to
-            string file = met.Replace('/', '-') + ".met";
+            string file = met.Replace('/', '-').Replace(' ', '_') + ".met";
 
             if (!File.Exists(file))
             {
