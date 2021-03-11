@@ -45,9 +45,6 @@ namespace Rems.Application.CQRS
 
             // All the non-key properties of an entity
             var layer_props = _context.GetEntityProperties(typeof(SoilLayer));
-
-            IEntity layer = null;
-            IEntity trait = null;
             var entities = new List<IEntity>();
 
             foreach (DataRow r in request.Table.Rows)
@@ -56,7 +53,7 @@ namespace Rems.Application.CQRS
                 int fd = Convert.ToInt32(r[1]);
                 int td = Convert.ToInt32(r[2]);
 
-                layer = new SoilLayer
+                var layer = new SoilLayer
                 {
                     Soil = soil,
                     FromDepth = fd,
@@ -77,8 +74,6 @@ namespace Rems.Application.CQRS
 
                 soils.ForEach((t, i) => 
                 {
-                    trait = t;
-
                     var value = r[i + 3];
 
                     if (value is DBNull) return;
@@ -86,7 +81,7 @@ namespace Rems.Application.CQRS
                     if (_context.SoilLayerTraits.SingleOrDefault(s => s.Trait == t.Trait && s.SoilLayer == (SoilLayer)layer) is SoilLayerTrait slt)
                         slt.Value = Convert.ToDouble(value);
                     else
-                        entities.Add(trait);
+                        entities.Add(t);
                 });                
 
                 request.IncrementProgress();
