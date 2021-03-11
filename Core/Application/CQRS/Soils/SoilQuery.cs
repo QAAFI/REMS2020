@@ -47,9 +47,11 @@ namespace Rems.Application.CQRS
 
             var soil = new Soil()
             {
-                Name = "Soil",
+                Name = field.Soil.SoilType,
                 Latitude = field.Latitude.GetValueOrDefault(),
-                Longitude = field.Longitude.GetValueOrDefault()
+                Longitude = field.Longitude.GetValueOrDefault(),
+                Site = field.Site.Name,
+                Region = field.Site.Region.Name
             };
 
             return soil;

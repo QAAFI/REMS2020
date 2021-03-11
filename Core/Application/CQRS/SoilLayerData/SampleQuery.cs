@@ -47,7 +47,7 @@ namespace Rems.Application.CQRS
 
             var sample = new Sample()
             {
-                Name = "Water",
+                Name = "Initial water",
                 Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
                 Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
                 SW = _context.GetSoilLayerTraitData(layers, "SW")

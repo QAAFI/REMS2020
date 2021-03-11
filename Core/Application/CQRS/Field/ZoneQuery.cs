@@ -48,7 +48,8 @@ namespace Rems.Application.CQRS
             var zone = new Zone()
             {
                 Name = "Field",
-                Slope = field.Slope.GetValueOrDefault()
+                Slope = field.Slope.GetValueOrDefault(),
+                Area = 1
             };
 
             return zone;

@@ -136,38 +136,37 @@ namespace Rems.Infrastructure.ApsimX
             Create<Experiment>(name, new IModel[] {
                 Create<Factors>("Factors", new IModel[] {
                     await Request<PermutationQuery>(id ,null)}),
-                Create<Simulation>("Base", new IModel[] {
-                    await Request<ClockQuery>(id, new IModel[] {
-                        Create<Summary>(),
-                        await Request<WeatherQuery>(id),
-                        Create<SoilArbitrator>(),
-                        await Request<ZoneQuery>(id, new IModel[] {
-                            await Request<PlantQuery>(id),
-                            await Request<SoilQuery>(id, new IModel[] {
-                                await Request<PhysicalQuery>(id, new IModel[] {
-                                    await Request<SoilCropQuery>(id)
-                                }),
-                                await Request<WaterBalanceQuery>(id),
-                                Create<SoilNitrogen>("SoilNitrogen", new IModel[] {
-                                    Create<SoilNitrogenNH4>("NH4"),
-                                    Create<SoilNitrogenNO3>("NO3"),
-                                    Create<SoilNitrogenUrea>("Urea"),
-                                    Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
-                                    Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
-                                }),
-                                await Request<OrganicQuery>(id),
-                                await Request<ChemicalQuery>(id),
-                                await Request<SampleQuery>(id),
-                                Create<CERESSoilTemperature>("SoilTemperature")
+                Create<Simulation>(name, new IModel[] {
+                    await Request<ClockQuery>(id),
+                    Create<Summary>(),
+                    await Request<WeatherQuery>(id),
+                    Create<SoilArbitrator>(),
+                    await Request<ZoneQuery>(id, new IModel[] {
+                        await Request<PlantQuery>(id),
+                        await Request<SoilQuery>(id, new IModel[] {
+                            await Request<PhysicalQuery>(id, new IModel[] {
+                                await Request<SoilCropQuery>(id)
                             }),
-                            CreateOrganicMatter(),
-                            Create<Operations>(),
-                            Create<Irrigation>("Irrigation"),
-                            Create<Fertiliser>("Fertiliser"),
-                            Create<Report>("Daily"),
-                            Create<Report>("Harvest")
-                        })
-                    })
+                            await Request<WaterBalanceQuery>(id),
+                            Create<SoilNitrogen>("SoilNitrogen", new IModel[] {
+                                Create<SoilNitrogenNH4>("NH4"),
+                                Create<SoilNitrogenNO3>("NO3"),
+                                Create<SoilNitrogenUrea>("Urea"),
+                                Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
+                                Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
+                            }),
+                            await Request<OrganicQuery>(id),
+                            await Request<ChemicalQuery>(id),
+                            await Request<SampleQuery>(id),
+                            Create<CERESSoilTemperature>("Temperature")
+                        }),
+                        CreateOrganicMatter(),
+                        Create<Operations>(),
+                        Create<Irrigation>("Irrigation"),
+                        Create<Fertiliser>("Fertiliser"),
+                        Create<Report>("DailyReport"),
+                        Create<Report>("HarvestReport")
+                    })                    
                 })
             });
 
