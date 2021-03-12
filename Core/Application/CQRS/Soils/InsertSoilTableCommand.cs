@@ -43,55 +43,42 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertSoilTableCommand request)
         {
-            var traits = _context.GetTraitsFromColumns(request.Table, 2, "Soil");
-
-            // All the non-key properties of an entity
-            var soil_props = _context.GetEntityProperties(typeof(Soil));
-            IEntity soil = null;
-
-            // Test if two soils are the same
-            Func<IEntity, bool> soil_matches = other =>
-                    soil_props.All(i => i.GetValue(soil)?.ToString() == i.GetValue(other)?.ToString());
-
-            IEntity trait = null;
+            // Assume the first two columns do not contain trait data and 'skip' them
+            int skip = 2;
+            var traits = _context.GetTraitsFromColumns(request.Table, skip, "Soil");
             var entities = new List<IEntity>();
 
-            foreach (DataRow r in request.Table.Rows)
+            foreach (DataRow row in request.Table.Rows)
             {
-                // Create a new soil
-                soil = new Soil
-                {
-                    SoilType = r[0].ToString(),
-                    Notes = r[1].ToString()
-                };
+                // Assume the first column contains soil type data
+                var soiltype = row[0].ToString();
 
-                // Check if the soil exists already in the database
-                if (_context.Soils.SingleOrDefault(soil_matches) is Soil layer)
-                    soil = layer;
-                else
-                    _context.Attach(soil);
+                // Assume the second column contains notes
+                var notes = row[1].ToString();
 
-                // Find the soil traits
-                var soils = traits.Select((t, i) => new SoilTrait
-                {
-                    Trait = t,
-                    Soil = ((Soil)soil),
-                    Value = Convert.ToDouble(r[i + 2])
-                });
+                // Check for a matching soil in the database
+                var match = _context.Soils.SingleOrDefault(s => s.SoilType == soiltype && s.Notes == notes);
+                
+                // If no match was found, create a new soil
+                var soil = match ?? new Soil{ SoilType = soiltype, Notes = notes };
+                _context.Attach(soil);
 
                 // Find the values of the traits
-                soils.ForEach((t, i) =>
+                traits.ForEach(trait =>
                 {
-                    trait = t;
-
-                    var value = r[i + 2];
-
+                    // Do not store null values
+                    var value = row[trait.Name];
                     if (value is DBNull) return;
 
-                    if (_context.SoilTraits.SingleOrDefault(s => s.Trait == t.Trait && s.Soil == (Soil)soil) is SoilTrait slt)
-                        slt.Value = Convert.ToDouble(value);
-                    else
-                        entities.Add(trait);
+                    // Look for an existing soil trait
+                    var existing = _context.SoilTraits.SingleOrDefault(s => s.Trait == trait && s.Soil == soil);
+
+                    // If no match exists, create a new one
+                    var soiltrait = existing ?? new SoilTrait{ Trait = trait, Soil = soil };
+                    
+                    // Update the value
+                    soiltrait.Value = Convert.ToDouble(value);
+                    entities.Add(soiltrait);
                 });
 
                 request.IncrementProgress();

@@ -61,18 +61,12 @@ namespace Rems.Application.CQRS
                 // Assume the third column contains 'to depth' data
                 int to = Convert.ToInt32(row[2]);
 
-                var layer = new SoilLayer
-                {
-                    Soil = soil,
-                    FromDepth = from,
-                    ToDepth = to
-                };
+                // Look for a match in the database
+                var match = _context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to);
 
-                // Test if the layer already has a value in the database
-                if (_context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to) is SoilLayer sl)
-                    layer = sl;
-                else
-                    _context.Attach(layer);
+                // If no match was found, create a new layer
+                var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
+                _context.Attach(layer);
 
                 traits.ForEach(trait => 
                 {
@@ -83,16 +77,12 @@ namespace Rems.Application.CQRS
                     // Look for an existing soil layer trait
                     var existing = _context.SoilLayerTraits.SingleOrDefault(s => s.Trait == trait && s.SoilLayer == layer);
 
-                    // If one exists update its value, else create a new one
-                    if (existing is SoilLayerTrait slt)
-                        slt.Value = Convert.ToDouble(value);                    
-                    else
-                        entities.Add(new SoilLayerTrait
-                        {
-                            Trait = trait,
-                            SoilLayer = layer,
-                            Value = Convert.ToDouble(value)
-                        });
+                    // If none exist, create a new soil layer trait
+                    var slt = existing ?? new SoilLayerTrait{ Trait = trait, SoilLayer = layer };
+
+                    // Update the value
+                    slt.Value = Convert.ToDouble(value);
+                    entities.Add(slt);
                 });                
 
                 request.IncrementProgress();
