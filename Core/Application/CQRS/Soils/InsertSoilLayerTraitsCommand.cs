@@ -45,64 +45,44 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertSoilLayerTraitsCommand request)
         {
-            var traits = _context.GetTraitsFromColumns(request.Table, 3, "SoilLayer");
+            /* It is assumed that the table being imported uses the following schema:
+             * Column 1: SoilType
+             * Column 2: DepthFrom
+             * Column 3: DepthTo
+             * Column 4+: Traits
+             * So we have to 'skip' 3 columns to get the traits
+             */
 
-            // All the non-key properties of an entity
-            var layer_props = _context.GetEntityProperties(typeof(SoilLayer));
-            IEntity layer = null;
-            Func<IEntity, bool> layer_matches = other =>
-                    layer_props.All(i => i.GetValue(layer)?.ToString() == i.GetValue(other)?.ToString());
+            int skip = 3;
+            var traits = _context.GetTraitsFromColumns(request.Table, skip, "SoilLayer");
+            var entities = new List<SoilLayerTrait>();
 
-            IEntity trait = null;
-            var entities = new List<IEntity>();
-
-            foreach (DataRow r in request.Table.Rows)
+            foreach (DataRow row in request.Table.Rows)
             {
-                // Create a soil layer entity
-                var soil = _context.Soils.FirstOrDefault(s => s.SoilType == r[0].ToString());
-                int fd = Convert.ToInt32(r[1]);
-                int td = Convert.ToInt32(r[2]);
+                var soil = _context.Soils.FirstOrDefault(s => s.SoilType == row[0].ToString());
+                int from = Convert.ToInt32(row[1]);
+                int to = Convert.ToInt32(row[2]);
 
-                layer = new SoilLayer
+                var match = _context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to);
+                var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
+                _context.Attach(layer);
+
+                traits.ForEach(trait => 
                 {
-                    Soil = soil,
-                    FromDepth = fd,
-                    ToDepth = td
-                };
-
-                // Test if the layer already has a value in the database
-                if (_context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == fd && s.ToDepth == td) is SoilLayer sl)
-                    layer = sl;
-                else
-                    _context.Attach(layer);
-
-                // Find the traits of the soil layer
-                var soils = traits.Select((t, i) => new SoilLayerTrait
-                {
-                    Trait = t,
-                    SoilLayer = ((SoilLayer)layer)                    
-                });                
-
-                // Find the values of each trait
-                soils.ForEach((t, i) => 
-                {
-                    trait = t;
-
-                    var value = r[i + 3];
-
+                    var value = row[trait.Name];
                     if (value is DBNull) return;
 
-                    if (_context.SoilLayerTraits.SingleOrDefault(s => s.Trait == t.Trait && s.SoilLayer == (SoilLayer)layer) is SoilLayerTrait slt)
-                        slt.Value = Convert.ToDouble(value);
-                    else
-                        entities.Add(trait);
+                    var existing = _context.SoilLayerTraits.SingleOrDefault(s => s.Trait == trait && s.SoilLayer == layer);
+                    var slt = existing ?? new SoilLayerTrait{ Trait = trait, SoilLayer = layer };
+                    slt.Value = Convert.ToDouble(value);
+                    entities.Add(slt);
                 });                
 
                 request.IncrementProgress();
             }
             _context.SaveChanges();
 
-            // Add the traits once the soils have been saved
+            // Can only add the traits once the soil layers have been saved
             _context.AttachRange(entities.ToArray());
             _context.SaveChanges();
 
