@@ -43,40 +43,33 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertSoilTableCommand request)
         {
-            // Assume the first two columns do not contain trait data and 'skip' them
+            /* It is assumed that the table being imported uses the following schema:
+             * Column 1: SoilType
+             * Column 2: Notes
+             * Column 3+: Traits
+             * So we have to 'skip' 2 columns to get the traits
+             */
+
             int skip = 2;
             var traits = _context.GetTraitsFromColumns(request.Table, skip, "Soil");
             var entities = new List<IEntity>();
 
             foreach (DataRow row in request.Table.Rows)
             {
-                // Assume the first column contains soil type data
                 var soiltype = row[0].ToString();
-
-                // Assume the second column contains notes
                 var notes = row[1].ToString();
 
-                // Check for a matching soil in the database
                 var match = _context.Soils.SingleOrDefault(s => s.SoilType == soiltype && s.Notes == notes);
-                
-                // If no match was found, create a new soil
                 var soil = match ?? new Soil{ SoilType = soiltype, Notes = notes };
                 _context.Attach(soil);
 
-                // Find the values of the traits
                 traits.ForEach(trait =>
                 {
-                    // Do not store null values
                     var value = row[trait.Name];
                     if (value is DBNull) return;
 
-                    // Look for an existing soil trait
                     var existing = _context.SoilTraits.SingleOrDefault(s => s.Trait == trait && s.Soil == soil);
-
-                    // If no match exists, create a new one
                     var soiltrait = existing ?? new SoilTrait{ Trait = trait, Soil = soil };
-                    
-                    // Update the value
                     soiltrait.Value = Convert.ToDouble(value);
                     entities.Add(soiltrait);
                 });
@@ -85,7 +78,7 @@ namespace Rems.Application.CQRS
             }
             _context.SaveChanges();
 
-            // Add the traits once the soils have been saved
+            // Can only add the traits once the soils have been saved
             _context.AttachRange(entities.ToArray());
             _context.SaveChanges();
 

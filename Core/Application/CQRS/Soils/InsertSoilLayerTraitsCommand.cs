@@ -45,42 +45,35 @@ namespace Rems.Application.CQRS
 
         private Unit Handler(InsertSoilLayerTraitsCommand request)
         {
-            // Assume the first 3 columns in the table are not trait columns, so we 'skip' them
+            /* It is assumed that the table being imported uses the following schema:
+             * Column 1: SoilType
+             * Column 2: DepthFrom
+             * Column 3: DepthTo
+             * Column 4+: Traits
+             * So we have to 'skip' 3 columns to get the traits
+             */
+
             int skip = 3;
             var traits = _context.GetTraitsFromColumns(request.Table, skip, "SoilLayer");
             var entities = new List<SoilLayerTrait>();
 
             foreach (DataRow row in request.Table.Rows)
             {
-                // Assume the first column contains soil type data
                 var soil = _context.Soils.FirstOrDefault(s => s.SoilType == row[0].ToString());
-                
-                // Assume the second column contains 'from depth' data
                 int from = Convert.ToInt32(row[1]);
-
-                // Assume the third column contains 'to depth' data
                 int to = Convert.ToInt32(row[2]);
 
-                // Look for a match in the database
                 var match = _context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to);
-
-                // If no match was found, create a new layer
                 var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
                 _context.Attach(layer);
 
                 traits.ForEach(trait => 
                 {
-                    // Do not store empty values
                     var value = row[trait.Name];
                     if (value is DBNull) return;
 
-                    // Look for an existing soil layer trait
                     var existing = _context.SoilLayerTraits.SingleOrDefault(s => s.Trait == trait && s.SoilLayer == layer);
-
-                    // If none exist, create a new soil layer trait
                     var slt = existing ?? new SoilLayerTrait{ Trait = trait, SoilLayer = layer };
-
-                    // Update the value
                     slt.Value = Convert.ToDouble(value);
                     entities.Add(slt);
                 });                
@@ -89,7 +82,7 @@ namespace Rems.Application.CQRS
             }
             _context.SaveChanges();
 
-            // Add the traits once the soil layers have been saved
+            // Can only add the traits once the soil layers have been saved
             _context.AttachRange(entities.ToArray());
             _context.SaveChanges();
 
