@@ -8,8 +8,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Creates a database
+    /// </summary>
     public class CreateDBCommand : IRequest<IRemsDbContext>
     {
+        /// <summary>
+        /// The name of the database to create
+        /// </summary>
         public string FileName { get; set; }        
     }
 

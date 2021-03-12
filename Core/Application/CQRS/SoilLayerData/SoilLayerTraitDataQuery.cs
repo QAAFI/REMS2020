@@ -9,12 +9,24 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find all the data for a soil layer trait in a plot on the given date
+    /// </summary>
     public class SoilLayerTraitDataQuery : IRequest<SeriesData>
     {
+        /// <summary>
+        /// The date
+        /// </summary>
         public DateTime Date { get; set; }
 
+        /// <summary>
+        /// The source plot
+        /// </summary>
         public int PlotId { get; set; }
 
+        /// <summary>
+        /// The trait
+        /// </summary>
         public string TraitName { get; set; }
     }
 

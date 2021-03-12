@@ -8,8 +8,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Zone model for an experiment
+    /// </summary>
     public class ZoneQuery : IRequest<Zone>, IParameterised
     {   
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)
@@ -42,7 +48,8 @@ namespace Rems.Application.CQRS
             var zone = new Zone()
             {
                 Name = "Field",
-                Slope = field.Slope.GetValueOrDefault()
+                Slope = field.Slope.GetValueOrDefault(),
+                Area = 1
             };
 
             return zone;

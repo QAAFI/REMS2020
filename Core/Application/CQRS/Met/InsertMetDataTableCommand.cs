@@ -16,10 +16,19 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Insert a table of MetData into the database
+    /// </summary>
     public class InsertMetDataTableCommand : IRequest
     {
+        /// <summary>
+        /// The source table
+        /// </summary>
         public DataTable Table { get; set; }
 
+        /// <summary>
+        /// The number of skippable columns preceding trait columns in the table
+        /// </summary>
         public int Skip { get; set; }
 
         public string Type { get; set; }
@@ -81,6 +90,9 @@ namespace Rems.Application.CQRS
         }
     }
 
+    /// <summary>
+    /// Compares MetData entities based on the values of some properties
+    /// </summary>
     internal class MetDataComparer : IEqualityComparer<MetData>
     {
         public bool Equals(MetData x, MetData y)

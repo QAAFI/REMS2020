@@ -8,8 +8,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find all the dates that soil layer data was measured on for a treatment
+    /// </summary>
     public class SoilLayerDatesQuery : IRequest<DateTime[]>
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
     }
 

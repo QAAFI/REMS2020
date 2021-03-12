@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,8 +15,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Insert a table of data into the database
+    /// </summary>
     public class InsertTableCommand : IRequest
     {
+        /// <summary>
+        /// The source data
+        /// </summary>
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }

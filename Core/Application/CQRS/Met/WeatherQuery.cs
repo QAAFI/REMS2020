@@ -14,8 +14,14 @@ using System.IO;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Weather model for an experiment
+    /// </summary>
     public class WeatherQuery : IRequest<Weather>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)
@@ -43,11 +49,13 @@ namespace Rems.Application.CQRS
 
         private Weather Handler(WeatherQuery request, CancellationToken token)
         {
+            // Find the MetStation used by the experiment
             var met = _context.Experiments.Find(request.ExperimentId)
                 .MetStation
                 .Name;
 
-            string file = met.Replace('/', '-') + ".met";
+            // Create a .met file to output to
+            string file = met.Replace('/', '-').Replace(' ', '_') + ".met";
 
             if (!File.Exists(file))
             {
@@ -71,6 +79,7 @@ namespace Rems.Application.CQRS
             var experiment = _context.Experiments.Find(id);
             var station = experiment.MetStation;
 
+            // Attach header lines to the file
             var builder = new StringBuilder();
             builder.AppendLine("[weather.met.weather]");
             builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
@@ -81,6 +90,7 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
             builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
 
+            // Find the weather traits
             Trait maxT = _context.GetTraitByName("MaxT");
             Trait minT = _context.GetTraitByName("MinT");
             Trait radn = _context.GetTraitByName("Radn");
@@ -91,6 +101,7 @@ namespace Rems.Application.CQRS
                 .GroupBy(d => d.Date)
                 .OrderBy(d => d.Key);
 
+            // Format and add the data
             foreach (var data in datas)
             {
                 var date = data.Key;
@@ -104,6 +115,7 @@ namespace Rems.Application.CQRS
                 builder.AppendLine($"{GetTraitValue(mets, rain),8}");
             }
 
+            // Find the value of a trait for a given MetData entity
             string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
             {
                 var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);

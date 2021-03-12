@@ -10,10 +10,19 @@ using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Find data for each plot in a treatment for a given trait
+    /// </summary>
     public class AllCropTraitDataQuery : IRequest<IEnumerable<SeriesData>>
     {
+        /// <summary>
+        /// The source treatment
+        /// </summary>
         public int TreatmentId { get; set; }
 
+        /// <summary>
+        /// The trait
+        /// </summary>
         public string TraitName { get; set; }
     }
 

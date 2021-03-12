@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Count the number of experiments in the database
+    /// </summary>
     public class ExperimentCount : IRequest<int>
     {
     }

@@ -14,8 +14,14 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Inserts the measured traits of soil layers into the database
+    /// </summary>
     public class InsertSoilLayerTraitsCommand : IRequest
     {
+        /// <summary>
+        /// The source data
+        /// </summary>
         public DataTable Table { get; set; }
 
         public Type Type { get; set; }
@@ -62,6 +68,7 @@ namespace Rems.Application.CQRS
                     ToDepth = to
                 };
 
+                // Test if the layer already has a value in the database
                 if (_context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to) is SoilLayer sl)
                     layer = sl;
                 else
@@ -70,7 +77,7 @@ namespace Rems.Application.CQRS
                 traits.ForEach(trait => 
                 {
                     // Do not store empty values
-                    var value = row[trait.Name];                     
+                    var value = row[trait.Name];
                     if (value is DBNull) return;
 
                     // Look for an existing soil layer trait

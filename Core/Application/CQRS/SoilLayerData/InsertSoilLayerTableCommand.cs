@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,6 +14,9 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Inserts a table of soil layer data into the database
+    /// </summary>
     public class InsertSoilLayerTableCommand : IRequest
     {
         /// <summary>
@@ -101,6 +101,9 @@ namespace Rems.Application.CQRS
         }
     }
 
+    /// <summary>
+    /// Compares two <see cref="SoilLayerData"/> across their measured values
+    /// </summary>
     internal class SoilLayerComparer : IEqualityComparer<SoilLayerData>
     {
         public bool Equals(SoilLayerData x, SoilLayerData y)

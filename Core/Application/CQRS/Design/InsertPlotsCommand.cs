@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
@@ -15,10 +13,19 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Insert plot information into the database
+    /// </summary>
     public class InsertPlotsCommand : IRequest
     {
+        /// <summary>
+        /// The table containing plot information
+        /// </summary>
         public DataTable Table { get; set; }
 
+        /// <summary>
+        /// Occurs when progress has been made on the insertion
+        /// </summary>
         public Action IncrementProgress { get; set; }
     }
 
@@ -73,6 +80,10 @@ namespace Rems.Application.CQRS
             return Unit.Value;
         }
 
+        /// <summary>
+        /// Creates a treatment entity and adds it to the database, along with its related levels
+        /// and design
+        /// </summary>
         private Treatment CreateTreatment(string exp, string name, string[] levels)
         {
             var treatment = new Treatment()

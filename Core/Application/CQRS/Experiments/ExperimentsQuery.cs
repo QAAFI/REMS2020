@@ -9,6 +9,9 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Return a collection of all experiments paired by ID and Name
+    /// </summary>
     public class ExperimentsQuery : IRequest<KeyValuePair<int, string>[]>
     { }
 

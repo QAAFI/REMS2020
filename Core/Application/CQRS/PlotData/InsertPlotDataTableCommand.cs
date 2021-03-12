@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,10 +14,19 @@ using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Inserts a table of PlotData into the database
+    /// </summary>
     public class InsertPlotDataTableCommand : IRequest
     {
+        /// <summary>
+        /// The source data
+        /// </summary>
         public DataTable Table { get; set; }
 
+        /// <summary>
+        /// The number of skippable columns preceding trait columns in the table
+        /// </summary>
         public int Skip { get; set; }
 
         public string Type { get; set; }
@@ -46,6 +52,7 @@ namespace Rems.Application.CQRS
 
             var rows = request.Table.Rows.Cast<DataRow>();
 
+            // Find the experiments
             var exps = rows.Select(r => r[0])
                 .Distinct()
                 .ToDictionary
@@ -54,6 +61,7 @@ namespace Rems.Application.CQRS
                     o => _context.Experiments.Single(e => e.Name == o.ToString())
                 );
 
+            // Search the context for a plot that matches the given criteria
             Plot findPlot(string key, int col)
             {
                 var plot = _context.Plots
@@ -64,6 +72,7 @@ namespace Rems.Application.CQRS
                 return plot;
             }
 
+            // Find the plots
             var plots = rows.Select(r => new { key = r[0].ToString(), col = r[1] })
                 .Distinct()
                 .ToDictionary
@@ -72,6 +81,7 @@ namespace Rems.Application.CQRS
                     a => findPlot(a.key, Convert.ToInt32(a.col))
                 );
 
+            // Converts all the trait values in a row to their own PlotData entities
             IEnumerable<PlotData> convertRow(DataRow row)
             {
                 var date = Convert.ToDateTime(row[2]);
@@ -100,6 +110,7 @@ namespace Rems.Application.CQRS
                 }
             }
 
+            // Convert all the rows of the table
             var datas = rows.SelectMany(r => convertRow(r))
                 .Distinct();                
             

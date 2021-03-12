@@ -39,15 +39,17 @@ namespace WindowsClient.Controls
         /// The currently selected file to import
         /// </summary>
         public string File { get; set; }
-
-        private bool active = false;
+        
+        /// <summary>
+        /// If the link can be clicked
+        /// </summary>
         public bool Active
         {
             get => active;
             set => ToggleEnabled(value);
         }
-
-        private Stage stage;
+        private bool active = false;
+        
         /// <summary>
         /// The current stage of the import process
         /// </summary>
@@ -56,6 +58,7 @@ namespace WindowsClient.Controls
             get => stage;
             set => SetStage(value);
         }
+        private Stage stage;
 
         /// <summary>
         /// The link text
@@ -157,6 +160,9 @@ namespace WindowsClient.Controls
                 label.ForeColor = SystemColors.HotTrack;
         }
 
+        /// <summary>
+        /// Toggles the active status of the link
+        /// </summary>
         private void ToggleEnabled(bool value)
         {
             active = value;

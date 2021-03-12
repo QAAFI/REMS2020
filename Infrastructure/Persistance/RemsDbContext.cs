@@ -12,6 +12,9 @@ using System.Reflection;
 
 namespace Rems.Persistence
 {
+    /// <summary>
+    /// Indicates that the marked property is of Type <see cref="DbSet{TEntity}"/>
+    /// </summary>
     internal class EntitySet : Attribute
     { }
 
@@ -155,11 +158,13 @@ namespace Rems.Persistence
 
         #endregion
 
+        /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RemsDbContext).Assembly);
         }
 
+        /// <inheritdoc/>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -171,8 +176,14 @@ namespace Rems.Persistence
             }
         }        
 
+        /// <summary>
+        /// Returns the set of the corresponding type
+        /// </summary>
         public DbSet<T> GetSet<T>() where T : class, IEntity => SetMap[typeof(T).Name] as DbSet<T>;
 
+        /// <summary>
+        /// Creates a map of entity type names to their corresponding <see cref="DbSet{TEntity}"/> property
+        /// </summary>
         private void DefineSets()
         {
             var sets = GetType()

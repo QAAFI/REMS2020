@@ -11,8 +11,14 @@ using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Chemical model for an experiment
+    /// </summary>
     public class ChemicalQuery : IRequest<Chemical>, IParameterised
     {
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }  
 
         public void Parameterise(params object[] args)
@@ -21,7 +27,7 @@ namespace Rems.Application.CQRS
             if (args.Length != count) 
                 throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
 
-            ExperimentId = this.SetParam<int>(args[0]);
+            ExperimentId = this.CastParam<int>(args[0]);
         }        
     }
 
@@ -42,7 +48,7 @@ namespace Rems.Application.CQRS
 
             var chemical = new Chemical()
             {
-                Name = "Organic",
+                Name = "Chemical",
                 Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
                 Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
                 NO3N = _context.GetSoilLayerTraitData(layers, "NO3N"),

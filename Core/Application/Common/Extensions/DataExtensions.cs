@@ -11,6 +11,10 @@ namespace Rems.Application.Common.Extensions
 {
     public static class DataExtensions
     {
+        /// <summary>
+        /// Searches the dataset for an experiments table, and creates a mapping between the Name and Id columns
+        /// </summary>
+        /// <param name="data"></param>
         public static void FindExperiments(this DataSet data)
         {
             if (!(data.Tables["Experiments"] is DataTable table))
@@ -27,6 +31,9 @@ namespace Rems.Application.Common.Extensions
             data.ExtendedProperties["Experiments"] = es;
         }
 
+        /// <summary>
+        /// Purges rows with identical values from the dataset
+        /// </summary>        
         public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {            
             comparer = comparer ?? new DataRowItemComparer();
@@ -58,21 +65,32 @@ namespace Rems.Application.Common.Extensions
                 return;
             }
 
+            // Cannot convert if the mapping does not exist
             if (!(table.DataSet.ExtendedProperties["Experiments"] is Dictionary<int, string> keys))
                 return;
 
+            // Replace the Id column with the names column
             int ord = ids.Ordinal;
-
             var exps = new DataColumn("Experiment", typeof(string));
             table.Columns.Add(exps);
             exps.SetOrdinal(ord);
 
+            // Insert the values into the new column
             foreach (DataRow row in table.Rows)
                 row[exps] = keys[Convert.ToInt32(row[ids])];
 
+            // Remove the old column
             table.Columns.Remove(ids);
         }
 
+        /// <summary>
+        /// Converts a row from a <see cref="DataTable"/> into an <see cref="IEntity"/> 
+        /// that can be attached to the database
+        /// </summary>
+        /// <param name="row">Source data</param>
+        /// <param name="context">Context to attach result to</param>
+        /// <param name="type">CLR <see cref="Type"/> of the <see cref="IEntity"/></param>
+        /// <param name="infos">Properties which map to <see cref="DataColumn"/>s in the <see cref="DataRow"/></param>
         public static IEntity ToEntity(this DataRow row, IRemsDbContext context, Type type, PropertyInfo[] infos)
         {
             IEntity entity = Activator.CreateInstance(type) as IEntity;
@@ -99,6 +117,9 @@ namespace Rems.Application.Common.Extensions
             return entity;
         }
         
+        /// <summary>
+        /// Find any entity properties belonging to the parent table that are not mapped to a column in the table
+        /// </summary>
         public static IEnumerable<PropertyInfo> GetUnmappedProperties(this DataColumn col)
         {
             // Find all the infos which are already mapped to a column
@@ -126,7 +147,7 @@ namespace Rems.Application.Common.Extensions
         }
 
         /// <summary>
-        /// A bunch of ugly string matching to find a property because unfiltered excel data
+        /// Attempt to find an entity property that corresponds to the <see cref="DataColumn"/>
         /// </summary>
         public static PropertyInfo FindProperty(this DataColumn col)
         {
@@ -188,6 +209,9 @@ namespace Rems.Application.Common.Extensions
             return null;
         }
 
+        /// <summary>
+        /// Default name replacements
+        /// </summary>
         private static readonly Dictionary<string, string> map = new Dictionary<string, string>()
         {
             {"ExpID", "ExperimentId" },
@@ -200,9 +224,14 @@ namespace Rems.Application.Common.Extensions
             {"Other%", "OtherPercent" },
             {"amp", "Amplitude" },
             {"tav", "TemperatureAverage" },
-            {"PlotID", "Plot" }
+            {"PlotID", "Plot" },
+            {"Reps", "Repetitions" },
+            {"RepNo", "Repetition" }
         };
 
+        /// <summary>
+        /// Replaces column names using the map of default options
+        /// </summary>
         public static void ReplaceName(this DataColumn col)
         {
             if (map.ContainsKey(col.ColumnName))
@@ -210,6 +239,9 @@ namespace Rems.Application.Common.Extensions
         }
     }
 
+    /// <summary>
+    /// Compare two <see cref="DataRow"/>s by the values of the items they contain
+    /// </summary>
     public class DataRowItemComparer : IEqualityComparer<DataRow>
     {
         public bool Equals(DataRow x, DataRow y)

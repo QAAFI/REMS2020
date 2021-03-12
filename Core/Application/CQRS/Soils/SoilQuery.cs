@@ -8,8 +8,14 @@ using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
+    /// <summary>
+    /// Generates an APSIM Soil model for an experiment
+    /// </summary>
     public class SoilQuery : IRequest<Soil>, IParameterised
     {   
+        /// <summary>
+        /// The source experiment
+        /// </summary>
         public int ExperimentId { get; set; }
 
         public void Parameterise(params object[] args)
@@ -41,9 +47,11 @@ namespace Rems.Application.CQRS
 
             var soil = new Soil()
             {
-                Name = "Soil",
+                Name = field.Soil.SoilType,
                 Latitude = field.Latitude.GetValueOrDefault(),
-                Longitude = field.Longitude.GetValueOrDefault()
+                Longitude = field.Longitude.GetValueOrDefault(),
+                Site = field.Site.Name,
+                Region = field.Site.Region.Name
             };
 
             return soil;

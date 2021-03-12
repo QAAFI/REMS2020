@@ -19,8 +19,15 @@ namespace Rems.Infrastructure
             New
         }
 
+        /// <summary>
+        /// Load an object from a JSON file
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="file">The source file</param>
+        /// <param name="mode">Error handling mode</param>
         public static T LoadJson<T>(string file, JsonLoad mode = JsonLoad.Exception) where T : new()
         {
+            // Handle an absent file
             if (!File.Exists(file))
             {
                 if (mode == JsonLoad.Exception)
@@ -31,6 +38,7 @@ namespace Rems.Infrastructure
                     return default;
             }
 
+            // Read the file into an object
             using (var stream = new StreamReader(file))
             using (var reader = new JsonTextReader(stream))
             {
@@ -45,6 +53,11 @@ namespace Rems.Infrastructure
             }
         }
 
+        /// <summary>
+        /// Exports an object to a JSON file
+        /// </summary>
+        /// <param name="file">The file name</param>
+        /// <param name="json">The object</param>
         public static void SaveJson(string file, object json)
         {
             using (var stream = new StreamWriter(file))
