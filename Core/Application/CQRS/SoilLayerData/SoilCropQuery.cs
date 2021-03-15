@@ -4,6 +4,7 @@ using System.Threading;
 
 using MediatR;
 using Models.Soils;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 
@@ -17,7 +18,9 @@ namespace Rems.Application.CQRS
         /// <summary>
         /// The source experiment
         /// </summary>
-        public int ExperimentId { get; set; }        
+        public int ExperimentId { get; set; }
+
+        public Markdown Report { get; set; }
     }
 
     public class SoilCropQueryHandler : IRequestHandler<SoilCropQuery, SoilCrop>

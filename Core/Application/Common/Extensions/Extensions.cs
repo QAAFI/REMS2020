@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Models;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,6 @@ namespace Rems.Application.Common.Extensions
                 checked { index++; }
                 action(element, index);
             }
-        }
+        }        
     }
 }

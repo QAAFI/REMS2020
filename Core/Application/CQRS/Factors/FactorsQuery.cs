@@ -1,16 +1,13 @@
 ﻿using MediatR;
-using Models;
 using Models.Factorial;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using REMSFactor = Rems.Domain.Entities.Factor;
 
 namespace Rems.Application.CQRS
 {
@@ -23,6 +20,8 @@ namespace Rems.Application.CQRS
         /// The experiment to model
         /// </summary>
         public int ExperimentId { get; set; }
+
+        public Markdown Report { get; set; }
     }
 
     public class FactorQueryHandler : IRequestHandler<FactorsQuery, Factors>

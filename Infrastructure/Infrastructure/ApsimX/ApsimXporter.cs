@@ -16,7 +16,6 @@ using Models.Factorial;
 using Models.Soils;
 using Models.Soils.Arbitrator;
 using Models.Surface;
-using Rems.Application.Common.Interfaces;
 
 namespace Rems.Infrastructure.ApsimX
 {
@@ -41,14 +40,13 @@ namespace Rems.Infrastructure.ApsimX
         /// <inheritdoc/>
         public override int Steps => Items * 29;
 
+        private Markdown report;
+
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
-        {
-            // Create a memo to track the export process
-            var summary = new Memo { Name = "ExportSummary" };
-            
+        {            
             // Create the file
             var path = Path.Combine("DataFiles", "apsimx", "Sorghum.apsimx");
             var simulations = JsonTools.LoadJson<Simulations>(path);
@@ -69,7 +67,10 @@ namespace Rems.Infrastructure.ApsimX
             }
 
             simulations.Children.Add(folder);
+
+            var summary = new Memo { Name = "ExportSummary", Text = report.Text };
             simulations.Children.Add(summary);
+
             simulations.ParentAllDescendants();
 
             // Save the file
@@ -136,14 +137,14 @@ namespace Rems.Infrastructure.ApsimX
                 await CreateFactors(id),
                 Create<Simulation>(name, new IModel[]
                 {
-                    await Request(new ClockQuery{ ExperimentId = id }),
+                    await Request(new ClockQuery{ ExperimentId = id, Report = report }),
                     Create<Summary>(),
-                    await Request(new WeatherQuery{ ExperimentId = id }),
+                    await Request(new WeatherQuery{ ExperimentId = id, Report = report }),
                     Create<SoilArbitrator>(),
-                    await Request(new ZoneQuery{ ExperimentId = id }, new IModel[]
+                    await Request(new ZoneQuery{ ExperimentId = id, Report = report }, new IModel[]
                     {
                         await InvokeQuery(new ManagersQuery()),
-                        await Request(new PlantQuery{ ExperimentId = id }),
+                        await Request(new PlantQuery{ ExperimentId = id, Report = report }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
                         Create<Operations>(),
@@ -160,7 +161,7 @@ namespace Rems.Infrastructure.ApsimX
 
         private async Task<IModel> CreateFactors(int id)
         {
-            var factors = await Request(new FactorsQuery{ ExperimentId = id });
+            var factors = await Request(new FactorsQuery{ ExperimentId = id, Report = report });
 
             foreach (var factor in factors.factors)
                 await PopulateFactor(factor);
@@ -186,13 +187,13 @@ namespace Rems.Infrastructure.ApsimX
         private async Task<IModel> CreateSoilModel(int id)
         {
             var soil = 
-                await Request(new SoilQuery { ExperimentId = id }, new IModel[] 
+                await Request(new SoilQuery { ExperimentId = id, Report = report }, new IModel[] 
                 {
-                    await Request(new PhysicalQuery{ ExperimentId = id }, new IModel[] 
+                    await Request(new PhysicalQuery{ ExperimentId = id, Report = report }, new IModel[] 
                     {
-                        await Request(new SoilCropQuery{ ExperimentId = id })
+                        await Request(new SoilCropQuery{ ExperimentId = id, Report = report })
                     }),
-                    await Request(new WaterBalanceQuery{ ExperimentId = id }),
+                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = report }),
                     Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
                     {
                         Create<SoilNitrogenNH4>("NH4"),
@@ -201,9 +202,9 @@ namespace Rems.Infrastructure.ApsimX
                         Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
                         Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
                     }),
-                    await Request(new OrganicQuery{ ExperimentId = id }),
-                    await Request(new ChemicalQuery{ ExperimentId = id }),
-                    await Request(new SampleQuery{ ExperimentId = id }),
+                    await Request(new OrganicQuery{ ExperimentId = id, Report = report }),
+                    await Request(new ChemicalQuery{ ExperimentId = id, Report = report }),
+                    await Request(new SampleQuery{ ExperimentId = id, Report = report }),
                     Create<CERESSoilTemperature>("Temperature")
                 });
 

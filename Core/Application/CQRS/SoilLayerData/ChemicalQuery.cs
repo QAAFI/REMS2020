@@ -5,9 +5,9 @@ using System.Threading;
 
 using MediatR;
 using Models.Soils;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common;
 
 namespace Rems.Application.CQRS
 {
@@ -20,6 +20,8 @@ namespace Rems.Application.CQRS
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
+
+        public Markdown Report { get; set; }
     }
 
     public class ChemicalQueryHandler : IRequestHandler<ChemicalQuery, Chemical>

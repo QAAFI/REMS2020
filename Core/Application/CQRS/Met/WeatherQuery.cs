@@ -6,6 +6,7 @@ using System.Threading;
 using System.Text;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -23,6 +24,8 @@ namespace Rems.Application.CQRS
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
+
+        public Markdown Report { get; set; }
     }
 
     public class WeatherQueryHandler : IRequestHandler<WeatherQuery, Weather>

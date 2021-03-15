@@ -4,6 +4,7 @@ using System.Threading;
 
 using MediatR;
 using Models.PMF;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -17,6 +18,8 @@ namespace Rems.Application.CQRS
         /// The experiment to generate the plant model from
         /// </summary>
         public int ExperimentId { get; set; }
+
+        public Markdown Report { get; set; }
     }
 
     public class PlantQueryHandler : IRequestHandler<PlantQuery, Plant>
