@@ -9,6 +9,7 @@ namespace Rems.Persistence
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
+            services.AddScoped<IFileManager, FileManager>();
             services.AddScoped<IRemsDbFactory, RemsDbFactory>();
             services.AddTransient(provider => provider.GetService<IRemsDbFactory>().Create());            
 

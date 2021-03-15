@@ -74,7 +74,6 @@ namespace Rems.Infrastructure.ApsimX
             OnTaskFinished();
         }
 
-        #region General
         /// <summary>
         /// Invokes a request for the specified Apsim model
         /// </summary>
@@ -119,7 +118,6 @@ namespace Rems.Infrastructure.ApsimX
 
             return model;
         }
-        #endregion
 
         /// <summary>
         /// Creates and populates an experiment model for Apsim
@@ -129,48 +127,101 @@ namespace Rems.Infrastructure.ApsimX
         private async Task<IModel> CreateExperiment(string name, int id)
         {
             // Creates a model tree
-            // The indentation below indicates depth in the tree, adjacent models at the same indentation 
+            // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
 
-            var experiment = 
-            Create<Experiment>(name, new IModel[] {
-                Create<Factors>("Factors", new IModel[] {
-                    await Request<PermutationQuery>(id ,null)}),
-                Create<Simulation>(name, new IModel[] {
+            var experiment =
+            Create<Experiment>(name, new IModel[]
+            {                
+                await CreateFactors(id),
+                Create<Simulation>(name, new IModel[]
+                {
                     await Request<ClockQuery>(id),
                     Create<Summary>(),
                     await Request<WeatherQuery>(id),
                     Create<SoilArbitrator>(),
-                    await Request<ZoneQuery>(id, new IModel[] {
+                    await Request<ZoneQuery>(id, new IModel[]
+                    {
+                        await InvokeQuery(new ManagersQuery()),
                         await Request<PlantQuery>(id),
-                        await Request<SoilQuery>(id, new IModel[] {
-                            await Request<PhysicalQuery>(id, new IModel[] {
-                                await Request<SoilCropQuery>(id)
-                            }),
-                            await Request<WaterBalanceQuery>(id),
-                            Create<SoilNitrogen>("SoilNitrogen", new IModel[] {
-                                Create<SoilNitrogenNH4>("NH4"),
-                                Create<SoilNitrogenNO3>("NO3"),
-                                Create<SoilNitrogenUrea>("Urea"),
-                                Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
-                                Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
-                            }),
-                            await Request<OrganicQuery>(id),
-                            await Request<ChemicalQuery>(id),
-                            await Request<SampleQuery>(id),
-                            Create<CERESSoilTemperature>("Temperature")
-                        }),
+                        await CreateSoilModel(id),
                         CreateOrganicMatter(),
                         Create<Operations>(),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport")
-                    })                    
+                    })
                 })
             });
 
             return experiment;
+        }
+
+        private async Task<IModel> CreateFactors(int id)
+        {
+            var factors = await Request<FactorsQuery>(id, null) as Factors;
+
+            foreach (var factor in factors.factors)
+                await PopulateFactor(factor);
+
+            return factors;
+        }
+
+        private async Task PopulateFactor(Factor factor)
+        {
+            switch (factor.Name)
+            {
+                case "Cultivar":
+                    foreach (CompositeFactor level in factor.Children.ToArray())
+                        level.Specifications.Add("[Sowing].Script.CultivarName = " + level.Name);
+                    return;
+
+                default:
+                    //await InvokeQuery(new AddLevelsCommand { Factor = factor });
+                    return;
+            }
+        }
+
+        private IModel CreateManagers()
+        {
+            var managers =
+                Create<Folder>("Managers", new IModel[]
+                {
+                    Create<Manager>("Sowing"),
+                    Create<Manager>("Irrigation"),
+                    Create<Manager>("Fertilisation"),
+                    Create<Manager>("Harvesting")
+                });
+
+            return managers;
+        }
+
+        private async Task<IModel> CreateSoilModel(int id)
+        {
+            var soil = 
+                await Request<SoilQuery>(id, new IModel[] 
+                {
+                    await Request<PhysicalQuery>(id, new IModel[] 
+                    {
+                        await Request<SoilCropQuery>(id)
+                    }),
+                    await Request<WaterBalanceQuery>(id),
+                    Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
+                    {
+                        Create<SoilNitrogenNH4>("NH4"),
+                        Create<SoilNitrogenNO3>("NO3"),
+                        Create<SoilNitrogenUrea>("Urea"),
+                        Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
+                        Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
+                    }),
+                    await Request<OrganicQuery>(id),
+                    await Request<ChemicalQuery>(id),
+                    await Request<SampleQuery>(id),
+                    Create<CERESSoilTemperature>("Temperature")
+                });
+
+            return soil;
         }
 
         private IModel CreateOrganicMatter()

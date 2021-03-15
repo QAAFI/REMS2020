@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Models;
 using Models.Factorial;
+using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using REMSFactor = Rems.Domain.Entities.Factor;
+
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Generates an APSIM Permutation model for an experiment
     /// </summary>
-    public class PermutationQuery : IRequest<Permutation>, IParameterised
+    public class FactorsQuery : IRequest<Factors>, IParameterised
     {
         /// <summary>
         /// The experiment to model
@@ -33,7 +36,7 @@ namespace Rems.Application.CQRS
         }
     }
 
-    public class FactorQueryHandler : IRequestHandler<PermutationQuery, Permutation>
+    public class FactorQueryHandler : IRequestHandler<FactorsQuery, Factors>
     {
         private readonly IRemsDbContext _context;
 
@@ -42,40 +45,29 @@ namespace Rems.Application.CQRS
             _context = context;
         }
 
-        public Task<Permutation> Handle(PermutationQuery request, CancellationToken token)
+        public Task<Factors> Handle(FactorsQuery request, CancellationToken token)
             => Task.Run(() => Handler(request, token));
 
-        private Permutation Handler(PermutationQuery request, CancellationToken token)
+        private Factors Handler(FactorsQuery request, CancellationToken token)
         {
-            var permutation = new Permutation();
+            var factors = new Factors { Name = "Factors" };
 
-            var levels = _context.Experiments.Find(request.ExperimentId)
-                .Treatments
-                .SelectMany(t => t.Designs)
-                .Select(d => d.Level)
-                .Distinct()
-                .ToArray(); // Necessary for GroupBy
+            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == request.ExperimentId).ToArray();
+            var fs = designs.Select(d => d.Level.Factor).Distinct().ToArray();
 
-            var factors = levels.GroupBy(l => l.Factor);
-
-            foreach (var factor in factors)
+            fs.ForEach(f =>
             {
-                var entity = factor.Key;
+                var factor = new Factor { Name = f.Name };
 
-                var model = new Factor()
-                {
-                    Name = entity.Name
-                };
+                designs.Select(d => d.Level)                    
+                    .Where(l => l.Factor == f)
+                    .Distinct()
+                    .ForEach(l => factor.Children.Add(new CompositeFactor { Name = l.Name, Specifications = new List<string>() }));
 
-                foreach (var level in factor)
-                {
-                    model.Children.Add(new CompositeFactor() { Name = level.Name });
-                }
+                factors.Children.Add(factor);
+            });
 
-                permutation.Children.Add(model);
-            }
-
-            return permutation;
+            return factors;
         }
     }
 }
