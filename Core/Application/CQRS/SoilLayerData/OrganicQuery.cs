@@ -13,21 +13,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates and APSIM Organic model for an experiment
     /// </summary>
-    public class OrganicQuery : IRequest<Organic>, IParameterised
+    public class OrganicQuery : IRequest<Organic>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
-
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count)
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }
     }
 
     public class OrganicQueryHandler : IRequestHandler<OrganicQuery, Organic>

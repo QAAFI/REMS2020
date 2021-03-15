@@ -14,21 +14,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM WaterBalance model for an experiment
     /// </summary>
-    public class WaterBalanceQuery : IRequest<WaterBalance>, IParameterised
+    public class WaterBalanceQuery : IRequest<WaterBalance>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
-
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count)
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }
     }
 
     public class WaterBalanceQueryHandler : IRequestHandler<WaterBalanceQuery, WaterBalance>

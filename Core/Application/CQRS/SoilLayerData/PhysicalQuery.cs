@@ -12,21 +12,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Physical model for an experiment
     /// </summary>
-    public class PhysicalQuery : IRequest<Physical>, IParameterised
+    public class PhysicalQuery : IRequest<Physical>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
-        public int ExperimentId { get; set; }
-
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count)
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }
+        public int ExperimentId { get; set; }        
     }
 
     public class PhysicalQueryHandler : IRequestHandler<PhysicalQuery, Physical>

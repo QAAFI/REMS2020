@@ -14,21 +14,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Chemical model for an experiment
     /// </summary>
-    public class ChemicalQuery : IRequest<Chemical>, IParameterised
+    public class ChemicalQuery : IRequest<Chemical>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
-        public int ExperimentId { get; set; }  
-
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count) 
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }        
+        public int ExperimentId { get; set; }
     }
 
     public class ChemicalQueryHandler : IRequestHandler<ChemicalQuery, Chemical>
