@@ -181,8 +181,14 @@ namespace Rems.Infrastructure.ApsimX
             switch (factor.Name)
             {
                 case "Cultivar":
-                    foreach (CompositeFactor level in factor.Children.ToArray())
+                    foreach (CompositeFactor level in factor.Children)
                         level.Specifications.Add("[Sowing].Script.CultivarName = " + level.Name);
+                    return;
+
+                case "N Rates":
+                case "NRates":
+                    foreach (CompositeFactor level in factor.Children)
+                        level.Specifications.Add("[Fertilisation].Script.Amount = " + level.Name);
                     return;
 
                 default:
