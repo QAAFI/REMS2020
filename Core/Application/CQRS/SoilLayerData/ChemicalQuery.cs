@@ -39,14 +39,20 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
+            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
+            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var NO3N = _context.GetSoilLayerTraitData(layers, "NO3N");
+            var NH4N = _context.GetSoilLayerTraitData(layers, "NH4N");
+            var PH = _context.GetSoilLayerTraitData(layers, "PH");
+
             var chemical = new Chemical()
             {
                 Name = "Chemical",
-                Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
-                Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
-                NO3N = _context.GetSoilLayerTraitData(layers, "NO3N"),
-                NH4N = _context.GetSoilLayerTraitData(layers, "NH4N"),
-                PH = _context.GetSoilLayerTraitData(layers, "PH")
+                Depth = request.Report.ValidateItem(depth, "Chemical.Depth"),
+                Thickness = request.Report.ValidateItem(thickness, "Chemical.Thickness"),
+                NO3N = request.Report.ValidateItem(NO3N, "Chemical.NO3N"),
+                NH4N = request.Report.ValidateItem(NH4N, "Chemical.NH4N"),
+                PH = request.Report.ValidateItem(PH, "Chemical.PH")
             };
 
             return chemical;

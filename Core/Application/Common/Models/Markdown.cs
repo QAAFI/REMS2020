@@ -11,11 +11,28 @@ namespace Rems.Application.Common
 
         private StringBuilder builder = new StringBuilder();
 
+        public void Clear() => builder.Clear();
+
+        public T ValidateItem<T>(T item, string name)
+        {
+            if (Equals(item, default(T)))           
+                AddLine("* Could not find a value for item " + name);
+
+            return item;
+        }
+
         public void AddHeading(string heading)
             => builder.AppendLine("# " + heading);
 
-        public void AddSubHeading(string subheading)
-            => builder.AppendLine("## " + subheading);
+        public void AddSubHeading(string subheading, byte depth = 1)
+        {
+            string hash = "#";
+            for (byte i = 0; i < depth; i++)
+                hash += '#';
+            hash += ' ';
+
+            builder.AppendLine(hash + subheading);
+        }
 
         public void AddLine(string line)
             => builder.AppendLine(line);

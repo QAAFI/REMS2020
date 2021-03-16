@@ -36,12 +36,13 @@ namespace Rems.Application.CQRS
         private Plant Handler(PlantQuery request)
         {
             var crop = _context.Experiments.Find(request.ExperimentId).Crop;
+            var name = request.Report.ValidateItem(crop.Name, "Crop.Name");
 
-            var plant = new Plant()
+            var plant = new Plant
             {
-                PlantType = crop.Name,
-                Name = crop.Name,
-                ResourceName = crop.Name
+                PlantType = name,
+                Name = name,
+                ResourceName = name
             };
             
             return plant;

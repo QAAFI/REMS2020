@@ -39,16 +39,24 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
+            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
+            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var carbon = _context.GetSoilLayerTraitData(layers, "Carbon");
+            var soilCNRatio = _context.GetSoilLayerTraitData(layers, "SoilCNRatio");
+            var FBiom = _context.GetSoilLayerTraitData(layers, "FBiom");
+            var FInert = _context.GetSoilLayerTraitData(layers, "FInert");
+            var FOM = _context.GetSoilLayerTraitData(layers, "FOM");
+
             var organic = new Organic()
             {
                 Name = "Organic",
-                Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
-                Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
-                Carbon = _context.GetSoilLayerTraitData(layers, "Carbon"),
-                SoilCNRatio = _context.GetSoilLayerTraitData(layers, "SoilCNRatio"),
-                FBiom = _context.GetSoilLayerTraitData(layers, "FBiom"),
-                FInert = _context.GetSoilLayerTraitData(layers, "FInert"),
-                FOM = _context.GetSoilLayerTraitData(layers, "FOM")
+                Depth = request.Report.ValidateItem(depth, "Organic.Depth"),
+                Thickness = request.Report.ValidateItem(thickness, "Organic.Thickness"),
+                Carbon = request.Report.ValidateItem(carbon, "Organic.Carbon"),
+                SoilCNRatio = request.Report.ValidateItem(soilCNRatio, "Organic.SoilCNRatio"),
+                FBiom = request.Report.ValidateItem(FBiom, "Organic.FBiom"),
+                FInert = request.Report.ValidateItem(FInert, "Organic.FInert"),
+                FOM = request.Report.ValidateItem(FOM, "Organic.FOM")
             };
 
             return organic;

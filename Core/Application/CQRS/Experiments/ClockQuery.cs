@@ -40,8 +40,8 @@ namespace Rems.Application.CQRS
             var clock = new Clock()
             {
                 Name = "Clock",
-                StartDate = exp.BeginDate,
-                EndDate = exp.EndDate
+                StartDate = request.Report.ValidateItem(exp.BeginDate, "Clock.StartDate"),
+                EndDate = request.Report.ValidateItem(exp.EndDate, "Clock.EndDate")
             };
 
             return clock;

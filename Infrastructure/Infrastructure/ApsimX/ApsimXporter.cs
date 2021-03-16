@@ -38,15 +38,19 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => Experiments.Count();
 
         /// <inheritdoc/>
-        public override int Steps => Items * 29;
+        public override int Steps => Items * 28;
 
-        private Markdown report;
+        private Markdown report = new Markdown();
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
-        {            
+        {
+            // Reset the markdown report
+            report.Clear();
+            report.AddSubHeading("REMS export summary", 1);
+
             // Create the file
             var path = Path.Combine("DataFiles", "apsimx", "Sorghum.apsimx");
             var simulations = JsonTools.LoadJson<Simulations>(path);
@@ -131,6 +135,9 @@ namespace Rems.Infrastructure.ApsimX
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
 
+            
+            report.AddSubHeading(name + ':', 2);
+
             var experiment =
             Create<Experiment>(name, new IModel[]
             {                
@@ -155,7 +162,7 @@ namespace Rems.Infrastructure.ApsimX
                     })
                 })
             });
-
+            report.AddLine("\n");
             return experiment;
         }
 
@@ -179,7 +186,7 @@ namespace Rems.Infrastructure.ApsimX
                     return;
 
                 default:
-                    //await InvokeQuery(new AddLevelsCommand { Factor = factor });
+                    report.AddLine("* No specification found for factor " + factor.Name);
                     return;
             }
         }

@@ -40,13 +40,15 @@ namespace Rems.Application.CQRS
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var swcon = _context.GetSoilLayerTraitData(layers, "SWCON");
+            var klat = _context.GetSoilLayerTraitData(layers, "KLAT");
 
             var water = new WaterBalance()
             {
                 Name = "SoilWater",
-                Thickness = thickness,
-                SWCON = _context.GetSoilLayerTraitData(layers, "SWCON"),
-                KLAT = _context.GetSoilLayerTraitData(layers, "KLAT"),
+                Thickness = request.Report.ValidateItem(thickness, "WaterBalance.Thickness"),
+                SWCON = request.Report.ValidateItem(swcon, "WaterBalance.SWCON"),
+                KLAT = request.Report.ValidateItem(klat, "WaterBalance.KLAT"),
                 SummerDate = "1-Nov",
                 SummerU = 6.0,
                 SummerCona = 3.5,

@@ -36,11 +36,12 @@ namespace Rems.Application.CQRS
         private Zone Handler(ZoneQuery request)
         {
             var field = _context.Experiments.Find(request.ExperimentId).Field;
-
-            var zone = new Zone()
+            var slope = field.Slope.GetValueOrDefault();
+            
+            var zone = new Zone
             {
-                Name = "Field",
-                Slope = field.Slope.GetValueOrDefault(),
+                Name = request.Report.ValidateItem(field.Name, "Zone.Name"),
+                Slope = request.Report.ValidateItem(slope, "Zone.Slope"),
                 Area = 1
             };
 

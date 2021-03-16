@@ -43,27 +43,22 @@ namespace Rems.Application.CQRS
         {
             // Find the MetStation used by the experiment
             var met = _context.Experiments.Find(request.ExperimentId)
-                .MetStation
-                .Name;
+                .MetStation;
+
+            if (!met.MetData.Any()) request.Report.ValidateItem("", "Weather Data");
 
             // Create a .met file to output to
-            string file = met.Replace('/', '-').Replace(' ', '_') + ".met";
+            string file = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
 
-            if (!File.Exists(file))
+            using (var stream = new FileStream(file, FileMode.Create))
+            using (var writer = new StreamWriter(stream))
             {
-                using (var stream = new FileStream(file, FileMode.Create))
-                using (var writer = new StreamWriter(stream))
-                {
-                    var contents = BuildContents(request.ExperimentId);
-                    writer.Write(contents);
-                    writer.Close();
-                }
+                var contents = BuildContents(request.ExperimentId);
+                writer.Write(contents);
+                writer.Close();
             }
 
-            return new Weather()
-            {
-                FileName = file
-            };
+            return new Weather { FileName = file };
         }
 
         private string BuildContents(int id)

@@ -37,13 +37,19 @@ namespace Rems.Application.CQRS
         {
             var field = _context.Experiments.Find(request.ExperimentId).Field;
 
-            var soil = new Soil()
+            var name = request.Report.ValidateItem(field.Soil.SoilType, "Soil.Name");
+            var lat = request.Report.ValidateItem(field.Latitude.GetValueOrDefault(), "Field.Latitude");
+            var lon = request.Report.ValidateItem(field.Longitude.GetValueOrDefault(), "Field.Longitude");
+            var site = request.Report.ValidateItem(field.Site.Name, "Soil.Site");
+            var region = request.Report.ValidateItem(field.Site.Region.Name, "Soil.Region");
+
+            var soil = new Soil
             {
-                Name = field.Soil.SoilType,
-                Latitude = field.Latitude.GetValueOrDefault(),
-                Longitude = field.Longitude.GetValueOrDefault(),
-                Site = field.Site.Name,
-                Region = field.Site.Region.Name
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Site = site,
+                Region = region
             };
 
             return soil;

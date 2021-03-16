@@ -40,16 +40,23 @@ namespace Rems.Application.CQRS
 
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
 
+            var bd = _context.GetSoilLayerTraitData(layers, "BD");
+            var airdry = _context.GetSoilLayerTraitData(layers, "AirDry");
+            var ll15 = _context.GetSoilLayerTraitData(layers, "LL15");
+            var dul = _context.GetSoilLayerTraitData(layers, "DUL");
+            var sat = _context.GetSoilLayerTraitData(layers, "SAT");
+            var ks = _context.GetSoilLayerTraitData(layers, "KS");
+
             var physical = new Physical()
             {
                 Name = "Physical",
                 Thickness = thickness,
-                BD = _context.GetSoilLayerTraitData(layers, "BD"),
-                AirDry = _context.GetSoilLayerTraitData(layers, "AirDry"),
-                LL15 = _context.GetSoilLayerTraitData(layers, "LL15"),
-                DUL = _context.GetSoilLayerTraitData(layers, "DUL"),
-                SAT = _context.GetSoilLayerTraitData(layers, "SAT"),
-                KS = _context.GetSoilLayerTraitData(layers, "KS")
+                BD = request.Report.ValidateItem(bd, "Physical.BD"),
+                AirDry = request.Report.ValidateItem(airdry, "Physical.AirDry"),
+                LL15 = request.Report.ValidateItem(ll15, "Physical.LL15"),
+                DUL = request.Report.ValidateItem(dul, "Physical.DUL"),
+                SAT = request.Report.ValidateItem(sat, "Physical.SAT"),
+                KS = request.Report.ValidateItem(ks, "Physical.KS")
             };
 
             return physical;
