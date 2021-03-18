@@ -4,6 +4,7 @@ using System.Threading;
 
 using MediatR;
 using Models;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,23 +12,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM clock model for an experiment
     /// </summary>
-    public class ClockQuery : IRequest<Clock>, IParameterised
+    public class ClockQuery : IRequest<Clock>
     {   
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public void Parameterise(params object[] args)
-        {
-            if (args.Length != 1) 
-                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
-
-            if (args[0] is int id)
-                ExperimentId = id;
-            else
-                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
-        }
+        public Markdown Report { get; set; }
     }
 
     public class ClockQueryHandler : IRequestHandler<ClockQuery, Clock>
@@ -48,8 +40,8 @@ namespace Rems.Application.CQRS
             var clock = new Clock()
             {
                 Name = "Clock",
-                StartDate = exp.BeginDate,
-                EndDate = exp.EndDate
+                StartDate = request.Report.ValidateItem(exp.BeginDate, "Clock.StartDate"),
+                EndDate = request.Report.ValidateItem(exp.EndDate, "Clock.EndDate")
             };
 
             return clock;

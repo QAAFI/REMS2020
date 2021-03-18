@@ -16,7 +16,6 @@ using Models.Factorial;
 using Models.Soils;
 using Models.Soils.Arbitrator;
 using Models.Surface;
-using Rems.Application.Common.Interfaces;
 
 namespace Rems.Infrastructure.ApsimX
 {
@@ -39,13 +38,19 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => Experiments.Count();
 
         /// <inheritdoc/>
-        public override int Steps => Items * 29;
+        public override int Steps => Items * 28;
+
+        private Markdown report = new Markdown();
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
         {
+            // Reset the markdown report
+            report.Clear();
+            report.AddSubHeading("REMS export summary", 1);
+
             // Create the file
             var path = Path.Combine("DataFiles", "apsimx", "Sorghum.apsimx");
             var simulations = JsonTools.LoadJson<Simulations>(path);
@@ -66,6 +71,10 @@ namespace Rems.Infrastructure.ApsimX
             }
 
             simulations.Children.Add(folder);
+
+            var summary = new Memo { Name = "ExportSummary", Text = report.Text };
+            simulations.Children.Add(summary);
+
             simulations.ParentAllDescendants();
 
             // Save the file
@@ -74,20 +83,15 @@ namespace Rems.Infrastructure.ApsimX
             OnTaskFinished();
         }
 
-        #region General
         /// <summary>
         /// Invokes a request for the specified Apsim model
         /// </summary>
         /// <typeparam name="R">A request that can be parameterised with specific values</typeparam>
         /// <param name="id">The experiment data is requested from</param>
         /// <param name="children">Any child models to include</param>
-        private async Task<IModel> Request<R>(int id, IEnumerable<IModel> children = null)
-            where R : IRequest<IModel>, IParameterised, new()
+        private async Task<T> Request<T>(IRequest<T> query, IEnumerable<IModel> children = null) where T : IModel
         {
-            // Create and invoke a request for data
-            var request = new R();
-            request.Parameterise(id);
-            var model = await InvokeQuery(request);
+            var model = await InvokeQuery(query);
 
             // Attach child models
             if (children != null) foreach (var child in children)
@@ -119,7 +123,6 @@ namespace Rems.Infrastructure.ApsimX
 
             return model;
         }
-        #endregion
 
         /// <summary>
         /// Creates and populates an experiment model for Apsim
@@ -129,48 +132,96 @@ namespace Rems.Infrastructure.ApsimX
         private async Task<IModel> CreateExperiment(string name, int id)
         {
             // Creates a model tree
-            // The indentation below indicates depth in the tree, adjacent models at the same indentation 
+            // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
 
-            var experiment = 
-            Create<Experiment>(name, new IModel[] {
-                Create<Factors>("Factors", new IModel[] {
-                    await Request<PermutationQuery>(id ,null)}),
-                Create<Simulation>(name, new IModel[] {
-                    await Request<ClockQuery>(id),
+            
+            report.AddSubHeading(name + ':', 2);
+
+            var experiment =
+            Create<Experiment>(name, new IModel[]
+            {                
+                await CreateFactors(id),
+                Create<Simulation>(name, new IModel[]
+                {
+                    await Request(new ClockQuery{ ExperimentId = id, Report = report }),
                     Create<Summary>(),
-                    await Request<WeatherQuery>(id),
+                    await Request(new WeatherQuery{ ExperimentId = id, Report = report }),
                     Create<SoilArbitrator>(),
-                    await Request<ZoneQuery>(id, new IModel[] {
-                        await Request<PlantQuery>(id),
-                        await Request<SoilQuery>(id, new IModel[] {
-                            await Request<PhysicalQuery>(id, new IModel[] {
-                                await Request<SoilCropQuery>(id)
-                            }),
-                            await Request<WaterBalanceQuery>(id),
-                            Create<SoilNitrogen>("SoilNitrogen", new IModel[] {
-                                Create<SoilNitrogenNH4>("NH4"),
-                                Create<SoilNitrogenNO3>("NO3"),
-                                Create<SoilNitrogenUrea>("Urea"),
-                                Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
-                                Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
-                            }),
-                            await Request<OrganicQuery>(id),
-                            await Request<ChemicalQuery>(id),
-                            await Request<SampleQuery>(id),
-                            Create<CERESSoilTemperature>("Temperature")
-                        }),
+                    await Request(new ZoneQuery{ ExperimentId = id, Report = report }, new IModel[]
+                    {
+                        await InvokeQuery(new ManagersQuery()),
+                        await Request(new PlantQuery{ ExperimentId = id, Report = report }),
+                        await CreateSoilModel(id),
                         CreateOrganicMatter(),
                         Create<Operations>(),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport")
-                    })                    
+                    })
                 })
             });
-
+            report.AddLine("\n");
             return experiment;
+        }
+
+        private async Task<IModel> CreateFactors(int id)
+        {
+            var factors = await Request(new FactorsQuery{ ExperimentId = id, Report = report });
+
+            foreach (var factor in factors.factors)
+                await PopulateFactor(factor);
+
+            return factors;
+        }
+
+        private async Task PopulateFactor(Factor factor)
+        {
+            switch (factor.Name)
+            {
+                case "Cultivar":
+                    foreach (CompositeFactor level in factor.Children)
+                        level.Specifications.Add("[Sowing].Script.CultivarName = " + level.Name);
+                    return;
+
+                case "N Rates":
+                case "NRates":
+                    foreach (CompositeFactor level in factor.Children)
+                        level.Specifications.Add("[Fertilisation].Script.Amount = " + level.Name);
+                    return;
+
+                default:
+                    report.AddLine("* No specification found for factor " + factor.Name);
+                    return;
+            }
+        }
+
+        private async Task<IModel> CreateSoilModel(int id)
+        {
+            var soil = 
+                await Request(new SoilQuery { ExperimentId = id, Report = report }, new IModel[] 
+                {
+                    await Request(new PhysicalQuery{ ExperimentId = id, Report = report }, new IModel[] 
+                    {
+                        await Request(new SoilCropQuery{ ExperimentId = id, Report = report })
+                    }),
+                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = report }),
+                    Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
+                    {
+                        Create<SoilNitrogenNH4>("NH4"),
+                        Create<SoilNitrogenNO3>("NO3"),
+                        Create<SoilNitrogenUrea>("Urea"),
+                        Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
+                        Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
+                    }),
+                    await Request(new OrganicQuery{ ExperimentId = id, Report = report }),
+                    await Request(new ChemicalQuery{ ExperimentId = id, Report = report }),
+                    await Request(new SampleQuery{ ExperimentId = id, Report = report }),
+                    Create<CERESSoilTemperature>("Temperature")
+                });
+
+            return soil;
         }
 
         private IModel CreateOrganicMatter()

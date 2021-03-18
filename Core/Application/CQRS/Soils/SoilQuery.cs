@@ -4,6 +4,7 @@ using System.Threading;
 
 using MediatR;
 using Models.Soils;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,23 +12,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Soil model for an experiment
     /// </summary>
-    public class SoilQuery : IRequest<Soil>, IParameterised
+    public class SoilQuery : IRequest<Soil>
     {   
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public void Parameterise(params object[] args)
-        {
-            if (args.Length != 1) 
-                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
-
-            if (args[0] is int id)
-                ExperimentId = id;
-            else
-                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
-        }
+        public Markdown Report { get; set; }
     }
 
     public class SoilQueryHandler : IRequestHandler<SoilQuery, Soil>
@@ -45,13 +37,19 @@ namespace Rems.Application.CQRS
         {
             var field = _context.Experiments.Find(request.ExperimentId).Field;
 
-            var soil = new Soil()
+            var name = request.Report.ValidateItem(field.Soil.SoilType, "Soil.Name");
+            var lat = request.Report.ValidateItem(field.Latitude.GetValueOrDefault(), "Field.Latitude");
+            var lon = request.Report.ValidateItem(field.Longitude.GetValueOrDefault(), "Field.Longitude");
+            var site = request.Report.ValidateItem(field.Site.Name, "Soil.Site");
+            var region = request.Report.ValidateItem(field.Site.Region.Name, "Soil.Region");
+
+            var soil = new Soil
             {
-                Name = field.Soil.SoilType,
-                Latitude = field.Latitude.GetValueOrDefault(),
-                Longitude = field.Longitude.GetValueOrDefault(),
-                Site = field.Site.Name,
-                Region = field.Site.Region.Name
+                Name = name,
+                Latitude = lat,
+                Longitude = lon,
+                Site = site,
+                Region = region
             };
 
             return soil;

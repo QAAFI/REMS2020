@@ -5,6 +5,7 @@ using System.Threading;
 
 using MediatR;
 using Models.Soils;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 
@@ -13,21 +14,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates and APSIM Organic model for an experiment
     /// </summary>
-    public class OrganicQuery : IRequest<Organic>, IParameterised
+    public class OrganicQuery : IRequest<Organic>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count)
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }
+        public Markdown Report { get; set; }
     }
 
     public class OrganicQueryHandler : IRequestHandler<OrganicQuery, Organic>
@@ -45,16 +39,24 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
+            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
+            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var carbon = _context.GetSoilLayerTraitData(layers, "Carbon");
+            var soilCNRatio = _context.GetSoilLayerTraitData(layers, "SoilCNRatio");
+            var FBiom = _context.GetSoilLayerTraitData(layers, "FBiom");
+            var FInert = _context.GetSoilLayerTraitData(layers, "FInert");
+            var FOM = _context.GetSoilLayerTraitData(layers, "FOM");
+
             var organic = new Organic()
             {
                 Name = "Organic",
-                Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
-                Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
-                Carbon = _context.GetSoilLayerTraitData(layers, "Carbon"),
-                SoilCNRatio = _context.GetSoilLayerTraitData(layers, "SoilCNRatio"),
-                FBiom = _context.GetSoilLayerTraitData(layers, "FBiom"),
-                FInert = _context.GetSoilLayerTraitData(layers, "FInert"),
-                FOM = _context.GetSoilLayerTraitData(layers, "FOM")
+                Depth = request.Report.ValidateItem(depth, "Organic.Depth"),
+                Thickness = request.Report.ValidateItem(thickness, "Organic.Thickness"),
+                Carbon = request.Report.ValidateItem(carbon, "Organic.Carbon"),
+                SoilCNRatio = request.Report.ValidateItem(soilCNRatio, "Organic.SoilCNRatio"),
+                FBiom = request.Report.ValidateItem(FBiom, "Organic.FBiom"),
+                FInert = request.Report.ValidateItem(FInert, "Organic.FInert"),
+                FOM = request.Report.ValidateItem(FOM, "Organic.FOM")
             };
 
             return organic;

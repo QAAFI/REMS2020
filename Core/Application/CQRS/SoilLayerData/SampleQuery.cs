@@ -5,6 +5,7 @@ using System.Threading;
 
 using MediatR;
 using Models.Soils;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 
@@ -13,21 +14,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Sample model for an experiment
     /// </summary>
-    public class SampleQuery : IRequest<Sample>, IParameterised
+    public class SampleQuery : IRequest<Sample>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public void Parameterise(params object[] args)
-        {
-            int count = GetType().GetProperties().Length;
-            if (args.Length != count)
-                throw new Exception($"Invalid number of parameters. \n Expected: {count} \n Received: {args.Length}");
-
-            ExperimentId = this.CastParam<int>(args[0]);
-        }
+        public Markdown Report { get; set; }
     }
 
     public class SampleQueryHandler : IRequestHandler<SampleQuery, Sample>

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Text;
 
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,23 +18,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Weather model for an experiment
     /// </summary>
-    public class WeatherQuery : IRequest<Weather>, IParameterised
+    public class WeatherQuery : IRequest<Weather>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public void Parameterise(params object[] args)
-        {
-            if (args.Length != 1)
-                throw new Exception($"Invalid number of parameters. \n Expected: 1 \n Received: {args.Length}");
-
-            if (args[0] is int id)
-                ExperimentId = id;
-            else
-                throw new Exception($"Invalid parameter type. \n Expected: {typeof(int)} \n Received: {args[0].GetType()}");
-        }
+        public Markdown Report { get; set; }
     }
 
     public class WeatherQueryHandler : IRequestHandler<WeatherQuery, Weather>
@@ -51,27 +43,22 @@ namespace Rems.Application.CQRS
         {
             // Find the MetStation used by the experiment
             var met = _context.Experiments.Find(request.ExperimentId)
-                .MetStation
-                .Name;
+                .MetStation;
+
+            if (!met.MetData.Any()) request.Report.ValidateItem("", "Weather Data");
 
             // Create a .met file to output to
-            string file = met.Replace('/', '-').Replace(' ', '_') + ".met";
+            string file = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
 
-            if (!File.Exists(file))
+            using (var stream = new FileStream(file, FileMode.Create))
+            using (var writer = new StreamWriter(stream))
             {
-                using (var stream = new FileStream(file, FileMode.Create))
-                using (var writer = new StreamWriter(stream))
-                {
-                    var contents = BuildContents(request.ExperimentId);
-                    writer.Write(contents);
-                    writer.Close();
-                }
+                var contents = BuildContents(request.ExperimentId);
+                writer.Write(contents);
+                writer.Close();
             }
 
-            return new Weather()
-            {
-                FileName = file
-            };
+            return new Weather { FileName = file };
         }
 
         private string BuildContents(int id)
