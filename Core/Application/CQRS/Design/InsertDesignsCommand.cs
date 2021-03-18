@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediatR;
+using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
@@ -39,24 +41,26 @@ namespace Rems.Application.CQRS
             // Assume the first four columns contain other data
             var cols = request.Table.Columns.Cast<DataColumn>().Skip(4);
             var rows = request.Table.Rows.Cast<DataRow>();
-            
-            foreach (var c in cols)
-            {
-                // Find or create a factor for the column
-                var factor = _context.Factors.FirstOrDefault(f => f.Name == c.ColumnName);
-                if (factor is null)
-                {
-                    factor = new Factor() { Name = c.ColumnName };
-                    _context.Attach(factor);
-                }
 
+            //var regex = new Regex(@"\s+");
+            
+            foreach (var col in cols)
+            {
                 // For the factor column, convert each row into a level
                 var levels = rows
-                    .Select(r => r[c])
-                    .Where(o => !(o is DBNull))
+                    .Select(r => r[col])
+                    .Where(o => !(o is DBNull) && o.ToString() != "")
                     .Select(o => o.ToString())
                     .Distinct()
                     .ToArray();
+
+                //var colname = regex.Replace(col.ColumnName, "").ToUpper();
+                var colname = col.ColumnName.Replace(" ", "").ToUpper();
+
+                // Find or create a factor for the column
+                var factor = _context.Factors.FirstOrDefault(f => f.Name.Replace(" ", "").ToUpper() == colname)
+                    ?? new Factor() { Name = col.ColumnName };                
+                _context.Attach(factor);                
 
                 // Add the levels as entities
                 foreach (string name in levels)

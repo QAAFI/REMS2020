@@ -226,7 +226,9 @@ namespace Rems.Application.Common.Extensions
             {"tav", "TemperatureAverage" },
             {"PlotID", "Plot" },
             {"Reps", "Repetitions" },
-            {"RepNo", "Repetition" }
+            {"Rep", "Repetition" },
+            {"RepNo", "Repetition" },
+            {"RowSpan", "RowSpace" }
         };
 
         /// <summary>
