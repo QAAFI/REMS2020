@@ -4,6 +4,7 @@ using Models.Core;
 using Models.Core.ApsimFile;
 
 using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
 using System;
@@ -178,23 +179,44 @@ namespace Rems.Infrastructure.ApsimX
 
         private async Task PopulateFactor(Factor factor)
         {
+            string specification = "";
+            
             switch (factor.Name)
             {
                 case "Cultivar":
-                    foreach (CompositeFactor level in factor.Children)
-                        level.Specifications.Add("[Sowing].Script.CultivarName = " + level.Name);
-                    return;
+                    specification = "[Sowing].Script.CultivarName = ";                    
+                    break;
 
+                case "Sow Date":
+                case "Planting Date":
+                    specification = "[Sowing].Script.SowDate = ";
+                    break;
+
+                case "Row spacing":
+                    specification = "[Sowing].Script.RowSpacing = ";
+                    break;
+
+                case "Population":
+                    specification = "";
+                    break;
+
+                case "Nitrogen":
                 case "N Rates":
                 case "NRates":
-                    foreach (CompositeFactor level in factor.Children)
-                        level.Specifications.Add("[Fertilisation].Script.Amount = " + level.Name);
-                    return;
+                    specification = "[Fertilisation].Script.Amount = ";
+                    break;
 
+                case "Treatment":
+                case "Density":
+                case "DayLength":
+                case "Irrigation":
                 default:
                     report.AddLine("* No specification found for factor " + factor.Name);
-                    return;
+                    break;
             }
+
+            Action<CompositeFactor> specify = level => level.Specifications.Add(specification + level.Name);
+            factor.Children.ForEach(specify);
         }
 
         private async Task<IModel> CreateSoilModel(int id)
