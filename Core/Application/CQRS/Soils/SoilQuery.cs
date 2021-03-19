@@ -37,19 +37,21 @@ namespace Rems.Application.CQRS
         {
             var field = _context.Experiments.Find(request.ExperimentId).Field;
 
-            var name = request.Report.ValidateItem(field.Soil.SoilType, "Soil.Name");
-            var lat = request.Report.ValidateItem(field.Latitude.GetValueOrDefault(), "Field.Latitude");
-            var lon = request.Report.ValidateItem(field.Longitude.GetValueOrDefault(), "Field.Longitude");
-            var site = request.Report.ValidateItem(field.Site.Name, "Soil.Site");
-            var region = request.Report.ValidateItem(field.Site.Region.Name, "Soil.Region");
+            var valid = request.Report.ValidateItem(field.Soil.SoilType, nameof(Soil.Name))
+                & request.Report.ValidateItem(field.Latitude.GetValueOrDefault(), nameof(Soil.Latitude))
+                & request.Report.ValidateItem(field.Longitude.GetValueOrDefault(), nameof(Soil.Longitude))
+                & request.Report.ValidateItem(field.Site.Name, nameof(Soil.Site))
+                & request.Report.ValidateItem(field.Site.Region.Name, nameof(Soil.Region));
+
+            request.Report.CommitValidation(nameof(Soil), !valid);
 
             var soil = new Soil
             {
-                Name = name,
-                Latitude = lat,
-                Longitude = lon,
-                Site = site,
-                Region = region
+                Name = field.Soil.SoilType,
+                Latitude = field.Latitude.GetValueOrDefault(),
+                Longitude = field.Longitude.GetValueOrDefault(),
+                Site = field.Site.Name,
+                Region = field.Site.Region.Name
             };
 
             return soil;
