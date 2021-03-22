@@ -11,14 +11,35 @@ namespace Rems.Application.Common
 
         private StringBuilder builder = new StringBuilder();
 
-        public void Clear() => builder.Clear();
+        private StringBuilder validater = new StringBuilder();
 
-        public T ValidateItem<T>(T item, string name)
+        public void Clear() => builder.Clear();               
+
+        /// <summary>
+        /// Begins tracking an item in the validater
+        /// </summary>
+        public bool ValidateItem<T>(T value, string name)
         {
-            if (Equals(item, default(T)))           
-                AddLine("* Could not find a value for item " + name);
+            bool valid = !value?.Equals(default(T)) ?? false;
+            
+            if (!valid)
+                validater.AppendLine("* Could not find value for " + name);
 
-            return item;
+            return valid;
+        }
+
+        /// <summary>
+        /// Commits all items tracked in the validater to the markdown with the specified heading
+        /// </summary>
+        public void CommitValidation(string heading, bool commit)
+        {
+            if (commit)
+            {
+                builder.AppendLine("#### \t**" + heading + "**");
+                builder.AppendLine(validater.ToString());
+            }
+
+            validater.Clear();
         }
 
         public void AddHeading(string heading)

@@ -40,22 +40,34 @@ namespace Rems.Application.CQRS
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
-            var swcon = _context.GetSoilLayerTraitData(layers, "SWCON");
-            var klat = _context.GetSoilLayerTraitData(layers, "KLAT");
+            var swcon = _context.GetSoilLayerTraitData(layers, nameof(WaterBalance.SWCON));
+            var klat = _context.GetSoilLayerTraitData(layers, nameof(WaterBalance.KLAT));
+
+            bool valid = 
+                request.Report.ValidateItem(thickness, nameof(WaterBalance.Thickness))
+                & request.Report.ValidateItem(swcon, nameof(WaterBalance.SWCON))
+                & request.Report.ValidateItem(klat, nameof(WaterBalance.KLAT));
+
+            request.Report.CommitValidation(nameof(WaterBalance), !valid);
 
             var water = new WaterBalance()
             {
                 Name = "SoilWater",
-                Thickness = request.Report.ValidateItem(thickness, "WaterBalance.Thickness"),
-                SWCON = request.Report.ValidateItem(swcon, "WaterBalance.SWCON"),
-                KLAT = request.Report.ValidateItem(klat, "WaterBalance.KLAT"),
+                Thickness = thickness,
+                SWCON = swcon,
+                KLAT = klat,
                 SummerDate = "1-Nov",
-                SummerU = 6.0,
-                SummerCona = 3.5,
+                SummerU = 1.5,
+                SummerCona = 6.5,
                 WinterDate = "1-Apr",
-                WinterU = 6.0,
-                WinterCona = 3.5,
-                Salb = 0.11
+                WinterU = 1.5,
+                WinterCona = 6.5,
+                DiffusConst = 40,
+                DiffusSlope = 16,
+                Salb = 0.2,
+                CN2Bare = 85,
+                DischargeWidth = double.NaN,
+                CatchmentArea = double.NaN
             };
 
             return water;

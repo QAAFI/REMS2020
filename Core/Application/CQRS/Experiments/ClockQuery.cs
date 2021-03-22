@@ -37,11 +37,17 @@ namespace Rems.Application.CQRS
         {
             var exp = _context.Experiments.Find(request.ExperimentId);
 
+            bool valid = 
+                request.Report.ValidateItem(exp.BeginDate, nameof(Clock.StartDate))
+                & request.Report.ValidateItem(exp.EndDate, nameof(Clock.EndDate));
+
+            request.Report.CommitValidation(nameof(Clock), !valid);
+
             var clock = new Clock()
             {
                 Name = "Clock",
-                StartDate = request.Report.ValidateItem(exp.BeginDate, "Clock.StartDate"),
-                EndDate = request.Report.ValidateItem(exp.EndDate, "Clock.EndDate")
+                StartDate = exp.BeginDate,
+                EndDate = exp.EndDate
             };
 
             return clock;

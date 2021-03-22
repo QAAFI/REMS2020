@@ -56,7 +56,11 @@ namespace Rems.Application.CQRS
 
                 foreach (var t in tGroup)
                 {
-                    var levels = t.First().ItemArray.Skip(4).Select(o => o.ToString()).ToArray();
+                    var levels = t.First().ItemArray
+                        .Skip(4)
+                        .Select(o => o.ToString().Replace(" ", "").ToUpper())
+                        .ToArray();
+
                     var treatment = CreateTreatment(e.Key, t.Key, levels);
 
                     foreach (var row in t)
@@ -96,7 +100,7 @@ namespace Rems.Application.CQRS
 
             foreach (var level in levels)
             {
-                var entity = _context.Levels.FirstOrDefault(l => l.Name == level);
+                var entity = _context.Levels.FirstOrDefault(l => l.Name.Replace(" ", "").ToUpper() == level);
 
                 if (entity is null) continue;
 

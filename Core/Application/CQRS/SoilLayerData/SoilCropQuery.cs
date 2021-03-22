@@ -38,16 +38,22 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
-            var ll = _context.GetSoilLayerTraitData(layers, "LL");
-            var kl = _context.GetSoilLayerTraitData(layers, "KL");
-            var xf = _context.GetSoilLayerTraitData(layers, "XF");
+            var ll = _context.GetSoilLayerTraitData(layers, nameof(SoilCrop.LL));
+            var kl = _context.GetSoilLayerTraitData(layers, nameof(SoilCrop.KL));
+            var xf = _context.GetSoilLayerTraitData(layers, nameof(SoilCrop.XF));
+
+            bool valid = request.Report.ValidateItem(ll, nameof(SoilCrop.LL))
+                & request.Report.ValidateItem(kl, nameof(SoilCrop.KL))
+                & request.Report.ValidateItem(xf, nameof(SoilCrop.XF));
+
+            request.Report.CommitValidation(nameof(SoilCrop), !valid);
 
             var crop = new SoilCrop()
             {
                 Name = "SorghumSoil",
-                LL = request.Report.ValidateItem(ll, "SoilCrop.LL"),
-                KL = request.Report.ValidateItem(kl, "SoilCrop.KL"),
-                XF = request.Report.ValidateItem(xf, "SoilCrop.XF")
+                LL = ll,
+                KL = kl,
+                XF = xf
             };
 
             return crop;

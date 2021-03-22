@@ -39,24 +39,33 @@ namespace Rems.Application.CQRS
             var layers = _context.GetSoilLayers(request.ExperimentId);
 
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var bd = _context.GetSoilLayerTraitData(layers, nameof(Physical.BD));
+            var airdry = _context.GetSoilLayerTraitData(layers, nameof(Physical.AirDry));
+            var ll15 = _context.GetSoilLayerTraitData(layers, nameof(Physical.LL15));
+            var dul = _context.GetSoilLayerTraitData(layers, nameof(Physical.DUL));
+            var sat = _context.GetSoilLayerTraitData(layers, nameof(Physical.SAT));
+            var ks = _context.GetSoilLayerTraitData(layers, nameof(Physical.KS));
 
-            var bd = _context.GetSoilLayerTraitData(layers, "BD");
-            var airdry = _context.GetSoilLayerTraitData(layers, "AirDry");
-            var ll15 = _context.GetSoilLayerTraitData(layers, "LL15");
-            var dul = _context.GetSoilLayerTraitData(layers, "DUL");
-            var sat = _context.GetSoilLayerTraitData(layers, "SAT");
-            var ks = _context.GetSoilLayerTraitData(layers, "KS");
+            bool valid = request.Report.ValidateItem(thickness, nameof(Physical.Thickness))
+                & request.Report.ValidateItem(bd, nameof(Physical.BD))
+                & request.Report.ValidateItem(airdry, nameof(Physical.AirDry))
+                & request.Report.ValidateItem(ll15, nameof(Physical.LL15))
+                & request.Report.ValidateItem(dul, nameof(Physical.DUL))
+                & request.Report.ValidateItem(sat, nameof(Physical.SAT))
+                & request.Report.ValidateItem(ks, nameof(Physical.KS));
+
+            request.Report.CommitValidation(nameof(Physical), !valid);
 
             var physical = new Physical()
             {
-                Name = "Physical",
+                Name = nameof(Physical),
                 Thickness = thickness,
-                BD = request.Report.ValidateItem(bd, "Physical.BD"),
-                AirDry = request.Report.ValidateItem(airdry, "Physical.AirDry"),
-                LL15 = request.Report.ValidateItem(ll15, "Physical.LL15"),
-                DUL = request.Report.ValidateItem(dul, "Physical.DUL"),
-                SAT = request.Report.ValidateItem(sat, "Physical.SAT"),
-                KS = request.Report.ValidateItem(ks, "Physical.KS")
+                BD = bd,
+                AirDry = airdry,
+                LL15 = ll15,
+                DUL = dul,
+                SAT = sat,
+                KS = ks
             };
 
             return physical;

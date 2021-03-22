@@ -68,9 +68,11 @@ namespace Rems.Application.Common.Extensions
         {
             var trait = context.GetTraitByName(name);
 
-            var data = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
-                .Where(v => v != null);
-            return data.Select(v => v.Value.GetValueOrDefault()).ToArray();
+            var values = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
+                .Where(t => t != null)
+                .Select(v => v.Value.GetValueOrDefault());
+
+            return values.Any() ? values.ToArray() : null;
         }
 
         /// <summary>
