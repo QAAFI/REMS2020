@@ -118,7 +118,7 @@ namespace Rems.Application.CQRS
                 if (data?.Value is double value)
                     return Math.Round(value, 2).ToString();
 
-                return "";
+                return "0";
             }
 
             return builder.ToString();
