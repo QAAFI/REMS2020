@@ -72,10 +72,13 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
             builder.AppendLine($"!experiment = {experiment.Name}");
             builder.AppendLine($"!station name = {station.Name}");
-            builder.AppendLine($"latitude = {station.Latitude} (DECIMAL DEGREES)");
-            builder.AppendLine($"longitude = {station.Longitude} (DECIMAL DEGREES)");
-            builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
-            builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
+            builder.AppendLine($"latitude = {station.Latitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"longitude = {station.Longitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
+            builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
+            builder.AppendLine();
+            builder.AppendLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"rain",8}");
+            builder.AppendLine($"{"()",-7}{"()",3}{"()",8}{"()",8}{"()",8}{"()",8}");
 
             // Find the weather traits
             Trait maxT = _context.GetTraitByName("MaxT");
