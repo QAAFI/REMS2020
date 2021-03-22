@@ -53,7 +53,7 @@ namespace Rems.Application.CQRS
             using (var stream = new FileStream(file, FileMode.Create))
             using (var writer = new StreamWriter(stream))
             {
-                var contents = BuildContents(request.ExperimentId);
+                var contents = BuildContents(request.ExperimentId, request.Report);
                 writer.Write(contents);
                 writer.Close();
             }
@@ -61,7 +61,7 @@ namespace Rems.Application.CQRS
             return new Weather { FileName = file };
         }
 
-        private string BuildContents(int id)
+        private string BuildContents(int id, Markdown report)
         {
             var experiment = _context.Experiments.Find(id);
             var station = experiment.MetStation;
@@ -87,6 +87,11 @@ namespace Rems.Application.CQRS
                 .ToArray()
                 .GroupBy(d => d.Date)
                 .OrderBy(d => d.Key);
+
+            if (!datas.Any())
+                report.AddLine("* Met data not found for experiment");
+            else if (datas.Count() < 10)
+                report.AddLine("* Low met data count for experiment");
 
             // Format and add the data
             foreach (var data in datas)
