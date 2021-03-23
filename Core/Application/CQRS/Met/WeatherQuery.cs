@@ -32,9 +32,12 @@ namespace Rems.Application.CQRS
     {
         private readonly IRemsDbContext _context;
 
-        public WeatherQueryHandler(IRemsDbContext context)
+        private readonly IFileManager _file;
+
+        public WeatherQueryHandler(IRemsDbContext context, IFileManager file)
         {
             _context = context;
+            _file = file;
         }
 
         public Task<Weather> Handle(WeatherQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
@@ -48,9 +51,9 @@ namespace Rems.Application.CQRS
             if (!met.MetData.Any()) request.Report.ValidateItem("", "Weather Data");
 
             // Create a .met file to output to
-            string file = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
+            string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
 
-            using (var stream = new FileStream(file, FileMode.Create))
+            using (var stream = new FileStream(_file.ExportFolder + '\\' + name, FileMode.Create))
             using (var writer = new StreamWriter(stream))
             {
                 var contents = BuildContents(request.ExperimentId, request.Report);
@@ -58,7 +61,7 @@ namespace Rems.Application.CQRS
                 writer.Close();
             }
 
-            return new Weather { FileName = file };
+            return new Weather { FileName = name };
         }
 
         private string BuildContents(int id, Markdown report)

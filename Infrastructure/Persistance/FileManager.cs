@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using Rems.Application.Common.Interfaces;
 
@@ -9,9 +7,13 @@ namespace Rems.Persistence
 {
     public class FileManager : IFileManager
     {
-        public FileManager()
-        { }
+        /// <inheritdoc/>
+        public string ExportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+        /// <inheritdoc/>
+        public string ImportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        /// <inheritdoc/>
         public string GetFile(string filename, string extension)
         {
             using (var stream = new FileStream(filename + "." + extension, FileMode.Open))
