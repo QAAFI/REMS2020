@@ -39,8 +39,8 @@ namespace WindowsClient.Controls
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();
-        private IEnumerable<DateTime> dates => datesBox.SelectedItems.Cast<DateTime>();
+        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private IEnumerable<DateTime> dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
 
         public SoilChart()
         {
@@ -133,16 +133,19 @@ namespace WindowsClient.Controls
                 Invoke(new Func<int, Task>(LoadTraitsBox), id);
             else
             {
-                traitsBox.Items.Clear();
-
                 // Load the trait type box
                 var traits = await InvokeQuery(new SoilTraitsQuery() { TreatmentId = id });
                 descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
 
-                if (traits.Length < 1) return;
+                lock (traitsBox)
+                {
+                    traitsBox.Items.Clear();
 
-                traitsBox.Items.AddRange(traits);
-                traitsBox.SelectedIndex = 0;
+                    if (traits.Length < 1) return;
+
+                    traitsBox.Items.AddRange(traits);
+                    traitsBox.SelectedIndex = 0;
+                }
             }
         }
 
@@ -156,17 +159,20 @@ namespace WindowsClient.Controls
                 Invoke(new Func<int, Task>(LoadDatesBox), id);
             else
             {
-                datesBox.Items.Clear();
-
                 var query = new SoilLayerDatesQuery() { TreatmentId = id };
                 var items = await InvokeQuery(query);
 
-                if (items.Length < 1) return;
+                lock (datesBox)
+                {
+                    datesBox.Items.Clear();
 
-                foreach (var date in items)
-                    datesBox.Items.Add(date);
+                    if (items.Length < 1) return;
 
-                datesBox.SelectedIndex = 0;
+                    foreach (var date in items)
+                        datesBox.Items.Add(date);
+
+                    datesBox.SelectedIndex = 0;
+                }
             }
         }
 
