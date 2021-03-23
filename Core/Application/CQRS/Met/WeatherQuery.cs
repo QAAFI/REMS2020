@@ -52,8 +52,9 @@ namespace Rems.Application.CQRS
 
             // Create a .met file to output to
             string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-
-            using (var stream = new FileStream(_file.ExportFolder + '\\' + name, FileMode.Create))
+            var info = Directory.CreateDirectory(_file.ExportFolder + "\\met");
+            
+            using (var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create))
             using (var writer = new StreamWriter(stream))
             {
                 var contents = BuildContents(request.ExperimentId, request.Report);
@@ -61,7 +62,7 @@ namespace Rems.Application.CQRS
                 writer.Close();
             }
 
-            return new Weather { FileName = name };
+            return new Weather { FileName = "met\\" + name };
         }
 
         private string BuildContents(int id, Markdown report)
