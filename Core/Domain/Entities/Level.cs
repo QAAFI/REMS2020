@@ -17,6 +17,7 @@ namespace Rems.Domain.Entities
 
         public string Notes { get; set; }
 
+        public string Specification { get; set; }
 
         public virtual Factor Factor { get; set; }
         public virtual ICollection<Design> Designs { get; set; }

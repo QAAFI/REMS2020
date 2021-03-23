@@ -213,7 +213,12 @@ namespace Rems.Infrastructure.ApsimX
                     break;
             }
 
-            Action<CompositeFactor> specify = level => level.Specifications.Add(specification + level.Name);
+            Action<CompositeFactor> specify = level =>
+            {
+                if (!level.Specifications.Any())
+                    level.Specifications.Add(specification + level.Name);
+            };
+
             factor.Children.ForEach(specify);
         }
 

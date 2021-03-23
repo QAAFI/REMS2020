@@ -38,24 +38,38 @@ namespace Rems.Application.CQRS
 
         private Factors Handler(FactorsQuery request, CancellationToken token)
         {
-            var factors = new Factors { Name = "Factors" };
+            var model = new Factors { Name = "Factors" };
 
-            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == request.ExperimentId).ToArray();
-            var fs = designs.Select(d => d.Level.Factor).Distinct().ToArray();
+            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == request.ExperimentId);
+            var factors = designs.Select(d => d.Level.Factor).Distinct();
 
-            fs.ForEach(f =>
+            Factor convertEntity(Domain.Entities.Factor entity)
             {
-                var factor = new Factor { Name = f.Name };
+                var factor = new Factor { Name = entity.Name };
 
-                designs.Select(d => d.Level)                    
-                    .Where(l => l.Factor == f)
+                designs.Select(d => d.Level)
+                    .Where(l => l.Factor == entity)
                     .Distinct()
-                    .ForEach(l => factor.Children.Add(new CompositeFactor { Name = l.Name, Specifications = new List<string>() }));
+                    .Select(l => new CompositeFactor { Name = l.Name, Specifications = GetSpecs(l) })
+                    .ForEach(factor.Children.Add);
 
-                factors.Children.Add(factor);
-            });
+                return factor;
+            }
 
-            return factors;
+            factors.Select(convertEntity).ForEach(model.Children.Add);
+
+            return model;
+        }
+
+        private List<string> GetSpecs(Domain.Entities.Level level)
+        {
+            var specs = new List<string>();
+
+            level.Specification.Split(';')
+                .Where(s => s != "")
+                .ForEach(specs.Add);
+
+            return specs;
         }
     }
 }
