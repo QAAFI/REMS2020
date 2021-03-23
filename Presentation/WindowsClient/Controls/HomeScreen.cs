@@ -12,6 +12,7 @@ using Rems.Infrastructure;
 
 using WindowsClient.Models;
 using MediatR;
+using Rems.Application.Common.Interfaces;
 
 namespace WindowsClient.Controls
 {
@@ -55,6 +56,8 @@ namespace WindowsClient.Controls
         /// </summary>
         public event Func<object, Task<object>> Query;
         
+        public IFileManager Manager { get; set; }
+
         /// <summary>
         /// Safely handles a query
         /// </summary>
@@ -76,11 +79,6 @@ namespace WindowsClient.Controls
         /// The currently active session
         /// </summary>
         private Session Session { get; set; }
-
-        /// <summary>
-        /// The most recently accessed folder
-        /// </summary>
-        private string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         public HomeScreen()
         {
@@ -171,7 +169,7 @@ namespace WindowsClient.Controls
             // Open the DB from the new session
             await Query.Invoke(new OpenDBCommand() { FileName = session.DB });
             DBOpened?.Invoke(session.DB);
-            folder = Path.GetDirectoryName(session.DB);
+            Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
             EnableImport();
 
@@ -268,7 +266,7 @@ namespace WindowsClient.Controls
         {
             using (var save = new SaveFileDialog())
             {
-                save.InitialDirectory = folder;
+                save.InitialDirectory = Manager.ImportFolder;
                 save.AddExtension = true;
                 save.Filter = "SQLite (*.db)|*.db";
                 save.RestoreDirectory = true;
@@ -278,7 +276,7 @@ namespace WindowsClient.Controls
                 await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
                 DBCreated?.Invoke(save.FileName);
 
-                await CreateSession(save.FileName);                
+                await CreateSession(save.FileName);
             }
         }
 
@@ -289,7 +287,7 @@ namespace WindowsClient.Controls
         {
             using (var open = new OpenFileDialog())
             {
-                open.InitialDirectory = folder;
+                open.InitialDirectory = Manager.ImportFolder;
                 open.Filter = "SQLite (*.db)|*.db";
 
                 if (open.ShowDialog() != DialogResult.OK) return;
@@ -298,8 +296,6 @@ namespace WindowsClient.Controls
                     await ChangeSession(session);
                 else
                     await CreateSession(open.FileName);
-
-                folder = Path.GetDirectoryName(open.FileName);
 
                 await InvokeQuery(new OpenDBCommand() { FileName = open.FileName });                                
             }
@@ -320,20 +316,22 @@ namespace WindowsClient.Controls
 
             using (var save = new SaveFileDialog())
             {
-                save.InitialDirectory = folder;
+                save.InitialDirectory = Manager.ExportFolder;
                 save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
                 if (save.ShowDialog() != DialogResult.OK) return;
+
+                Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
 
                 try
                 {
                     var exporter = new ApsimXporter
                     {
-                        Experiments = exportList.CheckedItems.Cast<string>()
+                        Experiments = exportList.CheckedItems.Cast<string>(),
+                        FileName = save.FileName
                     };
 
                     exporter.Query += (o) => Query?.Invoke(o);
-                    exporter.FileName = save.FileName;
                     
                     exportTracker.SetSteps(exporter);
 

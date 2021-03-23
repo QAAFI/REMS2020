@@ -32,9 +32,12 @@ namespace Rems.Application.CQRS
     {
         private readonly IRemsDbContext _context;
 
-        public WeatherQueryHandler(IRemsDbContext context)
+        private readonly IFileManager _file;
+
+        public WeatherQueryHandler(IRemsDbContext context, IFileManager file)
         {
             _context = context;
+            _file = file;
         }
 
         public Task<Weather> Handle(WeatherQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
@@ -48,20 +51,21 @@ namespace Rems.Application.CQRS
             if (!met.MetData.Any()) request.Report.ValidateItem("", "Weather Data");
 
             // Create a .met file to output to
-            string file = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-
-            using (var stream = new FileStream(file, FileMode.Create))
+            string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
+            var info = Directory.CreateDirectory(_file.ExportFolder + "\\met");
+            
+            using (var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create))
             using (var writer = new StreamWriter(stream))
             {
-                var contents = BuildContents(request.ExperimentId);
+                var contents = BuildContents(request.ExperimentId, request.Report);
                 writer.Write(contents);
                 writer.Close();
             }
 
-            return new Weather { FileName = file };
+            return new Weather { FileName = "met\\" + name };
         }
 
-        private string BuildContents(int id)
+        private string BuildContents(int id, Markdown report)
         {
             var experiment = _context.Experiments.Find(id);
             var station = experiment.MetStation;
@@ -72,10 +76,13 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
             builder.AppendLine($"!experiment = {experiment.Name}");
             builder.AppendLine($"!station name = {station.Name}");
-            builder.AppendLine($"latitude = {station.Latitude} (DECIMAL DEGREES)");
-            builder.AppendLine($"longitude = {station.Longitude} (DECIMAL DEGREES)");
-            builder.AppendLine($"tav = {station.TemperatureAverage} (oC)");
-            builder.AppendLine($"amp = {station.Amplitude} (oC)\n");
+            builder.AppendLine($"latitude = {station.Latitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"longitude = {station.Longitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
+            builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
+            builder.AppendLine();
+            builder.AppendLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"rain",8}");
+            builder.AppendLine($"{"()",-7}{"()",3}{"()",8}{"()",8}{"()",8}{"()",8}");
 
             // Find the weather traits
             Trait maxT = _context.GetTraitByName("MaxT");
@@ -87,6 +94,11 @@ namespace Rems.Application.CQRS
                 .ToArray()
                 .GroupBy(d => d.Date)
                 .OrderBy(d => d.Key);
+
+            if (!datas.Any())
+                report.AddLine("* Met data not found for experiment");
+            else if (datas.Count() < 10)
+                report.AddLine("* Low met data count for experiment");
 
             // Format and add the data
             foreach (var data in datas)
@@ -110,7 +122,7 @@ namespace Rems.Application.CQRS
                 if (data?.Value is double value)
                     return Math.Round(value, 2).ToString();
 
-                return "";
+                return "0";
             }
 
             return builder.ToString();

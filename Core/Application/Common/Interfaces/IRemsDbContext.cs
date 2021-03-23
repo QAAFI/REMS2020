@@ -24,6 +24,8 @@ namespace Rems.Application.Common.Interfaces
 
         EntityEntry Attach(object entity);
 
+        void AddRange(params object[] entities);
+
         void AttachRange(params object[] entities);
 
         EntityEntry Entry(object entity);

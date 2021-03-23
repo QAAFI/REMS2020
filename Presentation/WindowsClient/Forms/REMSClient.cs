@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Controls;
 using WindowsClient.Models;
@@ -39,6 +40,8 @@ namespace WindowsClient
             homeScreen.ImportCompleted += OnImportCompleted;
             homeScreen.SessionChanging += OnSessionChanged;
             homeScreen.PageCreated += OnPageCreated;
+
+            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
         }
 
         /// <summary>

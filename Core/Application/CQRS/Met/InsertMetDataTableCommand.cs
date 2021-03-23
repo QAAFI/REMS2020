@@ -83,7 +83,7 @@ namespace Rems.Application.CQRS
             if (_context.MetDatas.Any())
                 datas = datas.Except(_context.MetDatas, new MetDataComparer());
 
-            _context.AttachRange(datas.ToArray());
+            _context.AddRange(datas.ToArray());
             _context.SaveChanges();
 
             return Unit.Value;
