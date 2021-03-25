@@ -16,8 +16,6 @@ namespace Rems.Application.Common.Interfaces
 
         IModel Model { get; }
 
-        string FileName { get; set; }
-
         int SaveChanges();
 
         EntityEntry Add(object entity);

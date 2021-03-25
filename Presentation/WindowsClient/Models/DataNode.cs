@@ -59,13 +59,13 @@ namespace WindowsClient.Models
             ContextMenu = new ContextMenu();
 
             items.Add(new MenuItem("Rename", Rename));
-            items.Add(new MenuItem("Ignore", ToggleIgnore));
+            items.Add(new MenuItem("Ignore", async (s, e) => await ToggleIgnore(s, e)));
 
             if (excel is ExcelColumn)
             {
                 ContextMenu.Popup += OnPopup;
                 
-                items.Add(new MenuItem("Add as trait", AddTrait));
+                items.Add(new MenuItem("Add as trait", async (s, e) => await AddTrait(s, e)));
                 items.Add(new MenuItem("Set property"));
                 items.Add("-");
                 items.Add(new MenuItem("Move up", MoveUp));
@@ -153,27 +153,27 @@ namespace WindowsClient.Models
         /// <summary>
         /// Adds a trait to the database for every invalid child node
         /// </summary>
-        public void AddTraits(object sender, EventArgs args)
+        public async void AddTraits(object sender, EventArgs args)
         {
             foreach (DataNode n in Nodes)
                 if (n.Excel.State["Valid"] is false)
-                    n.AddTrait(sender, args);
+                    await n.AddTrait(sender, args);
         }
 
         /// <summary>
         /// Sets the ignored state of all child nodes
         /// </summary>
-        private void IgnoreAll(object sender, EventArgs args)
+        private async void IgnoreAll(object sender, EventArgs args)
         {
             foreach (DataNode n in Nodes)
                 if (n.Excel.State["Valid"] is false)
-                    n.ToggleIgnore(null, args);
+                    await n.ToggleIgnore(null, args);
         }
 
         /// <summary>
         /// Toggles the ignored state of the current node
         /// </summary>
-        public void ToggleIgnore(object sender, EventArgs args)
+        public async Task ToggleIgnore(object sender, EventArgs args)
         {            
             UpdateState("Ignore", !(bool)Excel.State["Ignore"]);
 
@@ -188,13 +188,13 @@ namespace WindowsClient.Models
                 Advice.Include("Ignored items will not be imported.\n", Color.Black);
             }
             else
-                Validate();
+                await Validate();
         }
 
         /// <summary>
         /// Adds a trait to the database representing the current node
         /// </summary>
-        public async void AddTrait(object sender, EventArgs args)
+        public async Task AddTrait(object sender, EventArgs args)
         {
             if (Tag is DataTable)
                 throw new Exception("A table cannot be added as a trait");
@@ -276,12 +276,12 @@ namespace WindowsClient.Models
         /// <summary>
         /// Recursively test a node and its children for validity
         /// </summary>
-        public void Validate()
+        public async Task Validate()
         {
             foreach (DataNode node in Nodes)
-                node.Validate();
+                await node.Validate();
 
-            Validater.Validate();
+            await Validater.Validate();
         }
 
         #endregion

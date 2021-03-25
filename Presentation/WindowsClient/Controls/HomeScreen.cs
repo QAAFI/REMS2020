@@ -167,7 +167,7 @@ namespace WindowsClient.Controls
             SessionChanging?.Invoke();
 
             // Open the DB from the new session
-            await Query.Invoke(new OpenDBCommand() { FileName = session.DB });
+            Manager.DbConnection = session.DB;
             DBOpened?.Invoke(session.DB);
             Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
@@ -273,7 +273,7 @@ namespace WindowsClient.Controls
 
                 if (save.ShowDialog() != DialogResult.OK) return;
 
-                await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
+                //await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
                 DBCreated?.Invoke(save.FileName);
 
                 await CreateSession(save.FileName);
@@ -297,7 +297,7 @@ namespace WindowsClient.Controls
                 else
                     await CreateSession(open.FileName);
 
-                await InvokeQuery(new OpenDBCommand() { FileName = open.FileName });                                
+                Manager.DbConnection = open.FileName;                                
             }
         }
 
@@ -343,6 +343,7 @@ namespace WindowsClient.Controls
                     await exporter.Run();
 
                     exportTracker.Reset();
+                    exporter.Close();
                 }
                 catch (Exception error)
                 {

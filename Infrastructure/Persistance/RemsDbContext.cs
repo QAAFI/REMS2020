@@ -20,26 +20,14 @@ namespace Rems.Persistence
 
     public class RemsDbContext: DbContext, IRemsDbContext
     {
-        public string FileName { get; set; }
-
         public IEnumerable<string> Names => Model.GetEntityTypes().Select(e => e.GetTableName());
 
         private Dictionary<string, object> SetMap;
 
-        public RemsDbContext() : base()
-        {
-            DefineSets();
-        }
-
-        public RemsDbContext(string filename) : base() 
-        {
-            FileName = filename;
-            DefineSets();
-        }
-
         public RemsDbContext(DbContextOptions<RemsDbContext> options)
             : base(options)
         {
+            Database.EnsureCreated();
             DefineSets();
         }
 
@@ -168,8 +156,7 @@ namespace Rems.Persistence
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-            {                
-                optionsBuilder.UseSqlite("Data Source=" + FileName);
+            {
                 optionsBuilder.UseLazyLoadingProxies(true);
                 optionsBuilder.EnableSensitiveDataLogging(true);
                 optionsBuilder.EnableDetailedErrors(true);

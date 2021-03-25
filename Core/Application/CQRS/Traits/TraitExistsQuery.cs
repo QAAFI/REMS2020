@@ -32,11 +32,9 @@ namespace Rems.Application.CQRS
             => Task.Run(() => Handler(request, token));
 
         private bool Handler(TraitExistsQuery request, CancellationToken token)
-        {
-            if (_context.FileName is null)
-                return false;
-
-            return _context.Traits.Any(t => t.Name == request.Name);
+        { 
+            var result = _context?.Traits.Any(t => t.Name == request.Name) ?? false;
+            return result;
         }
     }
 }

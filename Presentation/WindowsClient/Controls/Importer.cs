@@ -82,10 +82,10 @@ namespace WindowsClient.Controls
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
-
+            
             tracker.TaskBegun += RunImporter;
         }
-        
+
         #region Methods        
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace WindowsClient.Controls
 
                 table.ConvertExperiments();
 
-                var node = CreateTableNode(table);
+                var node = await CreateTableNode(table);
 
                 dataTree.Nodes.Add(node);
             }
@@ -173,7 +173,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        private TreeNode CreateTableNode(DataTable table)
+        private async Task<TreeNode> CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
             xt.Query += (o) => Query?.Invoke(o);
@@ -195,7 +195,7 @@ namespace WindowsClient.Controls
                 tnode.Nodes.Add(cnode);
             }
 
-            tnode.Validate();
+            await tnode.Validate();
 
             return tnode;
         }
@@ -319,6 +319,8 @@ namespace WindowsClient.Controls
                 tracker.Reset();
 
                 StageChanged.Invoke(Stage.Imported);
+
+                importer.Close();
             }
             catch (Exception error)
             {

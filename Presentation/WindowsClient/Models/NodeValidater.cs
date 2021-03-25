@@ -27,7 +27,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Checks if the node is ready to be imported and updates the state accordingly
         /// </summary>
-        void Validate();
+        Task Validate();
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ namespace WindowsClient.Models
         public event Action<Advice> SetAdvice;
 
         /// <inheritdoc/>
-        public void Validate()
+        public async Task Validate()
         {
             StateChanged?.Invoke("Valid", true);
         }
@@ -83,7 +83,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public void Validate()
+        public async Task Validate()
         {
             var valid = table.Columns
                 .Cast<DataColumn>()
@@ -149,7 +149,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public void Validate()
+        public async Task Validate()
         {
             bool valid = true;
 
@@ -236,7 +236,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async void Validate()
+        public async Task Validate()
         {
             // If the colum node is not valid for import, update the state to warn the user
             if (column.ExtendedProperties["Info"] is null && !await IsTrait())
@@ -308,7 +308,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public void Validate()
+        public async Task Validate()
         {
             if (col.Ordinal == ordinal && col.ColumnName == name)
             {

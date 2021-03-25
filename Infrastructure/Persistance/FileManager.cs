@@ -8,10 +8,14 @@ namespace Rems.Persistence
     public class FileManager : IFileManager
     {
         /// <inheritdoc/>
+        public string DbConnection { get; set; }
+
+        /// <inheritdoc/>
         public string ExportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         /// <inheritdoc/>
         public string ImportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        
 
         /// <inheritdoc/>
         public string GetFile(string filename, string extension)

@@ -22,11 +22,11 @@ namespace Rems.Application.CQRS
 
     public class DataTableQueryHandler : IRequestHandler<DataTableQuery, DataTable>
     {
-        private readonly IRemsDbFactory _factory;
+        private readonly IFileManager _manager;
 
-        public DataTableQueryHandler(IRemsDbFactory factory)
+        public DataTableQueryHandler(IFileManager manager)
         {
-            _factory = factory;
+            _manager = manager;
         }
 
         public Task<DataTable> Handle(DataTableQuery request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
@@ -36,7 +36,7 @@ namespace Rems.Application.CQRS
             string text = $"SELECT * FROM {request.TableName}";
             DataTable table = null;
 
-            using (var connection = new SqliteConnection("Data Source=" + _factory.Connection))
+            using (var connection = new SqliteConnection("Data Source=" + _manager.DbConnection))
             {
                 connection.Open();
                 using (var command = new SqliteCommand(text, connection))
