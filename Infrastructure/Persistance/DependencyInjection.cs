@@ -9,12 +9,10 @@ namespace Rems.Persistence
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
-            services
+            return services
                 .AddSingleton<IFileManager, FileManager>()
                 .AddTransient<RemsDbContextFactory>()
                 .AddScoped<IRemsDbContext>(provider => provider.GetRequiredService<RemsDbContextFactory>().Create());
-            
-            return services;
         }
 
         public class RemsDbContextFactory

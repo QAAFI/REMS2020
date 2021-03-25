@@ -29,27 +29,17 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when a database is opened
         /// </summary>
-        public event Action<string> DBOpened;
+        public event Func<string, Task> DBOpened;
 
         /// <summary>
         /// Occurs when excel data is requested
         /// </summary>
-        public event EventHandler ImportRequested;
-
-        /// <summary>
-        /// Occurs when data has finished importing
-        /// </summary>
-        public event Action<ImportLink> ImportCompleted;
+        public event Action<ImportLink> ImportRequested;
 
         /// <summary>
         /// Occurs immediately before the session changes
         /// </summary>
         public event Action SessionChanging;
-
-        /// <summary>
-        /// Occurs when a new page needs to be created
-        /// </summary>
-        public event Action<TabPage> PageCreated;
 
         /// <summary>
         /// Occurs when data is requested from the mediator
@@ -84,35 +74,15 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            AttachLink(infoLink);
-            AttachLink(expsLink);
-            AttachLink(dataLink);
+            infoLink.Clicked += link => ImportRequested?.Invoke(link);
+            expsLink.Clicked += link => ImportRequested?.Invoke(link);
+            dataLink.Clicked += link => ImportRequested?.Invoke(link);
 
             Sessions = LoadSessions();
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
             exportTracker.TaskBegun += OnExportClick;
-        }
-
-        /// <summary>
-        /// Adds an experiment detailer to the homescreen
-        /// </summary>
-        private void AddDetailerPage()
-        {
-            Session.Detailer.Query += (o) => Query?.Invoke(o);
-            PageCreated?.Invoke(Session.Experiments);
-            Session.Detailer.LoadNodes();
-        }
-
-        /// <summary>
-        /// Connects the import link to the 
-        /// </summary>
-        /// <param name="link"></param>
-        private void AttachLink(ImportLink link)
-        {
-            link.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
-            link.ImportComplete += OnImportComplete;            
         }
 
         /// <summary>
@@ -168,7 +138,7 @@ namespace WindowsClient.Controls
 
             // Open the DB from the new session
             Manager.DbConnection = session.DB;
-            DBOpened?.Invoke(session.DB);
+            await DBOpened?.Invoke(session.DB);
             Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
             EnableImport();
@@ -212,39 +182,11 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Check if any data has previously been loaded
         /// </summary>
-        private async Task CheckTables()
+        public async Task CheckTables()
         {
-            if (await InvokeQuery(new LoadedInformation()))
-                infoLink.Stage = Stage.Imported;
-            else
-                infoLink.Stage = Stage.Missing;
-
-            if (await InvokeQuery(new LoadedExperiments()))
-            {
-                expsLink.Stage = Stage.Imported;
-                AddDetailerPage();
-            }
-            else
-                expsLink.Stage = Stage.Missing;
-
-            if (await InvokeQuery(new LoadedData()))
-                dataLink.Stage = Stage.Imported;
-            else
-                dataLink.Stage = Stage.Missing;
-        }
-
-        /// <summary>
-        /// Handles the post-import functions
-        /// </summary>
-        private void OnImportComplete(ImportLink link)
-        {
-            ImportCompleted?.Invoke(link);
-
-            if (link == expsLink)
-            {
-                LoadExportBox();
-                AddDetailerPage();
-            }
+            infoLink.Stage = await InvokeQuery(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = await InvokeQuery(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = await InvokeQuery(new LoadedData()) ? Stage.Imported : Stage.Missing;
         }
 
         /// <summary>
@@ -343,7 +285,6 @@ namespace WindowsClient.Controls
                     await exporter.Run();
 
                     exportTracker.Reset();
-                    exporter.Close();
                 }
                 catch (Exception error)
                 {

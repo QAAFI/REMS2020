@@ -65,7 +65,7 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
-
+            
             // Add icons to the image list
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
@@ -85,7 +85,6 @@ namespace WindowsClient.Controls
             
             tracker.TaskBegun += RunImporter;
         }
-
         #region Methods        
 
         /// <summary>
@@ -304,23 +303,21 @@ namespace WindowsClient.Controls
                     return;
                 }
 
-                var importer = new ExcelImporter { Data = Data };
-                importer.Query += (o) => Query?.Invoke(o);
+                var excel = new ExcelImporter { Data = Data };
+                excel.Query += (o) => Query?.Invoke(o);
 
-                tracker.SetSteps(importer);
+                tracker.SetSteps(excel);
 
-                importer.NextItem += tracker.OnNextTask;
-                importer.IncrementProgress += tracker.OnProgressChanged;
-                importer.TaskFinished += FileImported;
-                importer.TaskFailed += tracker.OnTaskFailed;
+                excel.NextItem += tracker.OnNextTask;
+                excel.IncrementProgress += tracker.OnProgressChanged;
+                excel.TaskFinished += FileImported;
+                excel.TaskFailed += tracker.OnTaskFailed;
 
-                await importer.Run();
+                await excel.Run();
 
                 tracker.Reset();
 
-                StageChanged.Invoke(Stage.Imported);
-
-                importer.Close();
+                StageChanged?.Invoke(Stage.Imported);
             }
             catch (Exception error)
             {
@@ -358,12 +355,12 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the renaming of a node in the tree
         /// </summary>
-        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        private async void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             if (e.Node is DataNode node && e.Label != null)
             {
                 node.Excel.Name = e.Label;
-                node.Validate();
+                await node.Validate();
             }
         }
 

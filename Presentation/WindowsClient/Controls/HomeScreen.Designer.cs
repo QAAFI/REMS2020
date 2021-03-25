@@ -16,7 +16,6 @@
             DBCreated = null;
             DBOpened = null;
             ImportRequested = null;
-            ImportCompleted = null;
             SessionChanging = null;
             Query = null;
 

@@ -69,7 +69,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        public async void LoadNodes()
+        public async Task LoadNodes()
         {
             experimentsTree.Nodes.Clear();
 

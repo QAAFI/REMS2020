@@ -37,11 +37,19 @@ namespace WindowsClient
             homeScreen.DBCreated += LoadListView;
             homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
-            homeScreen.ImportCompleted += OnImportCompleted;
             homeScreen.SessionChanging += OnSessionChanged;
-            homeScreen.PageCreated += OnPageCreated;
 
             homeScreen.Manager = provider.GetRequiredService<IFileManager>();
+
+            detailer.Query += SendQuery;
+
+            importer.Query += SendQuery;
+            importer.FileImported += OnImportCompleted;
+
+            importTab.Leave += (s, e) => ImportLeft();
+
+            notebook.TabPages.Remove(detailsTab);
+            notebook.TabPages.Remove(importTab);
         }
 
         /// <summary>
@@ -55,6 +63,11 @@ namespace WindowsClient
             Application.UseWaitCursor = false;
 
             return result;
+        }
+
+        private void ImportLeft()
+        {
+            notebook.TabPages.Remove(importTab);
         }
 
         /// <summary>
@@ -98,11 +111,6 @@ namespace WindowsClient
         }
 
         /// <summary>
-        /// When a new tab is added to the client
-        /// </summary>
-        private void OnPageCreated(TabPage page) => notebook.TabPages.Add(page);
-
-        /// <summary>
         /// When the client connects to a different database
         /// </summary>
         private void OnSessionChanged()
@@ -117,44 +125,45 @@ namespace WindowsClient
         /// <summary>
         /// When an import link starts the import process
         /// </summary>
-        private async void OnImportRequested(object sender, EventArgs e)
+        private async void OnImportRequested(ImportLink link)
         {
-            var link = sender as ImportLink;
+            importTab.Text = "Import " + link.Label;
+            notebook.TabPages.Add(importTab);
+            notebook.SelectedTab = importTab;
 
-            link.Importer.Query += SendQuery;
-
-            if (!notebook.TabPages.Contains(link.Tab))
-            {
-                notebook.TabPages.Add(link.Tab);
-                link.Tab.Leave += (s, o) => notebook.TabPages.Remove(link.Tab);
-            }
-                
-            notebook.SelectedTab = link.Tab;
-
-            if (! await link.Importer.OpenFile())
-                notebook.TabPages.Remove(link.Tab);
+            if (! await importer.OpenFile())
+                importTab.Hide();
         }         
 
         /// <summary>
         /// When an import link confirms the import has finished
         /// </summary>
-        private void OnImportCompleted(ImportLink link)
+        private async void OnImportCompleted()
         {
             MessageBox.Show("Import successful!", "");
+            notebook.SelectedTab = homeTab;
+            notebook.TabPages.Remove(importTab);
 
-            notebook.TabPages.Remove(link.Tab);
+            if ((bool)await SendQuery(new LoadedExperiments()))
+            {
+                notebook.TabPages.Add(detailsTab);
+                await detailer.LoadNodes();
+            }
         }
 
         /// <summary>
         /// When a new database is opened
         /// </summary>
-        private void OnDBOpened(string file)
+        private async Task OnDBOpened(string file)
         {
             // Update the title
             Text = "REMS 2020 - " + Path.GetFileName(file);
 
             // Update the tables
             LoadListView(file);
+
+            await homeScreen.CheckTables();
+            if ((bool)await SendQuery(new LoadedExperiments())) ;
         }
 
         /// <summary>
