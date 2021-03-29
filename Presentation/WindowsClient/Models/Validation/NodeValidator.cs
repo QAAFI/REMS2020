@@ -6,7 +6,7 @@ namespace WindowsClient.Models
     /// <summary>
     /// Manages the validation of a node containing excel data
     /// </summary>
-    public interface INodeValidator
+    public interface INodeValidator : IDisposable
     {
         /// <summary>
         /// Occurs when the data is modified
@@ -24,7 +24,7 @@ namespace WindowsClient.Models
         Task Validate();
     }
 
-    public abstract class BaseValidator<TDisposable> : INodeValidator, IDisposable
+    public abstract class BaseValidator<TDisposable> : INodeValidator
         where TDisposable : IDisposable
     {
         private bool disposedValue;

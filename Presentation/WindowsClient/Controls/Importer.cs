@@ -179,7 +179,7 @@ namespace WindowsClient.Controls
             var vt = CreateTableValidater(table);
             vt.SetAdvice += a => a.AddToTextBox(adviceBox);
 
-            var tnode = new DataNode<DataTable>(xt, vt);
+            var tnode = new TableNode(xt, vt);
             tnode.Query += (o) => Query?.Invoke(o);
 
             // Prepare individual columns for import
@@ -314,7 +314,7 @@ namespace WindowsClient.Controls
 
                 await excel.Run();
 
-                tracker.Reset();
+                tracker.Reset();                
 
                 StageChanged?.Invoke(Stage.Imported);
             }

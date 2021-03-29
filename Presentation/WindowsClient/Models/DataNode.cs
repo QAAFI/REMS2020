@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -13,13 +12,15 @@ namespace WindowsClient.Models
     /// <summary>
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
-    public class DataNode<TData> : TreeNode
+    public abstract class DataNode<TData> : TreeNode, IDisposable
         where TData : IDisposable
     {
         /// <summary>
         /// Occurs when some change is applied to the node
         /// </summary>
         public event Action Updated;
+
+        protected void InvokeUpdated() => Updated?.Invoke();
 
         /// <summary>
         /// Occurs when the node requests data
@@ -45,7 +46,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
-        Menu.MenuItemCollection items => ContextMenu.MenuItems;
+        protected Menu.MenuItemCollection items => ContextMenu.MenuItems;
 
         public DataNode(IExcelData<TData> excel, INodeValidator validater) : base(excel.Name)
         {
@@ -61,22 +62,6 @@ namespace WindowsClient.Models
 
             items.Add(new MenuItem("Rename", Rename));
             items.Add(new MenuItem("Ignore", async (s, e) => await ToggleIgnore(s, e)));
-
-            if (excel is ExcelColumn)
-            {
-                ContextMenu.Popup += OnPopup;
-                
-                items.Add(new MenuItem("Add as trait", async (s, e) => await AddTrait(s, e)));
-                items.Add(new MenuItem("Set property"));
-                items.Add("-");
-                items.Add(new MenuItem("Move up", MoveUp));
-                items.Add(new MenuItem("Move down", MoveDown));
-            }
-            else if (excel is ExcelTable)
-            {
-                items.Add(new MenuItem("Add invalids as traits", AddTraits));
-                items.Add(new MenuItem("Ignore all invalids", IgnoreAll));
-            }
         }
 
         #region State functions
@@ -139,38 +124,12 @@ namespace WindowsClient.Models
 
         #endregion region
 
-        #region Menu functions
-
-        /// <summary>
-        /// Occurs when the popup activates
-        /// </summary>
-        private void OnPopup(object sender, EventArgs args) => Excel.ConfigureMenu(items.Cast<MenuItem>().ToArray());        
-
+        #region Menu functions        
         /// <summary>
         /// Begins editing the node label
         /// </summary>
-        private void Rename(object sender, EventArgs args) => BeginEdit();
+        private void Rename(object sender, EventArgs args) => BeginEdit();       
         
-        /// <summary>
-        /// Adds a trait to the database for every invalid child node
-        /// </summary>
-        public async void AddTraits(object sender, EventArgs args)
-        {
-            foreach (DataNode<DataColumn> n in Nodes)
-                if (n.Excel.State["Valid"] is false)
-                    await n.AddTrait(sender, args);
-        }
-
-        /// <summary>
-        /// Sets the ignored state of all child nodes
-        /// </summary>
-        private async void IgnoreAll(object sender, EventArgs args)
-        {
-            foreach (DataNode<DataColumn> n in Nodes)
-                if (n.Excel.State["Valid"] is false)
-                    await n.ToggleIgnore(null, args);
-        }
-
         /// <summary>
         /// Toggles the ignored state of the current node
         /// </summary>
@@ -209,60 +168,9 @@ namespace WindowsClient.Models
             else
                 MessageBox.Show("The trait could not be added");
         }
-
-        /// <summary>
-        /// Switches this node with the sibling immediately above it in the tree
-        /// </summary>
-        public async void MoveUp(object sender, EventArgs args)
-        {
-            // Store references so they are not lost on removal
-            int i = Index;
-            var p = Parent;
-
-            if (i > 0)
-            {
-                p.Nodes.Remove(this);
-                p.Nodes.Insert(i - 1, this);
-                TreeView.SelectedNode = this;
-                Excel.Swap(i - 1);
-            }
-
-            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
-            await Validate();
-
-            Updated?.Invoke();
-        }
-
-        /// <summary>
-        /// Switches this node with the sibling immediately below it in the tree
-        /// </summary>
-        public async void MoveDown(object sender, EventArgs args)
-        {
-            // Store references so they are not lost on removal
-            int i = Index;
-            var p = Parent;
-
-            if (i + 1 < p.Nodes.Count)
-            {
-                p.Nodes.Remove(this);
-                p.Nodes.Insert(i + 1, this);
-                TreeView.SelectedNode = this;
-                Excel.Swap(i + 1);
-            }
-
-            //if (p is DataNode parent)
-            //    parent.Validate();
-
-            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
-            await Validate();
-
-            Updated?.Invoke();
-        }
-
         #endregion
 
         #region Validation 
-
         /// <summary>
         /// Recursively confirm a node and its children as valid
         /// </summary>
@@ -284,8 +192,121 @@ namespace WindowsClient.Models
 
             await Validater.Validate();
         }
+        #endregion
 
+        #region Disposable
+        private bool disposedValue;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Excel.Dispose();
+                    Validater.Dispose();
+                }
+
+                Updated = null;
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 
+    public class ColumnNode : DataNode<DataColumn>
+    {
+        public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
+        {
+            ContextMenu.Popup += (s, e) => excel.ConfigureMenu(items.Cast<MenuItem>().ToArray());
+            
+            items.Add(new MenuItem("Add as trait", async (s, e) => await AddTrait(s, e)));
+            items.Add(new MenuItem("Set property"));
+            items.Add("-");
+            items.Add(new MenuItem("Move up", MoveUp));
+            items.Add(new MenuItem("Move down", MoveDown));
+        }
+
+        /// <summary>
+        /// Switches this node with the sibling immediately above it in the tree
+        /// </summary>
+        public async void MoveUp(object sender, EventArgs args)
+        {
+            // Store references so they are not lost on removal
+            int i = Index;
+            var p = Parent;
+
+            if (i > 0)
+            {
+                p.Nodes.Remove(this);
+                p.Nodes.Insert(i - 1, this);
+                TreeView.SelectedNode = this;
+                Excel.Swap(i - 1);
+            }
+
+            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await Validate();
+
+            InvokeUpdated();
+        }
+
+        /// <summary>
+        /// Switches this node with the sibling immediately below it in the tree
+        /// </summary>
+        public async void MoveDown(object sender, EventArgs args)
+        {
+            // Store references so they are not lost on removal
+            int i = Index;
+            var p = Parent;
+
+            if (i + 1 < p.Nodes.Count)
+            {
+                p.Nodes.Remove(this);
+                p.Nodes.Insert(i + 1, this);
+                TreeView.SelectedNode = this;
+                Excel.Swap(i + 1);
+            }
+
+            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await Validate();
+
+            InvokeUpdated();
+        }
+    }
+
+    public class TableNode : DataNode<DataTable>
+    {
+        public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
+        {
+            items.Add(new MenuItem("Add invalids as traits", AddTraits));
+            items.Add(new MenuItem("Ignore all invalids", IgnoreAll));
+        }
+
+        /// <summary>
+        /// Adds a trait to the database for every invalid child node
+        /// </summary>
+        public async void AddTraits(object sender, EventArgs args)
+        {
+            foreach (DataNode<DataColumn> n in Nodes)
+                if (n.Excel.State["Valid"] is false)
+                    await n.AddTrait(sender, args);
+        }
+
+        /// <summary>
+        /// Sets the ignored state of all child nodes
+        /// </summary>
+        private async void IgnoreAll(object sender, EventArgs args)
+        {
+            foreach (DataNode<DataColumn> n in Nodes)
+                if (n.Excel.State["Valid"] is false)
+                    await n.ToggleIgnore(null, args);
+        }
+    }
 }

@@ -72,7 +72,7 @@ namespace WindowsClient.Models
             validater.Query += (o) => query?.Invoke(o);            
             validater.SetAdvice += a => InvokeSetAdvice(a);
 
-            return new DataNode<DataColumn>(excel, validater);
+            return new ColumnNode(excel, validater);
         }
     }
 
@@ -148,7 +148,7 @@ namespace WindowsClient.Models
             
             validater.SetAdvice += a => InvokeSetAdvice(a);
 
-            return new DataNode<DataColumn>(excel, validater);
+            return new ColumnNode(excel, validater);
         }
     }
 }

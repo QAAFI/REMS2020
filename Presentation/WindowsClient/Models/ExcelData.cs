@@ -8,7 +8,7 @@ namespace WindowsClient.Models
     /// <summary>
     /// Manages data taken from an excel spreadsheet
     /// </summary>
-    public interface IExcelData<TData>
+    public interface IExcelData<TData> : IDisposable
         where TData : IDisposable
     {
         /// <summary>
@@ -37,17 +37,12 @@ namespace WindowsClient.Models
         PropertyCollection State { get; }
 
         /// <summary>
-        /// Connects the given menu items to the data, allowing modification
-        /// </summary>
-        void ConfigureMenu(params MenuItem[] items);
-
-        /// <summary>
         /// If the data is a column, swap its position to the given index
         /// </summary>
         void Swap(int index);
     }
 
-    public abstract class BaseExcelData<TData> : IExcelData<TData>, IDisposable
+    public abstract class BaseExcelData<TData> : IExcelData<TData>
         where TData : IDisposable
     {
         public TData Data { get; protected set; }
@@ -61,7 +56,6 @@ namespace WindowsClient.Models
         protected void InvokeStateChanged(string state, object value)
             => StateChanged?.Invoke(state, value);
 
-        public abstract void ConfigureMenu(params MenuItem[] items);
         public abstract void Swap(int index);
 
         #region Disposable
@@ -114,12 +108,6 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public override void ConfigureMenu(params MenuItem[] items)
-        {
-            // Not used
-        }
-
-        /// <inheritdoc/>
         public override void Swap(int i)
         {
             throw new NotImplementedException("Cannot swap the ordinal of a table");
@@ -151,7 +139,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public override void ConfigureMenu(params MenuItem[] items)
+        public void ConfigureMenu(params MenuItem[] items)
         {
             if (State["Info"] != null)
             {
