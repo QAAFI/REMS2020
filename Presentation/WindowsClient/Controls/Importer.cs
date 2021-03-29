@@ -202,35 +202,35 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Generate a validater for a data table
         /// </summary>
-        private ITableValidater CreateTableValidater(DataTable table)
+        private ITableValidator CreateTableValidater(DataTable table)
         {
             switch (table.TableName)
             {
                 case "Design":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
 
                 case "HarvestData":
                 case "PlotData":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
 
                 case "MetData":
-                    return new CustomTableValidater(table, new string[] { "MetStation", "Date" });
+                    return new CustomTableValidator(table, new string[] { "MetStation", "Date" });
 
                 case "SoilLayerData":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
 
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment" });
 
                 case "Soils":
                 case "SoilLayer":
                 case "SoilLayers":
-                    return new TableValidater(table);
+                    return new TableValidator(table);
 
                 default:
-                    return new TableValidater(table);
+                    return new TableValidator(table);
             }
         }        
 

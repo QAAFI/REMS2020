@@ -34,7 +34,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Used to validate the data prior to import
         /// </summary>
-        public INodeValidater Validater { get; set; }
+        public INodeValidator Validater { get; set; }
 
         /// <summary>
         /// Manages an instance of excel data
@@ -46,7 +46,7 @@ namespace WindowsClient.Models
         /// </summary>
         Menu.MenuItemCollection items => ContextMenu.MenuItems;
 
-        public DataNode(IExcelData excel, INodeValidater validater) : base(excel.Name)
+        public DataNode(IExcelData excel, INodeValidator validater) : base(excel.Name)
         {
             Excel = excel;
             Tag = Excel.Data;
