@@ -175,12 +175,11 @@ namespace WindowsClient.Controls
         private async Task<TreeNode> CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
-            xt.Query += (o) => Query?.Invoke(o);
 
             var vt = CreateTableValidater(table);
             vt.SetAdvice += a => a.AddToTextBox(adviceBox);
 
-            var tnode = new DataNode(xt, vt);
+            var tnode = new DataNode<DataTable>(xt, vt);
             tnode.Query += (o) => Query?.Invoke(o);
 
             // Prepare individual columns for import
@@ -338,7 +337,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is DataNode node)
+            if (e.Node is DataNode<IDisposable> node)
             {
                 importData.DataSource = node.Excel.Source;
                 importData.Format();
@@ -347,7 +346,7 @@ namespace WindowsClient.Controls
 
                 if (!node.Advice.Empty)
                     node.Advice.AddToTextBox(adviceBox);
-                else if (node.Parent is DataNode parent)
+                else if (node.Parent is DataNode<DataTable> parent)
                     parent.Advice.AddToTextBox(adviceBox);
             }
         }
@@ -357,7 +356,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Node is DataNode node && e.Label != null)
+            if (e.Node is DataNode<IDisposable> node && e.Label != null)
             {
                 node.Excel.Name = e.Label;
                 await node.Validate();

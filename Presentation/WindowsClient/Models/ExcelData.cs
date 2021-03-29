@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using MediatR;
 using Rems.Application.Common.Extensions;
 
 namespace WindowsClient.Models
@@ -10,7 +8,8 @@ namespace WindowsClient.Models
     /// <summary>
     /// Manages data taken from an excel spreadsheet
     /// </summary>
-    public interface IExcelData
+    public interface IExcelData<TData>
+        where TData : IDisposable
     {
         /// <summary>
         /// Occurs when the data is changed
@@ -20,7 +19,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// The raw data
         /// </summary>
-        object Data { get; }
+        TData Data { get; }
 
         /// <summary>
         /// The name of the data
@@ -48,80 +47,103 @@ namespace WindowsClient.Models
         void Swap(int index);
     }
 
-    public class ExcelTable : IExcelData
+    public abstract class BaseExcelData<TData> : IExcelData<TData>, IDisposable
+        where TData : IDisposable
     {
-        readonly DataTable table;
+        public TData Data { get; protected set; }
+        
+        public abstract string Name { get; set; }
+        public abstract DataTable Source { get; }
+        public abstract PropertyCollection State { get; }
 
-        /// <inheritdoc/>
-        public object Data => table;
-
-        /// <inheritdoc/>
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
-        /// <inheritdoc/>
         public event Action<string, object> StateChanged;
 
-        /// <inheritdoc/>
-        public string Name
+        protected void InvokeStateChanged(string state, object value)
+            => StateChanged?.Invoke(state, value);
+
+        public abstract void ConfigureMenu(params MenuItem[] items);
+        public abstract void Swap(int index);
+
+        #region Disposable
+        private bool disposedValue;
+
+        protected virtual void Dispose(bool disposing)
         {
-            get => table.TableName;
-            set => table.TableName = value;
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Data.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                StateChanged = null;
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+    }
+
+    public class ExcelTable : BaseExcelData<DataTable>
+    {
+        /// <inheritdoc/>
+        public override string Name
+        {
+            get => Data.TableName;
+            set => Data.TableName = value;
         }
 
         /// <inheritdoc/>
-        public DataTable Source => table;
+        public override DataTable Source => Data;
 
         /// <inheritdoc/>
-        public PropertyCollection State => table.ExtendedProperties;
+        public override PropertyCollection State => Data.ExtendedProperties;
 
         public ExcelTable(DataTable table)
         {
-            this.table = table;           
-
+            Data = table;
             State["Ignore"] = false;
             State["Valid"] = true;            
         }
 
         /// <inheritdoc/>
-        public void ConfigureMenu(params MenuItem[] items)
+        public override void ConfigureMenu(params MenuItem[] items)
         {
             // Not used
         }
 
         /// <inheritdoc/>
-        public void Swap(int i)
+        public override void Swap(int i)
         {
             throw new NotImplementedException("Cannot swap the ordinal of a table");
         }
     }
 
-    public class ExcelColumn : IExcelData
+    public class ExcelColumn : BaseExcelData<DataColumn>
     {
-        readonly DataColumn column;
-
         /// <inheritdoc/>
-        public object Data => column;
-
-        /// <inheritdoc/>
-        public event Action<string, object> StateChanged;
-
-        /// <inheritdoc/>
-        public string Name
+        public override string Name
         {
-            get => column.ColumnName;
-            set => column.ColumnName = value;
+            get => Data.ColumnName;
+            set => Data.ColumnName = value;
         }
 
         /// <inheritdoc/>
-        public DataTable Source => column.Table;
+        public override DataTable Source => Data.Table;
 
         /// <inheritdoc/>
-        public PropertyCollection State => column.ExtendedProperties;
+        public override PropertyCollection State => Data.ExtendedProperties;
 
         public ExcelColumn(DataColumn column)
         {
-            this.column = column;
+            Data = column;
 
             var info = column.FindProperty();
             State["Info"] = info;
@@ -129,7 +151,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public void ConfigureMenu(params MenuItem[] items)
+        public override void ConfigureMenu(params MenuItem[] items)
         {
             if (State["Info"] != null)
             {
@@ -139,7 +161,7 @@ namespace WindowsClient.Models
 
             items[3].MenuItems.Clear();
 
-            var props = column.GetUnmappedProperties();
+            var props = Data.GetUnmappedProperties();
 
             foreach (var prop in props)
                 items[3].MenuItems.Add(prop.Name, SetProperty);
@@ -150,14 +172,14 @@ namespace WindowsClient.Models
         {
             var item = sender as MenuItem;
             Name = item.Text;
-            State["Info"] = column.FindProperty();
-            StateChanged?.Invoke("Valid", true);
+            State["Info"] = Data.FindProperty();
+            InvokeStateChanged("Valid", true);
         }
 
         /// <inheritdoc/>
-        public void Swap(int index)
+        public override void Swap(int index)
         {
-            column.SetOrdinal(index);
+            Data.SetOrdinal(index);
         }
     }
 }

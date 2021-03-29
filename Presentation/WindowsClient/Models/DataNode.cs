@@ -13,7 +13,8 @@ namespace WindowsClient.Models
     /// <summary>
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
-    public class DataNode : TreeNode
+    public class DataNode<TData> : TreeNode
+        where TData : IDisposable
     {
         /// <summary>
         /// Occurs when some change is applied to the node
@@ -39,14 +40,14 @@ namespace WindowsClient.Models
         /// <summary>
         /// Manages an instance of excel data
         /// </summary>
-        public IExcelData Excel { get; }
+        public IExcelData<TData> Excel { get; }
 
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
         Menu.MenuItemCollection items => ContextMenu.MenuItems;
 
-        public DataNode(IExcelData excel, INodeValidator validater) : base(excel.Name)
+        public DataNode(IExcelData<TData> excel, INodeValidator validater) : base(excel.Name)
         {
             Excel = excel;
             Tag = Excel.Data;
@@ -55,7 +56,7 @@ namespace WindowsClient.Models
             validater.StateChanged += UpdateState;
             validater.SetAdvice += a => Advice = a;
             Validater = validater;
-
+            
             ContextMenu = new ContextMenu();
 
             items.Add(new MenuItem("Rename", Rename));
@@ -132,7 +133,7 @@ namespace WindowsClient.Models
             SelectedImageKey = key;
 
             // Update the node parent
-            if (Parent is DataNode parent) 
+            if (Parent is DataNode<DataTable> parent) 
                 parent.Validater.Validate();
         }
 
@@ -155,7 +156,7 @@ namespace WindowsClient.Models
         /// </summary>
         public async void AddTraits(object sender, EventArgs args)
         {
-            foreach (DataNode n in Nodes)
+            foreach (DataNode<DataColumn> n in Nodes)
                 if (n.Excel.State["Valid"] is false)
                     await n.AddTrait(sender, args);
         }
@@ -165,7 +166,7 @@ namespace WindowsClient.Models
         /// </summary>
         private async void IgnoreAll(object sender, EventArgs args)
         {
-            foreach (DataNode n in Nodes)
+            foreach (DataNode<DataColumn> n in Nodes)
                 if (n.Excel.State["Valid"] is false)
                     await n.ToggleIgnore(null, args);
         }
@@ -212,7 +213,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Switches this node with the sibling immediately above it in the tree
         /// </summary>
-        public void MoveUp(object sender, EventArgs args)
+        public async void MoveUp(object sender, EventArgs args)
         {
             // Store references so they are not lost on removal
             int i = Index;
@@ -226,8 +227,8 @@ namespace WindowsClient.Models
                 Excel.Swap(i - 1);
             }
 
-            ((DataNode)p.Nodes[i]).Validate();
-            Validate();
+            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await Validate();
 
             Updated?.Invoke();
         }
@@ -235,7 +236,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Switches this node with the sibling immediately below it in the tree
         /// </summary>
-        public void MoveDown(object sender, EventArgs args)
+        public async void MoveDown(object sender, EventArgs args)
         {
             // Store references so they are not lost on removal
             int i = Index;
@@ -252,8 +253,8 @@ namespace WindowsClient.Models
             //if (p is DataNode parent)
             //    parent.Validate();
 
-            ((DataNode)p.Nodes[i]).Validate();
-            Validate();
+            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await Validate();
 
             Updated?.Invoke();
         }
@@ -269,7 +270,7 @@ namespace WindowsClient.Models
         {
             UpdateState("Valid", true);
 
-            foreach (DataNode node in Nodes)
+            foreach (DataNode<DataColumn> node in Nodes)
                 node.ForceValidate();
         }
 
@@ -278,7 +279,7 @@ namespace WindowsClient.Models
         /// </summary>
         public async Task Validate()
         {
-            foreach (DataNode node in Nodes)
+            foreach (DataNode<DataColumn> node in Nodes)
                 await node.Validate();
 
             await Validater.Validate();
