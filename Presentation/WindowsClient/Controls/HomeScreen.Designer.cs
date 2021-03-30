@@ -13,10 +13,8 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            DBCreated = null;
             DBOpened = null;
             ImportRequested = null;
-            SessionChanging = null;
             Query = null;
 
             recentList.DoubleClick -= OnRecentListDoubleClick;

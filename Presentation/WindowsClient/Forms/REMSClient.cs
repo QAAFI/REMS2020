@@ -28,18 +28,15 @@ namespace WindowsClient
             InitializeComponent();
 
             _mediator = provider.GetRequiredService<IMediator>();
+            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
 
             LoadSettings();
             
             FormClosed += REMSClientFormClosed;
 
             homeScreen.Query += SendQuery;
-            homeScreen.DBCreated += LoadListView;
             homeScreen.DBOpened += OnDBOpened;
-            homeScreen.ImportRequested += OnImportRequested;
-            homeScreen.SessionChanging += OnSessionChanged;
-
-            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
+            homeScreen.ImportRequested += OnImportRequested;            
 
             detailer.Query += SendQuery;
 
@@ -111,18 +108,6 @@ namespace WindowsClient
         }
 
         /// <summary>
-        /// When the client connects to a different database
-        /// </summary>
-        private void OnSessionChanged()
-        {
-            // Remove all pages except the homescreen
-            var pages = notebook.TabPages.Cast<TabPage>().Skip(2);
-
-            foreach (var page in pages)
-                notebook.TabPages.Remove(page);
-        }
-
-        /// <summary>
         /// When an import link starts the import process
         /// </summary>
         private async void OnImportRequested(ImportLink link)
@@ -160,10 +145,7 @@ namespace WindowsClient
             Text = "REMS 2020 - " + Path.GetFileName(file);
 
             // Update the tables
-            LoadListView(file);
-
-            await homeScreen.CheckTables();
-            if ((bool)await SendQuery(new LoadedExperiments())) ;
+            await LoadListView(file);
         }
 
         /// <summary>
@@ -180,7 +162,7 @@ namespace WindowsClient
         /// <summary>
         /// Fills the listbox
         /// </summary>
-        private async void LoadListView(string file)
+        private async Task LoadListView(string file)
         {
             var query = new GetTableNamesQuery();
             var items = await TrySendQuery(query);

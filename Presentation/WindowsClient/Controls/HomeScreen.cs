@@ -22,11 +22,6 @@ namespace WindowsClient.Controls
     public partial class HomeScreen : UserControl
     {
         /// <summary>
-        /// Occurs when a new database is created
-        /// </summary>
-        public event Action<string> DBCreated;
-
-        /// <summary>
         /// Occurs when a database is opened
         /// </summary>
         public event Func<string, Task> DBOpened;
@@ -35,11 +30,6 @@ namespace WindowsClient.Controls
         /// Occurs when excel data is requested
         /// </summary>
         public event Action<ImportLink> ImportRequested;
-
-        /// <summary>
-        /// Occurs immediately before the session changes
-        /// </summary>
-        public event Action SessionChanging;
 
         /// <summary>
         /// Occurs when data is requested from the mediator
@@ -64,11 +54,6 @@ namespace WindowsClient.Controls
         /// The list of sessions reversed
         /// </summary>
         private List<Session> snoisses => Sessions.Reverse<Session>().ToList();
-
-        /// <summary>
-        /// The currently active session
-        /// </summary>
-        private Session Session { get; set; }
 
         public HomeScreen()
         {
@@ -134,16 +119,11 @@ namespace WindowsClient.Controls
         /// <param name="session"></param>
         private async Task ChangeSession(Session session)
         {
-            SessionChanging?.Invoke();
-
             // Open the DB from the new session
-            Manager.DbConnection = session.DB;
-            await DBOpened?.Invoke(session.DB);
+            Manager.DbConnection = session.DB;            
             Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
             EnableImport();
-
-            Session = session;
             await CheckTables();
 
             // Reset the export box
@@ -157,7 +137,9 @@ namespace WindowsClient.Controls
             if (Sessions.Count > 8)
                 Sessions.RemoveAt(0);
 
-            recentList.DataSource = snoisses;      
+            recentList.DataSource = snoisses;
+
+            await DBOpened?.Invoke(session.DB);
         }
 
         /// <summary>
@@ -214,9 +196,6 @@ namespace WindowsClient.Controls
                 save.RestoreDirectory = true;
 
                 if (save.ShowDialog() != DialogResult.OK) return;
-
-                //await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
-                DBCreated?.Invoke(save.FileName);
 
                 await CreateSession(save.FileName);
             }
