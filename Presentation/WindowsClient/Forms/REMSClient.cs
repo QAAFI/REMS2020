@@ -117,7 +117,7 @@ namespace WindowsClient
             notebook.SelectedTab = importTab;
 
             if (! await importer.OpenFile())
-                importTab.Hide();
+                notebook.TabPages.Remove(importTab);
         }         
 
         /// <summary>

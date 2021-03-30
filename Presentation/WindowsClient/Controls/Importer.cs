@@ -85,6 +85,7 @@ namespace WindowsClient.Controls
             
             tracker.TaskBegun += RunImporter;
         }
+
         #region Methods        
 
         /// <summary>
@@ -302,6 +303,7 @@ namespace WindowsClient.Controls
                     return;
                 }
 
+                // Create and run an importer for the data
                 var excel = new ExcelImporter { Data = Data };
                 excel.Query += (o) => Query?.Invoke(o);
 
@@ -314,7 +316,11 @@ namespace WindowsClient.Controls
 
                 await excel.Run();
 
-                tracker.Reset();                
+                // Clean up
+                tracker.Reset();
+                excel.Dispose();
+                Data = null;
+                dataTree.Nodes.Clear();
 
                 StageChanged?.Invoke(Stage.Imported);
             }

@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common
 {
-    public abstract class ProgressTracker : IProgressTracker
+    public abstract class ProgressTracker : IProgressTracker, IDisposable
     {
+        private bool disposedValue;
+
         /// <inheritdoc/>
         public event Action IncrementProgress;
 
@@ -60,5 +62,31 @@ namespace Rems.Application.Common
 
         /// <inheritdoc/>
         public abstract Task Run();
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                IncrementProgress = null;
+                TaskFinished = null;
+                NextItem = null;
+                TaskFailed = null;
+                Query = null;
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
