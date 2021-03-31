@@ -1,46 +1,31 @@
-﻿using MediatR;
-using Models;
+﻿using System;
+using System.Linq;
+using MediatR;
 using Models.Factorial;
 using Rems.Application.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using REMSFactor = Rems.Domain.Entities.Factor;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Generates an APSIM Permutation model for an experiment
     /// </summary>
-    public class AddLevelsCommand : IRequest
+    public class AddLevelsCommand : ContextQuery<Unit>
     {
         public Factor Factor { get; set; }
-    }
 
-    public class AddLevelsCommandHandler : IRequestHandler<AddLevelsCommand>
-    {
-        private readonly IRemsDbContext _context;
-        private readonly IFileManager _file;
-        public AddLevelsCommandHandler(IRemsDbContext context, IFileManager file)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<AddLevelsCommand>
         {
-            _context = context;
-            _file = file;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(AddLevelsCommand request, CancellationToken token)
-            => Task.Run(() => Handler(request, token));
-
-        private Unit Handler(AddLevelsCommand request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            var factor = _context.Factors.First(f => f.Name == request.Factor.Name);
+            var factor = _context.Factors.First(f => f.Name == Factor.Name);
 
             foreach (var level in factor.Level)
-                request.Factor.Children.Add(new CompositeFactor{ Name = level.Name });
+                Factor.Children.Add(new CompositeFactor{ Name = level.Name });
 
             return Unit.Value;
         }

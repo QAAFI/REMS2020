@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Inserts a table of PlotData into the database
     /// </summary>
-    public class InsertPlotDataTableCommand : IRequest
+    public class InsertPlotDataTableCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The source data
@@ -32,25 +28,19 @@ namespace Rems.Application.CQRS
         public string Type { get; set; }
 
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertPlotDataTableCommandHandler : IRequestHandler<InsertPlotDataTableCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertPlotDataTableCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertPlotDataTableCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertPlotDataTableCommand request, CancellationToken token) 
-            => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertPlotDataTableCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
+            var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
-            var rows = request.Table.Rows.Cast<DataRow>();
+            var rows = Table.Rows.Cast<DataRow>();
 
             // Find the experiments
             var exps = rows.Select(r => r[0])
@@ -87,7 +77,7 @@ namespace Rems.Application.CQRS
                 var date = Convert.ToDateTime(row[2]);
                 var sample = row[3].ToString();
 
-                request.IncrementProgress();
+                IncrementProgress();
 
                 for (int i = 4; i < row.ItemArray.Length; i++)
                 {
@@ -112,8 +102,8 @@ namespace Rems.Application.CQRS
 
             // Convert all the rows of the table
             var datas = rows.SelectMany(r => convertRow(r))
-                .Distinct();                
-            
+                .Distinct();
+
             if (_context.PlotData.Any())
                 datas = datas.Except(_context.PlotData, new PlotDataComparer());
 
@@ -122,6 +112,7 @@ namespace Rems.Application.CQRS
 
             return Unit.Value;
         }
+        
     }
 
     internal class PlotDataComparer : IEqualityComparer<PlotData>

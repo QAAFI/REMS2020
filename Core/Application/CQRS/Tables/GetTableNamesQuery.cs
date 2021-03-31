@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,19 +7,16 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find the names of all the tables in the database
     /// </summary>
-    public class GetTableNamesQuery : IRequest<string[]> 
-    { }
-
-    public class GetTableNamesQueryHandler : IRequestHandler<GetTableNamesQuery, string[]>
+    public class GetTableNamesQuery : ContextQuery<string[]>
     {
-        private readonly IRemsDbContext _context;
 
-        public GetTableNamesQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<GetTableNamesQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<string[]> Handle(GetTableNamesQuery request, CancellationToken cancellationToken) 
-            => Task.Run(() => _context.Names.ToArray());
+        /// <inheritdoc/>
+        protected override string[] Run() => _context.Names.ToArray();
     }
 }

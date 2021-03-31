@@ -11,11 +11,10 @@ namespace Rems.Persistence
         {
             return services
                 .AddSingleton<IFileManager, FileManager>()
-                .AddTransient<RemsDbContextFactory>()
-                .AddScoped<IRemsDbContext>(provider => provider.GetRequiredService<RemsDbContextFactory>().Create());
+                .AddSingleton<IRemsDbContextFactory, RemsDbContextFactory>();
         }
 
-        public class RemsDbContextFactory
+        public class RemsDbContextFactory : IRemsDbContextFactory
         {
             private readonly IFileManager _manager;
 
@@ -24,17 +23,18 @@ namespace Rems.Persistence
                 _manager = manager;
             }
 
-            public RemsDbContext Create()
+            public IRemsDbContext Create()
             {
                 string connection = _manager.DbConnection;
 
-                var builder = new DbContextOptionsBuilder<RemsDbContext>()
+                var options = new DbContextOptionsBuilder<RemsDbContext>()
                     .UseSqlite("Data Source=" + connection)
                     .UseLazyLoadingProxies(true)
                     .EnableSensitiveDataLogging(true)
-                    .EnableDetailedErrors(true);
+                    .EnableDetailedErrors(true)
+                    .Options;
 
-                return new RemsDbContext(builder.Options);
+                return new RemsDbContext(options);
             }
         }
     }

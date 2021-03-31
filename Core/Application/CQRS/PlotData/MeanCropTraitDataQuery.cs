@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average values for a trait across a treatment
     /// </summary>
-    public class MeanCropTraitDataQuery : IRequest<SeriesData>
+    public class MeanCropTraitDataQuery : ContextQuery<SeriesData>
     {
         /// <summary>
         /// The source treatment
@@ -23,24 +19,19 @@ namespace Rems.Application.CQRS
         /// The trait
         /// </summary>
         public string TraitName { get; set; }
-    }
 
-    public class MeanCropTraitDataQueryHandler : IRequestHandler<MeanCropTraitDataQuery, SeriesData>
-    {
-        private readonly IRemsDbContext _context;
-
-        public MeanCropTraitDataQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<MeanCropTraitDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<SeriesData> Handle(MeanCropTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private SeriesData Handler(MeanCropTraitDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override SeriesData Run()
         {
             var data = _context.PlotData
-                .Where(p => p.Plot.TreatmentId == request.TreatmentId)
-                .Where(p => p.Trait.Name == request.TraitName)
+                .Where(p => p.Plot.TreatmentId == TreatmentId)
+                .Where(p => p.Trait.Name == TraitName)
                 .ToArray() // Have to cast to an array to support the following GroupBy
                 .GroupBy(p => p.Date)
                 .OrderBy(g => g.Key)
@@ -48,7 +39,7 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Name = request.TraitName,
+                Name = TraitName,
                 X = Array.CreateInstance(typeof(DateTime), data.Count()),
                 Y = Array.CreateInstance(typeof(double), data.Count()),
                 XName = "Date",

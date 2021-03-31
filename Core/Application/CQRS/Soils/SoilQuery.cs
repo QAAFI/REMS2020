@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Models.Soils;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Soil model for an experiment
     /// </summary>
-    public class SoilQuery : IRequest<Soil>
+    public class SoilQuery : ContextQuery<Soil>
     {   
         /// <summary>
         /// The source experiment
@@ -20,30 +16,25 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class SoilQueryHandler : IRequestHandler<SoilQuery, Soil>
-    {
-        private readonly IRemsDbContext _context;
-
-        public SoilQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<SoilQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Soil> Handle(SoilQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Soil Handler(SoilQuery request)
+        /// <inheritdoc/>
+        protected override Soil Run()
         {
-            var field = _context.Experiments.Find(request.ExperimentId).Field;
+            var field = _context.Experiments.Find(ExperimentId).Field;
 
-            var valid = request.Report.ValidateItem(field.Soil.SoilType, nameof(Soil.Name))
-                & request.Report.ValidateItem(field.Latitude.GetValueOrDefault(), nameof(Soil.Latitude))
-                & request.Report.ValidateItem(field.Longitude.GetValueOrDefault(), nameof(Soil.Longitude))
-                & request.Report.ValidateItem(field.Site.Name, nameof(Soil.Site))
-                & request.Report.ValidateItem(field.Site.Region.Name, nameof(Soil.Region));
+            var valid = Report.ValidateItem(field.Soil.SoilType, nameof(Soil.Name))
+                & Report.ValidateItem(field.Latitude.GetValueOrDefault(), nameof(Soil.Latitude))
+                & Report.ValidateItem(field.Longitude.GetValueOrDefault(), nameof(Soil.Longitude))
+                & Report.ValidateItem(field.Site.Name, nameof(Soil.Site))
+                & Report.ValidateItem(field.Site.Region.Name, nameof(Soil.Region));
 
-            request.Report.CommitValidation(nameof(Soil), !valid);
+            Report.CommitValidation(nameof(Soil), !valid);
 
             var soil = new Soil
             {

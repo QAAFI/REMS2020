@@ -12,28 +12,23 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Produce a summary of data about an experiment
     /// </summary>
-    public class ExperimentSummary : IRequest<Dictionary<string, string>>
+    public class ExperimentSummary : ContextQuery<Dictionary<string, string>>
     {
         /// <summary>
         /// The experiment to summarise
         /// </summary>
         public int ExperimentId { get; set; }
-    }
 
-    public class ExperimentSummaryHandler : IRequestHandler<ExperimentSummary, Dictionary<string, string>>
-    {
-        private readonly IRemsDbContext _context;
-
-        public ExperimentSummaryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<ExperimentSummary>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Dictionary<string, string>> Handle(ExperimentSummary request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Dictionary<string, string> Handler(ExperimentSummary request)
+        /// <inheritdoc/>
+        protected override Dictionary<string, string> Run()
         {
-            var exp = _context.Experiments.Find(request.ExperimentId);
+            var exp = _context.Experiments.Find(ExperimentId);
 
             var researchers = exp.ResearcherList.Select(r => r.Researcher.Name + "\n");
             string list = string.Concat(researchers);

@@ -64,7 +64,7 @@ namespace Rems.Infrastructure.Excel
 
             var type = table.ExtendedProperties["Type"] as Type;
 
-            IRequest command;
+            IRequest<Unit> command;
 
             //Change the insertion process depending on the table being added
             switch (table.TableName)

@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the data for a soil layer trait in a plot on the given date
     /// </summary>
-    public class SoilLayerTraitDataQuery : IRequest<SeriesData>
+    public class SoilLayerTraitDataQuery : ContextQuery<SeriesData>
     {
         /// <summary>
         /// The date
@@ -28,31 +24,26 @@ namespace Rems.Application.CQRS
         /// The trait
         /// </summary>
         public string TraitName { get; set; }
-    }
 
-    public class SoilLayerTraitDataQueryHandler : IRequestHandler<SoilLayerTraitDataQuery, SeriesData>
-    {
-        private readonly IRemsDbContext _context;
-
-        public SoilLayerTraitDataQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<SoilLayerTraitDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<SeriesData> Handle(SoilLayerTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private SeriesData Handler(SoilLayerTraitDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override SeriesData Run()
         {
             var data = _context.SoilLayerDatas
-                .Where(d => d.PlotId == request.PlotId)
-                .Where(d => d.Date == request.Date)
-                .Where(d => d.Trait.Name == request.TraitName)
+                .Where(d => d.PlotId == PlotId)
+                .Where(d => d.Date == Date)
+                .Where(d => d.Trait.Name == TraitName)
                 .OrderBy(d => d.DepthFrom)
                 .ToArray();
 
-            var plot = _context.Plots.Find(request.PlotId);
+            var plot = _context.Plots.Find(PlotId);
             var x = plot.Repetition.ToString();
-            string name = x + " " + request.TraitName + ", " + request.Date.ToString("dd/MM/yy");
+            string name = x + " " + TraitName + ", " + Date.ToString("dd/MM/yy");
 
             SeriesData series = new SeriesData()
             {

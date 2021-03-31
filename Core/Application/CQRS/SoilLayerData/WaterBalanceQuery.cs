@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Models.WaterModel;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
@@ -14,7 +10,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM WaterBalance model for an experiment
     /// </summary>
-    public class WaterBalanceQuery : IRequest<WaterBalance>
+    public class WaterBalanceQuery : ContextQuery<WaterBalance>
     {
         /// <summary>
         /// The source experiment
@@ -22,33 +18,28 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class WaterBalanceQueryHandler : IRequestHandler<WaterBalanceQuery, WaterBalance>
-    {
-        private readonly IRemsDbContext _context;
-
-        public WaterBalanceQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<WaterBalanceQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<WaterBalance> Handle(WaterBalanceQuery request, CancellationToken token) =>  Task.Run(() => Handler(request));
-
-        private WaterBalance Handler(WaterBalanceQuery request)
+        /// <inheritdoc/>
+        protected override WaterBalance Run()
         {
-            var layers = _context.GetSoilLayers(request.ExperimentId);
+            var layers = _context.GetSoilLayers(ExperimentId);
 
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
             var swcon = _context.GetSoilLayerTraitData(layers, nameof(WaterBalance.SWCON));
             var klat = _context.GetSoilLayerTraitData(layers, nameof(WaterBalance.KLAT));
 
             bool valid = 
-                request.Report.ValidateItem(thickness, nameof(WaterBalance.Thickness))
-                & request.Report.ValidateItem(swcon, nameof(WaterBalance.SWCON))
-                & request.Report.ValidateItem(klat, nameof(WaterBalance.KLAT));
+                Report.ValidateItem(thickness, nameof(WaterBalance.Thickness))
+                & Report.ValidateItem(swcon, nameof(WaterBalance.SWCON))
+                & Report.ValidateItem(klat, nameof(WaterBalance.KLAT));
 
-            request.Report.CommitValidation(nameof(WaterBalance), !valid);
+            Report.CommitValidation(nameof(WaterBalance), !valid);
 
             var water = new WaterBalance()
             {

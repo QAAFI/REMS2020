@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -12,28 +9,20 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Searches the database for information to populate an experiment design table
     /// </summary>
-    public class DesignsTableQuery : IRequest<DataTable>
+    public class DesignsTableQuery : ContextQuery<DataTable>
     {
         /// <summary>
         /// The experiment to find design data for
         /// </summary>
         public int ExperimentId { get; set; }
-    }
-
-    public class DesignsTableQueryHandler : IRequestHandler<DesignsTableQuery, DataTable>
-    {
-        private readonly IRemsDbContext _context;
-
-        public DesignsTableQueryHandler(IRemsDbContext context)
+        public class Handler : BaseHandler<DesignsTableQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<DataTable> Handle(DesignsTableQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private DataTable Handler(DesignsTableQuery request, CancellationToken token)
+        protected override DataTable Run()
         {
-            var exp = _context.Experiments.Find(request.ExperimentId);
+            var exp = _context.Experiments.Find(ExperimentId);
 
             var table = new DataTable("Designs");
 

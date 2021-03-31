@@ -1,13 +1,27 @@
-﻿using MediatR;
-using Models;
-using Rems.Application.Common.Interfaces;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Rems.Application.Common.Extensions
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Perform the given action for each element in the source
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="action"></param>
+        public static void ForEach<T>(this IEnumerable source, Action<T> action)
+        {
+            if (source == null) throw new ArgumentNullException(source.ToString());
+            if (action == null) throw new ArgumentNullException(action.ToString());
+
+            var enumerator = source.GetEnumerator();
+            while (enumerator.MoveNext() == true)
+                action((T)enumerator.Current);            
+        }
+
         /// <summary>
         /// Perform the given action for each element in the source
         /// </summary>

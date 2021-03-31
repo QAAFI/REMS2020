@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Models.Soils;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
@@ -14,7 +10,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Sample model for an experiment
     /// </summary>
-    public class SampleQuery : IRequest<Sample>
+    public class SampleQuery : ContextQuery<Sample>
     {
         /// <summary>
         /// The source experiment
@@ -22,22 +18,17 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class SampleQueryHandler : IRequestHandler<SampleQuery, Sample>
-    {
-        private readonly IRemsDbContext _context;
-
-        public SampleQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<SampleQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Sample> Handle(SampleQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Sample Handler(SampleQuery request)
+        /// <inheritdoc/>
+        protected override Sample Run()
         {
-            var layers = _context.GetSoilLayers(request.ExperimentId);
+            var layers = _context.GetSoilLayers(ExperimentId);
 
             var sample = new Sample()
             {

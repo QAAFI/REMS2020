@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Inserts a table of soil layer data into the database
     /// </summary>
-    public class InsertSoilLayerTableCommand : IRequest
+    public class InsertSoilLayerTableCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// A table of soil layer data.
@@ -35,22 +31,17 @@ namespace Rems.Application.CQRS
         /// Alert the request sender that progress has been made on the command
         /// </summary>
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertSoilLayerTableCommandHandler : IRequestHandler<InsertSoilLayerTableCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertSoilLayerTableCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertSoilLayerTableCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertSoilLayerTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertSoilLayerTableCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
+            var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
             IEnumerable<SoilLayerData> convertRow(DataRow row)
             {
@@ -63,7 +54,7 @@ namespace Rems.Application.CQRS
                 if (row[1].ToString().ToLower() != "all")
                     plots = plots.Where(p => cols.Contains(p.Column.GetValueOrDefault()));
 
-                request.IncrementProgress();
+                IncrementProgress();
 
                 foreach (var plot in plots)
                 {
@@ -81,12 +72,12 @@ namespace Rems.Application.CQRS
                             DepthFrom = Convert.ToInt32(row[3]),
                             DepthTo = Convert.ToInt32(row[4]),
                             Value = value
-                        };                        
+                        };
                     }
                 }
             }
 
-            var datas = request.Table.Rows.Cast<DataRow>()
+            var datas = Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
                 .Distinct()
                 .ToArray();
@@ -99,6 +90,7 @@ namespace Rems.Application.CQRS
 
             return Unit.Value;
         }
+        
     }
 
     /// <summary>

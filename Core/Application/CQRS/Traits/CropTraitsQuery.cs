@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,29 +7,23 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the crop traits with data in a treatment
     /// </summary>
-    public class CropTraitsQuery : IRequest<string[]> 
+    public class CropTraitsQuery : ContextQuery<string[]> 
     {
         /// <summary>
         /// The source treatment
         /// </summary>
         public int TreatmentId { get; set; }
-    }
 
-    public class CropTraitsQueryHandler : IRequestHandler<CropTraitsQuery, string[]>
-    {
-        private readonly IRemsDbContext _context;
-
-        public CropTraitsQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<CropTraitsQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<string[]> Handle(CropTraitsQuery request, CancellationToken token) 
-            => Task.Run(() => Handler(request, token));
-
-        private string[] Handler(CropTraitsQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override string[] Run()
         {
-            var traits = _context.Treatments.Find(request.TreatmentId)
+            var traits = _context.Treatments.Find(TreatmentId)
                 .Plots.SelectMany(p => p.PlotData.Select(d => d.Trait.Name))
                 .Distinct()
                 .ToArray();

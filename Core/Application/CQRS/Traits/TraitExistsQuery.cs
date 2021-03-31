@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,29 +7,22 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Check if a trait exists in the database
     /// </summary>
-    public class TraitExistsQuery : IRequest<bool>
+    public class TraitExistsQuery : ContextQuery<bool>
     {
         /// <summary>
         /// The trait name
         /// </summary>
         public string Name { get; set; }
-    }
 
-    public class TraitExistsQueryHandler : IRequestHandler<TraitExistsQuery, bool>
-    {
-        private readonly IRemsDbContext _context;
-
-        public TraitExistsQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<TraitExistsQuery>
         {
-            _context = context;
-        }
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
+        }        
 
-        public Task<bool> Handle(TraitExistsQuery request, CancellationToken token) 
-            => Task.Run(() => Handler(request, token));
-
-        private bool Handler(TraitExistsQuery request, CancellationToken token)
-        { 
-            var result = _context?.Traits.Any(t => t.Name == request.Name) ?? false;
+        protected override bool Run()
+        {
+            var result = _context?.Traits.Any(t => t.Name == Name) ?? false;
             return result;
         }
     }

@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -12,28 +7,23 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Produce a summary of sowing information for an experiment
     /// </summary>
-    public class SowingSummary : IRequest<Dictionary<string, string>>
+    public class SowingSummary : ContextQuery<Dictionary<string, string>>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
-    }
 
-    public class SowingSummaryHandler : IRequestHandler<SowingSummary, Dictionary<string, string>>
-    {
-        private readonly IRemsDbContext _context;
-
-        public SowingSummaryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<SowingSummary>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Dictionary<string, string>> Handle(SowingSummary request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Dictionary<string, string> Handler(SowingSummary request)
+        /// <inheritdoc/>
+        protected override Dictionary<string, string> Run()
         {
-            var sow = _context.Experiments.Find(request.ExperimentId).Sowing;
+            var sow = _context.Experiments.Find(ExperimentId).Sowing;
 
             var d = new Dictionary<string, string>
             {

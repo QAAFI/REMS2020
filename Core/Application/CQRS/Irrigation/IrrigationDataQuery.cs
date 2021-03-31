@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
@@ -12,29 +8,24 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find data on irrigation operations for a treatment
     /// </summary>
-    public class IrrigationDataQuery : IRequest<SeriesData>
+    public class IrrigationDataQuery : ContextQuery<SeriesData>
     {
         /// <summary>
         /// The source treatment
         /// </summary>
         public int TreatmentId { get; set; }
-    }
 
-    public class IrrigationDataQueryHandler : IRequestHandler<IrrigationDataQuery, SeriesData>
-    {
-        private readonly IRemsDbContext _context;
-
-        public IrrigationDataQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<IrrigationDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<SeriesData> Handle(IrrigationDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private SeriesData Handler(IrrigationDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override SeriesData Run()
         {
             var irrigations = _context.Irrigations
-                .Where(i => i.TreatmentId == request.TreatmentId)
+                .Where(i => i.TreatmentId == TreatmentId)
                 .ToArray();
 
             var data = new SeriesData()
