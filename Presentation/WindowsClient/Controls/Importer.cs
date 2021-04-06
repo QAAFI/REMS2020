@@ -176,27 +176,29 @@ namespace WindowsClient.Controls
         private async Task<TreeNode> CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
-
             var vt = CreateTableValidater(table);
-            vt.SetAdvice += a => a.AddToTextBox(adviceBox);
-
             var tnode = new TableNode(xt, vt);
+            
+            vt.SetAdvice += a => a.AddToTextBox(adviceBox);                
             tnode.Query += (o) => Query?.Invoke(o);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i, Query);
-
+                var cnode = vt.CreateColumnNode(i, Query);                
                 cnode.Query += (o) => Query?.Invoke(o);
-                cnode.Updated += () => { importData.DataSource = cnode.Excel.Source; importData.Format(); };
-
-                tnode.Nodes.Add(cnode);
+                cnode.Updated += () => 
+                { 
+                    importData.DataSource = cnode.Excel.Source; 
+                    importData.Format(); 
+                };
+                tnode.Nodes.Add(cnode);                              
             }
 
             await tnode.Validate();
 
             return tnode;
+            
         }
 
         /// <summary>
@@ -319,7 +321,13 @@ namespace WindowsClient.Controls
                 // Clean up
                 tracker.Reset();
                 excel.Dispose();
-                Data = null;
+                Data.Dispose();
+
+                dataTree.Nodes.ForEach<TableNode>(t =>
+                {
+                    t.Nodes.ForEach<ColumnNode>(c => c.Dispose());
+                    t.Dispose();
+                });
                 dataTree.Nodes.Clear();
 
                 StageChanged?.Invoke(Stage.Imported);

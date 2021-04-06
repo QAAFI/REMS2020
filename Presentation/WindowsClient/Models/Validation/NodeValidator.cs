@@ -51,7 +51,7 @@ namespace WindowsClient.Models
             {
                 if (disposing)
                 {
-                    Component.Dispose();
+                    Component?.Dispose();
                 }
 
                 StateChanged = null;

@@ -161,12 +161,9 @@ namespace WindowsClient.Models
 
             var name = (Tag as DataColumn).ColumnName;
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            var result = await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
+            await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
 
-            if (result)
-                UpdateState("Valid", true);
-            else
-                MessageBox.Show("The trait could not be added");
+            UpdateState("Valid", true);
         }
         #endregion
 
@@ -208,6 +205,7 @@ namespace WindowsClient.Models
                 }
 
                 Updated = null;
+                Query = null;
                 disposedValue = true;
             }
         }

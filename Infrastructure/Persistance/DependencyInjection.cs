@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common.Interfaces;
 
-
 namespace Rems.Persistence
 {
     public static class DependencyInjection
