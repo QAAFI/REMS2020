@@ -52,11 +52,11 @@ namespace Rems.Application.CQRS
             return model;
         }
 
-        private List<string> GetSpecs(Domain.Entities.Level level)
+        private static List<string> GetSpecs(Domain.Entities.Level level)
         {
             var specs = new List<string>();
 
-            level.Specification.Split(';')
+            level?.Specification.Split(';')
                 .Where(s => s != "")
                 .ForEach(specs.Add);
 

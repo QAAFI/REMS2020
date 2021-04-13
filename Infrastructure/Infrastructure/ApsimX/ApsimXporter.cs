@@ -75,6 +75,7 @@ namespace Rems.Infrastructure.ApsimX
             simulations.Children.Add(summary);
 
             simulations.ParentAllDescendants();
+            SanitiseNames(simulations);
 
             // Save the file
             File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
@@ -121,6 +122,14 @@ namespace Rems.Infrastructure.ApsimX
             OnIncrementProgress();
 
             return model;
+        }
+
+        private void SanitiseNames(IModel model)
+        {
+            model.Name = model.Name.Replace('.', '_');
+
+            foreach (IModel child in model.Children)
+                SanitiseNames(child);
         }
 
         /// <summary>
