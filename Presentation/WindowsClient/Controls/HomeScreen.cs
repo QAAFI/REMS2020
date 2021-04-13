@@ -268,6 +268,7 @@ namespace WindowsClient.Controls
                 catch (Exception error)
                 {
                     MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Application.UseWaitCursor = false;
                 }
             }
         }
