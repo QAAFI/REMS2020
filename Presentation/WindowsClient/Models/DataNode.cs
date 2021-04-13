@@ -156,6 +156,9 @@ namespace WindowsClient.Models
         /// </summary>
         public async Task AddTrait(object sender, EventArgs args)
         {
+            if (Excel.State["Ignore"] is true)
+                return;
+
             if (Tag is DataTable)
                 throw new Exception("A table cannot be added as a trait");
 

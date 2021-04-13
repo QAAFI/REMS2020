@@ -56,7 +56,7 @@ namespace Rems.Application.CQRS
         {
             var specs = new List<string>();
 
-            level?.Specification.Split(';')
+            level.Specification?.Split(';')
                 .Where(s => s != "")
                 .ForEach(specs.Add);
 
