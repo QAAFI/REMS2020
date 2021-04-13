@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -19,7 +14,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Insert a table of operations data to the database
     /// </summary>
-    public class InsertOperationsTableCommand : IRequest
+    public class InsertOperationsTableCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The source data
@@ -29,41 +24,36 @@ namespace Rems.Application.CQRS
         public Type Type { get; set; }
 
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertOperationsTableCommandHandler : IRequestHandler<InsertOperationsTableCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertOperationsTableCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertOperationsTableCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertOperationsTableCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertOperationsTableCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
             // Find the properties of each columnm assuming the first two columns do not contain property data
-            var infos = request.Table.Columns.Cast<DataColumn>()
-                .Skip(2)
-                .Select(c => c.FindProperty())
-                .Where(i => i != null)
-                .ToList();
+            var infos = Table.Columns.Cast<DataColumn>()
+                    .Skip(2)
+                    .Select(c => c.FindProperty())
+                    .Where(i => i != null)
+                    .ToList();
 
-            var info = request.Type.GetProperty("TreatmentId");
+            var info = Type.GetProperty("TreatmentId");
 
             // Insert a treatment to the database
             void insertTreatment(DataRow row, Treatment treatment)
             {
-                var result = row.ToEntity(_context, request.Type, infos.ToArray());
+                var result = row.ToEntity(_context, Type, infos.ToArray());
                 info.SetValue(result, treatment.TreatmentId);
                 _context.Attach(result);
             }
 
             var entities = new List<IEntity>();
 
-            foreach (DataRow row in request.Table.Rows)
+            foreach (DataRow row in Table.Rows)
             {
                 // Assume that the second column is the treatment name
                 var name = row[1].ToString();
@@ -85,12 +75,12 @@ namespace Rems.Application.CQRS
                     insertTreatment(row, treatment);
                 }
 
-                request.IncrementProgress();
+                IncrementProgress();
             }
 
             _context.SaveChanges();
 
-            return Unit.Value;
+            return Unit.Value;            
         }
     }
 }

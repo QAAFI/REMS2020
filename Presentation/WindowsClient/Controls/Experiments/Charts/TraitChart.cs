@@ -40,7 +40,7 @@ namespace WindowsClient.Controls
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>();        
+        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>().ToArray();
 
         public TraitChart()
         {
@@ -126,18 +126,21 @@ namespace WindowsClient.Controls
                 if (id == treatment)
                     return;
                 else
-                    treatment = id;
-
-                traitsBox.Items.Clear();
+                    treatment = id;                
 
                 // Load the trait type box
                 var traits = await InvokeQuery(new CropTraitsQuery() { TreatmentId = id });
                 descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
 
-                if (traits.Length < 1) return;
+                lock (traitsBox)
+                {
+                    traitsBox.Items.Clear();
 
-                traitsBox.Items.AddRange(traits);
-                traitsBox.SelectedIndex = 0;
+                    if (traits.Length < 1) return;
+
+                    traitsBox.Items.AddRange(traits);
+                    traitsBox.SelectedIndex = 0;
+                }
             }
         }        
 

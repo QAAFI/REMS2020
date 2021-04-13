@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System.Collections.Generic;
@@ -13,7 +9,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find data for each plot in a treatment for a given trait
     /// </summary>
-    public class AllCropTraitDataQuery : IRequest<IEnumerable<SeriesData>>
+    public class AllCropTraitDataQuery : ContextQuery<IEnumerable<SeriesData>>
     {
         /// <summary>
         /// The source treatment
@@ -24,25 +20,20 @@ namespace Rems.Application.CQRS
         /// The trait
         /// </summary>
         public string TraitName { get; set; }
-    }
 
-    public class AllDataByTraitQueryHandler : IRequestHandler<AllCropTraitDataQuery, IEnumerable<SeriesData>>
-    {
-        private readonly IRemsDbContext _context;
-
-        public AllDataByTraitQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<AllCropTraitDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<IEnumerable<SeriesData>> Handle(AllCropTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private IEnumerable<SeriesData> Handler(AllCropTraitDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override IEnumerable<SeriesData> Run()
         {
-            var plots = _context.Treatments.Find(request.TreatmentId).Plots;
+            var plots = _context.Treatments.Find(TreatmentId).Plots;
 
             foreach (var plot in plots)
-                yield return GetPlotData(plot.PlotId, request.TraitName);
+                yield return GetPlotData(plot.PlotId, TraitName);
         }
 
         private SeriesData GetPlotData(int id, string trait)

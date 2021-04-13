@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
+
+using Unit = MediatR.Unit;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Insert a trait to the database
     /// </summary>
-    public class AddTraitCommand : IRequest<bool>
+    public class AddTraitCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The trait name
@@ -24,39 +20,26 @@ namespace Rems.Application.CQRS
         /// The trait type
         /// </summary>
         public string Type { get; set; }
-    }
 
-    public class AddTraitCommandHandler : IRequestHandler<AddTraitCommand, bool>
-    {
-        private readonly IRemsDbContext _context;
-
-        public AddTraitCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<AddTraitCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<bool> Handle(AddTraitCommand request, CancellationToken token) 
-            => Task.Run(() => Handler(request, token));
-
-        private bool Handler(AddTraitCommand request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            try
+            var trait = new Trait()
             {
-                var trait = new Trait()
-                {
-                    Name = request.Name,
-                    Type = request.Type
-                };
+                Name = Name,
+                Type = Type
+            };
 
-                _context.Add(trait);
-                _context.SaveChanges();
+            _context.Add(trait);
+            _context.SaveChanges();
 
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return Unit.Value;            
         }
     }
 }

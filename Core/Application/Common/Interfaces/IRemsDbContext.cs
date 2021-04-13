@@ -10,13 +10,11 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
 {
-    public interface IRemsDbContext
+    public interface IRemsDbContext : IDisposable
     {
         #region DbContext base
 
         IModel Model { get; }
-
-        string FileName { get; set; }
 
         int SaveChanges();
 

@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-using MediatR;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
@@ -16,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Insert plot information into the database
     /// </summary>
-    public class InsertPlotsCommand : IRequest
+    public class InsertPlotsCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The table containing plot information
@@ -27,22 +24,17 @@ namespace Rems.Application.CQRS
         /// Occurs when progress has been made on the insertion
         /// </summary>
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertPlotsCommandHandler : IRequestHandler<InsertPlotsCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertPlotsCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertPlotsCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertPlotsCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertPlotsCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            var rows = request.Table.Rows.Cast<DataRow>();
+            var rows = Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
             var eGroup = rows.GroupBy(row => row[0].ToString());
@@ -73,7 +65,7 @@ namespace Rems.Application.CQRS
                         };
                         plots.Add(plot);
 
-                        request.IncrementProgress();
+                        IncrementProgress();
                     }
                 }
             }
@@ -81,7 +73,7 @@ namespace Rems.Application.CQRS
             _context.AttachRange(plots.ToArray());
             _context.SaveChanges();
 
-            return Unit.Value;
+            return Unit.Value;            
         }
 
         /// <summary>
@@ -113,7 +105,7 @@ namespace Rems.Application.CQRS
                 _context.SaveChanges();
             }
 
-            return treatment;
+            return treatment;            
         }
 
     }

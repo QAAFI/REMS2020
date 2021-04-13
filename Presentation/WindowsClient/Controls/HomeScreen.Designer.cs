@@ -13,6 +13,13 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            DBOpened = null;
+            ImportRequested = null;
+            Query = null;
+
+            recentList.DoubleClick -= OnRecentListDoubleClick;
+            exportTracker.TaskBegun -= OnExportClick;
+
             if (disposing && (components != null))
             {
                 components.Dispose();
@@ -175,7 +182,6 @@
             // dataLink
             // 
             this.dataLink.Active = false;
-            this.dataLink.File = null;
             this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
             this.dataLink.Label = "Data";
@@ -188,7 +194,6 @@
             // expsLink
             // 
             this.expsLink.Active = false;
-            this.expsLink.File = null;
             this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
             this.expsLink.Label = "Experiments";
@@ -201,7 +206,6 @@
             // infoLink
             // 
             this.infoLink.Active = false;
-            this.infoLink.File = null;
             this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
             this.infoLink.Label = "Information";

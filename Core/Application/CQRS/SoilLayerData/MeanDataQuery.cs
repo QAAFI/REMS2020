@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average value of a trait across a treatment on a date
     /// </summary>
-    public class MeanDataQuery : IRequest<SeriesData>
+    public class MeanDataQuery : ContextQuery<SeriesData>
     {
         /// <summary>
         /// The date
@@ -28,25 +24,20 @@ namespace Rems.Application.CQRS
         /// The trait
         /// </summary>
         public string TraitName { get; set; }
-    }
 
-    public class MeanDataQueryHandler : IRequestHandler<MeanDataQuery, SeriesData>
-    {
-        private readonly IRemsDbContext _context;
-
-        public MeanDataQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<MeanDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<SeriesData> Handle(MeanDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private SeriesData Handler(MeanDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override SeriesData Run()
         {
             var data = _context.SoilLayerDatas
-                .Where(d => d.Plot.TreatmentId == request.TreatmentId)
-                .Where(d => d.Date == request.Date)
-                .Where(d => d.Trait.Name == request.TraitName)
+                .Where(d => d.Plot.TreatmentId == TreatmentId)
+                .Where(d => d.Date == Date)
+                .Where(d => d.Trait.Name == TraitName)
                 .ToArray() // Required to support groupby
                 .GroupBy(d => d.DepthFrom)
                 .OrderBy(g => g.Key)
@@ -54,7 +45,7 @@ namespace Rems.Application.CQRS
 
             SeriesData series = new SeriesData()
             {
-                Name = request.TraitName,
+                Name = TraitName,
                 X = Array.CreateInstance(typeof(double), data.Count()),
                 Y = Array.CreateInstance(typeof(int), data.Count()),
                 XName = "Value",

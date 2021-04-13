@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -17,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Inserts the measured traits of soil layers into the database
     /// </summary>
-    public class InsertSoilLayerTraitsCommand : IRequest
+    public class InsertSoilLayerTraitsCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The source data
@@ -29,21 +25,15 @@ namespace Rems.Application.CQRS
         public Type Dependency { get; set; }
 
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertSoilLayerTraitsCommandHandler : IRequestHandler<InsertSoilLayerTraitsCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertSoilLayerTraitsCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertSoilLayerTraitsCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertSoilLayerTraitsCommand request, CancellationToken cancellationToken)
-            => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertSoilLayerTraitsCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
             /* It is assumed that the table being imported uses the following schema:
              * Column 1: SoilType
@@ -54,10 +44,10 @@ namespace Rems.Application.CQRS
              */
 
             int skip = 3;
-            var traits = _context.GetTraitsFromColumns(request.Table, skip, "SoilLayer");
+            var traits = _context.GetTraitsFromColumns(Table, skip, "SoilLayer");
             var entities = new List<SoilLayerTrait>();
 
-            foreach (DataRow row in request.Table.Rows)
+            foreach (DataRow row in Table.Rows)
             {
                 var soil = _context.Soils.FirstOrDefault(s => s.SoilType == row[0].ToString());
                 int from = Convert.ToInt32(row[1]);
@@ -67,18 +57,18 @@ namespace Rems.Application.CQRS
                 var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
                 _context.Attach(layer);
 
-                traits.ForEach(trait => 
+                traits.ForEach(trait =>
                 {
                     var value = row[trait.Name];
                     if (value is DBNull) return;
 
                     var existing = _context.SoilLayerTraits.SingleOrDefault(s => s.Trait == trait && s.SoilLayer == layer);
-                    var slt = existing ?? new SoilLayerTrait{ Trait = trait, SoilLayer = layer };
+                    var slt = existing ?? new SoilLayerTrait { Trait = trait, SoilLayer = layer };
                     slt.Value = Convert.ToDouble(value);
                     entities.Add(slt);
-                });                
+                });
 
-                request.IncrementProgress();
+                IncrementProgress();
             }
             _context.SaveChanges();
 

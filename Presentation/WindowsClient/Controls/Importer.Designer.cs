@@ -13,6 +13,15 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            Query = null;
+            FileImported = null;
+            StageChanged = null;
+            FileChanged = null;
+            
+            dataTree.AfterLabelEdit -= AfterLabelEdit;
+            tracker.TaskBegun -= RunImporter;
+            images.Dispose();
+
             if (disposing && (components != null))
             {
                 components.Dispose();

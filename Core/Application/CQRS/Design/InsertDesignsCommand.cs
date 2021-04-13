@@ -17,33 +17,26 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Inserts design data into the database
     /// </summary>
-    public class InsertDesignsCommand : IRequest
+    public class InsertDesignsCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The table containing design data
         /// </summary>
         public DataTable Table { get; set; }
-    }
 
-    public class InsertDesignsCommandHandler : IRequestHandler<InsertDesignsCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertDesignsCommandHandler(IRemsDbContext context)
+        public class Handler : BaseHandler<InsertDesignsCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertDesignsCommand request, CancellationToken cancellationToken) => Task.Run(() => Handler(request));
-
-        private Unit Handler(InsertDesignsCommand request)
+        protected override Unit Run()
         {
             // Assume the first four columns contain other data
-            var cols = request.Table.Columns.Cast<DataColumn>().Skip(4);
-            var rows = request.Table.Rows.Cast<DataRow>();
+            var cols = Table.Columns.Cast<DataColumn>().Skip(4);
+            var rows = Table.Rows.Cast<DataRow>();
 
             //var regex = new Regex(@"\s+");
-            
+
             foreach (var col in cols)
             {
                 // For the factor column, convert each row into a level
@@ -59,8 +52,8 @@ namespace Rems.Application.CQRS
 
                 // Find or create a factor for the column
                 var factor = _context.Factors.FirstOrDefault(f => f.Name.Replace(" ", "").ToUpper() == colname)
-                    ?? new Factor() { Name = col.ColumnName };                
-                _context.Attach(factor);                
+                    ?? new Factor() { Name = col.ColumnName };
+                _context.Attach(factor);
 
                 // Add the levels as entities
                 foreach (string name in levels)
@@ -79,8 +72,7 @@ namespace Rems.Application.CQRS
 
             _context.SaveChanges();
 
-            return Unit.Value;
+            return Unit.Value;            
         }
-
     }
 }

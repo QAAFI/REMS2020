@@ -12,7 +12,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM clock model for an experiment
     /// </summary>
-    public class ClockQuery : IRequest<Clock>
+    public class ClockQuery : ContextQuery<Clock>
     {   
         /// <summary>
         /// The source experiment
@@ -20,28 +20,23 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class ClockQueryHandler : IRequestHandler<ClockQuery, Clock>
-    {
-        private readonly IRemsDbContext _context;
-
-        public ClockQueryHandler(IRemsDbContext context)
-        {
-            _context = context;
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<ClockQuery> 
+        { 
+            public Handler(IRemsDbContextFactory factory) : base(factory) { } 
         }
 
-        public Task<Clock> Handle(ClockQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Clock Handler(ClockQuery request)
+        /// <inheritdoc/>
+        protected override Clock Run()
         {
-            var exp = _context.Experiments.Find(request.ExperimentId);
+            var exp = _context.Experiments.Find(ExperimentId);
 
             bool valid = 
-                request.Report.ValidateItem(exp.BeginDate, nameof(Clock.StartDate))
-                & request.Report.ValidateItem(exp.EndDate, nameof(Clock.EndDate));
+                Report.ValidateItem(exp.BeginDate, nameof(Clock.StartDate))
+                & Report.ValidateItem(exp.EndDate, nameof(Clock.EndDate));
 
-            request.Report.CommitValidation(nameof(Clock), !valid);
+            Report.CommitValidation(nameof(Clock), !valid);
 
             var clock = new Clock()
             {

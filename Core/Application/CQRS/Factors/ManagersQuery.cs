@@ -1,17 +1,12 @@
 ﻿using MediatR;
 using Models;
 using Models.Core;
-using Models.Factorial;
-using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using REMSFactor = Rems.Domain.Entities.Factor;
 
 namespace Rems.Application.CQRS
 {

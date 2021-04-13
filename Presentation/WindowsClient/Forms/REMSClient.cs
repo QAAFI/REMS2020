@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,27 +22,28 @@ namespace WindowsClient
     /// </summary>
     public partial class REMSClient : Form
     {
-        private readonly IMediator _mediator;
+        private readonly IMediator mediator;
 
         public REMSClient(IServiceProvider provider)
         {
             InitializeComponent();
 
-            _mediator = provider.GetRequiredService<IMediator>();
-
+            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
+            mediator = provider.GetRequiredService<IMediator>();
             LoadSettings();
             
             FormClosed += REMSClientFormClosed;
 
             homeScreen.Query += SendQuery;
-            homeScreen.DBCreated += LoadListView;
             homeScreen.DBOpened += OnDBOpened;
-            homeScreen.ImportRequested += OnImportRequested;
-            homeScreen.ImportCompleted += OnImportCompleted;
-            homeScreen.SessionChanging += OnSessionChanged;
-            homeScreen.PageCreated += OnPageCreated;
+            homeScreen.ImportRequested += OnImportRequested;            
 
-            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
+            detailer.Query += SendQuery;            
+
+            importTab.Leave += (s, e) => notebook.TabPages.Remove(importTab);
+
+            notebook.TabPages.Remove(detailsTab);
+            notebook.TabPages.Remove(importTab);
         }
 
         /// <summary>
@@ -51,10 +53,32 @@ namespace WindowsClient
         private async Task<object> SendQuery(object query)
         {
             Application.UseWaitCursor = true;
-            var result = await _mediator.Send(query);
+
+            List<Exception> errors = new List<Exception>();            
+            try
+            {                
+                var result = await mediator.Send(query);
+                    
+                Application.UseWaitCursor = false;
+                return result;
+                
+            }
+            catch (Exception error)
+            {
+                while (error.InnerException != null) error = error.InnerException;
+                errors.Add(error);
+            }
+
+            var builder = new StringBuilder();
+
+            foreach (var error in errors)
+                builder.AppendLine(error.Message + "at\n" + error.StackTrace + "\n");
+
+            MessageBox.Show(builder.ToString(), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             Application.UseWaitCursor = false;
 
-            return result;
+            return default;
         }
 
         /// <summary>
@@ -98,63 +122,54 @@ namespace WindowsClient
         }
 
         /// <summary>
-        /// When a new tab is added to the client
-        /// </summary>
-        private void OnPageCreated(TabPage page) => notebook.TabPages.Add(page);
-
-        /// <summary>
-        /// When the client connects to a different database
-        /// </summary>
-        private void OnSessionChanged()
-        {
-            // Remove all pages except the homescreen
-            var pages = notebook.TabPages.Cast<TabPage>().Skip(2);
-
-            foreach (var page in pages)
-                notebook.TabPages.Remove(page);
-        }
-
-        /// <summary>
         /// When an import link starts the import process
         /// </summary>
-        private async void OnImportRequested(object sender, EventArgs e)
+        private async void OnImportRequested(ImportLink link)
         {
-            var link = sender as ImportLink;
+            importTab.Controls.Remove(importer);
+            importer = new Importer();
+            importTab.Controls.Add(importer);
+            importer.Query += SendQuery;
+            importer.FileImported += OnImportCompleted;
 
-            link.Importer.Query += SendQuery;
+            importTab.Text = "Import " + link.Label;
+            notebook.TabPages.Add(importTab);
+            notebook.SelectedTab = importTab;
 
-            if (!notebook.TabPages.Contains(link.Tab))
-            {
-                notebook.TabPages.Add(link.Tab);
-                link.Tab.Leave += (s, o) => notebook.TabPages.Remove(link.Tab);
-            }
-                
-            notebook.SelectedTab = link.Tab;
-
-            if (! await link.Importer.OpenFile())
-                notebook.TabPages.Remove(link.Tab);
+            if (! await importer.OpenFile())
+                notebook.TabPages.Remove(importTab);
         }         
 
         /// <summary>
         /// When an import link confirms the import has finished
         /// </summary>
-        private void OnImportCompleted(ImportLink link)
+        private async void OnImportCompleted()
         {
             MessageBox.Show("Import successful!", "");
+            notebook.SelectedTab = homeTab;
+            notebook.TabPages.Remove(importTab);
 
-            notebook.TabPages.Remove(link.Tab);
+            importer.Query -= SendQuery;
+            importer.FileImported -= OnImportCompleted;
+            importer.Dispose();
+
+            if ((bool)await SendQuery(new LoadedExperiments()))
+            {
+                notebook.TabPages.Add(detailsTab);
+                //await detailer.LoadNodes();
+            }
         }
 
         /// <summary>
         /// When a new database is opened
         /// </summary>
-        private void OnDBOpened(string file)
+        private async Task OnDBOpened(string file)
         {
             // Update the title
             Text = "REMS 2020 - " + Path.GetFileName(file);
 
             // Update the tables
-            LoadListView(file);
+            await LoadListView(file);
         }
 
         /// <summary>
@@ -164,49 +179,20 @@ namespace WindowsClient
         {
             var item = (string)relationsListBox.SelectedItem;
             if (item == null) return;
-            dataGridView.DataSource = await TrySendQuery(new DataTableQuery() { TableName = item });
+            dataGridView.DataSource = (DataTable) await SendQuery(new DataTableQuery() { TableName = item });
             dataGridView.Format();
         }
 
         /// <summary>
         /// Fills the listbox
         /// </summary>
-        private async void LoadListView(string file)
+        private async Task LoadListView(string file)
         {
             var query = new GetTableNamesQuery();
-            var items = await TrySendQuery(query);
+            var items = (string[]) await SendQuery(query);
 
             relationsListBox.Items.Clear();
             relationsListBox.Items.AddRange(items);
-        }
-
-        /// <summary>
-        /// Attempts to send a query to the mediator
-        /// </summary>
-        public async Task<T> TrySendQuery<T>(IRequest<T> request, CancellationToken token = default)
-        {
-            List<Exception> errors = new List<Exception>();
-
-            try
-            {
-                return (T) await SendQuery(request);
-            }
-            catch (Exception error)
-            {
-                while (error.InnerException != null) error = error.InnerException;
-                errors.Add(error);
-            }
-
-            var builder = new StringBuilder();
-
-            foreach (var error in errors)
-                builder.AppendLine(error.Message + "at\n" + error.StackTrace + "\n");            
-
-            MessageBox.Show(builder.ToString(), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-            Application.UseWaitCursor = false;
-
-            return default;
         }
 
         /// <summary>

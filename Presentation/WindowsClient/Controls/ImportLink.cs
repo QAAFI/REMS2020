@@ -23,22 +23,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the link is clicked
         /// </summary>
-        public event EventHandler Clicked;
-        
-        /// <summary>
-        /// Occurs when the importer has finished
-        /// </summary>
-        public event Action<ImportLink> ImportComplete;
-
-        /// <summary>
-        /// Occurs when the importer has changed stage
-        /// </summary>
-        public event Action<ImportLink> StageChanged;
-
-        /// <summary>
-        /// The currently selected file to import
-        /// </summary>
-        public string File { get; set; }
+        public event Action<ImportLink> Clicked;
         
         /// <summary>
         /// If the link can be clicked
@@ -83,16 +68,6 @@ namespace WindowsClient.Controls
         /// </summary>
         public ImageList Images { get; }
 
-        /// <summary>
-        /// The tab page created by the link
-        /// </summary>
-        public TabPage Tab { get; private set; }
-
-        /// <summary>
-        /// The importer used by the tab
-        /// </summary>
-        public Importer Importer { get; private set; }
-
         public ImportLink()
         {
             InitializeComponent();
@@ -111,36 +86,16 @@ namespace WindowsClient.Controls
         }
 
         /// <summary>
-        /// Invokes the ImportComplete event
-        /// </summary>
-        private void OnImportFinished()
-        {
-            Tab.Dispose();
-            ImportComplete?.Invoke(this);
-        }
-
-        /// <summary>
         /// Invokes the Clicked
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnClick(object sender, EventArgs e)
-        {
-            if (!active)
-                return;
-
-            Tab = new TabPage();
-
-            Importer = new Importer();
-            Importer.StageChanged += SetStage;
-            Importer.FileChanged += SetFile;
-            Importer.FileImported += OnImportFinished;
-
-            Tab.Controls.Add(Importer);
-            Tab.Text = "Import " + label.Text;
-
-            Clicked?.Invoke(this, EventArgs.Empty);
+        { 
+            if (active) 
+                Clicked?.Invoke(this);
         }
+        
 
         /// <summary>
         /// Changes the label colour on mouse enter
@@ -179,15 +134,7 @@ namespace WindowsClient.Controls
         private void SetStage(Stage _stage)
         {
             stage = _stage;
-
             Image = Images.Images[_stage.ToString()];
-
-            StageChanged?.Invoke(this);
         }
-
-        /// <summary>
-        /// Sets the file to import
-        /// </summary>
-        private void SetFile(string text) => File = Path.GetFileName(text);
     }
 }

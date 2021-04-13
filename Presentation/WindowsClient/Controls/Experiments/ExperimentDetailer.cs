@@ -69,7 +69,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        public async void LoadNodes()
+        public async Task LoadNodes()
         {
             experimentsTree.Nodes.Clear();
 
@@ -108,12 +108,19 @@ namespace WindowsClient.Controls
         {
             var node = experimentsTree.SelectedNode;
 
-            if (node is PNode plot)
-                await PlotSelected(plot);
-            else if (node is TNode treatment)
-                await TreatmentSelected(treatment);
-            else if (node is ENode experiment)
-                await RefreshSummary(experiment.EID);            
+            try
+            {
+                if (node is PNode plot)
+                    await PlotSelected(plot);
+                else if (node is TNode treatment)
+                    await TreatmentSelected(treatment);
+                else if (node is ENode experiment)
+                    await RefreshSummary(experiment.EID);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.Message);
+            }
         }
 
         /// <summary>

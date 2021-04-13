@@ -65,7 +65,7 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
-
+            
             // Add icons to the image list
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
@@ -82,10 +82,10 @@ namespace WindowsClient.Controls
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
-
+            
             tracker.TaskBegun += RunImporter;
         }
-        
+
         #region Methods        
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace WindowsClient.Controls
 
                 table.ConvertExperiments();
 
-                var node = CreateTableNode(table);
+                var node = await CreateTableNode(table);
 
                 dataTree.Nodes.Add(node);
             }
@@ -173,65 +173,66 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        private TreeNode CreateTableNode(DataTable table)
+        private async Task<TreeNode> CreateTableNode(DataTable table)
         {
             var xt = new ExcelTable(table);
-            xt.Query += (o) => Query?.Invoke(o);
-
             var vt = CreateTableValidater(table);
-            vt.SetAdvice += a => a.AddToTextBox(adviceBox);
-
-            var tnode = new DataNode(xt, vt);
+            var tnode = new TableNode(xt, vt);
+            
+            vt.SetAdvice += a => a.AddToTextBox(adviceBox);                
             tnode.Query += (o) => Query?.Invoke(o);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i, Query);
-
+                var cnode = vt.CreateColumnNode(i, Query);                
                 cnode.Query += (o) => Query?.Invoke(o);
-                cnode.Updated += () => { importData.DataSource = cnode.Excel.Source; importData.Format(); };
-
-                tnode.Nodes.Add(cnode);
+                cnode.Updated += () => 
+                { 
+                    importData.DataSource = cnode.Excel.Source; 
+                    importData.Format(); 
+                };
+                tnode.Nodes.Add(cnode);                              
             }
 
-            tnode.Validate();
+            await tnode.Validate();
 
             return tnode;
+            
         }
 
         /// <summary>
         /// Generate a validater for a data table
         /// </summary>
-        private ITableValidater CreateTableValidater(DataTable table)
+        private ITableValidator CreateTableValidater(DataTable table)
         {
             switch (table.TableName)
             {
                 case "Design":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
 
                 case "HarvestData":
                 case "PlotData":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
 
                 case "MetData":
-                    return new CustomTableValidater(table, new string[] { "MetStation", "Date" });
+                    return new CustomTableValidator(table, new string[] { "MetStation", "Date" });
 
                 case "SoilLayerData":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
 
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    return new CustomTableValidater(table, new string[] { "Experiment", "Treatment" });
+                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment" });
 
                 case "Soils":
                 case "SoilLayer":
                 case "SoilLayers":
-                    return new TableValidater(table);
+                    return new TableValidator(table);
 
                 default:
-                    return new TableValidater(table);
+                    return new TableValidator(table);
             }
         }        
 
@@ -304,26 +305,38 @@ namespace WindowsClient.Controls
                     return;
                 }
 
-                var importer = new ExcelImporter { Data = Data };
-                importer.Query += (o) => Query?.Invoke(o);
+                // Create and run an importer for the data
+                var excel = new ExcelImporter { Data = Data };
+                excel.Query += (o) => Query?.Invoke(o);
 
-                tracker.SetSteps(importer);
+                tracker.SetSteps(excel);
 
-                importer.NextItem += tracker.OnNextTask;
-                importer.IncrementProgress += tracker.OnProgressChanged;
-                importer.TaskFinished += FileImported;
-                importer.TaskFailed += tracker.OnTaskFailed;
+                excel.NextItem += tracker.OnNextTask;
+                excel.IncrementProgress += tracker.OnProgressChanged;
+                excel.TaskFinished += FileImported;
+                excel.TaskFailed += tracker.OnTaskFailed;
 
-                await importer.Run();
+                await excel.Run();
 
+                // Clean up
                 tracker.Reset();
+                excel.Dispose();
+                Data.Dispose();
 
-                StageChanged.Invoke(Stage.Imported);
+                dataTree.Nodes.ForEach<TableNode>(t =>
+                {
+                    t.Nodes.ForEach<ColumnNode>(c => c.Dispose());
+                    t.Dispose();
+                });
+                dataTree.Nodes.Clear();
+
+                StageChanged?.Invoke(Stage.Imported);
             }
             catch (Exception error)
             {
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
+                Application.UseWaitCursor = false;
             }
         }
 
@@ -339,7 +352,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is DataNode node)
+            if (e.Node is DataNode<IDisposable> node)
             {
                 importData.DataSource = node.Excel.Source;
                 importData.Format();
@@ -348,7 +361,7 @@ namespace WindowsClient.Controls
 
                 if (!node.Advice.Empty)
                     node.Advice.AddToTextBox(adviceBox);
-                else if (node.Parent is DataNode parent)
+                else if (node.Parent is DataNode<DataTable> parent)
                     parent.Advice.AddToTextBox(adviceBox);
             }
         }
@@ -356,12 +369,12 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the renaming of a node in the tree
         /// </summary>
-        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        private async void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Node is DataNode node && e.Label != null)
+            if (e.Node is DataNode<IDisposable> node && e.Label != null)
             {
                 node.Excel.Name = e.Label;
-                node.Validate();
+                await node.Validate();
             }
         }
 

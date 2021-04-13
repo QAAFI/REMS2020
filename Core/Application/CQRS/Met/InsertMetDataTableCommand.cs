@@ -2,12 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -19,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Insert a table of MetData into the database
     /// </summary>
-    public class InsertMetDataTableCommand : IRequest
+    public class InsertMetDataTableCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The source table
@@ -34,29 +28,24 @@ namespace Rems.Application.CQRS
         public string Type { get; set; }
 
         public Action IncrementProgress { get; set; }
-    }
 
-    public class InsertMetDataTableCommandHandler : IRequestHandler<InsertMetDataTableCommand>
-    {
-        private readonly IRemsDbContext _context;
-
-        public InsertMetDataTableCommandHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<InsertMetDataTableCommand>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Unit> Handle(InsertMetDataTableCommand request, CancellationToken token) => Task.Run(() => Handler(request));
-        
-        private Unit Handler(InsertMetDataTableCommand request)
+        /// <inheritdoc/>
+        protected override Unit Run()
         {
-            var traits = _context.GetTraitsFromColumns(request.Table, request.Skip, request.Type);
+            var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
             IEnumerable<MetData> convertRow(DataRow row)
             {
                 // Look for the station which sourced the data, create one if it isn't found
                 var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());
 
-                request.IncrementProgress();
+                IncrementProgress();
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
@@ -76,7 +65,7 @@ namespace Rems.Application.CQRS
                 }
             }
 
-            var datas = request.Table.Rows.Cast<DataRow>()
+            var datas = Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
                 .Distinct();
 
@@ -88,6 +77,7 @@ namespace Rems.Application.CQRS
 
             return Unit.Value;
         }
+        
     }
 
     /// <summary>

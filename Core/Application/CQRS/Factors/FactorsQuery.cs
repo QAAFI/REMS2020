@@ -1,20 +1,17 @@
-﻿using MediatR;
-using Models.Factorial;
+﻿using Models.Factorial;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Generates an APSIM Permutation model for an experiment
     /// </summary>
-    public class FactorsQuery : IRequest<Factors>
+    public class FactorsQuery : ContextQuery<Factors>
     { 
         /// <summary>
         /// The experiment to model
@@ -22,40 +19,48 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class FactorQueryHandler : IRequestHandler<FactorsQuery, Factors>
-    {
-        private readonly IRemsDbContext _context;
-
-        public FactorQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<FactorsQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Factors> Handle(FactorsQuery request, CancellationToken token)
-            => Task.Run(() => Handler(request, token));
-
-        private Factors Handler(FactorsQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override Factors Run()
         {
-            var factors = new Factors { Name = "Factors" };
+            var model = new Factors { Name = "Factors" };
 
-            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == request.ExperimentId).ToArray();
-            var fs = designs.Select(d => d.Level.Factor).Distinct().ToArray();
+            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == ExperimentId);
+            var factors = designs.Select(d => d.Level.Factor).Distinct();
 
-            fs.ForEach(f =>
+            Factor convertEntity(Domain.Entities.Factor entity)
             {
-                var factor = new Factor { Name = f.Name };
+                var factor = new Factor { Name = entity.Name };
 
-                designs.Select(d => d.Level)                    
-                    .Where(l => l.Factor == f)
+                designs.Select(d => d.Level)
+                    .Where(l => l.Factor == entity)
                     .Distinct()
-                    .ForEach(l => factor.Children.Add(new CompositeFactor { Name = l.Name, Specifications = new List<string>() }));
+                    .Select(l => new CompositeFactor { Name = l.Name, Specifications = GetSpecs(l) })
+                    .ForEach(factor.Children.Add);
 
-                factors.Children.Add(factor);
-            });
+                return factor;
+            }
 
-            return factors;
+            factors.Select(convertEntity).ForEach(model.Children.Add);
+
+            return model;
+        }
+
+        private static List<string> GetSpecs(Domain.Entities.Level level)
+        {
+            var specs = new List<string>();
+
+            level.Specification?.Split(';')
+                .Where(s => s != "")
+                .ForEach(specs.Add);
+
+            return specs;
         }
     }
 }

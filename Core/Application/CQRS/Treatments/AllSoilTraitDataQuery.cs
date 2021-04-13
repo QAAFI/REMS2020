@@ -13,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find soil trait data for all plots in a treatment on a given date
     /// </summary>
-    public class AllSoilTraitDataQuery : IRequest<IEnumerable<SeriesData>>
+    public class AllSoilTraitDataQuery : ContextQuery<IEnumerable<SeriesData>>
     {
         /// <summary>
         /// The source treatment
@@ -29,25 +29,20 @@ namespace Rems.Application.CQRS
         /// The date
         /// </summary>
         public DateTime Date { get; set; }
-    }
 
-    public class AllSoilTraitDataQueryHandler : IRequestHandler<AllSoilTraitDataQuery, IEnumerable<SeriesData>>
-    {
-        private readonly IRemsDbContext _context;
-
-        public AllSoilTraitDataQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<AllSoilTraitDataQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<IEnumerable<SeriesData>> Handle(AllSoilTraitDataQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private IEnumerable<SeriesData> Handler(AllSoilTraitDataQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override IEnumerable<SeriesData> Run()
         {
-            var plots = _context.Treatments.Find(request.TreatmentId).Plots;
+            var plots = _context.Treatments.Find(TreatmentId).Plots;
 
             foreach (var plot in plots)
-                yield return GetPlotData(plot.PlotId, request.Date, request.TraitName);
+                yield return GetPlotData(plot.PlotId, Date, TraitName);
         }
 
         private SeriesData GetPlotData(int id, DateTime date, string trait)

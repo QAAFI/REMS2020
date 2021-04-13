@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds data for a trait in a plot
     /// </summary>
-    public class PlotDataByTraitQuery : IRequest<SeriesData>
+    public class PlotDataByTraitQuery : ContextQuery<SeriesData>
     {
         /// <summary>
         /// The source plot
@@ -23,32 +19,27 @@ namespace Rems.Application.CQRS
         /// The trait to search for
         /// </summary>
         public string TraitName { get; set; }
-    }
 
-    public class PlotDataByTraitQueryHandler : IRequestHandler<PlotDataByTraitQuery, SeriesData>
-    {
-        private readonly IRemsDbContext _context;
-
-        public PlotDataByTraitQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<PlotDataByTraitQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<SeriesData> Handle(PlotDataByTraitQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private SeriesData Handler(PlotDataByTraitQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override SeriesData Run()
         {
             var data = _context.PlotData
-                .Where(p => p.Plot.PlotId == request.PlotId)
-                .Where(p => p.Trait.Name == request.TraitName)
+                .Where(p => p.Plot.PlotId == PlotId)
+                .Where(p => p.Trait.Name == TraitName)
                 .OrderBy(p => p.Date)
                 .ToArray();
 
             if (data.Length == 0) return null;
 
-            var rep = _context.Plots.Where(p => p.PlotId == request.PlotId);
+            var rep = _context.Plots.Where(p => p.PlotId == PlotId);
             var x = rep.Select(p => p.Repetition).First();
-            string name = request.TraitName + " " + x;
+            string name = TraitName + " " + x;
 
             SeriesData series = new SeriesData()
             {

@@ -32,6 +32,7 @@ namespace Rems.Persistence.Configurations
             builder.HasOne(d => d.Unit)
                 .WithMany(p => p.Traits)
                 .HasForeignKey(d => d.UnitId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("TraitUnitId");
         }

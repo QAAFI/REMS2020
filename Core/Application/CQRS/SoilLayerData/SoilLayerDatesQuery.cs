@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
@@ -11,29 +7,24 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the dates that soil layer data was measured on for a treatment
     /// </summary>
-    public class SoilLayerDatesQuery : IRequest<DateTime[]>
+    public class SoilLayerDatesQuery : ContextQuery<DateTime[]>
     {
         /// <summary>
         /// The source treatment
         /// </summary>
         public int TreatmentId { get; set; }
-    }
 
-    public class SoilLayerDatesQueryHandler : IRequestHandler<SoilLayerDatesQuery, DateTime[]>
-    {
-        private readonly IRemsDbContext _context;
-
-        public SoilLayerDatesQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<SoilLayerDatesQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<DateTime[]> Handle(SoilLayerDatesQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
-
-        private DateTime[] Handler(SoilLayerDatesQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override DateTime[] Run()
         {
             return _context.SoilLayerDatas
-                .Where(d => d.Plot.TreatmentId == request.TreatmentId)
+                .Where(d => d.Plot.TreatmentId == TreatmentId)
                 .Select(d => d.Date)
                 .Distinct()
                 .OrderBy(d => d)

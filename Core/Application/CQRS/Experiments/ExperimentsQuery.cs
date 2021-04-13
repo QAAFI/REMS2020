@@ -12,25 +12,18 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Return a collection of all experiments paired by ID and Name
     /// </summary>
-    public class ExperimentsQuery : IRequest<KeyValuePair<int, string>[]>
-    { }
-
-    public class ExperimentsQueryHandler : IRequestHandler<ExperimentsQuery, KeyValuePair<int, string>[]>
+    public class ExperimentsQuery : ContextQuery<KeyValuePair<int, string>[]>
     {
-        private readonly IRemsDbContext _context;
-
-        public ExperimentsQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<ExperimentsQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<KeyValuePair<int, string>[]> Handle(ExperimentsQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private KeyValuePair<int, string>[] Handler(ExperimentsQuery request)
-        {
-            return _context.Experiments
+        /// <inheritdoc/>
+        protected override KeyValuePair<int, string>[] Run() =>
+            _context.Experiments
                 .Select(e => new KeyValuePair<int, string>(e.ExperimentId, e.Name))
                 .ToArray();
-        }
     }
 }

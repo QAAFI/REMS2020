@@ -1,43 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.Common.Interfaces;
-using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Find the description for each of the given traits
     /// </summary>
-    public class TraitDescriptionsQuery : IRequest<Dictionary<string, string>>
+    public class TraitDescriptionsQuery : ContextQuery<Dictionary<string, string>>
     {
         /// <summary>
         /// The traits to find descriptions for
         /// </summary>
         public IEnumerable<string> Traits { get; set; }
-    }
 
-    public class TraitDescriptionsQueryHandler : IRequestHandler<TraitDescriptionsQuery, Dictionary<string, string>>
-    {
-        private readonly IRemsDbContext _context;
-
-        public TraitDescriptionsQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<TraitDescriptionsQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Dictionary<string, string>> Handle(TraitDescriptionsQuery request, CancellationToken token)
-            => Task.Run(() => Handler(request, token));
-
-        private Dictionary<string, string> Handler(TraitDescriptionsQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override Dictionary<string, string> Run()
         {
             var result = new Dictionary<string, string>();
 
-            foreach (var trait in request.Traits)
+            foreach (var trait in Traits)
             {
                 var text = _context.Traits.First(t => t.Name == trait).Description;
                 result.Add(trait, text);

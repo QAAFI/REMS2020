@@ -22,34 +22,14 @@ namespace WindowsClient.Controls
     public partial class HomeScreen : UserControl
     {
         /// <summary>
-        /// Occurs when a new database is created
-        /// </summary>
-        public event Action<string> DBCreated;
-
-        /// <summary>
         /// Occurs when a database is opened
         /// </summary>
-        public event Action<string> DBOpened;
+        public event Func<string, Task> DBOpened;
 
         /// <summary>
         /// Occurs when excel data is requested
         /// </summary>
-        public event EventHandler ImportRequested;
-
-        /// <summary>
-        /// Occurs when data has finished importing
-        /// </summary>
-        public event Action<ImportLink> ImportCompleted;
-
-        /// <summary>
-        /// Occurs immediately before the session changes
-        /// </summary>
-        public event Action SessionChanging;
-
-        /// <summary>
-        /// Occurs when a new page needs to be created
-        /// </summary>
-        public event Action<TabPage> PageCreated;
+        public event Action<ImportLink> ImportRequested;
 
         /// <summary>
         /// Occurs when data is requested from the mediator
@@ -75,44 +55,19 @@ namespace WindowsClient.Controls
         /// </summary>
         private List<Session> snoisses => Sessions.Reverse<Session>().ToList();
 
-        /// <summary>
-        /// The currently active session
-        /// </summary>
-        private Session Session { get; set; }
-
         public HomeScreen()
         {
             InitializeComponent();
 
-            AttachLink(infoLink);
-            AttachLink(expsLink);
-            AttachLink(dataLink);
+            infoLink.Clicked += link => ImportRequested?.Invoke(link);
+            expsLink.Clicked += link => ImportRequested?.Invoke(link);
+            dataLink.Clicked += link => ImportRequested?.Invoke(link);
 
             Sessions = LoadSessions();
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
             exportTracker.TaskBegun += OnExportClick;
-        }
-
-        /// <summary>
-        /// Adds an experiment detailer to the homescreen
-        /// </summary>
-        private void AddDetailerPage()
-        {
-            Session.Detailer.Query += (o) => Query?.Invoke(o);
-            PageCreated?.Invoke(Session.Experiments);
-            Session.Detailer.LoadNodes();
-        }
-
-        /// <summary>
-        /// Connects the import link to the 
-        /// </summary>
-        /// <param name="link"></param>
-        private void AttachLink(ImportLink link)
-        {
-            link.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
-            link.ImportComplete += OnImportComplete;            
         }
 
         /// <summary>
@@ -164,16 +119,11 @@ namespace WindowsClient.Controls
         /// <param name="session"></param>
         private async Task ChangeSession(Session session)
         {
-            SessionChanging?.Invoke();
-
             // Open the DB from the new session
-            await Query.Invoke(new OpenDBCommand() { FileName = session.DB });
-            DBOpened?.Invoke(session.DB);
+            Manager.DbConnection = session.DB;            
             Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
             EnableImport();
-
-            Session = session;
             await CheckTables();
 
             // Reset the export box
@@ -187,7 +137,9 @@ namespace WindowsClient.Controls
             if (Sessions.Count > 8)
                 Sessions.RemoveAt(0);
 
-            recentList.DataSource = snoisses;      
+            recentList.DataSource = snoisses;
+
+            await DBOpened?.Invoke(session.DB);
         }
 
         /// <summary>
@@ -212,39 +164,11 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Check if any data has previously been loaded
         /// </summary>
-        private async Task CheckTables()
+        public async Task CheckTables()
         {
-            if (await InvokeQuery(new LoadedInformation()))
-                infoLink.Stage = Stage.Imported;
-            else
-                infoLink.Stage = Stage.Missing;
-
-            if (await InvokeQuery(new LoadedExperiments()))
-            {
-                expsLink.Stage = Stage.Imported;
-                AddDetailerPage();
-            }
-            else
-                expsLink.Stage = Stage.Missing;
-
-            if (await InvokeQuery(new LoadedData()))
-                dataLink.Stage = Stage.Imported;
-            else
-                dataLink.Stage = Stage.Missing;
-        }
-
-        /// <summary>
-        /// Handles the post-import functions
-        /// </summary>
-        private void OnImportComplete(ImportLink link)
-        {
-            ImportCompleted?.Invoke(link);
-
-            if (link == expsLink)
-            {
-                LoadExportBox();
-                AddDetailerPage();
-            }
+            infoLink.Stage = await InvokeQuery(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = await InvokeQuery(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = await InvokeQuery(new LoadedData()) ? Stage.Imported : Stage.Missing;
         }
 
         /// <summary>
@@ -273,9 +197,6 @@ namespace WindowsClient.Controls
 
                 if (save.ShowDialog() != DialogResult.OK) return;
 
-                await InvokeQuery(new CreateDBCommand() { FileName = save.FileName });
-                DBCreated?.Invoke(save.FileName);
-
                 await CreateSession(save.FileName);
             }
         }
@@ -297,7 +218,7 @@ namespace WindowsClient.Controls
                 else
                     await CreateSession(open.FileName);
 
-                await InvokeQuery(new OpenDBCommand() { FileName = open.FileName });                                
+                Manager.DbConnection = open.FileName;                                
             }
         }
 
@@ -347,6 +268,7 @@ namespace WindowsClient.Controls
                 catch (Exception error)
                 {
                     MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    exportTracker.Reset();
                 }
             }
         }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Models.Core;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
@@ -12,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Zone model for an experiment
     /// </summary>
-    public class ZoneQuery : IRequest<Zone>
+    public class ZoneQuery : ContextQuery<Zone>
     {   
         /// <summary>
         /// The source experiment
@@ -20,28 +16,23 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class ZoneQueryHandler : IRequestHandler<ZoneQuery, Zone>
-    {
-        private readonly IRemsDbContext _context;
-
-        public ZoneQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<ZoneQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Zone> Handle(ZoneQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Zone Handler(ZoneQuery request)
+        /// <inheritdoc/>
+        protected override Zone Run()
         {
-            var field = _context.Experiments.Find(request.ExperimentId).Field;
+            var field = _context.Experiments.Find(ExperimentId).Field;
             var slope = field.Slope.GetValueOrDefault();
 
-            var valid = request.Report.ValidateItem(field.Name, nameof(Zone.Name))
-                & request.Report.ValidateItem(slope, nameof(Zone.Slope));
+            var valid = Report.ValidateItem(field.Name, nameof(Zone.Name))
+                & Report.ValidateItem(slope, nameof(Zone.Slope));
 
-            request.Report.CommitValidation(nameof(Zone), !valid);
+            Report.CommitValidation(nameof(Zone), !valid);
 
             var zone = new Zone
             {

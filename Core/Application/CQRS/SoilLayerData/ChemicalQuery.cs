@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Models.Soils;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
@@ -14,7 +10,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Chemical model for an experiment
     /// </summary>
-    public class ChemicalQuery : IRequest<Chemical>
+    public class ChemicalQuery : ContextQuery<Chemical>
     {
         /// <summary>
         /// The source experiment
@@ -22,22 +18,17 @@ namespace Rems.Application.CQRS
         public int ExperimentId { get; set; }
 
         public Markdown Report { get; set; }
-    }
 
-    public class ChemicalQueryHandler : IRequestHandler<ChemicalQuery, Chemical>
-    {
-        private readonly IRemsDbContext _context;
-
-        public ChemicalQueryHandler(IRemsDbContext context)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<ChemicalQuery>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Chemical> Handle(ChemicalQuery request, CancellationToken token) => Task.Run(() => Handler(request));
-
-        private Chemical Handler(ChemicalQuery request)
+        /// <inheritdoc/>
+        protected override Chemical Run()
         {
-            var layers = _context.GetSoilLayers(request.ExperimentId);
+            var layers = _context.GetSoilLayers(ExperimentId);
 
             var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
             var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
@@ -45,13 +36,13 @@ namespace Rems.Application.CQRS
             var NH4N = _context.GetSoilLayerTraitData(layers, nameof(Chemical.NH4N));
             var PH = _context.GetSoilLayerTraitData(layers, nameof(Chemical.PH));
 
-            bool valid = request.Report.ValidateItem(depth, nameof(Chemical.Depth))
-                & request.Report.ValidateItem(thickness, nameof(Chemical.Thickness))
-                & request.Report.ValidateItem(NO3N, nameof(Chemical.NO3N))
-                & request.Report.ValidateItem(NH4N, nameof(Chemical.NH4N))
-                & request.Report.ValidateItem(PH, nameof(Chemical.PH));
+            bool valid = Report.ValidateItem(depth, nameof(Chemical.Depth))
+                & Report.ValidateItem(thickness, nameof(Chemical.Thickness))
+                & Report.ValidateItem(NO3N, nameof(Chemical.NO3N))
+                & Report.ValidateItem(NH4N, nameof(Chemical.NH4N))
+                & Report.ValidateItem(PH, nameof(Chemical.PH));
 
-            request.Report.CommitValidation(nameof(Chemical), !valid);
+            Report.CommitValidation(nameof(Chemical), !valid);
 
             var chemical = new Chemical()
             {

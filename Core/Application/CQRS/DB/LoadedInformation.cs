@@ -1,31 +1,20 @@
-﻿using MediatR;
-using Rems.Application.Common.Interfaces;
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Rems.Application.Common.Interfaces;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Checks if the database has loaded any fields
     /// </summary>
-    public class LoadedInformation : IRequest<bool>
-    { }
-
-    public class LoadedInformationHandler : IRequestHandler<LoadedInformation, bool>
+    public class LoadedInformation : ContextQuery<bool>
     {
-        private readonly IRemsDbContext _context;
-
-        public LoadedInformationHandler(IRemsDbContext context)
+        public class Handler : BaseHandler<LoadedInformation>
         {
-            _context = context;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<bool> Handle(LoadedInformation request, CancellationToken cancellationToken) 
-            => Task.Run(() => Handler(request));
-
-        private bool Handler(LoadedInformation request)
+        protected override bool Run()
         {
             return _context.Fields.Any();
         }
