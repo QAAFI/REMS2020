@@ -336,6 +336,7 @@ namespace WindowsClient.Controls
             {
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
+                Application.UseWaitCursor = false;
             }
         }
 
