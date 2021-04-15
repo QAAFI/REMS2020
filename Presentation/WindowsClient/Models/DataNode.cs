@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
@@ -18,9 +19,9 @@ namespace WindowsClient.Models
         /// <summary>
         /// Occurs when some change is applied to the node
         /// </summary>
-        public event Action Updated;
+        public event EventHandler Updated;
 
-        protected void InvokeUpdated() => Updated?.Invoke();
+        protected void InvokeUpdated() => Updated?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         /// The advice which is displayed alongside the node
@@ -49,7 +50,7 @@ namespace WindowsClient.Models
             excel.StateChanged += UpdateState;
 
             validater.StateChanged += UpdateState;
-            validater.SetAdvice += a => Advice = a;
+            validater.SetAdvice += (s, e) => Advice = e.Item;
             Validater = validater;
             
             ContextMenu = new ContextMenu();
@@ -83,8 +84,10 @@ namespace WindowsClient.Models
         /// </remarks>
         /// <param name="state">The name of the state to change</param>
         /// <param name="value">The value to change the state to</param>
-        public void UpdateState(string state, object value)
+        public void UpdateState(object sender, Args<string, object> args)
         {
+            string state = args.Item1;
+            object value = args.Item2;
             Text = Excel.Name;
 
             // Prevent recursively updating states
@@ -125,8 +128,9 @@ namespace WindowsClient.Models
         /// Toggles the ignored state of the current node
         /// </summary>
         public async Task ToggleIgnore(object sender, EventArgs args)
-        {            
-            UpdateState("Ignore", !(bool)Excel.State["Ignore"]);
+        {
+            var state = new Args<string, object> { Item1 = "Ignore", Item2 = !(bool)Excel.State["Ignore"] };
+            UpdateState(this, state);
 
             if (!(sender is MenuItem item))
                 return;
@@ -157,7 +161,7 @@ namespace WindowsClient.Models
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
             await QueryManager.Request(new AddTraitCommand() { Name = name, Type = type.Name });
 
-            UpdateState("Valid", true);
+            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
         }
         #endregion
 
@@ -167,7 +171,7 @@ namespace WindowsClient.Models
         /// </summary>
         public void ForceValidate()
         {
-            UpdateState("Valid", true);
+            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
 
             foreach (DataNode<DataColumn> node in Nodes)
                 node.ForceValidate();

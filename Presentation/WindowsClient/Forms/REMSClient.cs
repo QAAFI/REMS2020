@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Controls;
@@ -80,8 +80,11 @@ namespace WindowsClient
         /// <summary>
         /// When an import link starts the import process
         /// </summary>
-        private async void OnImportRequested(ImportLink link)
+        private async void OnImportRequested(object sender, EventArgs args)
         {
+            if (!(sender is ImportLink link))
+                throw new Exception("Import requested from unknown control type.");
+            
             importTab.Controls.Remove(importer);
             importer = new Importer();
             importTab.Controls.Add(importer);
@@ -98,7 +101,7 @@ namespace WindowsClient
         /// <summary>
         /// When an import link confirms the import has finished
         /// </summary>
-        private async void OnImportCompleted()
+        private async void OnImportCompleted(object sender, EventArgs args)
         {
             MessageBox.Show("Import successful!", "");
             notebook.SelectedTab = homeTab;
@@ -117,10 +120,10 @@ namespace WindowsClient
         /// <summary>
         /// When a new database is opened
         /// </summary>
-        private async Task OnDBOpened(string file)
+        private async void OnDBOpened(object sender, Args<string> args)
         {
             // Update the title
-            Text = "REMS 2020 - " + Path.GetFileName(file);
+            Text = "REMS 2020 - " + Path.GetFileName(args.Item);
 
             // Update the tables
             await LoadListView();

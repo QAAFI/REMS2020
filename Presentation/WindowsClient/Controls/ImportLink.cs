@@ -23,7 +23,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the link is clicked
         /// </summary>
-        public event Action<ImportLink> Clicked;
+        public event EventHandler Clicked;
         
         /// <summary>
         /// If the link can be clicked
@@ -86,14 +86,13 @@ namespace WindowsClient.Controls
         }
 
         /// <summary>
-        /// Invokes the Clicked
+        /// Invokes the Clicked event
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnClick(object sender, EventArgs e)
         { 
-            if (active) 
-                Clicked?.Invoke(this);
+            if (active) Clicked?.Invoke(this, e);
         }
         
 

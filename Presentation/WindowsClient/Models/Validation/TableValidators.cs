@@ -68,7 +68,7 @@ namespace WindowsClient.Models
             var excel = new ExcelColumn(col);
             var validater = new ColumnValidator(col);
            
-            validater.SetAdvice += a => InvokeSetAdvice(a);
+            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
 
             return new ColumnNode(excel, validater);
         }
@@ -144,7 +144,7 @@ namespace WindowsClient.Models
                 new OrdinalValidator(col, i, columns[i]) as INodeValidator : 
                 new NullValidator<DataColumn>();
             
-            validater.SetAdvice += a => InvokeSetAdvice(a);
+            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
 
             return new ColumnNode(excel, validater);
         }

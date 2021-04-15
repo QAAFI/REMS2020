@@ -26,17 +26,17 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs after a file is imported
         /// </summary>
-        public event Action FileImported;
+        public event EventHandler FileImported;
 
         /// <summary>
         /// Occurs when the current import stage has changed
         /// </summary>
-        public event Action<Stage> StageChanged;
+        public event EventHandler<Args<Stage>> StageChanged;
 
         /// <summary>
         /// Occurs when the file to import from has changed
         /// </summary>
-        public event Action<string> FileChanged;
+        public event EventHandler<Args<string>> FileChanged;
 
         /// <summary>
         /// The excel data
@@ -171,13 +171,13 @@ namespace WindowsClient.Controls
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
             
-            vt.SetAdvice += a => a.AddToTextBox(adviceBox);
+            vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
                 var cnode = vt.CreateColumnNode(i);
-                cnode.Updated += () => 
+                cnode.Updated += (s, e) => 
                 { 
                     importData.DataSource = cnode.Excel.Source; 
                     importData.Format(); 
@@ -252,8 +252,8 @@ namespace WindowsClient.Controls
 
                     dataTree.SelectedNode = dataTree.TopNode;
 
-                    StageChanged?.Invoke(Stage.Validation);
-                    FileChanged?.Invoke(open.FileName);
+                    StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
+                    FileChanged?.Invoke(this, new Args<string> { Item = open.FileName });
 
                     return true;
                 }
@@ -268,7 +268,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Runs the excel importer
         /// </summary>
-        private async void RunImporter()
+        private async void RunImporter(object sender, EventArgs args)
         {
             try
             {
@@ -319,7 +319,7 @@ namespace WindowsClient.Controls
                 });
                 dataTree.Nodes.Clear();
 
-                StageChanged?.Invoke(Stage.Imported);
+                StageChanged?.Invoke(this, new Args<Stage>{ Item = Stage.Imported });
             }
             catch (Exception error)
             {

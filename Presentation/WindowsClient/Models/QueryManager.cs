@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Microsoft.Extensions.DependencyInjection;
+using Rems.Application.Common;
 
 namespace WindowsClient.Models
 {
@@ -19,9 +20,11 @@ namespace WindowsClient.Models
         /// </summary>
         /// <typeparam name="T">The type of data requested</typeparam>
         /// <param name="request">The request object</param>
-        public static async Task<T> Request<T>(IRequest<T> request) => (T)await TryQuery(request);
+        public static async Task<T> Request<T>(IRequest<T> request) 
+            => (T)await TryQuery(request);
 
-        public static async Task<object> Request(object request) => await TryQuery(request);
+        public static void Request(object sender, RequestArgs<object, Task<object>> args)
+            => args.Result = TryQuery(args.Item);
 
         /// <summary>
         /// Sends a query to the mediator
