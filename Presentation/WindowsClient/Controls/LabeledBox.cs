@@ -13,14 +13,8 @@ namespace WindowsClient.Controls
         /// </summary>
         public string Label 
         { 
-            get 
-            { 
-                return label.Text; 
-            } 
-            set
-            {
-                label.Text = value;
-            }
+            get => label.Text;
+            set => label.Text = value;            
         }
 
         /// <summary>
@@ -28,14 +22,8 @@ namespace WindowsClient.Controls
         /// </summary>
         public string Content
         {
-            get
-            {
-                return textBox.Text;
-            }
-            set
-            {
-                textBox.Text = value;
-            }
+            get => textBox.Text;
+            set => textBox.Text = value;
         }
 
         /// <summary>
@@ -43,14 +31,8 @@ namespace WindowsClient.Controls
         /// </summary>
         public bool ReadOnly
         {
-            get
-            {
-                return textBox.ReadOnly;
-            }
-            set
-            {
-                textBox.ReadOnly = value;
-            }
+            get => textBox.ReadOnly;
+            set => textBox.ReadOnly = value;
         }
 
         public LabeledBox()

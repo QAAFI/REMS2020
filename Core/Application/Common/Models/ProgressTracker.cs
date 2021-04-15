@@ -33,8 +33,8 @@ namespace Rems.Application.Common
         /// <summary>
         /// Invokes the Query event
         /// </summary>
-        protected async Task<T> InvokeQuery<T>(IRequest<T> query) 
-            => (T)await Query(query);
+        protected async Task<T> InvokeQuery<T>(IRequest<T> query)
+            => (T) await Query?.Invoke(query);         
 
         /// <summary>
         /// Invokes the NextItem event
@@ -88,5 +88,7 @@ namespace Rems.Application.Common
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        
     }
 }

@@ -23,12 +23,6 @@ namespace WindowsClient.Models
         protected void InvokeUpdated() => Updated?.Invoke();
 
         /// <summary>
-        /// Occurs when the node requests data
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
-        /// <summary>
         /// The advice which is displayed alongside the node
         /// </summary>
         public Advice Advice { get; set; } = new Advice();
@@ -63,8 +57,6 @@ namespace WindowsClient.Models
             items.Add(new MenuItem("Rename", Rename));
             items.Add(new MenuItem("Ignore", async (s, e) => await ToggleIgnore(s, e)));
         }
-
-        #region State functions
 
         /// <summary>
         /// Updates one of the nodes possible states
@@ -122,9 +114,8 @@ namespace WindowsClient.Models
                 parent.Validater.Validate();
         }
 
-        #endregion region
+        #region Menu functions
 
-        #region Menu functions        
         /// <summary>
         /// Begins editing the node label
         /// </summary>
@@ -164,7 +155,7 @@ namespace WindowsClient.Models
 
             var name = (Tag as DataColumn).ColumnName;
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
+            await QueryManager.Request(new AddTraitCommand() { Name = name, Type = type.Name });
 
             UpdateState("Valid", true);
         }
@@ -208,7 +199,6 @@ namespace WindowsClient.Models
                 }
 
                 Updated = null;
-                Query = null;
                 disposedValue = true;
             }
         }

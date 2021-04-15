@@ -16,9 +16,8 @@ namespace WindowsClient.Models
         /// 
         /// </summary>
         /// <param name="i"></param>
-        /// <param name="query"></param>
         /// <returns></returns>
-        DataNode<DataColumn> CreateColumnNode(int i, Func<object, Task<object>> query);
+        DataNode<DataColumn> CreateColumnNode(int i);
     }   
 
     /// <summary>
@@ -63,13 +62,12 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i, Func<object, Task<object>> query)
+        public DataNode<DataColumn> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
             var validater = new ColumnValidator(col);
-
-            validater.Query += (o) => query?.Invoke(o);            
+           
             validater.SetAdvice += a => InvokeSetAdvice(a);
 
             return new ColumnNode(excel, validater);
@@ -137,7 +135,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i, Func<object, Task<object>> query)
+        public DataNode<DataColumn> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);

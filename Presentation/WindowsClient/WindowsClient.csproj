@@ -283,6 +283,7 @@
     <Compile Include="Models\ExcelData.cs" />
     <Compile Include="Models\Extensions.cs" />
     <Compile Include="Models\Advice.cs" />
+    <Compile Include="Models\QueryManager.cs" />
     <Compile Include="Models\Session.cs" />
     <Compile Include="Models\Validation\ColumnValidators.cs" />
     <Compile Include="Models\Validation\TableValidators.cs" />

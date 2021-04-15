@@ -15,7 +15,6 @@
         {
             DBOpened = null;
             ImportRequested = null;
-            Query = null;
 
             recentList.DoubleClick -= OnRecentListDoubleClick;
             exportTracker.TaskBegun -= OnExportClick;

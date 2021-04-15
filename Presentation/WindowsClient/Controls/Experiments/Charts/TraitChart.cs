@@ -21,18 +21,6 @@ namespace WindowsClient.Controls
         /// </summary>
         public Func<int, TreeNode, Task> Updater;
 
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
         private int treatment = -1;
         private int plot;
         private TreeNode selected;
@@ -129,8 +117,8 @@ namespace WindowsClient.Controls
                     treatment = id;                
 
                 // Load the trait type box
-                var traits = await InvokeQuery(new CropTraitsQuery() { TreatmentId = id });
-                descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
+                var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = id });
+                descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
                 lock (traitsBox)
                 {
@@ -171,7 +159,7 @@ namespace WindowsClient.Controls
                         PlotId = id
                     };
 
-                    var data = await InvokeQuery(query);
+                    var data = await QueryManager.Request(query);
                     data.AddToChart(chart);
                 }
 
@@ -205,7 +193,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var data = await InvokeQuery(query);
+                    var data = await QueryManager.Request(query);
                     data.AddToChart(chart);
                 }
 
@@ -241,7 +229,7 @@ namespace WindowsClient.Controls
                         TreatmentId = id
                     };
 
-                    var series = await InvokeQuery(query);
+                    var series = await QueryManager.Request(query);
 
                     foreach (var data in series)
                         data.AddToChart(chart);

@@ -1,7 +1,7 @@
 ﻿using ExcelDataReader;
 using MediatR;
 using Microsoft.EntityFrameworkCore.Internal;
-
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -24,11 +24,6 @@ namespace WindowsClient.Controls
     public partial class Importer : UserControl
     {
         /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
         /// Occurs after a file is imported
         /// </summary>
         public event Action FileImported;
@@ -42,9 +37,6 @@ namespace WindowsClient.Controls
         /// Occurs when the file to import from has changed
         /// </summary>
         public event Action<string> FileChanged;
-
-        private async Task<T> InvokeQuery<T>(IRequest<T> query)
-            => (T)await Query(query);
 
         /// <summary>
         /// The excel data
@@ -156,7 +148,7 @@ namespace WindowsClient.Controls
             table.RemoveDuplicateRows();
 
             // Find the type of data stored in the table
-            var entityType = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
+            var entityType = await QueryManager.Request(new EntityTypeQuery() { Name = table.TableName });
             table.ExtendedProperties["Type"] = entityType ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
             // Clean columns
@@ -179,14 +171,12 @@ namespace WindowsClient.Controls
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
             
-            vt.SetAdvice += a => a.AddToTextBox(adviceBox);                
-            tnode.Query += (o) => Query?.Invoke(o);
+            vt.SetAdvice += a => a.AddToTextBox(adviceBox);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i, Query);                
-                cnode.Query += (o) => Query?.Invoke(o);
+                var cnode = vt.CreateColumnNode(i);
                 cnode.Updated += () => 
                 { 
                     importData.DataSource = cnode.Excel.Source; 
@@ -282,7 +272,7 @@ namespace WindowsClient.Controls
         {
             try
             {
-                bool connected = await InvokeQuery(new ConnectionExists());
+                bool connected = await QueryManager.Request(new ConnectionExists());
                 if (!connected)
                 {
                     MessageBox.Show("A database must be opened or created before importing");
@@ -307,7 +297,6 @@ namespace WindowsClient.Controls
 
                 // Create and run an importer for the data
                 var excel = new ExcelImporter { Data = Data };
-                excel.Query += (o) => Query?.Invoke(o);
 
                 tracker.SetSteps(excel);
 
@@ -315,7 +304,7 @@ namespace WindowsClient.Controls
                 excel.IncrementProgress += tracker.OnProgressChanged;
                 excel.TaskFinished += FileImported;
                 excel.TaskFailed += tracker.OnTaskFailed;
-
+                excel.Query += QueryManager.Request;
                 await excel.Run();
 
                 // Clean up

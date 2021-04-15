@@ -30,20 +30,8 @@ namespace WindowsClient.Controls
         /// Occurs when excel data is requested
         /// </summary>
         public event Action<ImportLink> ImportRequested;
-
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
         
         public IFileManager Manager { get; set; }
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         /// <summary>
         /// All known sessions
@@ -166,9 +154,9 @@ namespace WindowsClient.Controls
         /// </summary>
         public async Task CheckTables()
         {
-            infoLink.Stage = await InvokeQuery(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
-            expsLink.Stage = await InvokeQuery(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
-            dataLink.Stage = await InvokeQuery(new LoadedData()) ? Stage.Imported : Stage.Missing;
+            infoLink.Stage = await QueryManager.Request(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = await QueryManager.Request(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = await QueryManager.Request(new LoadedData()) ? Stage.Imported : Stage.Missing;
         }
 
         /// <summary>
@@ -176,7 +164,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void LoadExportBox()
         {
-            var exps = (await InvokeQuery(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+            var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).Distinct().ToArray();
 
             exportList.Items.Clear();
@@ -228,7 +216,7 @@ namespace WindowsClient.Controls
         private async void OnExportClick()
         {
             // Check that a valid database exists
-            bool connected = (bool)await Query(new ConnectionExists());
+            bool connected = await QueryManager.Request(new ConnectionExists());
             if (!connected)
             {
                 MessageBox.Show("A database must be opened before exporting.");
@@ -252,8 +240,6 @@ namespace WindowsClient.Controls
                         FileName = save.FileName
                     };
 
-                    exporter.Query += (o) => Query?.Invoke(o);
-                    
                     exportTracker.SetSteps(exporter);
 
                     exporter.NextItem += exportTracker.OnNextTask;

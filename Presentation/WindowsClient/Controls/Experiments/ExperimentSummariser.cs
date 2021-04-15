@@ -9,23 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls.Experiments
 {
     public partial class ExperimentSummariser : UserControl
     {
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
         public ExperimentSummariser()
         {
             InitializeComponent();
@@ -39,7 +28,7 @@ namespace WindowsClient.Controls.Experiments
         {
             var query = new ExperimentSummary() { ExperimentId = id };
 
-            var experiment = await InvokeQuery(query);
+            var experiment = await QueryManager.Request(query);
 
             descriptionBox.Text = experiment["Description"];
             //designBox.Text = experiment["Design"];
@@ -57,7 +46,7 @@ namespace WindowsClient.Controls.Experiments
 
             notesBox.Text = experiment["Notes"];
 
-            var sowing = await InvokeQuery(new SowingSummary() { ExperimentId = id });
+            var sowing = await QueryManager.Request(new SowingSummary() { ExperimentId = id });
             sowingMethodBox.Content = sowing["Method"];
             sowingDateBox.Content = sowing["Date"];
             sowingDepthBox.Content = sowing["Depth"];
