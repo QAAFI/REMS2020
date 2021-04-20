@@ -88,22 +88,16 @@ namespace WindowsClient.Controls
         /// </remarks>
         private DataSet ReadData(string filepath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
+            using (var reader = ExcelReaderFactory.CreateReader(stream))
             {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
-                {
-                    return reader.AsDataSet(new ExcelDataSetConfiguration
-                    {
-                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration
-                        {
-                            UseHeaderRow = true
-                        }
-                    });
-                }
+                var config = new ExcelDataSetConfiguration 
+                { 
+                    ConfigureDataTable = (_) => new ExcelDataTableConfiguration { UseHeaderRow = true }
+                };
+                return reader.AsDataSet(config);                
             }
-        }
+        }        
 
         /// <summary>
         /// Attempts to sanitise raw excel data so it can be read into the database
@@ -232,37 +226,33 @@ namespace WindowsClient.Controls
         /// Lets the user select a file to open for import
         /// </summary>
         /// <returns>True if the file is valid, false otherwise</returns>
-        public async Task<bool> OpenFile()
+        public async Task<bool> LoadData(string file)
         {
-            using (var open = new OpenFileDialog())
+            try
             {
-                open.InitialDirectory = Folder;
-                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+                //Data = ReadData(file);
+                Data = Excel.ReadAsDataSet(file);
+                await CleanData(Data);
 
-                if (open.ShowDialog() != DialogResult.OK) return false;
+                fileBox.Text = Path.GetFileName(file);
 
-                Folder = Path.GetDirectoryName(open.FileName);
+                dataTree.SelectedNode = dataTree.TopNode;
 
-                try
-                {                    
-                    Data = ReadData(open.FileName);
-                    await CleanData(Data);
+                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
+                FileChanged?.Invoke(this, new Args<string> { Item = file });
 
-                    fileBox.Text = Path.GetFileName(open.FileName);
-
-                    dataTree.SelectedNode = dataTree.TopNode;
-
-                    StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
-                    FileChanged?.Invoke(this, new Args<string> { Item = open.FileName });
-
-                    return true;
-                }
-                catch (IOException error)
-                {
-                    MessageBox.Show(error.Message);
-                    return false;
-                }                
+                return true;
             }
+            catch (DuplicateNameException e)
+            {
+                MessageBox.Show(e.Message + "\n" + "Remove duplicate columns in file and try again.");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+
+            return false;
         }
 
         /// <summary>

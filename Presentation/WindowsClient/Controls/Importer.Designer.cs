@@ -21,6 +21,8 @@
             tracker.TaskBegun -= RunImporter;
             images.Dispose();
 
+            Data?.Dispose();
+
             if (disposing && (components != null))
             {
                 components.Dispose();

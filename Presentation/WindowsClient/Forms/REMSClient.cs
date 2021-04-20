@@ -117,6 +117,34 @@ namespace WindowsClient
             }
         }
 
+        private async Task AttachImporter()
+        {
+            importer = new Importer();
+            importer.FileImported.Subscribe(this, OnImportCompleted);
+
+            notebook.TabPages.Add(importTab);
+            notebook.SelectedTab = importTab;
+
+            using (var open = new OpenFileDialog())
+            {
+                open.InitialDirectory = importer.Folder;
+                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+
+                if (open.ShowDialog() != DialogResult.OK) { RemoveImporter(); return; }
+
+                importer.Folder = Path.GetDirectoryName(open.FileName);
+
+                if (! await importer.LoadData(open.FileName))
+                    RemoveImporter();
+            }
+        }
+
+        private void RemoveImporter()
+        {
+            notebook.TabPages.Remove(importTab);
+            importer.Dispose();
+        }
+
         /// <summary>
         /// When a new database is opened
         /// </summary>
