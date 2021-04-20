@@ -17,7 +17,7 @@ using System.Windows.Forms;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
-{    
+{
     /// <summary>
     /// Enables the import of excel data
     /// </summary>
@@ -57,7 +57,7 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
-            
+
             // Add icons to the image list
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
@@ -70,11 +70,11 @@ namespace WindowsClient.Controls
             images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
-            
+
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
-            
+
             tracker.TaskBegun += RunImporter;
         }
 
@@ -91,13 +91,13 @@ namespace WindowsClient.Controls
             using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
             using (var reader = ExcelReaderFactory.CreateReader(stream))
             {
-                var config = new ExcelDataSetConfiguration 
-                { 
+                var config = new ExcelDataSetConfiguration
+                {
                     ConfigureDataTable = (_) => new ExcelDataTableConfiguration { UseHeaderRow = true }
                 };
-                return reader.AsDataSet(config);                
+                return reader.AsDataSet(config);
             }
-        }        
+        }
 
         /// <summary>
         /// Attempts to sanitise raw excel data so it can be read into the database
@@ -109,9 +109,9 @@ namespace WindowsClient.Controls
             data.FindExperiments();
 
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
-            {   
+            {
                 // Don't import notes or empty tables
-                if (table.TableName == "Notes" 
+                if (table.TableName == "Notes"
                     || table.Rows.Count == 0
                     || (table.TableName == "Experiments" && table.Columns.Count < 3)
                 )
@@ -164,25 +164,25 @@ namespace WindowsClient.Controls
             var xt = new ExcelTable(table);
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
-            
+
             vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
                 var cnode = vt.CreateColumnNode(i);
-                cnode.Updated += (s, e) => 
-                { 
-                    importData.DataSource = cnode.Excel.Source; 
-                    importData.Format(); 
+                cnode.Updated += (s, e) =>
+                {
+                    importData.DataSource = cnode.Excel.Source;
+                    importData.Format();
                 };
-                tnode.Nodes.Add(cnode);                              
+                tnode.Nodes.Add(cnode);
             }
 
             await tnode.Validate();
 
             return tnode;
-            
+
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace WindowsClient.Controls
                 default:
                     return new TableValidator(table);
             }
-        }        
+        }
 
         #endregion Methods        
 
@@ -309,7 +309,7 @@ namespace WindowsClient.Controls
                 });
                 dataTree.Nodes.Clear();
 
-                StageChanged?.Invoke(this, new Args<Stage>{ Item = Stage.Imported });
+                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Imported });
             }
             catch (Exception error)
             {
@@ -324,25 +324,22 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the file button click event
         /// </summary>
-        private async void OnFileButtonClicked(object sender, EventArgs e) => await OpenFile();
+        private async void OnFileButtonClicked(object sender, EventArgs e) {}
 
         /// <summary>
         /// Handles the selection of a new node in the tree
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is DataNode<IDisposable> node)
-            {
-                importData.DataSource = node.Excel.Source;
-                importData.Format();
+            columnLabel.Text = e.Node.Text;
 
-                columnLabel.Text = node.Text;
+            var node = e.Node is ColumnNode c ? (TableNode)c.Parent : (TableNode)e.Node;
 
-                if (!node.Advice.Empty)
-                    node.Advice.AddToTextBox(adviceBox);
-                else if (node.Parent is DataNode<DataTable> parent)
-                    parent.Advice.AddToTextBox(adviceBox);
-            }
+            importData.DataSource = node.Excel.Source;
+            importData.Format();            
+
+            if (!node.Advice.Empty)
+                node.Advice.AddToTextBox(adviceBox);            
         }
 
         /// <summary>

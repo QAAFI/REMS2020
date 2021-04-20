@@ -31,6 +31,7 @@ namespace WindowsClient
             homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
 
+            importer.FileImported += OnImportCompleted;
             importTab.Leave += (s, e) => notebook.TabPages.Remove(importTab);
 
             notebook.TabPages.Remove(detailsTab);
@@ -83,19 +84,10 @@ namespace WindowsClient
         private async void OnImportRequested(object sender, EventArgs args)
         {
             if (!(sender is ImportLink link))
-                throw new Exception("Import requested from unknown control type.");
-            
-            importTab.Controls.Remove(importer);
-            importer = new Importer();
-            importTab.Controls.Add(importer);
-            importer.FileImported += OnImportCompleted;
+                throw new Exception("Import requested from unknown control type.");            
 
             importTab.Text = "Import " + link.Label;
-            notebook.TabPages.Add(importTab);
-            notebook.SelectedTab = importTab;
-
-            if (! await importer.OpenFile())
-                notebook.TabPages.Remove(importTab);
+            await AttachImporter();
         }         
 
         /// <summary>
@@ -107,9 +99,6 @@ namespace WindowsClient
             notebook.SelectedTab = homeTab;
             notebook.TabPages.Remove(importTab);
 
-            importer.FileImported -= OnImportCompleted;
-            importer.Dispose();
-
             if (await QueryManager.Request(new LoadedExperiments()))
             {
                 notebook.TabPages.Add(detailsTab);
@@ -119,9 +108,6 @@ namespace WindowsClient
 
         private async Task AttachImporter()
         {
-            importer = new Importer();
-            importer.FileImported.Subscribe(this, OnImportCompleted);
-
             notebook.TabPages.Add(importTab);
             notebook.SelectedTab = importTab;
 
