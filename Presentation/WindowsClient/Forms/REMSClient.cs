@@ -128,7 +128,6 @@ namespace WindowsClient
         private void RemoveImporter()
         {
             notebook.TabPages.Remove(importTab);
-            importer.Dispose();
         }
 
         /// <summary>
