@@ -40,7 +40,7 @@ namespace Rems.Infrastructure.Excel
         {
             var table = CreateTable(sheet.GetRow(0), sheet.GetRow(1), sheet.SheetName);
             
-            for (int i = 1; i < sheet.LastRowNum; i++)
+            for (int i = 1; i <= sheet.LastRowNum; i++)
             {
                 var row = sheet.GetRow(i);
 
