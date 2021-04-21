@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Models;
 
 namespace WindowsClient.Controls
 {
@@ -41,29 +42,12 @@ namespace WindowsClient.Controls
             public int PID { get; set; }
         }
         #endregion
-
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-        
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T) await Query(query);        
-
+ 
         public ExperimentDetailer()
         {
             InitializeComponent();          
 
             experimentsTree.AfterSelect += OnNodeSelected;
-
-            summariser.Query += (o) => Query?.Invoke(o);
-            operations.Query += (o) => Query?.Invoke(o);
-            traitChart.Query += (o) => Query?.Invoke(o);
-            soilsChart.Query += (o) => Query?.Invoke(o);
         }
 
         /// <summary>
@@ -73,13 +57,13 @@ namespace WindowsClient.Controls
         {
             experimentsTree.Nodes.Clear();
 
-            var exps = await InvokeQuery(new ExperimentsQuery());
+            var exps = await QueryManager.Request(new ExperimentsQuery());
 
             foreach (var exp in exps)
             {
                 ENode eNode = new ENode(exp.Value) { EID = exp.Key };
 
-                var treats = await InvokeQuery(new TreatmentsQuery{ ExperimentId = exp.Key });
+                var treats = await QueryManager.Request(new TreatmentsQuery{ ExperimentId = exp.Key });
 
                 foreach (var treat in treats)
                 {
@@ -87,7 +71,7 @@ namespace WindowsClient.Controls
 
                     tNode.Nodes.Add(new TNode("All") { EID = exp.Key, TID = treat.Key });
 
-                    var plots = await InvokeQuery(new PlotsQuery{ TreatmentId = treat.Key });
+                    var plots = await QueryManager.Request(new PlotsQuery{ TreatmentId = treat.Key });
 
                     tNode.Nodes.AddRange(plots.Select(p => 
                         new PNode(p.Value) { EID = exp.Key, TID = treat.Key, PID = p.Key}
@@ -178,7 +162,7 @@ namespace WindowsClient.Controls
             await summariser.GetSummary(id);
 
             var design = new DesignsTableQuery() { ExperimentId = id };
-            designData.DataSource = await InvokeQuery(design);
+            designData.DataSource = await QueryManager.Request(design);
         }
     }
 }

@@ -21,18 +21,6 @@ namespace WindowsClient.Controls
         /// </summary>
         public Func<int, TreeNode, Task> Updater;
 
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
         private int treatment = -1;
         private int plot;
         private TreeNode selected;
@@ -134,8 +122,8 @@ namespace WindowsClient.Controls
             else
             {
                 // Load the trait type box
-                var traits = await InvokeQuery(new SoilTraitsQuery() { TreatmentId = id });
-                descriptions = await InvokeQuery(new TraitDescriptionsQuery { Traits = traits });
+                var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = id });
+                descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
                 lock (traitsBox)
                 {
@@ -160,7 +148,7 @@ namespace WindowsClient.Controls
             else
             {
                 var query = new SoilLayerDatesQuery() { TreatmentId = id };
-                var items = await InvokeQuery(query);
+                var items = await QueryManager.Request(query);
 
                 lock (datesBox)
                 {
@@ -206,7 +194,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var data = await InvokeQuery(query);
+                        var data = await QueryManager.Request(query);
                         data.AddToChart(chart);
                     }
                 }
@@ -243,7 +231,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var data = await InvokeQuery(query);
+                        var data = await QueryManager.Request(query);
                         data.AddToChart(chart);
                     }
                 }
@@ -283,7 +271,7 @@ namespace WindowsClient.Controls
                             Date = date
                         };
 
-                        var series = await InvokeQuery(query);
+                        var series = await QueryManager.Request(query);
 
                         foreach (var data in series)
                             data.AddToChart(chart);

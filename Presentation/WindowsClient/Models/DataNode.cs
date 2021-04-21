@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediatR;
+using Rems.Application.Common;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
@@ -18,15 +19,9 @@ namespace WindowsClient.Models
         /// <summary>
         /// Occurs when some change is applied to the node
         /// </summary>
-        public event Action Updated;
+        public event EventHandler Updated;
 
-        protected void InvokeUpdated() => Updated?.Invoke();
-
-        /// <summary>
-        /// Occurs when the node requests data
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
+        protected void InvokeUpdated() => Updated?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         /// The advice which is displayed alongside the node
@@ -55,7 +50,7 @@ namespace WindowsClient.Models
             excel.StateChanged += UpdateState;
 
             validater.StateChanged += UpdateState;
-            validater.SetAdvice += a => Advice = a;
+            validater.SetAdvice += (s, e) => Advice = e.Item;
             Validater = validater;
             
             ContextMenu = new ContextMenu();
@@ -63,8 +58,6 @@ namespace WindowsClient.Models
             items.Add(new MenuItem("Rename", Rename));
             items.Add(new MenuItem("Ignore", async (s, e) => await ToggleIgnore(s, e)));
         }
-
-        #region State functions
 
         /// <summary>
         /// Updates one of the nodes possible states
@@ -91,8 +84,10 @@ namespace WindowsClient.Models
         /// </remarks>
         /// <param name="state">The name of the state to change</param>
         /// <param name="value">The value to change the state to</param>
-        public void UpdateState(string state, object value)
+        public void UpdateState(object sender, Args<string, object> args)
         {
+            string state = args.Item1;
+            object value = args.Item2;
             Text = Excel.Name;
 
             // Prevent recursively updating states
@@ -122,9 +117,8 @@ namespace WindowsClient.Models
                 parent.Validater.Validate();
         }
 
-        #endregion region
+        #region Menu functions
 
-        #region Menu functions        
         /// <summary>
         /// Begins editing the node label
         /// </summary>
@@ -134,8 +128,9 @@ namespace WindowsClient.Models
         /// Toggles the ignored state of the current node
         /// </summary>
         public async Task ToggleIgnore(object sender, EventArgs args)
-        {            
-            UpdateState("Ignore", !(bool)Excel.State["Ignore"]);
+        {
+            var state = new Args<string, object> { Item1 = "Ignore", Item2 = !(bool)Excel.State["Ignore"] };
+            UpdateState(this, state);
 
             if (!(sender is MenuItem item))
                 return;
@@ -164,9 +159,9 @@ namespace WindowsClient.Models
 
             var name = (Tag as DataColumn).ColumnName;
             var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            await InvokeQuery(new AddTraitCommand() { Name = name, Type = type.Name });
+            await QueryManager.Request(new AddTraitCommand() { Name = name, Type = type.Name });
 
-            UpdateState("Valid", true);
+            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
         }
         #endregion
 
@@ -176,7 +171,7 @@ namespace WindowsClient.Models
         /// </summary>
         public void ForceValidate()
         {
-            UpdateState("Valid", true);
+            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
 
             foreach (DataNode<DataColumn> node in Nodes)
                 node.ForceValidate();
@@ -208,7 +203,6 @@ namespace WindowsClient.Models
                 }
 
                 Updated = null;
-                Query = null;
                 disposedValue = true;
             }
         }

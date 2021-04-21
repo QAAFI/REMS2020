@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Rems.Application.Common;
+
 namespace WindowsClient.Models
 {
     /// <summary>
@@ -11,12 +13,12 @@ namespace WindowsClient.Models
         /// <summary>
         /// Occurs when the data is modified
         /// </summary>
-        event Action<string, object> StateChanged;
+        event EventHandler<Args<string, object>> StateChanged;
 
         /// <summary>
         /// Occurs when the advice provided to the user is changed
         /// </summary>
-        event Action<Advice> SetAdvice;
+        event EventHandler<Args<Advice>> SetAdvice;
 
         /// <summary>
         /// Checks if the node is ready to be imported and updates the state accordingly
@@ -30,18 +32,18 @@ namespace WindowsClient.Models
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event Action<string, object> StateChanged;
+        public event EventHandler<Args<string, object>> StateChanged;
 
         /// <inheritdoc/>
-        public event Action<Advice> SetAdvice;
+        public event EventHandler<Args<Advice>> SetAdvice;
 
         public TDisposable Component { get; set; }
 
         protected void InvokeStateChanged(string state, object value)
-            => StateChanged?.Invoke(state, value);
+            => StateChanged?.Invoke(this, new Args<string, object> { Item1 = state, Item2 = value });
 
         protected void InvokeSetAdvice(Advice advice)
-            => SetAdvice?.Invoke(advice);
+            => SetAdvice?.Invoke(this, new Args<Advice> { Item = advice });
 
         public abstract Task Validate();
 

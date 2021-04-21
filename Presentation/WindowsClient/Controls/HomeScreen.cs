@@ -11,8 +11,8 @@ using Rems.Infrastructure.ApsimX;
 using Rems.Infrastructure;
 
 using WindowsClient.Models;
-using MediatR;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common;
 
 namespace WindowsClient.Controls
 {
@@ -24,26 +24,14 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when a database is opened
         /// </summary>
-        public event Func<string, Task> DBOpened;
+        public event EventHandler<Args<string>> DBOpened;
 
         /// <summary>
         /// Occurs when excel data is requested
         /// </summary>
-        public event Action<ImportLink> ImportRequested;
-
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
+        public event EventHandler ImportRequested;
         
         public IFileManager Manager { get; set; }
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
 
         /// <summary>
         /// All known sessions
@@ -59,9 +47,9 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            infoLink.Clicked += link => ImportRequested?.Invoke(link);
-            expsLink.Clicked += link => ImportRequested?.Invoke(link);
-            dataLink.Clicked += link => ImportRequested?.Invoke(link);
+            infoLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
+            expsLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
+            dataLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
 
             Sessions = LoadSessions();
             recentList.DataSource = snoisses;
@@ -139,7 +127,8 @@ namespace WindowsClient.Controls
 
             recentList.DataSource = snoisses;
 
-            await DBOpened?.Invoke(session.DB);
+            var args = new Args<string> { Item = session.DB };
+            DBOpened?.Invoke(this, args);
         }
 
         /// <summary>
@@ -166,9 +155,9 @@ namespace WindowsClient.Controls
         /// </summary>
         public async Task CheckTables()
         {
-            infoLink.Stage = await InvokeQuery(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
-            expsLink.Stage = await InvokeQuery(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
-            dataLink.Stage = await InvokeQuery(new LoadedData()) ? Stage.Imported : Stage.Missing;
+            infoLink.Stage = await QueryManager.Request(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = await QueryManager.Request(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = await QueryManager.Request(new LoadedData()) ? Stage.Imported : Stage.Missing;
         }
 
         /// <summary>
@@ -176,7 +165,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void LoadExportBox()
         {
-            var exps = (await InvokeQuery(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+            var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).Distinct().ToArray();
 
             exportList.Items.Clear();
@@ -225,10 +214,10 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the export of .apsimx files
         /// </summary>
-        private async void OnExportClick()
+        private async void OnExportClick(object sender, EventArgs args)
         {
             // Check that a valid database exists
-            bool connected = (bool)await Query(new ConnectionExists());
+            bool connected = await QueryManager.Request(new ConnectionExists());
             if (!connected)
             {
                 MessageBox.Show("A database must be opened before exporting.");
@@ -252,13 +241,11 @@ namespace WindowsClient.Controls
                         FileName = save.FileName
                     };
 
-                    exporter.Query += (o) => Query?.Invoke(o);
-                    
                     exportTracker.SetSteps(exporter);
 
                     exporter.NextItem += exportTracker.OnNextTask;
                     exporter.IncrementProgress += exportTracker.OnProgressChanged;
-                    exporter.TaskFinished += () => MessageBox.Show("Export complete!");
+                    exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
                     exporter.TaskFailed += exportTracker.OnTaskFailed;
 
                     await exporter.Run();

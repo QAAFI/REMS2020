@@ -3,8 +3,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-
-using MediatR;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
@@ -14,9 +12,6 @@ namespace WindowsClient.Models
     /// </summary>
     public class ColumnValidator : BaseValidator<DataColumn>
     {
-        public event Func<object, Task<object>> Query;
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
         public ColumnValidator(DataColumn column)
         {
             Component = column;
@@ -62,7 +57,7 @@ namespace WindowsClient.Models
         {
             return
                     // Test if the trait is in the database
-                    await InvokeQuery(new TraitExistsQuery() { Name = Component.ColumnName })
+                    await QueryManager.Request(new TraitExistsQuery() { Name = Component.ColumnName })
                     // Or in the spreadsheet traits table
                     || Component.Table.DataSet.Tables["Traits"] is DataTable traits
                     // If it is, find the column of trait names

@@ -1,7 +1,7 @@
 ﻿using ExcelDataReader;
 using MediatR;
 using Microsoft.EntityFrameworkCore.Internal;
-
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -17,34 +17,26 @@ using System.Windows.Forms;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
-{    
+{
     /// <summary>
     /// Enables the import of excel data
     /// </summary>
     public partial class Importer : UserControl
     {
         /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
         /// Occurs after a file is imported
         /// </summary>
-        public event Action FileImported;
+        public event EventHandler FileImported;
 
         /// <summary>
         /// Occurs when the current import stage has changed
         /// </summary>
-        public event Action<Stage> StageChanged;
+        public event EventHandler<Args<Stage>> StageChanged;
 
         /// <summary>
         /// Occurs when the file to import from has changed
         /// </summary>
-        public event Action<string> FileChanged;
-
-        private async Task<T> InvokeQuery<T>(IRequest<T> query)
-            => (T)await Query(query);
+        public event EventHandler<Args<string>> FileChanged;
 
         /// <summary>
         /// The excel data
@@ -65,7 +57,7 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
             Dock = DockStyle.Fill;
-            
+
             // Add icons to the image list
             images = new ImageList();
             images.Images.Add("ValidOff", Properties.Resources.ValidOff);
@@ -78,11 +70,11 @@ namespace WindowsClient.Controls
             images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
-            
+
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
-            
+
             tracker.TaskBegun += RunImporter;
         }
 
@@ -96,20 +88,14 @@ namespace WindowsClient.Controls
         /// </remarks>
         private DataSet ReadData(string filepath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
+            using (var reader = ExcelReaderFactory.CreateReader(stream))
             {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                var config = new ExcelDataSetConfiguration
                 {
-                    return reader.AsDataSet(new ExcelDataSetConfiguration
-                    {
-                        ConfigureDataTable = (_) => new ExcelDataTableConfiguration
-                        {
-                            UseHeaderRow = true
-                        }
-                    });
-                }
+                    ConfigureDataTable = (_) => new ExcelDataTableConfiguration { UseHeaderRow = true }
+                };
+                return reader.AsDataSet(config);
             }
         }
 
@@ -123,9 +109,9 @@ namespace WindowsClient.Controls
             data.FindExperiments();
 
             foreach (var table in data.Tables.Cast<DataTable>().ToArray())
-            {   
+            {
                 // Don't import notes or empty tables
-                if (table.TableName == "Notes" 
+                if (table.TableName == "Notes"
                     || table.Rows.Count == 0
                     || (table.TableName == "Experiments" && table.Columns.Count < 3)
                 )
@@ -156,7 +142,7 @@ namespace WindowsClient.Controls
             table.RemoveDuplicateRows();
 
             // Find the type of data stored in the table
-            var entityType = await InvokeQuery(new EntityTypeQuery() { Name = table.TableName });
+            var entityType = await QueryManager.Request(new EntityTypeQuery() { Name = table.TableName });
             table.ExtendedProperties["Type"] = entityType ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
 
             // Clean columns
@@ -178,27 +164,25 @@ namespace WindowsClient.Controls
             var xt = new ExcelTable(table);
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
-            
-            vt.SetAdvice += a => a.AddToTextBox(adviceBox);                
-            tnode.Query += (o) => Query?.Invoke(o);
+
+            vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
 
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i, Query);                
-                cnode.Query += (o) => Query?.Invoke(o);
-                cnode.Updated += () => 
-                { 
-                    importData.DataSource = cnode.Excel.Source; 
-                    importData.Format(); 
+                var cnode = vt.CreateColumnNode(i);
+                cnode.Updated += (s, e) =>
+                {
+                    importData.DataSource = cnode.Excel.Source;
+                    importData.Format();
                 };
-                tnode.Nodes.Add(cnode);                              
+                tnode.Nodes.Add(cnode);
             }
 
             await tnode.Validate();
 
             return tnode;
-            
+
         }
 
         /// <summary>
@@ -234,7 +218,7 @@ namespace WindowsClient.Controls
                 default:
                     return new TableValidator(table);
             }
-        }        
+        }
 
         #endregion Methods        
 
@@ -242,47 +226,43 @@ namespace WindowsClient.Controls
         /// Lets the user select a file to open for import
         /// </summary>
         /// <returns>True if the file is valid, false otherwise</returns>
-        public async Task<bool> OpenFile()
+        public async Task<bool> LoadData(string file)
         {
-            using (var open = new OpenFileDialog())
+            try
             {
-                open.InitialDirectory = Folder;
-                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+                //Data = ReadData(file);
+                Data = Excel.ReadAsDataSet(file);
+                await CleanData(Data);
 
-                if (open.ShowDialog() != DialogResult.OK) return false;
+                fileBox.Text = Path.GetFileName(file);
 
-                Folder = Path.GetDirectoryName(open.FileName);
+                dataTree.SelectedNode = dataTree.TopNode;
 
-                try
-                {                    
-                    Data = ReadData(open.FileName);
-                    await CleanData(Data);
+                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
+                FileChanged?.Invoke(this, new Args<string> { Item = file });
 
-                    fileBox.Text = Path.GetFileName(open.FileName);
-
-                    dataTree.SelectedNode = dataTree.TopNode;
-
-                    StageChanged?.Invoke(Stage.Validation);
-                    FileChanged?.Invoke(open.FileName);
-
-                    return true;
-                }
-                catch (IOException error)
-                {
-                    MessageBox.Show(error.Message);
-                    return false;
-                }                
+                return true;
             }
+            catch (DuplicateNameException e)
+            {
+                MessageBox.Show(e.Message + "\n" + "Remove duplicate columns in file and try again.");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+
+            return false;
         }
 
         /// <summary>
         /// Runs the excel importer
         /// </summary>
-        private async void RunImporter()
+        private async void RunImporter(object sender, EventArgs args)
         {
             try
             {
-                bool connected = await InvokeQuery(new ConnectionExists());
+                bool connected = await QueryManager.Request(new ConnectionExists());
                 if (!connected)
                 {
                     MessageBox.Show("A database must be opened or created before importing");
@@ -307,7 +287,6 @@ namespace WindowsClient.Controls
 
                 // Create and run an importer for the data
                 var excel = new ExcelImporter { Data = Data };
-                excel.Query += (o) => Query?.Invoke(o);
 
                 tracker.SetSteps(excel);
 
@@ -315,7 +294,7 @@ namespace WindowsClient.Controls
                 excel.IncrementProgress += tracker.OnProgressChanged;
                 excel.TaskFinished += FileImported;
                 excel.TaskFailed += tracker.OnTaskFailed;
-
+                excel.Query += QueryManager.Request;
                 await excel.Run();
 
                 // Clean up
@@ -330,7 +309,7 @@ namespace WindowsClient.Controls
                 });
                 dataTree.Nodes.Clear();
 
-                StageChanged?.Invoke(Stage.Imported);
+                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Imported });
             }
             catch (Exception error)
             {
@@ -345,25 +324,22 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Handles the file button click event
         /// </summary>
-        private async void OnFileButtonClicked(object sender, EventArgs e) => await OpenFile();
+        private async void OnFileButtonClicked(object sender, EventArgs e) {}
 
         /// <summary>
         /// Handles the selection of a new node in the tree
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is DataNode<IDisposable> node)
-            {
-                importData.DataSource = node.Excel.Source;
-                importData.Format();
+            columnLabel.Text = e.Node.Text;
 
-                columnLabel.Text = node.Text;
+            var node = e.Node is ColumnNode c ? (TableNode)c.Parent : (TableNode)e.Node;
 
-                if (!node.Advice.Empty)
-                    node.Advice.AddToTextBox(adviceBox);
-                else if (node.Parent is DataNode<DataTable> parent)
-                    parent.Advice.AddToTextBox(adviceBox);
-            }
+            importData.DataSource = node.Excel.Source;
+            importData.Format();            
+
+            if (!node.Advice.Empty)
+                node.Advice.AddToTextBox(adviceBox);            
         }
 
         /// <summary>

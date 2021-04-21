@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediatR;
+using System;
 using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
@@ -11,27 +12,27 @@ namespace Rems.Application.Common.Interfaces
         /// <summary>
         /// Occurs when the tracker switches to the next item in its task
         /// </summary>
-        event Action<string> NextItem;
+        event EventHandler<Args<string>> NextItem;
 
         /// <summary>
         /// Occurs when the tracker makes progress with its task
         /// </summary>
-        event Action IncrementProgress;
+        event EventHandler IncrementProgress;
 
         /// <summary>
         /// Occurs when the tracker completes its task
         /// </summary>
-        event Action TaskFinished;
+        event EventHandler TaskFinished;
 
         /// <summary>
         /// Occurs if the tracker fails to complete its task
         /// </summary>
-        event Action<Exception> TaskFailed;
+        event EventHandler<Args<Exception>> TaskFailed;
 
         /// <summary>
         /// Occurs when the tracker requests data
         /// </summary>
-        event Func<object, Task<object>> Query;
+        event EventHandler<RequestArgs<object, Task<object>>> Query;
 
         /// <summary>
         /// The number of items the tracker is processing

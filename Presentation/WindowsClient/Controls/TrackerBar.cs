@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 
 namespace WindowsClient.Controls
@@ -12,7 +13,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the progress tracker begins its task
         /// </summary>
-        public event Action TaskBegun;
+        public event EventHandler TaskBegun;
 
         /// <summary>
         /// The text on the button
@@ -90,8 +91,9 @@ namespace WindowsClient.Controls
         /// <summary>
         /// When the tracker fails its current task
         /// </summary>
-        public void OnTaskFailed(Exception error)
+        public void OnTaskFailed(object sender, Args<Exception> args)
         {
+            var error = args.Item;
             while (error.InnerException != null) error = error.InnerException;
             MessageBox.Show(error.Message, "Import failed!");
             Reset();
@@ -100,10 +102,10 @@ namespace WindowsClient.Controls
         /// <summary>
         /// When the current task makes progress
         /// </summary>
-        public void OnProgressChanged()
+        public void OnProgressChanged(object sender, EventArgs args)
         {
             if (InvokeRequired)
-                Invoke(new Action(OnProgressChanged));
+                Invoke(new EventHandler(OnProgressChanged), sender, args);
             else
             {
                 progress += step;
@@ -119,10 +121,12 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Move to the next task
         /// </summary>
-        public void OnNextTask(string text)
+        public void OnNextTask(object sender, Args<string> args)
         {
+            string text = args.Item;
+
             if (InvokeRequired)
-                Invoke(new Action<string>(OnNextTask));
+                Invoke(new EventHandler<Args<string>>(OnNextTask), sender, args);
             else
             {
                 task++;
@@ -137,6 +141,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RunClicked(object sender, EventArgs e) => TaskBegun?.Invoke();
+        private void RunClicked(object sender, EventArgs e) 
+            => TaskBegun?.Invoke(this, EventArgs.Empty);
     }
 }

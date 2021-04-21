@@ -1,18 +1,15 @@
 ﻿using MediatR;
 using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Models;
 using static Steema.TeeChart.Axis;
 
 namespace WindowsClient.Controls
@@ -22,18 +19,6 @@ namespace WindowsClient.Controls
     /// </summary>
     public partial class OperationsChart : UserControl
     {
-        /// <summary>
-        /// Occurs when data is requested from the mediator
-        /// </summary>
-        public event Func<object, Task<object>> Query;
-
-        /// <summary>
-        /// Safely handles a query
-        /// </summary>
-        /// <typeparam name="T">The type of data requested</typeparam>
-        /// <param name="query">The request object</param>
-        private async Task<T> InvokeQuery<T>(IRequest<T> query) => (T)await Query(query);
-
         /// <summary>
         /// The ID of the currently displayed treatment
         /// </summary>
@@ -83,9 +68,9 @@ namespace WindowsClient.Controls
 
             TreatmentID = id;
 
-            var iData = await InvokeQuery(new IrrigationDataQuery { TreatmentId = id });
-            var fData = await InvokeQuery(new FertilizationDataQuery{ TreatmentId = id });
-            var tData = await InvokeQuery(new TillagesDataQuery{ TreatmentId = id });
+            var iData = await QueryManager.Request(new IrrigationDataQuery { TreatmentId = id });
+            var fData = await QueryManager.Request(new FertilizationDataQuery{ TreatmentId = id });
+            var tData = await QueryManager.Request(new TillagesDataQuery{ TreatmentId = id });
 
             chart.Series.Clear();
             chart.Axes.Custom.Clear();            

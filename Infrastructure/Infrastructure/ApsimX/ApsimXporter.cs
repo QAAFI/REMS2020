@@ -142,7 +142,6 @@ namespace Rems.Infrastructure.ApsimX
             // Creates a model tree
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
-
             
             report.AddSubHeading(name + ':', 2);
 

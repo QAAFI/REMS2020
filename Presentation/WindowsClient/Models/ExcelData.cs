@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Windows.Forms;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 
 namespace WindowsClient.Models
@@ -14,7 +15,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Occurs when the data is changed
         /// </summary>
-        event Action<string, object> StateChanged;
+        event EventHandler<Args<string, object>> StateChanged;
 
         /// <summary>
         /// The raw data
@@ -51,10 +52,10 @@ namespace WindowsClient.Models
         public abstract DataTable Source { get; }
         public abstract PropertyCollection State { get; }
 
-        public event Action<string, object> StateChanged;
+        public event EventHandler<Args<string, object>> StateChanged;
 
         protected void InvokeStateChanged(string state, object value)
-            => StateChanged?.Invoke(state, value);
+            => StateChanged?.Invoke(this, new Args<string, object> { Item1 = state, Item2 = value });
 
         public abstract void Swap(int index);
 

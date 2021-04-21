@@ -10,19 +10,19 @@ namespace Rems.Application.Common
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event Action IncrementProgress;
+        public event EventHandler IncrementProgress;
 
         /// <inheritdoc/>
-        public event Action TaskFinished;
+        public event EventHandler TaskFinished;
 
         /// <inheritdoc/>
-        public event Action<string> NextItem;
+        public event EventHandler<Args<string>> NextItem;
 
         /// <inheritdoc/>
-        public event Action<Exception> TaskFailed;
+        public event EventHandler<Args<Exception>> TaskFailed;
 
         /// <inheritdoc/>
-        public event Func<object, Task<object>> Query;
+        public event EventHandler<RequestArgs<object, Task<object>>> Query;
 
         /// <inheritdoc/>
         public abstract int Items { get; }
@@ -33,32 +33,36 @@ namespace Rems.Application.Common
         /// <summary>
         /// Invokes the Query event
         /// </summary>
-        protected async Task<T> InvokeQuery<T>(IRequest<T> query) 
-            => (T)await Query(query);
+        protected async Task<T> InvokeQuery<T>(IRequest<T> query)
+        {
+            var args = new RequestArgs<object, Task<object>> { Item = query };
+            Query?.Invoke(this, args);
+            return (T)await args.Result;
+        }
 
         /// <summary>
         /// Invokes the NextItem event
         /// </summary>
         protected void OnNextItem(string item) 
-            => NextItem?.Invoke(item);
+            => NextItem?.Invoke(this, new Args<string> { Item = item });
 
         /// <summary>
         /// Invokes the IncrementProgress event
         /// </summary>
-        protected void OnIncrementProgress() 
-            => IncrementProgress?.Invoke();
+        protected void OnIncrementProgress()
+            => IncrementProgress?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         /// Invokes the TaskFinished event
         /// </summary>
         protected void OnTaskFinished()
-            => TaskFinished?.Invoke();
+            => TaskFinished?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         /// Invokes the TaskFailed event
         /// </summary>
         protected void OnTaskFailed(Exception error) 
-            => TaskFailed?.Invoke(error);
+            => TaskFailed?.Invoke(this, new Args<Exception> { Item = error });
 
         /// <inheritdoc/>
         public abstract Task Run();
@@ -88,5 +92,7 @@ namespace Rems.Application.Common
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        
     }
 }
