@@ -32,7 +32,7 @@ namespace WindowsClient
             homeScreen.ImportRequested += OnImportRequested;
 
             importer.FileImported += OnImportCompleted;
-            importTab.Leave += (s, e) => notebook.TabPages.Remove(importTab);
+            importTab.Leave += (s, e) => RemoveImporter();
 
             notebook.TabPages.Remove(detailsTab);
             notebook.TabPages.Remove(importTab);
@@ -84,7 +84,10 @@ namespace WindowsClient
         private async void OnImportRequested(object sender, EventArgs args)
         {
             if (!(sender is ImportLink link))
-                throw new Exception("Import requested from unknown control type.");            
+                throw new Exception("Import requested from unknown control type.");
+
+            importer.FileImported += (s, e) => link.Stage = Stage.Imported;
+            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
 
             importTab.Text = "Import " + link.Label;
             await AttachImporter();
@@ -96,14 +99,8 @@ namespace WindowsClient
         private async void OnImportCompleted(object sender, EventArgs args)
         {
             MessageBox.Show("Import successful!", "");
-            notebook.SelectedTab = homeTab;
-            notebook.TabPages.Remove(importTab);
-
-            if (await QueryManager.Request(new LoadedExperiments()))
-            {
-                notebook.TabPages.Add(detailsTab);
-                //await detailer.LoadNodes();
-            }
+            RemoveImporter();
+            await AttachDetailer();
         }
 
         private async Task AttachImporter()
@@ -130,6 +127,15 @@ namespace WindowsClient
             notebook.TabPages.Remove(importTab);
         }
 
+        private async Task AttachDetailer()
+        {
+            if (await QueryManager.Request(new LoadedExperiments()))
+            {
+                notebook.TabPages.Add(detailsTab);
+                await detailer.LoadNodes();
+            }
+        }
+
         /// <summary>
         /// When a new database is opened
         /// </summary>
@@ -140,6 +146,7 @@ namespace WindowsClient
 
             // Update the tables
             await LoadListView();
+            await AttachDetailer();
         }
 
         /// <summary>

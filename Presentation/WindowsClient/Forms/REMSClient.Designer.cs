@@ -36,10 +36,10 @@
             this.notebook = new System.Windows.Forms.TabControl();
             this.homeTab = new System.Windows.Forms.TabPage();
             this.homeScreen = new WindowsClient.Controls.HomeScreen();
-            this.importTab = new System.Windows.Forms.TabPage();
-            this.importer = new WindowsClient.Controls.Importer();
             this.detailsTab = new System.Windows.Forms.TabPage();
             this.detailer = new WindowsClient.Controls.ExperimentDetailer();
+            this.importTab = new System.Windows.Forms.TabPage();
+            this.importer = new WindowsClient.Controls.Importer();
             this.tablesTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -48,8 +48,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.notebook.SuspendLayout();
             this.homeTab.SuspendLayout();
-            this.importTab.SuspendLayout();
             this.detailsTab.SuspendLayout();
+            this.importTab.SuspendLayout();
             this.SuspendLayout();
             // 
             // tablesTab
@@ -139,6 +139,25 @@
             this.homeScreen.Size = new System.Drawing.Size(1050, 649);
             this.homeScreen.TabIndex = 0;
             // 
+            // detailsTab
+            // 
+            this.detailsTab.Controls.Add(this.detailer);
+            this.detailsTab.Location = new System.Drawing.Point(4, 22);
+            this.detailsTab.Name = "detailsTab";
+            this.detailsTab.Padding = new System.Windows.Forms.Padding(3);
+            this.detailsTab.Size = new System.Drawing.Size(1056, 655);
+            this.detailsTab.TabIndex = 9;
+            this.detailsTab.Text = "Experiment details";
+            this.detailsTab.UseVisualStyleBackColor = true;
+            // 
+            // detailer
+            // 
+            this.detailer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailer.Location = new System.Drawing.Point(3, 3);
+            this.detailer.Name = "detailer";
+            this.detailer.Size = new System.Drawing.Size(1050, 649);
+            this.detailer.TabIndex = 0;
+            // 
             // importTab
             // 
             this.importTab.Controls.Add(this.importer);
@@ -160,25 +179,6 @@
             this.importer.Size = new System.Drawing.Size(1050, 649);
             this.importer.TabIndex = 0;
             // 
-            // detailsTab
-            // 
-            this.detailsTab.Controls.Add(this.detailer);
-            this.detailsTab.Location = new System.Drawing.Point(4, 22);
-            this.detailsTab.Name = "detailsTab";
-            this.detailsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.detailsTab.Size = new System.Drawing.Size(1056, 655);
-            this.detailsTab.TabIndex = 9;
-            this.detailsTab.Text = "Experiment details";
-            this.detailsTab.UseVisualStyleBackColor = true;
-            // 
-            // experimentDetailer1
-            // 
-            this.detailer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailer.Location = new System.Drawing.Point(3, 3);
-            this.detailer.Name = "experimentDetailer1";
-            this.detailer.Size = new System.Drawing.Size(1050, 649);
-            this.detailer.TabIndex = 0;
-            // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -197,8 +197,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.notebook.ResumeLayout(false);
             this.homeTab.ResumeLayout(false);
-            this.importTab.ResumeLayout(false);
             this.detailsTab.ResumeLayout(false);
+            this.importTab.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

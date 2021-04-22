@@ -88,7 +88,10 @@ namespace Rems.Infrastructure.Excel
                         continue;
 
                     case CellType.Numeric:
-                        data[c.ColumnIndex] = c.NumericCellValue;
+                        if (c.ToString().Contains("-"))
+                            data[c.ColumnIndex] = c.ToString();
+                        else
+                            data[c.ColumnIndex] = c.NumericCellValue;
                         continue;
 
                     default:

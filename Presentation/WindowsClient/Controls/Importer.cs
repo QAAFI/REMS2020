@@ -1,6 +1,4 @@
-﻿using ExcelDataReader;
-using MediatR;
-using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.EntityFrameworkCore.Internal;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
@@ -27,6 +25,11 @@ namespace WindowsClient.Controls
         /// Occurs after a file is imported
         /// </summary>
         public event EventHandler FileImported;
+
+        /// <summary>
+        /// If the import does not complete successfully
+        /// </summary>
+        public event EventHandler ImportFailed;
 
         /// <summary>
         /// Occurs when the current import stage has changed
@@ -78,26 +81,7 @@ namespace WindowsClient.Controls
             tracker.TaskBegun += RunImporter;
         }
 
-        #region Methods        
-
-        /// <summary>
-        /// Reads the data from the given file
-        /// </summary>
-        /// <remarks>
-        /// It is assumed that the file is either of .xls or .xlsx format
-        /// </remarks>
-        private DataSet ReadData(string filepath)
-        {
-            using (var stream = File.Open(filepath, FileMode.Open, FileAccess.Read))
-            using (var reader = ExcelReaderFactory.CreateReader(stream))
-            {
-                var config = new ExcelDataSetConfiguration
-                {
-                    ConfigureDataTable = (_) => new ExcelDataTableConfiguration { UseHeaderRow = true }
-                };
-                return reader.AsDataSet(config);
-            }
-        }
+        #region Methods
 
         /// <summary>
         /// Attempts to sanitise raw excel data so it can be read into the database
@@ -316,6 +300,8 @@ namespace WindowsClient.Controls
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
                 Application.UseWaitCursor = false;
+
+                ImportFailed?.Invoke(this, EventArgs.Empty);
             }
         }
 

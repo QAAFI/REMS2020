@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the plots in a treatment, represented by the pairing of their ID and Name
     /// </summary>
-    public class PlotsQuery : ContextQuery<IEnumerable<KeyValuePair<int, string>>>
+    public class PlotsQuery : ContextQuery<KeyValuePair<int, string>[]>
     {
         /// <summary>
         /// The source treatment
@@ -22,13 +22,13 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override IEnumerable<KeyValuePair<int, string>> Run()
+        protected override KeyValuePair<int, string>[] Run()
         {
             return _context.Plots
                 .Where(p => p.TreatmentId == TreatmentId)
                 .OrderBy(p => p.Repetition)
                 .Select(p => new KeyValuePair<int, string>(p.PlotId, p.Repetition.ToString()))
-                .AsEnumerable();
+                .ToArray();
         }
     }
 }
