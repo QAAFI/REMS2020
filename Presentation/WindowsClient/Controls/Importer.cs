@@ -29,6 +29,11 @@ namespace WindowsClient.Controls
         public event EventHandler FileImported;
 
         /// <summary>
+        /// If the import does not complete successfully
+        /// </summary>
+        public event EventHandler ImportFailed;
+
+        /// <summary>
         /// Occurs when the current import stage has changed
         /// </summary>
         public event EventHandler<Args<Stage>> StageChanged;
@@ -316,6 +321,8 @@ namespace WindowsClient.Controls
                 while (error.InnerException != null) error = error.InnerException;
                 MessageBox.Show(error.Message);
                 Application.UseWaitCursor = false;
+
+                ImportFailed?.Invoke(this, EventArgs.Empty);
             }
         }
 

@@ -84,7 +84,10 @@ namespace WindowsClient
         private async void OnImportRequested(object sender, EventArgs args)
         {
             if (!(sender is ImportLink link))
-                throw new Exception("Import requested from unknown control type.");            
+                throw new Exception("Import requested from unknown control type.");
+
+            importer.FileImported += (s, e) => link.Stage = Stage.Imported;
+            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
 
             importTab.Text = "Import " + link.Label;
             await AttachImporter();
