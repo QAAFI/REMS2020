@@ -129,7 +129,7 @@ namespace WindowsClient
             if (await QueryManager.Request(new LoadedExperiments()))
             {
                 notebook.TabPages.Add(detailsTab);
-                //await detailer.LoadNodes();
+                await detailer.LoadNodes();
             }
         }
 
