@@ -130,11 +130,14 @@ namespace WindowsClient
 
         private async Task AttachDetailer()
         {
-            if (await QueryManager.Request(new LoadedExperiments()))
-            {
-                notebook.TabPages.Add(detailsTab);
-                await detailer.LoadNodes();
-            }
+            if (notebook.TabPages.Contains(detailsTab))
+                return;
+
+            if (!await QueryManager.Request(new LoadedExperiments()))
+                return;
+            
+            notebook.TabPages.Add(detailsTab);
+            await detailer.LoadNodes();
         }
 
         /// <summary>
