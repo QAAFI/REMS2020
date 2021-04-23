@@ -100,6 +100,7 @@ namespace WindowsClient
         {
             MessageBox.Show("Import successful!", "");
             RemoveImporter();
+            await homeScreen.LoadExportBox();
             await AttachDetailer();
         }
 

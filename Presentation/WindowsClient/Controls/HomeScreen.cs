@@ -115,7 +115,7 @@ namespace WindowsClient.Controls
             await CheckTables();
 
             // Reset the export box
-            LoadExportBox();
+            await LoadExportBox();
 
             // Reorder the list
             Sessions.Remove(session);
@@ -163,7 +163,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Adds the available experiments to the export box
         /// </summary>
-        private async void LoadExportBox()
+        public async Task LoadExportBox()
         {
             var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).Distinct().ToArray();
