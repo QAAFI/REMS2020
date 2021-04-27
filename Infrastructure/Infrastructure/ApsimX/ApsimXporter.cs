@@ -147,8 +147,8 @@ namespace Rems.Infrastructure.ApsimX
 
             var experiment =
             Create<Experiment>(name, new IModel[]
-            {                
-                await CreateFactors(id),
+            {
+                await Request(new FactorsQuery{ ExperimentId = id, Report = report }),
                 Create<Simulation>(name, new IModel[]
                 {
                     await Request(new ClockQuery{ ExperimentId = id, Report = report }),
@@ -171,64 +171,7 @@ namespace Rems.Infrastructure.ApsimX
             });
             report.AddLine("\n");
             return experiment;
-        }
-
-        private async Task<IModel> CreateFactors(int id)
-        {
-            var factors = await Request(new FactorsQuery{ ExperimentId = id, Report = report });
-
-            foreach (var factor in factors.factors)
-                await PopulateFactor(factor);
-
-            return factors;
-        }
-
-        private async Task PopulateFactor(Factor factor)
-        {
-            string specification = "";
-            
-            switch (factor.Name)
-            {
-                case "Cultivar":
-                    specification = "[Sowing].Script.CultivarName = ";                    
-                    break;
-
-                case "Sow Date":
-                case "Planting Date":
-                    specification = "[Sowing].Script.SowDate = ";
-                    break;
-
-                case "Row spacing":
-                    specification = "[Sowing].Script.RowSpacing = ";
-                    break;
-
-                case "Population":
-                    specification = "";
-                    break;
-
-                case "Nitrogen":
-                case "N Rates":
-                case "NRates":
-                    specification = "[Fertilisation].Script.Amount = ";
-                    break;
-
-                case "Treatment":
-                case "Density":
-                case "DayLength":
-                case "Irrigation":
-                default:
-                    report.AddLine("* No specification found for factor " + factor.Name);
-                    break;
-            }
-
-            Action<CompositeFactor> specify = level =>
-            {
-                if (!level.Specifications.Any())
-                    level.Specifications.Add(specification + level.Name);
-            };
-
-            factor.Children.ForEach(specify);
-        }
+        }   
 
         private async Task<IModel> CreateSoilModel(int id)
         {

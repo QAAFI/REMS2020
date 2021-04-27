@@ -29,10 +29,7 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Factors Run()
         {
-            var model = new Factors { Name = "Factors" };
-
             var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == ExperimentId);
-            var factors = designs.Select(d => d.Level.Factor).Distinct();
 
             Factor convertEntity(Domain.Entities.Factor entity)
             {
@@ -44,10 +41,60 @@ namespace Rems.Application.CQRS
                     .Select(l => new CompositeFactor { Name = l.Name, Specifications = GetSpecs(l) })
                     .ForEach(factor.Children.Add);
 
+                string specification = "";
+
+                switch (factor.Name)
+                {
+                    case "Cultivar":
+                        specification = "[Sowing].Script.CultivarName = ";
+                        break;
+
+                    case "Sow Date":
+                    case "Planting Date":
+                        specification = "[Sowing].Script.SowDate = ";
+                        break;
+
+                    case "Row spacing":
+                        specification = "[Sowing].Script.RowSpacing = ";
+                        break;
+
+                    case "Population":
+                        specification = "";
+                        break;
+
+                    case "Nitrogen":
+                    case "N Rates":
+                    case "NRates":
+                        specification = "[Fertilisation].Script.Amount = ";
+                        break;
+
+                    case "Treatment":
+                    case "Density":
+                    case "DayLength":
+                    case "Irrigation":
+                    default:
+                        Report.AddLine("* No specification found for factor " + factor.Name);
+                        break;
+                }
+
+                Action<CompositeFactor> specify = level =>
+                {
+                    if (!level.Specifications.Any())
+                        level.Specifications.Add(specification + level.Name);
+                };
+
+                factor.Children.ForEach(specify);
+
                 return factor;
             }
+            
+            var factors = designs.Select(d => d.Level.Factor).Distinct();
+            var permutation = new Permutation();
 
-            factors.Select(convertEntity).ForEach(model.Children.Add);
+            factors.Select(convertEntity).ForEach(permutation.Children.Add);
+            
+            var model = new Factors { Name = "Factors" };
+            model.Children.Add(permutation);
 
             return model;
         }
