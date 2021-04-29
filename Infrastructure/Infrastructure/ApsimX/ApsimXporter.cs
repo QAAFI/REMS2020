@@ -157,6 +157,8 @@ namespace Rems.Infrastructure.ApsimX
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = report }, new IModel[]
                     {
+                        Create<Report>("DailyReport"),
+                        Create<Report>("HarvestReport"),
                         await InvokeQuery(new ManagersQuery()),
                         await Request(new PlantQuery{ ExperimentId = id, Report = report }),
                         await CreateSoilModel(id),
@@ -164,8 +166,18 @@ namespace Rems.Infrastructure.ApsimX
                         Create<Operations>(),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
-                        Create<Report>("DailyReport"),
-                        Create<Report>("HarvestReport")
+                        new MicroClimate
+                        {
+                            a_interception = 0,
+                            b_interception = 1,
+                            c_interception = 0,
+                            d_interception = 0,
+                            soil_albedo = 0.13,
+                            SoilHeatFluxFraction = 0.4,
+                            MinimumHeightDiffForNewLayer = 0,
+                            NightInterceptionFraction = 0.5,
+                            ReferenceHeight = 2
+                        }
                     })
                 })
             });
