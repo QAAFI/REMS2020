@@ -46,7 +46,7 @@ namespace Rems.Application.CQRS
                 switch (factor.Name)
                 {
                     case "Cultivar":
-                        specification = "[Sowing].Script.CultivarName = ";
+                        specification = "[Sowing].Script.Cultivar = ";
                         break;
 
                     case "Sow Date":
