@@ -46,7 +46,7 @@ namespace Rems.Application.CQRS
                 AddOperations(factor, "Irrigations", treatment.Irrigations, f1);
 
                 Func<Domain.Entities.Fertilization, Operation> f2 = f 
-                    => new Operation { Date = f.Date.ToString(), Action = $"[Fertiliser].Apply({f.Depth}, Fertiliser.Types.{f.Fertilizer.Name}, {f.Amount})" };
+                    => new Operation { Date = f.Date.ToString(), Action = FertAction(f) };
                 AddOperations(factor, "Fertilisations", treatment.Fertilizations, f2);
 
                 treatments.Children.Add(factor);
@@ -98,6 +98,26 @@ namespace Rems.Application.CQRS
             ops.Operation = items.Select(func).ToList();
             factor.Children.Add(ops);
             return ops;
+        }
+
+        private string FertAction(Domain.Entities.Fertilization f)
+        {
+            var type = f.Fertilizer.Name;
+
+            if (!Enum.IsDefined(typeof(Fertiliser.Types), type))
+                switch (type)
+                {
+                    case "Aqua ammonia":
+                        type = Fertiliser.Types.NH4N.ToString();
+                        break;
+
+                    default:
+                        type = Fertiliser.Types.NO3N.ToString();
+                        Report.AddLine($"Matching APSIM fertiliser type for {type} not found in treatment {f.Treatment.Name}. Using default type instead (NO3N)");
+                        break;
+                }
+
+            return $"[Fertiliser].Apply({f.Depth}, Fertiliser.Types.{type}, {f.Amount})";
         }
     }
 }
