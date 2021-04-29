@@ -1,6 +1,6 @@
-﻿using Models.Factorial;
+﻿using Models;
+using Models.Factorial;
 using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,85 +29,75 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Factors Run()
         {
-            var designs = _context.Designs.Where(d => d.Treatment.ExperimentId == ExperimentId);
+            var experiment = _context.Experiments.Find(ExperimentId);
 
-            Factor convertEntity(Domain.Entities.Factor entity)
+            var treatments = new Factor { Name = "Treatment" };
+
+            foreach (var treatment in experiment.Treatments)
             {
-                var factor = new Factor { Name = entity.Name };
+                var factor = new CompositeFactor { Name = treatment.Name};
+                
+                factor.Specifications = treatment.Designs.Select(d => d.Level)
+                    .SelectMany(l => GetSpecification(l))
+                    .ToList();
 
-                designs.Select(d => d.Level)
-                    .Where(l => l.Factor == entity)
-                    .Distinct()
-                    .Select(l => new CompositeFactor { Name = l.Name, Specifications = GetSpecs(l) })
-                    .ForEach(factor.Children.Add);
+                Func<Domain.Entities.Irrigation, Operation> f1 = i 
+                    => new Operation { Date = i.Date.ToString(), Action = $"[Irrigation].Apply({i.Amount})" };
+                AddOperations(factor, "Irrigations", treatment.Irrigations, f1);
 
-                string specification = "";
+                Func<Domain.Entities.Fertilization, Operation> f2 = f 
+                    => new Operation { Date = f.Date.ToString(), Action = $"[Fertiliser].Apply({f.Depth}, Fertiliser.Types.{f.Fertilizer.Name}, {f.Amount})" };
+                AddOperations(factor, "Fertilisations", treatment.Fertilizations, f2);
 
-                switch (factor.Name)
-                {
-                    case "Cultivar":
-                        specification = "[Sowing].Script.Cultivar = ";
-                        break;
-
-                    case "Sow Date":
-                    case "Planting Date":
-                        specification = "[Sowing].Script.SowDate = ";
-                        break;
-
-                    case "Row spacing":
-                        specification = "[Sowing].Script.RowSpacing = ";
-                        break;
-
-                    case "Population":
-                        specification = "";
-                        break;
-
-                    case "Nitrogen":
-                    case "N Rates":
-                    case "NRates":
-                        specification = "[Fertilisation].Script.Amount = ";
-                        break;
-
-                    case "Treatment":
-                    case "Density":
-                    case "DayLength":
-                    case "Irrigation":
-                    default:
-                        Report.AddLine("* No specification found for factor " + factor.Name);
-                        break;
-                }
-
-                Action<CompositeFactor> specify = level =>
-                {
-                    if (!level.Specifications.Any())
-                        level.Specifications.Add(specification + level.Name);
-                };
-
-                factor.Children.ForEach(specify);
-
-                return factor;
+                treatments.Children.Add(factor);
             }
             
-            var factors = designs.Select(d => d.Level.Factor).Distinct();
-            var permutation = new Permutation();
-
-            factors.Select(convertEntity).ForEach(permutation.Children.Add);
-            
             var model = new Factors { Name = "Factors" };
-            model.Children.Add(permutation);
+            model.Children.Add(treatments);
 
             return model;
         }
 
-        private static List<string> GetSpecs(Domain.Entities.Level level)
+        private string[] GetSpecification(Domain.Entities.Level level)
         {
-            var specs = new List<string>();
+            if (level.Specification != null)
+                return level.Specification.Split(';').Where(s => s != "").ToArray();
 
-            level.Specification?.Split(';')
-                .Where(s => s != "")
-                .ForEach(specs.Add);
+            switch (level.Factor.Name)
+            {
+                case "Cultivar":
+                    return new[] { "[Sowing].Script.Cultivar = " + level.Name };
 
-            return specs;
+                case "Sow Date":
+                case "Planting Date":
+                    return new[] { "[Sowing].Script.SowDate = " + level.Name };
+
+                case "Row spacing":
+                    return new[] { "[Sowing].Script.RowSpacing = " + level.Name };
+
+                case "Nitrogen":
+                case "N Rates":
+                case "NRates":
+                    return new[] { "[Fertilisation].Script.Amount = " + level.Name};
+
+                case "Population":
+                case "Treatment":
+                case "Density":
+                case "DayLength":
+                case "Irrigation":
+                default:
+                    Report.AddLine("* No specification found for factor " + level.Factor.Name);
+                    return new[] { "" };
+            }
+        }
+
+        private Operations AddOperations<T>(CompositeFactor factor, string name, IEnumerable<T> items, Func<T, Operation> func)
+        {
+            factor.Specifications.Add($"[{name}]");
+            var ops = new Operations{ Name = name };
+            ops.Operation = items.Select(func).ToList();
+            factor.Children.Add(ops);
+            return ops;
         }
     }
 }

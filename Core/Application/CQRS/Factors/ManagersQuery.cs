@@ -33,8 +33,8 @@ namespace Rems.Application.CQRS
                 Children = new List<IModel>
                 {
                     new Manager { Name = "Sowing", Code = _manager.GetFile("Sowing", "cs") },
-                    new Manager { Name = "Irrigation" },
-                    new Manager { Name = "Fertilisation", Code = _manager.GetFile("Fertilisation", "cs") },
+                    //new Manager { Name = "Irrigation" },
+                    //new Manager { Name = "Fertilisation", Code = _manager.GetFile("Fertilisation", "cs") },
                     new Manager { Name = "Harvesting", Code = _manager.GetFile("Harvest", "cs") }
                 }
             };

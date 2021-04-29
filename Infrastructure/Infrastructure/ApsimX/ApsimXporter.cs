@@ -163,7 +163,8 @@ namespace Rems.Infrastructure.ApsimX
                         await Request(new PlantQuery{ ExperimentId = id, Report = report }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
-                        Create<Operations>(),
+                        Create<Operations>("Irrigations"),
+                        Create<Operations>("Fertilisations"),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
                         new MicroClimate
@@ -206,8 +207,8 @@ namespace Rems.Infrastructure.ApsimX
                     }),
                     await Request(new OrganicQuery{ ExperimentId = id, Report = report }),
                     await Request(new ChemicalQuery{ ExperimentId = id, Report = report }),
-                    await Request(new SampleQuery{ ExperimentId = id, Report = report }),
-                    Create<CERESSoilTemperature>("Temperature")
+                    Create<CERESSoilTemperature>("Temperature"),
+                    await Request(new SampleQuery{ ExperimentId = id, Report = report })
                 });
 
             return soil;
