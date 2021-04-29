@@ -190,6 +190,7 @@ namespace Rems.Infrastructure.ApsimX
             var soil = 
                 await Request(new SoilQuery { ExperimentId = id, Report = report }, new IModel[] 
                 {
+                    new InitialWater { PercentMethod = 0, FractionFull = 0.6 },
                     await Request(new PhysicalQuery{ ExperimentId = id, Report = report }, new IModel[] 
                     {
                         await Request(new SoilCropQuery{ ExperimentId = id, Report = report })
