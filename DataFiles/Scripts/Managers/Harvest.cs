@@ -21,12 +21,6 @@ namespace Models
                 crop.Harvest();
                 crop.EndCrop();
             }
-            /*
-            if [crop].StageName = 'harvest_ripe' or [crop].plant_status = 'dead' then
-                [crop]  harvest
-                [crop]  end_crop
-            endif
-            */
         }
     }
 }
