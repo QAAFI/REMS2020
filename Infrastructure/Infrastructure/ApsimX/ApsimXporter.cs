@@ -159,7 +159,7 @@ namespace Rems.Infrastructure.ApsimX
                     {
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport"),
-                        await InvokeQuery(new ManagersQuery()),
+                        await InvokeQuery(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery{ ExperimentId = id, Report = report }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
