@@ -63,22 +63,24 @@ namespace Rems.Application.CQRS
             if (level.Specification != null)
                 return level.Specification.Split(';').Where(s => s != "").ToArray();
 
+            var name = level.Name.Replace('/', 'x');
+
             switch (level.Factor.Name)
             {
                 case "Cultivar":
-                    return new[] { "[Sowing].Script.Cultivar = " + level.Name };
+                    return new[] { "[Sowing].Script.Cultivar = " + name };
 
                 case "Sow Date":
                 case "Planting Date":
-                    return new[] { "[Sowing].Script.SowDate = " + level.Name };
+                    return new[] { "[Sowing].Script.SowDate = " + name };
 
                 case "Row spacing":
-                    return new[] { "[Sowing].Script.RowSpacing = " + level.Name };
+                    return new[] { "[Sowing].Script.RowSpacing = " + name };
 
                 case "Nitrogen":
                 case "N Rates":
                 case "NRates":
-                    return new[] { "[Fertilisation].Script.Amount = " + level.Name};
+                    return new[] { "[Fertilisation].Script.Amount = " + name};
 
                 case "Population":
                 case "Treatment":
