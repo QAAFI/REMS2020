@@ -83,7 +83,9 @@ namespace Rems.Infrastructure.Excel
                 switch (c.CellType)
                 {
                     case CellType.String:
-                        if (c.StringCellValue != "")
+                        if (c.StringCellValue.Contains("/") && DateTime.TryParse(c.StringCellValue, out DateTime date))
+                            data[c.ColumnIndex] = date;
+                        else if (c.StringCellValue != "")
                             data[c.ColumnIndex] = c.StringCellValue;
                         continue;
 
