@@ -10,36 +10,51 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.CQRS
 {
-    public class ManagersQuery : IRequest<Folder>
-    { }
-
-    public class ManagersQueryHandler : IRequestHandler<ManagersQuery, Folder>
+    public class ManagersQuery : ContextQuery<Folder>
     {
-        private readonly IFileManager _manager;
+        private static IFileManager _manager;
 
-        public ManagersQueryHandler(IFileManager manager)
-        {
-            _manager = manager;
+        public int ExperimentId { get; set; }
+
+        public class Handler : BaseHandler<ManagersQuery>
+        { 
+            public Handler(IRemsDbContextFactory factory, IFileManager manager) : base(factory)
+            {
+                _manager = manager;
+            }
         }
 
-        public Task<Folder> Handle(ManagersQuery request, CancellationToken token)
-            => Task.Run(() => Handler(request, token));
+        protected override Folder Run()
+        {            
+            //var irrig = new Manager { Name = "Irrigation" },
+            //var fert = new Manager { Name = "Fertilisation", Code = _manager.GetFile("Fertilisation", "cs") },
+            var harvest = new Manager { Name = "Harvesting", Code = _manager.GetFile("Harvest", "cs") };            
 
-        private Folder Handler(ManagersQuery request, CancellationToken token)
-        {
             var folder = new Folder 
             { 
                 Name = "Managers",
-                Children = new List<IModel>
-                {
-                    new Manager { Name = "Sowing", Code = _manager.GetFile("Sowing", "cs") },
-                    new Manager { Name = "Irrigation" },
-                    new Manager { Name = "Fertilisation", Code = _manager.GetFile("Fertilisation", "cs") },
-                    new Manager { Name = "Harvesting" }
-                }
+                Children = new List<IModel> { GetSowing(), harvest }
             };
 
             return folder;
+        }
+
+        private Manager GetSowing()
+        {
+            var exp = _context.Experiments.Find(ExperimentId);
+
+            var sowing = new Manager { Name = "Sowing", Code = _manager.GetFile("Sowing", "cs") };
+
+            sowing.Parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("Date", exp.Sowing.Date.ToString("MM/dd/yyyy")),
+                new KeyValuePair<string, string>("Density", exp.Sowing.Population.ToString()),
+                new KeyValuePair<string, string>("Depth", exp.Sowing.Depth.ToString()),
+                new KeyValuePair<string, string>("Cultivar", exp.Sowing.Cultivar?.Replace('/', 'x')),
+                new KeyValuePair<string, string>("RowSpacing", exp.Sowing.RowSpace.ToString())
+            };
+            var date = exp.Sowing.Date;
+            return sowing;
         }
     }
 }

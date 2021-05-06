@@ -28,14 +28,12 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Sample Run()
         {
-            var layers = _context.GetSoilLayers(ExperimentId);
-
             var sample = new Sample()
             {
-                Name = "Initial water",
-                Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray(),
-                Thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray(),
-                SW = _context.GetSoilLayerTraitData(layers, "SW")
+                Name = "Initial conditions",
+                Depth = new[] { "0-180" },
+                Thickness = new[] { 1800.0 },
+                NH4 = new[] { 1.0 }
             };
 
             return sample;

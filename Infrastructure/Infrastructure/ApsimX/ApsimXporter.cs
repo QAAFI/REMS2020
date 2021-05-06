@@ -147,8 +147,8 @@ namespace Rems.Infrastructure.ApsimX
 
             var experiment =
             Create<Experiment>(name, new IModel[]
-            {                
-                await CreateFactors(id),
+            {
+                await Request(new FactorsQuery{ ExperimentId = id, Report = report }),
                 Create<Simulation>(name, new IModel[]
                 {
                     await Request(new ClockQuery{ ExperimentId = id, Report = report }),
@@ -157,84 +157,41 @@ namespace Rems.Infrastructure.ApsimX
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = report }, new IModel[]
                     {
-                        await InvokeQuery(new ManagersQuery()),
+                        Create<Report>("DailyReport"),
+                        Create<Report>("HarvestReport"),
+                        await InvokeQuery(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery{ ExperimentId = id, Report = report }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
-                        Create<Operations>(),
+                        Create<Operations>("Irrigations"),
+                        Create<Operations>("Fertilisations"),
                         Create<Irrigation>("Irrigation"),
                         Create<Fertiliser>("Fertiliser"),
-                        Create<Report>("DailyReport"),
-                        Create<Report>("HarvestReport")
+                        new MicroClimate
+                        {
+                            a_interception = 0,
+                            b_interception = 1,
+                            c_interception = 0,
+                            d_interception = 0,
+                            soil_albedo = 0.13,
+                            SoilHeatFluxFraction = 0.4,
+                            MinimumHeightDiffForNewLayer = 0,
+                            NightInterceptionFraction = 0.5,
+                            ReferenceHeight = 2
+                        }
                     })
                 })
             });
             report.AddLine("\n");
             return experiment;
-        }
-
-        private async Task<IModel> CreateFactors(int id)
-        {
-            var factors = await Request(new FactorsQuery{ ExperimentId = id, Report = report });
-
-            foreach (var factor in factors.factors)
-                await PopulateFactor(factor);
-
-            return factors;
-        }
-
-        private async Task PopulateFactor(Factor factor)
-        {
-            string specification = "";
-            
-            switch (factor.Name)
-            {
-                case "Cultivar":
-                    specification = "[Sowing].Script.CultivarName = ";                    
-                    break;
-
-                case "Sow Date":
-                case "Planting Date":
-                    specification = "[Sowing].Script.SowDate = ";
-                    break;
-
-                case "Row spacing":
-                    specification = "[Sowing].Script.RowSpacing = ";
-                    break;
-
-                case "Population":
-                    specification = "";
-                    break;
-
-                case "Nitrogen":
-                case "N Rates":
-                case "NRates":
-                    specification = "[Fertilisation].Script.Amount = ";
-                    break;
-
-                case "Treatment":
-                case "Density":
-                case "DayLength":
-                case "Irrigation":
-                default:
-                    report.AddLine("* No specification found for factor " + factor.Name);
-                    break;
-            }
-
-            Action<CompositeFactor> specify = level =>
-            {
-                if (!level.Specifications.Any())
-                    level.Specifications.Add(specification + level.Name);
-            };
-
-            factor.Children.ForEach(specify);
-        }
+        }   
 
         private async Task<IModel> CreateSoilModel(int id)
         {
             var soil = 
                 await Request(new SoilQuery { ExperimentId = id, Report = report }, new IModel[] 
                 {
+                    new InitialWater { PercentMethod = 0, FractionFull = 0.6 },
                     await Request(new PhysicalQuery{ ExperimentId = id, Report = report }, new IModel[] 
                     {
                         await Request(new SoilCropQuery{ ExperimentId = id, Report = report })
@@ -250,8 +207,8 @@ namespace Rems.Infrastructure.ApsimX
                     }),
                     await Request(new OrganicQuery{ ExperimentId = id, Report = report }),
                     await Request(new ChemicalQuery{ ExperimentId = id, Report = report }),
-                    await Request(new SampleQuery{ ExperimentId = id, Report = report }),
-                    Create<CERESSoilTemperature>("Temperature")
+                    Create<CERESSoilTemperature>("Temperature"),
+                    await Request(new SampleQuery{ ExperimentId = id, Report = report })
                 });
 
             return soil;

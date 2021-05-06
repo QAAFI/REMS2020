@@ -115,7 +115,7 @@ namespace WindowsClient.Controls
             await CheckTables();
 
             // Reset the export box
-            LoadExportBox();
+            await LoadExportBox();
 
             // Reorder the list
             Sessions.Remove(session);
@@ -163,7 +163,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Adds the available experiments to the export box
         /// </summary>
-        private async void LoadExportBox()
+        public async Task LoadExportBox()
         {
             var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).Distinct().ToArray();
@@ -235,22 +235,24 @@ namespace WindowsClient.Controls
 
                 try
                 {
-                    var exporter = new ApsimXporter
+                    using (var exporter = new ApsimXporter
                     {
                         Experiments = exportList.CheckedItems.Cast<string>(),
                         FileName = save.FileName
-                    };
+                    })
+                    {
+                        exportTracker.SetSteps(exporter);
 
-                    exportTracker.SetSteps(exporter);
+                        exporter.Query += QueryManager.Request;
+                        exporter.NextItem += exportTracker.OnNextTask;
+                        exporter.IncrementProgress += exportTracker.OnProgressChanged;
+                        exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
+                        exporter.TaskFailed += exportTracker.OnTaskFailed;
 
-                    exporter.NextItem += exportTracker.OnNextTask;
-                    exporter.IncrementProgress += exportTracker.OnProgressChanged;
-                    exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
-                    exporter.TaskFailed += exportTracker.OnTaskFailed;
+                        await exporter.Run();
 
-                    await exporter.Run();
-
-                    exportTracker.Reset();
+                        exportTracker.Reset();
+                    }
                 }
                 catch (Exception error)
                 {

@@ -58,7 +58,8 @@ namespace Rems.Application.CQRS
                 Salb = 0.2,
                 CN2Bare = 85,
                 DischargeWidth = double.NaN,
-                CatchmentArea = double.NaN
+                CatchmentArea = double.NaN,
+                ResourceName = "WaterBalance"
             };
 
             return water;

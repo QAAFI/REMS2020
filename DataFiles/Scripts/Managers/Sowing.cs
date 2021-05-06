@@ -1,6 +1,4 @@
 using APSIM.Shared.Utilities;
-using Models.Utilities;
-using Models.Soils;
 using Models.PMF;
 using Models.Core;
 using System;
@@ -10,40 +8,50 @@ namespace Models
     [Serializable]
     public class Script : Model
     {
-        [Description("Sowing date (d-mmm)")]
-        public string SowDate { get; set; }
+        [Description("Enter sowing date (dd/mm/yyyy) : ")]
+        public DateTime Date { get; set; }
 
-        [Description("Crop")]
-        public IPlant Crop { get; set; }
+        [Description("Enter sowing density  (plants/m2) : ")]
+        public double Density { get; set; }
 
-        [Description("Sowing depth (mm)")]
-        public double SowingDepth { get; set; }
+        [Description("Enter sowing depth  (mm) : ")]
+        public double Depth { get; set; }
 
-        [Description("Cultivar to be sown")]
+        [Description("Enter cultivar : ")]
         [Display(Type = DisplayType.CultivarName)]
-        public string CultivarName { get; set; }       
+        public string Cultivar { get; set; }
 
-        [Description("Row spacing (mm)")]
+        [Description("Enter row spacing (mm) : ")]
         public double RowSpacing { get; set; }
 
-        [Description("Plant population (/m2)")]
-        public double Population { get; set; }       
+        [Description("Enter skip row configuration : ")]
+        public RowConfigurationType RowConfiguration { get; set; }
 
-        [Link] Clock Clock;
+        [Description("Enter Fertile Tiller No. : ")]
+        public double Ftn { get; set; }
+
+        public enum RowConfigurationType 
+        {
+            solid, single, _double /*replaces double*/
+        }
+
+        [Link]
+        private Zone paddock;
+
+        [Link]
+        private Clock clock;
+
+        [Link]
+        private IPlant crop;
 
         [EventSubscribe("DoManagement")]
         private void OnDoManagement(object sender, EventArgs e)
         {
-            if (DateUtilities.WithinDates(SowDate, Clock.Today, SowDate))
+            if (clock.Today == Date /* && isFallow */)
             {
-                Crop.Sow(
-                    population: Population, 
-                    cultivar: CultivarName, 
-                    depth: SowingDepth, 
-                    rowSpacing: RowSpacing);    
+                double population = Density * paddock.Area;
+                crop.Sow(Cultivar, population, Depth, RowSpacing, budNumber: Ftn, rowConfig: (double)RowConfiguration + 1);
             }
-        
         }
-        
     }
 }
