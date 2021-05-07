@@ -81,7 +81,7 @@ namespace Rems.Application.Common.Extensions
 
             var values = traits ?? datas;
 
-            return values.Any() ? values.ToArray() : new double[] { };
+            return values.Any() ? values.ToArray() : null;
         }
 
         /// <summary>
