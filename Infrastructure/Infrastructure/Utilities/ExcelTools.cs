@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Rems.Infrastructure.Excel
 {
-    public static class Excel
+    public static class ExcelTools
     {
         public static DataSet ReadAsDataSet(string file)
         {
