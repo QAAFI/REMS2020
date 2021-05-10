@@ -56,8 +56,7 @@
             // 
             // image
             // 
-            this.image.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.image.BackgroundImage = global::WindowsClient.Properties.Resources.InvalidOn;
+            this.image.Anchor = System.Windows.Forms.AnchorStyles.Left;            
             this.image.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.image.Location = new System.Drawing.Point(4, 5);
             this.image.Name = "image";

@@ -140,7 +140,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public void ConfigureMenu(params MenuItem[] items)
+        public void ConfigureMenu(params ToolStripMenuItem[] items)
         {
             if (State["Info"] != null)
             {
@@ -148,18 +148,18 @@ namespace WindowsClient.Models
                 return;
             }
 
-            items[3].MenuItems.Clear();
+            items[3].DropDownItems.Clear();
 
             var props = Data.GetUnmappedProperties();
 
             foreach (var prop in props)
-                items[3].MenuItems.Add(prop.Name, SetProperty);
+                items[3].DropDownItems.Add(prop.Name, null, SetProperty);
         }
 
         /// <inheritdoc/>
         private void SetProperty(object sender, EventArgs args)
         {
-            var item = sender as MenuItem;
+            var item = sender as ToolStripMenuItem;
             Name = item.Text;
             State["Info"] = Data.FindProperty();
             InvokeStateChanged("Valid", true);
