@@ -61,8 +61,10 @@ namespace Rems.Application.CQRS
             SeriesData series = new SeriesData()
             {
                 Name = name,
-                X = Array.CreateInstance(typeof(double), data.Count()),
-                Y = Array.CreateInstance(typeof(int), data.Count()),
+                X = new double[data.Count()],
+                Y = new double[data.Count()],
+                //X = Array.CreateInstance(typeof(double), data.Count()),
+                //Y = Array.CreateInstance(typeof(int), data.Count()),
                 XName = "Value",
                 YName = "Depth"
             };

@@ -30,8 +30,10 @@ namespace Rems.Application.CQRS
 
             var data = new SeriesData()
             {
-                X = Array.CreateInstance(typeof(DateTime), irrigations.Count()),
-                Y = Array.CreateInstance(typeof(double), irrigations.Count()),
+                X = new double[irrigations.Count()],
+                Y = new double[irrigations.Count()],
+                //X = Array.CreateInstance(typeof(DateTime), irrigations.Count()),
+                //Y = Array.CreateInstance(typeof(double), irrigations.Count()),
                 XName = "Date",
                 YName = "Amount",
                 Name = "Irrigations"                

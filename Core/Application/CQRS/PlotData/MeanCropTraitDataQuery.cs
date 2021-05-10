@@ -40,8 +40,10 @@ namespace Rems.Application.CQRS
             SeriesData series = new SeriesData()
             {
                 Name = TraitName,
-                X = Array.CreateInstance(typeof(DateTime), data.Count()),
-                Y = Array.CreateInstance(typeof(double), data.Count()),
+                X = new double[data.Count()],
+                Y = new double[data.Count()],
+                //X = Array.CreateInstance(typeof(DateTime), data.Count()),
+                //Y = Array.CreateInstance(typeof(double), data.Count()),
                 XName = "Date",
                 YName = "Value"
             };

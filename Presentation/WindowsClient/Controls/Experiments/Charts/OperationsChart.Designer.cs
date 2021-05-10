@@ -156,7 +156,7 @@ namespace WindowsClient.Controls
             this.tChart.Axes.Bottom.Title.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Axes.Bottom.Title.Shadow.Brush.Solid = true;
             this.tChart.Axes.Bottom.Title.Shadow.Brush.Visible = true;
-            this.tChart.Axes.Bottom.Title.TextAlign = System.Drawing.StringAlignment.Center;
+            this.tChart.Axes.Bottom.Title.TextAlign = Steema.TeeChart.Drawing.StringAlignment.Center;
             // 
             // 
             // 

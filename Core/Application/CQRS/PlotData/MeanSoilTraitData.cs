@@ -48,20 +48,20 @@ namespace Rems.Application.CQRS
             SeriesData series = new SeriesData()
             {
                 Name = name,
-                X = Array.CreateInstance(typeof(double), data.Count()),
-                Y = Array.CreateInstance(typeof(int), data.Count()),
+                X = data.Select(g => g.Average(p => p.Value)).ToArray(),
+                Y = data.Select(g => (double)g.Key).ToArray(),
                 XName = "Value",
                 YName = "Depth"
             };
 
-            for (int i = 0; i < data.Count(); i++)
-            {
-                var group = data[i];
-                var value = group.Average(p => p.Value);
+            //for (int i = 0; i < data.Count(); i++)
+            //{
+            //    var group = data[i];
+            //    var value = group.Average(p => p.Value);
 
-                series.X.SetValue(value, i);
-                series.Y.SetValue(group.Key, i);
-            }
+            //    series.X.SetValue(value, i);
+            //    series.Y.SetValue(group.Key, i);
+            //}
 
             return series;
         }
