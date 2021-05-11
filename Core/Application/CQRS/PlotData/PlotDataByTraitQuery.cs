@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds data for a trait in a plot
     /// </summary>
-    public class PlotDataByTraitQuery : ContextQuery<SeriesData>
+    public class PlotDataByTraitQuery : ContextQuery<SeriesData<DateTime, double>>
     {
         /// <summary>
         /// The source plot
@@ -27,7 +27,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override SeriesData Run()
+        protected override SeriesData<DateTime, double> Run()
         {
             var data = _context.PlotData
                 .Where(p => p.Plot.PlotId == PlotId)
@@ -41,13 +41,11 @@ namespace Rems.Application.CQRS
             var x = rep.Select(p => p.Repetition).First();
             string name = TraitName + " " + x;
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<DateTime, double>
             {
                 Name = name,
-                X = new double[data.Count()],
-                Y = new double[data.Count()],
-                //X = Array.CreateInstance(typeof(DateTime), data.Count()),
-                //Y = Array.CreateInstance(typeof(double), data.Count()),
+                X = data.Select(d => d.Date).ToArray(),
+                Y = data.Select(d => d.Value).ToArray(),
                 XName = "Value",
                 YName = "Date"
             };

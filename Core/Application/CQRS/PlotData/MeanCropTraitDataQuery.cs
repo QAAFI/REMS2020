@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average values for a trait across a treatment
     /// </summary>
-    public class MeanCropTraitDataQuery : ContextQuery<SeriesData>
+    public class MeanCropTraitDataQuery : ContextQuery<SeriesData<DateTime, double>>
     {
         /// <summary>
         /// The source treatment
@@ -27,7 +27,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override SeriesData Run()
+        protected override SeriesData<DateTime, double> Run()
         {
             var data = _context.PlotData
                 .Where(p => p.Plot.TreatmentId == TreatmentId)
@@ -37,25 +37,14 @@ namespace Rems.Application.CQRS
                 .OrderBy(g => g.Key)
                 .ToArray();
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<DateTime, double>
             {
                 Name = TraitName,
-                X = new double[data.Count()],
-                Y = new double[data.Count()],
-                //X = Array.CreateInstance(typeof(DateTime), data.Count()),
-                //Y = Array.CreateInstance(typeof(double), data.Count()),
+                X = data.Select(g => g.Key).ToArray(),
+                Y = data.Select(g => g.Average(d => d.Value)).ToArray(),
                 XName = "Date",
                 YName = "Value"
             };
-
-            for (int i = 0; i < data.Count(); i++)
-            {
-                var group = data[i];
-                var value = group.Average(p => p.Value);
-
-                series.X.SetValue(group.Key, i);
-                series.Y.SetValue(value, i);
-            }
 
             return series;
         }

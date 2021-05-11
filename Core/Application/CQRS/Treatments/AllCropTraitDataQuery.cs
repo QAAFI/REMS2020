@@ -9,7 +9,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find data for each plot in a treatment for a given trait
     /// </summary>
-    public class AllCropTraitDataQuery : ContextQuery<IEnumerable<SeriesData>>
+    public class AllCropTraitDataQuery : ContextQuery<IEnumerable<SeriesData<DateTime, double>>>
     {
         /// <summary>
         /// The source treatment
@@ -28,7 +28,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override IEnumerable<SeriesData> Run()
+        protected override IEnumerable<SeriesData<DateTime, double>> Run()
         {
             var plots = _context.Treatments.Find(TreatmentId).Plots;
 
@@ -36,7 +36,7 @@ namespace Rems.Application.CQRS
                 yield return GetPlotData(plot.PlotId, TraitName);
         }
 
-        private SeriesData GetPlotData(int id, string trait)
+        private SeriesData<DateTime, double> GetPlotData(int id, string trait)
         {
             var data = _context.PlotData
                 .Where(p => p.Plot.PlotId == id)
@@ -50,13 +50,11 @@ namespace Rems.Application.CQRS
             var x = rep.Select(p => p.Repetition).First();
             string name = trait + " " + x;
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<DateTime, double>
             {
                 Name = name,
-                X = new double[data.Count()],
-                Y = new double[data.Count()],
-                //X = Array.CreateInstance(typeof(DateTime), data.Count()),
-                //Y = Array.CreateInstance(typeof(double), data.Count()),
+                X = data.Select(d => d.Date).ToArray(),
+                Y = data.Select(d => d.Value).ToArray(),
                 XName = "Value",
                 YName = "Date"
             };

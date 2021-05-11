@@ -87,7 +87,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="data">The data to plot</param>
         /// <param name="pos">The position of the plot</param>
-        private Bar CreateBarPlot(SeriesData data, int pos)
+        private Bar CreateBarPlot(SeriesData<DateTime, double> data, int pos)
         {
             int margin = 5 * pos;
             int start = 30 * pos + margin;
@@ -145,7 +145,8 @@ namespace WindowsClient.Controls
             };
             bar.Marks.Visible = false;
 
-            bar.Add(data.X, data.Y);
+            for (int i = 0; i < data.X.Length; i++)
+                bar.Add(data.X[i], data.Y[i]);
 
             // X-Axis
             bar.XValues.DateTime = true;

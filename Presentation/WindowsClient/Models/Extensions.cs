@@ -13,7 +13,7 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="series">The data</param>
         /// <param name="chart">The chart</param>
-        public static void AddToChart(this SeriesData series, Chart chart)
+        public static void AddToChart<TX, TY>(this SeriesData<TX, TY> series, Chart chart)
         {
             if (series is null) return;
             if (series.X.Length == 0) return;            
@@ -24,14 +24,30 @@ namespace WindowsClient.Models
             Line line = new Line();
             line.Legend.Visible = false;
 
-            if (series.X.GetValue(0) is DateTime)
+            if (typeof(TX) == typeof(DateTime))
             {
                 points.XValues.DateTime = true;
                 line.XValues.DateTime = true;
             }
 
-            line.Add(series.X, series.Y);
-            points.Add(series.X, series.Y);
+            for (int i = 0; i < series.X.Length; i++)
+            {
+                var x = series.X[i];
+                var y = series.Y[i];
+
+                if (x is DateTime x1 && y is double y1)
+                {
+                    line.Add(x1, y1);
+                    points.Add(x1, y1);
+                }
+                else if (x is double x2 && y is int y2)
+                {
+                    line.Add(x2, y2);
+                    points.Add(x2, y2);
+                }
+                else
+                    throw new Exception("Unrecognised series data type");
+            }            
 
             chart.Series.Add(line);
             chart.Series.Add(points);

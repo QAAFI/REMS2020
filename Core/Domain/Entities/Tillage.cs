@@ -16,9 +16,9 @@ namespace Rems.Domain.Entities
 
         public int? MethodId { get; set; }
 
-        public DateTime? Date { get; set; }        
+        public DateTime Date { get; set; }        
 
-        public double? Depth { get; set; }
+        public double Depth { get; set; }
 
         public string Notes { get; set; }
 

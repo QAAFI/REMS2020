@@ -23,7 +23,7 @@ namespace Rems.Domain.Entities
 
         public DateTime Date { get; set; }
 
-        public double? Amount { get; set; }
+        public double Amount { get; set; }
 
         public int? Depth { get; set; }        
 

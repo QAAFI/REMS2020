@@ -13,7 +13,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find soil trait data for all plots in a treatment on a given date
     /// </summary>
-    public class AllSoilTraitDataQuery : ContextQuery<IEnumerable<SeriesData>>
+    public class AllSoilTraitDataQuery : ContextQuery<IEnumerable<SeriesData<double, int>>>
     {
         /// <summary>
         /// The source treatment
@@ -37,7 +37,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override IEnumerable<SeriesData> Run()
+        protected override IEnumerable<SeriesData<double, int>> Run()
         {
             var plots = _context.Treatments.Find(TreatmentId).Plots;
 
@@ -45,7 +45,7 @@ namespace Rems.Application.CQRS
                 yield return GetPlotData(plot.PlotId, Date, TraitName);
         }
 
-        private SeriesData GetPlotData(int id, DateTime date, string trait)
+        private SeriesData<double, int> GetPlotData(int id, DateTime date, string trait)
         {
             var data = _context.SoilLayerDatas
                 .Where(d => d.PlotId == id)
@@ -58,24 +58,14 @@ namespace Rems.Application.CQRS
             var x = plot.Repetition.ToString();
             string name = x + " " + trait + ", " + date.ToString("dd/MM/yy");
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<double, int>
             {
                 Name = name,
-                X = new double[data.Count()],
-                Y = new double[data.Count()],
-                //X = Array.CreateInstance(typeof(double), data.Count()),
-                //Y = Array.CreateInstance(typeof(int), data.Count()),
+                X = data.Select(d => d.Value).ToArray(),
+                Y = data.Select(d => d.DepthTo).ToArray(),
                 XName = "Value",
                 YName = "Depth"
             };
-
-            for (int i = 0; i < data.Count(); i++)
-            {
-                var soil = data[i];
-
-                series.X.SetValue(soil.Value, i);
-                series.Y.SetValue(soil.DepthTo, i);
-            }
 
             return series;
         }

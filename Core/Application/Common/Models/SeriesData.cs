@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Rems.Application.Common
 {
-    public class SeriesData
+    public class SeriesData<TX, TY>
     {
-        public double[] X { get; set; }
-        public double[] Y { get; set; }
+        public TX[] X { get; set; }
+        public TY[] Y { get; set; }
 
         public string Name { get; set; }
         public string XName { get; set; }
