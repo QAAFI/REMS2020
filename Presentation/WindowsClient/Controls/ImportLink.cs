@@ -74,9 +74,9 @@ namespace WindowsClient.Controls
 
             Images = new ImageList();
 
-            Images.Images.Add("Imported", Properties.Resources.ValidOn);
-            Images.Images.Add("Missing", Properties.Resources.InvalidOn);
-            Images.Images.Add("Validation", Properties.Resources.WarningOn);
+            //Images.Images.Add("Imported", Properties.Resources.ValidOn);
+            //Images.Images.Add("Missing", Properties.Resources.InvalidOn);
+            //Images.Images.Add("Validation", Properties.Resources.WarningOn);
 
             SetStage(Stage.Missing);                       
 

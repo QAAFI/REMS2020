@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find data on irrigation operations for a treatment
     /// </summary>
-    public class IrrigationDataQuery : ContextQuery<SeriesData>
+    public class IrrigationDataQuery : ContextQuery<SeriesData<DateTime, double>>
     {
         /// <summary>
         /// The source treatment
@@ -22,28 +22,20 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override SeriesData Run()
+        protected override SeriesData<DateTime, double> Run()
         {
             var irrigations = _context.Irrigations
                 .Where(i => i.TreatmentId == TreatmentId)
                 .ToArray();
 
-            var data = new SeriesData()
+            var data = new SeriesData<DateTime, double>
             {
-                X = Array.CreateInstance(typeof(DateTime), irrigations.Count()),
-                Y = Array.CreateInstance(typeof(double), irrigations.Count()),
+                X = irrigations.Select(i => i.Date).ToArray(),
+                Y = irrigations.Select(i => i.Amount).ToArray(),
                 XName = "Date",
                 YName = "Amount",
-                Name = "Irrigations"                
+                Name = "Irrigations"
             };
-
-            for (int i = 0; i < irrigations.Length; i++)
-            {
-                var item = irrigations[i];
-
-                data.X.SetValue(item.Date, i);
-                data.Y.SetValue(item.Amount, i);
-            }
 
             return data;
         }

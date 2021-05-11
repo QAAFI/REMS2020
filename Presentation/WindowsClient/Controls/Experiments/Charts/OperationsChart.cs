@@ -87,7 +87,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="data">The data to plot</param>
         /// <param name="pos">The position of the plot</param>
-        private Bar CreateBarPlot(SeriesData data, int pos)
+        private Bar CreateBarPlot(SeriesData<DateTime, double> data, int pos)
         {
             int margin = 5 * pos;
             int start = 30 * pos + margin;
@@ -106,12 +106,12 @@ namespace WindowsClient.Controls
             if (ys.Any())
                 increment = Convert.ToInt32(Math.Floor(ys.Max() / 30)) * 10;
 
-            var pen = new AxisLinePen(chart) 
-            { 
-                Visible = true, 
-                Width = 2, 
-                Color = Color.Black
-            };
+            //var pen = new AxisLinePen(chart) 
+            //{ 
+            //    Visible = true, 
+            //    Width = 2, 
+            //    Color = Color.Black
+            //};
 
             var y = new Axis(chart)
             {
@@ -120,14 +120,14 @@ namespace WindowsClient.Controls
                 EndPosition = end,
                 MinorTickCount = 1,
                 Increment = increment,
-                AxisPen = pen
+                //AxisPen = pen
             };
             y.MinorGrid.Visible = true;
             y.MinorGrid.Color = Color.LightGray;
 
             var b = new Axis(chart)
             {
-                AxisPen = pen,
+                //AxisPen = pen,
                 Horizontal = true,
                 Visible = true,
                 RelativePosition = start
@@ -145,7 +145,8 @@ namespace WindowsClient.Controls
             };
             bar.Marks.Visible = false;
 
-            bar.Add(data.X, data.Y);
+            for (int i = 0; i < data.X.Length; i++)
+                bar.Add(data.X[i], data.Y[i]);
 
             // X-Axis
             bar.XValues.DateTime = true;

@@ -1,32 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Rems.Application</AssemblyName>
     <RootNamespace>Rems.Application</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Common\Behaviours\**" />
-    <EmbeddedResource Remove="Common\Behaviours\**" />
-    <None Remove="Common\Behaviours\**" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="9.0.0" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="FluentValidation" Version="8.6.2" />
-    <PackageReference Include="MediatR" Version="8.0.1" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\ApsimX\APSIM.Shared\APSIM.Shared.csproj" />
     <ProjectReference Include="..\..\..\ApsimX\Models\Models.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
+
 </Project>

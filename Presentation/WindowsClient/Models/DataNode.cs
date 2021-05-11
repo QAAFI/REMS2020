@@ -41,22 +41,22 @@ namespace WindowsClient.Models
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
-        protected Menu.MenuItemCollection items => ContextMenu.MenuItems;
+        protected ToolStripItemCollection items => ContextMenuStrip.Items;
 
         public DataNode(IExcelData<TData> excel, INodeValidator validater) : base(excel.Name)
         {
             Excel = excel;
             Tag = Excel.Data;
             excel.StateChanged += UpdateState;
-
+            
             validater.StateChanged += UpdateState;
             validater.SetAdvice += (s, e) => Advice = e.Item;
             Validater = validater;
             
-            ContextMenu = new ContextMenu();
+            ContextMenuStrip = new ContextMenuStrip();
 
-            items.Add(new MenuItem("Rename", Rename));
-            items.Add(new MenuItem("Ignore", async (s, e) => await ToggleIgnore(s, e)));
+            items.Add(new ToolStripMenuItem("Rename", null, Rename));
+            items.Add(new ToolStripMenuItem("Ignore", null, async (s, e) => await ToggleIgnore(s, e)));
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace WindowsClient.Models
             var state = new Args<string, object> { Item1 = "Ignore", Item2 = !(bool)Excel.State["Ignore"] };
             UpdateState(this, state);
 
-            if (!(sender is MenuItem item))
+            if (!(sender is ToolStripMenuItem item))
                 return;
 
             item.Checked = (bool)Excel.State["Ignore"];
@@ -220,13 +220,13 @@ namespace WindowsClient.Models
     {
         public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
         {
-            ContextMenu.Popup += (s, e) => excel.ConfigureMenu(items.Cast<MenuItem>().ToArray());
+            ContextMenuStrip.Opened += (s, e) => excel.ConfigureMenu(items.Cast<ToolStripMenuItem>().ToArray());
             
-            items.Add(new MenuItem("Add as trait", async (s, e) => await AddTrait(s, e)));
-            items.Add(new MenuItem("Set property"));
+            items.Add(new ToolStripMenuItem("Add as trait", null, async (s, e) => await AddTrait(s, e)));
+            items.Add(new ToolStripMenuItem("Set property"));
             items.Add("-");
-            items.Add(new MenuItem("Move up", MoveUp));
-            items.Add(new MenuItem("Move down", MoveDown));
+            items.Add(new ToolStripMenuItem("Move up", null, MoveUp));
+            items.Add(new ToolStripMenuItem("Move down", null, MoveDown));
         }
 
         /// <summary>
@@ -280,8 +280,8 @@ namespace WindowsClient.Models
     {
         public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
         {
-            items.Add(new MenuItem("Add invalids as traits", AddTraits));
-            items.Add(new MenuItem("Ignore all invalids", IgnoreAll));
+            items.Add(new ToolStripMenuItem("Add invalids as traits", null, AddTraits));
+            items.Add(new ToolStripMenuItem("Ignore all invalids", null, IgnoreAll));
         }
 
         /// <summary>

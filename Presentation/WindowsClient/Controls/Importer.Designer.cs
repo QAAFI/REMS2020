@@ -145,8 +145,7 @@
             this.splitContainer1.TabIndex = 14;
             // 
             // fileBtn
-            // 
-            this.fileBtn.BackgroundImage = global::WindowsClient.Properties.Resources.select_icon;
+            //            
             this.fileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.fileBtn.Location = new System.Drawing.Point(4, 3);
             this.fileBtn.Name = "fileBtn";

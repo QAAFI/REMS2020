@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average value of a trait across a treatment on a date
     /// </summary>
-    public class MeanDataQuery : ContextQuery<SeriesData>
+    public class MeanDataQuery : ContextQuery<SeriesData<double, int>>
     {
         /// <summary>
         /// The date
@@ -32,7 +32,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override SeriesData Run()
+        protected override SeriesData<double, int> Run()
         {
             var data = _context.SoilLayerDatas
                 .Where(d => d.Plot.TreatmentId == TreatmentId)
@@ -43,23 +43,14 @@ namespace Rems.Application.CQRS
                 .OrderBy(g => g.Key)
                 .ToArray();
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<double, int>
             {
                 Name = TraitName,
-                X = Array.CreateInstance(typeof(double), data.Count()),
-                Y = Array.CreateInstance(typeof(int), data.Count()),
+                X = data.Select(g => g.Average(d => d.Value)).ToArray(),
+                Y = data.Select(g => g.Key).ToArray(),
                 XName = "Value",
                 YName = "Depth"
             };
-
-            for (int i = 0; i < data.Count(); i++)
-            {
-                var group = data[i];
-                var value = group.Average(p => p.Value);
-
-                series.X.SetValue(value, i);
-                series.Y.SetValue(group.Key, i);
-            }
 
             return series;
         }

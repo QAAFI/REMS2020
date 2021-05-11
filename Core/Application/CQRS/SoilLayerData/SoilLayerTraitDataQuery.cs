@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the data for a soil layer trait in a plot on the given date
     /// </summary>
-    public class SoilLayerTraitDataQuery : ContextQuery<SeriesData>
+    public class SoilLayerTraitDataQuery : ContextQuery<SeriesData<double, int>>
     {
         /// <summary>
         /// The date
@@ -32,7 +32,7 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override SeriesData Run()
+        protected override SeriesData<double, int> Run()
         {
             var data = _context.SoilLayerDatas
                 .Where(d => d.PlotId == PlotId)
@@ -45,22 +45,14 @@ namespace Rems.Application.CQRS
             var x = plot.Repetition.ToString();
             string name = x + " " + TraitName + ", " + Date.ToString("dd/MM/yy");
 
-            SeriesData series = new SeriesData()
+            var series = new SeriesData<double, int>
             {
                 Name = name,
-                X = Array.CreateInstance(typeof(double), data.Count()),
-                Y = Array.CreateInstance(typeof(int), data.Count()),
+                X = data.Select(d => d.Value).ToArray(),
+                Y = data.Select(d => d.DepthTo).ToArray(),
                 XName = "Value",
                 YName = "Depth"
             };
-
-            for (int i = 0; i < data.Count(); i++)
-            {
-                var soil = data[i];
-
-                series.X.SetValue(soil.Value, i);
-                series.Y.SetValue(soil.DepthTo, i);
-            }
 
             return series;
         }

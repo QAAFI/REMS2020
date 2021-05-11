@@ -63,13 +63,13 @@ namespace WindowsClient.Controls
 
             // Add icons to the image list
             images = new ImageList();
-            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
-            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
-            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
-            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
-            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
-            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
-            images.Images.Add("Add", Properties.Resources.Add);
+            //images.Images.Add("ValidOff", Properties.Resources.ValidOff);
+            //images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
+            //images.Images.Add("ValidOn", Properties.Resources.ValidOn);
+            //images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
+            //images.Images.Add("WarningOn", Properties.Resources.WarningOn);
+            //images.Images.Add("WarningOff", Properties.Resources.WarningOff);
+            //images.Images.Add("Add", Properties.Resources.Add);
             images.ImageSize = new System.Drawing.Size(14, 14);
 
             dataTree.ImageList = images;
@@ -215,7 +215,7 @@ namespace WindowsClient.Controls
             try
             {
                 //Data = ReadData(file);
-                Data = Excel.ReadAsDataSet(file);
+                Data = ExcelTools.ReadAsDataSet(file);
                 await CleanData(Data);
 
                 fileBox.Text = Path.GetFileName(file);
