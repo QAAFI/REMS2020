@@ -56,8 +56,9 @@ namespace WindowsClient.Controls.Experiments
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(3, 53);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label2.Location = new System.Drawing.Point(4, 61);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 17);
             this.label2.TabIndex = 55;
@@ -66,8 +67,9 @@ namespace WindowsClient.Controls.Experiments
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(321, 53);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.Location = new System.Drawing.Point(374, 61);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 17);
             this.label1.TabIndex = 54;
@@ -81,9 +83,10 @@ namespace WindowsClient.Controls.Experiments
             this.sowingPanel.Controls.Add(this.sowingDateBox);
             this.sowingPanel.Controls.Add(this.sowingRowBox);
             this.sowingPanel.Controls.Add(this.sowingDepthBox);
-            this.sowingPanel.Location = new System.Drawing.Point(321, 73);
+            this.sowingPanel.Location = new System.Drawing.Point(374, 84);
+            this.sowingPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.sowingPanel.Name = "sowingPanel";
-            this.sowingPanel.Size = new System.Drawing.Size(312, 208);
+            this.sowingPanel.Size = new System.Drawing.Size(364, 240);
             this.sowingPanel.TabIndex = 53;
             // 
             // sowingMethodBox
@@ -92,12 +95,13 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sowingMethodBox.Content = "";
             this.sowingMethodBox.Label = "Method:";
-            this.sowingMethodBox.Location = new System.Drawing.Point(3, 4);
-            this.sowingMethodBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.sowingMethodBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.sowingMethodBox.Location = new System.Drawing.Point(4, 5);
+            this.sowingMethodBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.sowingMethodBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.sowingMethodBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.sowingMethodBox.Name = "sowingMethodBox";
             this.sowingMethodBox.ReadOnly = true;
-            this.sowingMethodBox.Size = new System.Drawing.Size(305, 36);
+            this.sowingMethodBox.Size = new System.Drawing.Size(356, 42);
             this.sowingMethodBox.TabIndex = 20;
             // 
             // sowingPopBox
@@ -106,12 +110,13 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sowingPopBox.Content = "";
             this.sowingPopBox.Label = "Population:";
-            this.sowingPopBox.Location = new System.Drawing.Point(3, 167);
-            this.sowingPopBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.sowingPopBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.sowingPopBox.Location = new System.Drawing.Point(4, 193);
+            this.sowingPopBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.sowingPopBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.sowingPopBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.sowingPopBox.Name = "sowingPopBox";
             this.sowingPopBox.ReadOnly = true;
-            this.sowingPopBox.Size = new System.Drawing.Size(305, 36);
+            this.sowingPopBox.Size = new System.Drawing.Size(356, 42);
             this.sowingPopBox.TabIndex = 19;
             // 
             // sowingDateBox
@@ -120,12 +125,13 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sowingDateBox.Content = "";
             this.sowingDateBox.Label = "Date:";
-            this.sowingDateBox.Location = new System.Drawing.Point(3, 46);
-            this.sowingDateBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.sowingDateBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.sowingDateBox.Location = new System.Drawing.Point(4, 53);
+            this.sowingDateBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.sowingDateBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.sowingDateBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.sowingDateBox.Name = "sowingDateBox";
             this.sowingDateBox.ReadOnly = true;
-            this.sowingDateBox.Size = new System.Drawing.Size(305, 36);
+            this.sowingDateBox.Size = new System.Drawing.Size(356, 42);
             this.sowingDateBox.TabIndex = 16;
             // 
             // sowingRowBox
@@ -134,12 +140,13 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sowingRowBox.Content = "";
             this.sowingRowBox.Label = "Row space:";
-            this.sowingRowBox.Location = new System.Drawing.Point(2, 130);
-            this.sowingRowBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.sowingRowBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.sowingRowBox.Location = new System.Drawing.Point(2, 150);
+            this.sowingRowBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.sowingRowBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.sowingRowBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.sowingRowBox.Name = "sowingRowBox";
             this.sowingRowBox.ReadOnly = true;
-            this.sowingRowBox.Size = new System.Drawing.Size(306, 36);
+            this.sowingRowBox.Size = new System.Drawing.Size(357, 42);
             this.sowingRowBox.TabIndex = 18;
             // 
             // sowingDepthBox
@@ -148,27 +155,30 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sowingDepthBox.Content = "";
             this.sowingDepthBox.Label = "Depth:";
-            this.sowingDepthBox.Location = new System.Drawing.Point(3, 88);
-            this.sowingDepthBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.sowingDepthBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.sowingDepthBox.Location = new System.Drawing.Point(4, 102);
+            this.sowingDepthBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.sowingDepthBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.sowingDepthBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.sowingDepthBox.Name = "sowingDepthBox";
             this.sowingDepthBox.ReadOnly = true;
-            this.sowingDepthBox.Size = new System.Drawing.Size(305, 36);
+            this.sowingDepthBox.Size = new System.Drawing.Size(356, 42);
             this.sowingDepthBox.TabIndex = 17;
             // 
             // descriptionBox
             // 
-            this.descriptionBox.Location = new System.Drawing.Point(3, 27);
+            this.descriptionBox.Location = new System.Drawing.Point(4, 31);
+            this.descriptionBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.descriptionBox.Name = "descriptionBox";
             this.descriptionBox.ReadOnly = true;
-            this.descriptionBox.Size = new System.Drawing.Size(630, 20);
+            this.descriptionBox.Size = new System.Drawing.Size(734, 23);
             this.descriptionBox.TabIndex = 52;
             // 
             // researchersLabel
             // 
             this.researchersLabel.AutoSize = true;
-            this.researchersLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.researchersLabel.Location = new System.Drawing.Point(3, 291);
+            this.researchersLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.researchersLabel.Location = new System.Drawing.Point(4, 336);
+            this.researchersLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.researchersLabel.Name = "researchersLabel";
             this.researchersLabel.Size = new System.Drawing.Size(105, 17);
             this.researchersLabel.TabIndex = 51;
@@ -180,16 +190,19 @@ namespace WindowsClient.Controls.Experiments
             | System.Windows.Forms.AnchorStyles.Left)));
             this.researchersBox.FormattingEnabled = true;
             this.researchersBox.IntegralHeight = false;
-            this.researchersBox.Location = new System.Drawing.Point(3, 311);
+            this.researchersBox.ItemHeight = 15;
+            this.researchersBox.Location = new System.Drawing.Point(4, 359);
+            this.researchersBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.researchersBox.Name = "researchersBox";
-            this.researchersBox.Size = new System.Drawing.Size(312, 206);
+            this.researchersBox.Size = new System.Drawing.Size(363, 237);
             this.researchersBox.TabIndex = 50;
             // 
             // notesLabel
             // 
             this.notesLabel.AutoSize = true;
-            this.notesLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.notesLabel.Location = new System.Drawing.Point(321, 291);
+            this.notesLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.notesLabel.Location = new System.Drawing.Point(374, 336);
+            this.notesLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.notesLabel.Name = "notesLabel";
             this.notesLabel.Size = new System.Drawing.Size(55, 17);
             this.notesLabel.TabIndex = 49;
@@ -199,91 +212,99 @@ namespace WindowsClient.Controls.Experiments
             // 
             this.ratingBox.Content = "";
             this.ratingBox.Label = "Rating:";
-            this.ratingBox.Location = new System.Drawing.Point(165, 199);
-            this.ratingBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.ratingBox.MinimumSize = new System.Drawing.Size(150, 36);
+            this.ratingBox.Location = new System.Drawing.Point(189, 230);
+            this.ratingBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.ratingBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.ratingBox.MinimumSize = new System.Drawing.Size(175, 42);
             this.ratingBox.Name = "ratingBox";
             this.ratingBox.ReadOnly = true;
-            this.ratingBox.Size = new System.Drawing.Size(150, 36);
+            this.ratingBox.Size = new System.Drawing.Size(175, 42);
             this.ratingBox.TabIndex = 48;
             // 
             // repsBox
             // 
             this.repsBox.Content = "";
             this.repsBox.Label = "Replicates:";
-            this.repsBox.Location = new System.Drawing.Point(3, 199);
-            this.repsBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.repsBox.MinimumSize = new System.Drawing.Size(150, 36);
+            this.repsBox.Location = new System.Drawing.Point(4, 230);
+            this.repsBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.repsBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.repsBox.MinimumSize = new System.Drawing.Size(175, 42);
             this.repsBox.Name = "repsBox";
             this.repsBox.ReadOnly = true;
-            this.repsBox.Size = new System.Drawing.Size(150, 36);
+            this.repsBox.Size = new System.Drawing.Size(175, 42);
             this.repsBox.TabIndex = 47;
             // 
             // endBox
             // 
             this.endBox.Content = "";
             this.endBox.Label = "End date:";
-            this.endBox.Location = new System.Drawing.Point(165, 241);
-            this.endBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.endBox.MinimumSize = new System.Drawing.Size(150, 36);
+            this.endBox.Location = new System.Drawing.Point(189, 277);
+            this.endBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.endBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.endBox.MinimumSize = new System.Drawing.Size(175, 42);
             this.endBox.Name = "endBox";
             this.endBox.ReadOnly = true;
-            this.endBox.Size = new System.Drawing.Size(150, 36);
+            this.endBox.Size = new System.Drawing.Size(175, 42);
             this.endBox.TabIndex = 46;
             // 
             // startBox
             // 
             this.startBox.Content = "";
             this.startBox.Label = "Start date:";
-            this.startBox.Location = new System.Drawing.Point(5, 241);
-            this.startBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.startBox.MinimumSize = new System.Drawing.Size(150, 36);
+            this.startBox.Location = new System.Drawing.Point(6, 278);
+            this.startBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.startBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.startBox.MinimumSize = new System.Drawing.Size(175, 42);
             this.startBox.Name = "startBox";
             this.startBox.ReadOnly = true;
-            this.startBox.Size = new System.Drawing.Size(150, 36);
+            this.startBox.Size = new System.Drawing.Size(175, 42);
             this.startBox.TabIndex = 45;
             // 
             // metBox
             // 
             this.metBox.Content = "";
             this.metBox.Label = "Met Station:";
-            this.metBox.Location = new System.Drawing.Point(3, 157);
-            this.metBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.metBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.metBox.Location = new System.Drawing.Point(4, 181);
+            this.metBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.metBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.metBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.metBox.Name = "metBox";
             this.metBox.ReadOnly = true;
-            this.metBox.Size = new System.Drawing.Size(312, 36);
+            this.metBox.Size = new System.Drawing.Size(364, 42);
             this.metBox.TabIndex = 44;
             // 
             // fieldBox
             // 
             this.fieldBox.Content = "";
             this.fieldBox.Label = "Field:";
-            this.fieldBox.Location = new System.Drawing.Point(3, 115);
-            this.fieldBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.fieldBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.fieldBox.Location = new System.Drawing.Point(4, 133);
+            this.fieldBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.fieldBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.fieldBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.fieldBox.Name = "fieldBox";
             this.fieldBox.ReadOnly = true;
-            this.fieldBox.Size = new System.Drawing.Size(312, 36);
+            this.fieldBox.Size = new System.Drawing.Size(364, 42);
             this.fieldBox.TabIndex = 43;
             // 
             // cropBox
             // 
             this.cropBox.Content = "";
             this.cropBox.Label = "Crop:";
-            this.cropBox.Location = new System.Drawing.Point(3, 77);
-            this.cropBox.MaximumSize = new System.Drawing.Size(1000, 36);
-            this.cropBox.MinimumSize = new System.Drawing.Size(200, 36);
+            this.cropBox.Location = new System.Drawing.Point(4, 89);
+            this.cropBox.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+            this.cropBox.MaximumSize = new System.Drawing.Size(1167, 42);
+            this.cropBox.MinimumSize = new System.Drawing.Size(233, 42);
             this.cropBox.Name = "cropBox";
             this.cropBox.ReadOnly = true;
-            this.cropBox.Size = new System.Drawing.Size(312, 36);
+            this.cropBox.Size = new System.Drawing.Size(364, 42);
             this.cropBox.TabIndex = 42;
             // 
             // experimentLabel
             // 
             this.experimentLabel.AutoSize = true;
-            this.experimentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.experimentLabel.Location = new System.Drawing.Point(3, 0);
+            this.experimentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.experimentLabel.Location = new System.Drawing.Point(4, 0);
+            this.experimentLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.experimentLabel.Name = "experimentLabel";
             this.experimentLabel.Size = new System.Drawing.Size(123, 24);
             this.experimentLabel.TabIndex = 41;
@@ -293,16 +314,17 @@ namespace WindowsClient.Controls.Experiments
             // 
             this.notesBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.notesBox.Location = new System.Drawing.Point(321, 311);
+            this.notesBox.Location = new System.Drawing.Point(374, 359);
+            this.notesBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.notesBox.Name = "notesBox";
             this.notesBox.ReadOnly = true;
-            this.notesBox.Size = new System.Drawing.Size(312, 206);
+            this.notesBox.Size = new System.Drawing.Size(363, 237);
             this.notesBox.TabIndex = 40;
             this.notesBox.Text = "";
             // 
-            // ExperimentSummary
+            // ExperimentSummariser
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -320,9 +342,10 @@ namespace WindowsClient.Controls.Experiments
             this.Controls.Add(this.cropBox);
             this.Controls.Add(this.experimentLabel);
             this.Controls.Add(this.notesBox);
-            this.MinimumSize = new System.Drawing.Size(637, 0);
-            this.Name = "ExperimentSummary";
-            this.Size = new System.Drawing.Size(637, 520);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.MinimumSize = new System.Drawing.Size(743, 0);
+            this.Name = "ExperimentSummariser";
+            this.Size = new System.Drawing.Size(743, 600);
             this.sowingPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
