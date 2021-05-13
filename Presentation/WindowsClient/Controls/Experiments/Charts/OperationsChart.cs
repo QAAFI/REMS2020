@@ -1,7 +1,7 @@
-﻿using MediatR;
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
+using Steema.TeeChart.Drawing;
 using Steema.TeeChart.Styles;
 using System;
 using System.Data;
@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsClient.Models;
-using static Steema.TeeChart.Axis;
 
 namespace WindowsClient.Controls
 {
@@ -106,12 +105,12 @@ namespace WindowsClient.Controls
             if (ys.Any())
                 increment = Convert.ToInt32(Math.Floor(ys.Max() / 30)) * 10;
 
-            //var pen = new AxisLinePen(chart) 
-            //{ 
-            //    Visible = true, 
-            //    Width = 2, 
-            //    Color = Color.Black
-            //};
+            var pen = new ChartPen(chart)
+            {
+                Visible = true,
+                Width = 2,
+                Color = Color.Black
+            };
 
             var y = new Axis(chart)
             {
@@ -120,14 +119,14 @@ namespace WindowsClient.Controls
                 EndPosition = end,
                 MinorTickCount = 1,
                 Increment = increment,
-                //AxisPen = pen
+                AxisPen = pen
             };
             y.MinorGrid.Visible = true;
             y.MinorGrid.Color = Color.LightGray;
 
             var b = new Axis(chart)
             {
-                //AxisPen = pen,
+                AxisPen = pen,
                 Horizontal = true,
                 Visible = true,
                 RelativePosition = start
