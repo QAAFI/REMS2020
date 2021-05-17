@@ -55,7 +55,7 @@ namespace Rems.Infrastructure.Excel
         {
             var table = new DataTable(title);
 
-            foreach (ICell head in header.Cells)
+            foreach (ICell head in header?.Cells)
             {
                 if (head.CellType != CellType.Blank)
                     table.Columns.Add(head.ToString());
