@@ -77,7 +77,7 @@ namespace Rems.Infrastructure.Excel
                 any = true;
 
                 if (c.ColumnIndex >= data.ItemArray.Length)
-                    throw new IndexOutOfRangeException($"The sheet contains extra data in cell {c.Address}." +
+                    throw new IndexOutOfRangeException($"The sheet {row.Sheet.SheetName} contains extra data in cell {c.Address}." +
                         $" Please ensure data is only listed under titled columns.");
 
                 switch (c.CellType)
