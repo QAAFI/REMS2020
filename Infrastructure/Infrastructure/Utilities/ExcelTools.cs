@@ -38,7 +38,9 @@ namespace Rems.Infrastructure.Excel
 
         private static void AddTable(ISheet sheet, DataSet set)
         {
-            var table = CreateTable(sheet.GetRow(0), sheet.GetRow(1), sheet.SheetName);
+            if (!(sheet.GetRow(0) is IRow header)) return;
+
+            var table = CreateTable(header, sheet.GetRow(1), sheet.SheetName);
             
             for (int i = 1; i <= sheet.LastRowNum; i++)
             {
@@ -55,7 +57,7 @@ namespace Rems.Infrastructure.Excel
         {
             var table = new DataTable(title);
 
-            foreach (ICell head in header?.Cells)
+            foreach (ICell head in header.Cells)
             {
                 if (head.CellType != CellType.Blank)
                     table.Columns.Add(head.ToString());
