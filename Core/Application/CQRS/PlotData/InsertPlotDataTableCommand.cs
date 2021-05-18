@@ -79,11 +79,11 @@ namespace Rems.Application.CQRS
 
                 IncrementProgress();
 
-                for (int i = 4; i < row.ItemArray.Length; i++)
+                for (int i = Skip; i < row.ItemArray.Length; i++)
                 {
                     if (row[i] is DBNull || row[i] is "") continue;
 
-                    var trait = traits[i - 4];
+                    var trait = traits[i - Skip];
                     var value = Convert.ToDouble(row[i]);
 
                     var x = new { key = row[0].ToString(), col = row[1] };
