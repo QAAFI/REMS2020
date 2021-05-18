@@ -65,28 +65,29 @@ namespace Rems.Application.CQRS
 
             var name = level.Name.Replace('/', 'x');
 
-            switch (level.Factor.Name)
+            switch (level.Factor.Name.Replace(" ", "").ToLower())
             {
-                case "Cultivar":
+                case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };
 
-                case "Sow Date":
-                case "Planting Date":
+                case "date":
+                case "sowdate":
+                case "plantingdate":
                     return new[] { "[Sowing].Script.SowDate = " + name };
 
-                case "Row spacing":
+                case "rowpsace":
+                case "rowspacing":
                     return new[] { "[Sowing].Script.RowSpacing = " + name };
 
-                case "Nitrogen":
-                case "N Rates":
-                case "NRates":
+                case "nitrogen":
+                case "nrates":
                     return new[] { "[Fertilisation].Script.Amount = " + name};
 
-                case "Population":
-                case "Treatment":
-                case "Density":
-                case "DayLength":
-                case "Irrigation":
+                case "population":
+                case "treatment":
+                case "density":
+                case "daylength":
+                case "irrigation":
                 default:
                     Report.AddLine("* No specification found for factor " + level.Factor.Name);
                     return new[] { "" };
