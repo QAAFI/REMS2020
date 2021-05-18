@@ -47,13 +47,13 @@ namespace Rems.Application.CQRS
 
             sowing.Parameters = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("Date", exp.Sowing.Date.ToString("MM/dd/yyyy")),
-                new KeyValuePair<string, string>("Density", exp.Sowing.Population.ToString()),
-                new KeyValuePair<string, string>("Depth", exp.Sowing.Depth.ToString()),
-                new KeyValuePair<string, string>("Cultivar", exp.Sowing.Cultivar?.Replace('/', 'x')),
-                new KeyValuePair<string, string>("RowSpacing", exp.Sowing.RowSpace.ToString())
+                new KeyValuePair<string, string>("Date", exp.Sowing?.Date.ToString("MM/dd/yyyy")),
+                new KeyValuePair<string, string>("Density", exp.Sowing?.Population.ToString()),
+                new KeyValuePair<string, string>("Depth", exp.Sowing?.Depth.ToString()),
+                new KeyValuePair<string, string>("Cultivar", exp.Sowing?.Cultivar?.Replace('/', 'x')),
+                new KeyValuePair<string, string>("RowSpacing", exp.Sowing?.RowSpace.ToString())
             };
-            var date = exp.Sowing.Date;
+            var date = exp.Sowing?.Date;
             return sowing;
         }
     }
