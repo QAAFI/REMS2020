@@ -11,9 +11,9 @@ using Unit = MediatR.Unit;
 namespace Rems.Application.CQRS
 {
     /// <summary>
-    /// Inserts a table of PlotData into the database
+    /// Inserts a table of SoilData into the database
     /// </summary>
-    public class InsertPlotDataTableCommand : ContextQuery<Unit>
+    public class InsertSoilDataTableCommand : ContextQuery<Unit>
     {
         /// <summary>
         /// The source data
@@ -30,7 +30,7 @@ namespace Rems.Application.CQRS
         public Action IncrementProgress { get; set; }
 
         /// <inheritdoc/>
-        public class Handler : BaseHandler<InsertPlotDataTableCommand>
+        public class Handler : BaseHandler<InsertSoilDataTableCommand>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
@@ -38,32 +38,31 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Unit Run()
         {
+            if (Skip < 0)
+                throw new Exception("You cannot skip a negative number of columns");
+
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
-            // Converts all the trait values in a row to their own PlotData entities
-            IEnumerable<PlotData> convertRow(DataRow row)
+            IEnumerable<SoilData> convertRow(DataRow row)
             {
-                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());
-                var date = Convert.ToDateTime(row[2]);
-                var sample = row[3].ToString();
+                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());                
 
+                // For each plot specified in the PlotId column
                 foreach (var plot in _context.FindPlots(row[1], exp))
                 {
+                    // Convert all values from the 6th column onwards into SoilLayerData entities
                     for (int i = Skip; i < row.ItemArray.Length; i++)
                     {
-                        if (row[i] is DBNull || row[i] is "") continue;
+                        if (row[i] is DBNull || row[i] is "" || row[i] is "?") continue;
 
-                        var trait = traits[i - Skip];
                         var value = Convert.ToDouble(row[i]);
 
-                        yield return new PlotData
+                        yield return new SoilData()
                         {
                             PlotId = plot.PlotId,
-                            TraitId = trait.TraitId,
-                            Date = date,
-                            Sample = sample,
-                            Value = value,
-                            UnitId = trait.UnitId
+                            TraitId = traits[i - Skip].TraitId,
+                            Date = Convert.ToDateTime(row[2]),
+                            Value = value
                         };
                     }
                 }
@@ -71,13 +70,12 @@ namespace Rems.Application.CQRS
                 IncrementProgress();
             }
 
-            // Convert all the rows of the table
             var datas = Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
                 .Distinct();
 
-            if (_context.PlotData.Any())
-                datas = datas.Except(_context.PlotData, new PlotDataComparer());
+            if (_context.SoilLayerDatas.Any())
+                datas = datas.Except(_context.SoilDatas, new SoilDataComparer());
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
@@ -87,16 +85,16 @@ namespace Rems.Application.CQRS
         
     }
 
-    internal class PlotDataComparer : IEqualityComparer<PlotData>
+    internal class SoilDataComparer : IEqualityComparer<SoilData>
     {
-        public bool Equals(PlotData x, PlotData y)
+        public bool Equals(SoilData x, SoilData y)
         {
             return x.Date == y.Date
                 && x.TraitId == y.TraitId
                 && x.PlotId == y.PlotId;
         }
 
-        public int GetHashCode(PlotData obj)
+        public int GetHashCode(SoilData obj)
         {
             var a = obj.Date.GetHashCode();
 

@@ -120,6 +120,16 @@ namespace Rems.Infrastructure.Excel
                     };
                     break;
 
+                case "SoilData":
+                    command = new InsertSoilDataTableCommand
+                    {
+                        Table = table,
+                        Skip = 3,
+                        Type = "Soil",
+                        IncrementProgress = OnIncrementProgress
+                    };
+                    break;
+
                 case "Soils":
                     command = new InsertSoilTableCommand
                     {

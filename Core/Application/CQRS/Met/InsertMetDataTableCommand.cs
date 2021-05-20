@@ -43,9 +43,7 @@ namespace Rems.Application.CQRS
             IEnumerable<MetData> convertRow(DataRow row)
             {
                 // Look for the station which sourced the data, create one if it isn't found
-                var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());
-
-                IncrementProgress();
+                var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());                
 
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
@@ -63,6 +61,8 @@ namespace Rems.Application.CQRS
                         Value = value
                     };
                 }
+
+                IncrementProgress();
             }
 
             var datas = Table.Rows.Cast<DataRow>()

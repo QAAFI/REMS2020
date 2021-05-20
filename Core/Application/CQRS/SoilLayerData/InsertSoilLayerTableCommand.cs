@@ -45,29 +45,21 @@ namespace Rems.Application.CQRS
 
             IEnumerable<SoilLayerData> convertRow(DataRow row)
             {
-                // Find all plots in the treatment
-                var plots = _context.Plots
-                        .Where(p => p.Treatment.Experiment.Name == row[0].ToString());
+                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());
 
-                var cols = row[1].ToString().Split(',').Select(i => Convert.ToInt32(i));
-                // If the treatment does not specify 'all' plots, filter based on the column
-                if (row[1].ToString().ToLower() != "all")
-                    plots = plots.Where(p => cols.Contains(p.Column.GetValueOrDefault()));
-
-                IncrementProgress();
-
-                foreach (var plot in plots)
+                foreach (var plot in _context.FindPlots(row[1], exp))
                 {
                     // Convert all values from the 6th column onwards into SoilLayerData entities
-                    for (int i = 5; i < row.ItemArray.Length; i++)
+                    for (int i = Skip; i < row.ItemArray.Length; i++)
                     {
                         if (row[i] is DBNull || row[i] is "") continue;
 
                         var value = Convert.ToDouble(row[i]);
-                        yield return new SoilLayerData()
+                        
+                        yield return new SoilLayerData
                         {
                             PlotId = plot.PlotId,
-                            TraitId = traits[i - 5].TraitId,
+                            TraitId = traits[i - Skip].TraitId,
                             Date = Convert.ToDateTime(row[2]),
                             DepthFrom = Convert.ToInt32(row[3]),
                             DepthTo = Convert.ToInt32(row[4]),
@@ -75,15 +67,16 @@ namespace Rems.Application.CQRS
                         };
                     }
                 }
+
+                IncrementProgress();
             }
 
             var datas = Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
-                .Distinct()
-                .ToArray();
+                .Distinct();
 
             if (_context.SoilLayerDatas.Any())
-                datas = datas.Except(_context.SoilLayerDatas, new SoilLayerComparer()).ToArray();
+                datas = datas.Except(_context.SoilLayerDatas, new SoilLayerComparer());
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();
