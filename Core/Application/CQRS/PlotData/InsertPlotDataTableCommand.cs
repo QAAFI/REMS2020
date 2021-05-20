@@ -40,68 +40,40 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
-            var rows = Table.Rows.Cast<DataRow>();
-
-            // Find the experiments
-            var exps = rows.Select(r => r[0])
-                .Distinct()
-                .ToDictionary
-                (
-                    o => o.ToString(),
-                    o => _context.Experiments.Single(e => e.Name == o.ToString())
-                );
-
-            // Search the context for a plot that matches the given criteria
-            Plot findPlot(string key, int col)
-            {
-                var plot = _context.Plots
-                .Where(p => p.Treatment.ExperimentId == exps[key].ExperimentId)
-                .Where(p => p.Column == col)
-                .FirstOrDefault();
-
-                return plot;
-            }
-
-            // Find the plots
-            var plots = rows.Select(r => new { key = r[0].ToString(), col = r[1] })
-                .Distinct()
-                .ToDictionary
-                (
-                    a => a,
-                    a => findPlot(a.key, Convert.ToInt32(a.col))
-                );
-
             // Converts all the trait values in a row to their own PlotData entities
             IEnumerable<PlotData> convertRow(DataRow row)
             {
+                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());
                 var date = Convert.ToDateTime(row[2]);
                 var sample = row[3].ToString();
 
-                IncrementProgress();
-
-                for (int i = Skip; i < row.ItemArray.Length; i++)
+                foreach (var plot in _context.FindPlots(row[1], exp))
                 {
-                    if (row[i] is DBNull || row[i] is "") continue;
-
-                    var trait = traits[i - Skip];
-                    var value = Convert.ToDouble(row[i]);
-
-                    var x = new { key = row[0].ToString(), col = row[1] };
-
-                    yield return new PlotData()
+                    for (int i = Skip; i < row.ItemArray.Length; i++)
                     {
-                        PlotId = plots[x].PlotId,
-                        TraitId = trait.TraitId,
-                        Date = date,
-                        Sample = sample,
-                        Value = value,
-                        UnitId = trait.UnitId
-                    };
+                        if (row[i] is DBNull || row[i] is "") continue;
+
+                        var trait = traits[i - Skip];
+                        var value = Convert.ToDouble(row[i]);
+
+                        yield return new PlotData
+                        {
+                            PlotId = plot.PlotId,
+                            TraitId = trait.TraitId,
+                            Date = date,
+                            Sample = sample,
+                            Value = value,
+                            UnitId = trait.UnitId
+                        };
+                    }
                 }
+
+                IncrementProgress();
             }
 
             // Convert all the rows of the table
-            var datas = rows.SelectMany(r => convertRow(r))
+            var datas = Table.Rows.Cast<DataRow>()
+                .SelectMany(r => convertRow(r))
                 .Distinct();
 
             if (_context.PlotData.Any())

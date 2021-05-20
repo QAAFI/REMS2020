@@ -45,28 +45,18 @@ namespace Rems.Application.CQRS
 
             IEnumerable<SoilData> convertRow(DataRow row)
             {
-                // Find all plots in the treatment
-                var plots = _context.Plots
-                        .Where(p => p.Treatment.Experiment.Name == row[0].ToString());
-
-                // The plot ids
-                var ids = row[1].ToString().Split(',').Select(i => Convert.ToInt32(i));
-
-                // If the treatment does not specify 'avg' plot data, filter based on the column
-                if (row[1].ToString().ToLower() != "avg")
-                    plots = plots.Where(p => ids.Contains(p.Column.GetValueOrDefault()));
-
-                IncrementProgress();
+                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());                
 
                 // For each plot specified in the PlotId column
-                foreach (var plot in plots)
+                foreach (var plot in _context.FindPlots(row[1], exp))
                 {
                     // Convert all values from the 6th column onwards into SoilLayerData entities
                     for (int i = Skip; i < row.ItemArray.Length; i++)
                     {
-                        if (row[i] is DBNull || row[i] is "") continue;
+                        if (row[i] is DBNull || row[i] is "" || row[i] is "?") continue;
 
                         var value = Convert.ToDouble(row[i]);
+
                         yield return new SoilData()
                         {
                             PlotId = plot.PlotId,
@@ -76,15 +66,16 @@ namespace Rems.Application.CQRS
                         };
                     }
                 }
+
+                IncrementProgress();
             }
 
             var datas = Table.Rows.Cast<DataRow>()
                 .SelectMany(r => convertRow(r))
-                .Distinct()
-                .ToArray();
+                .Distinct();
 
             if (_context.SoilLayerDatas.Any())
-                datas = datas.Except(_context.SoilDatas, new SoilDataComparer()).ToArray();
+                datas = datas.Except(_context.SoilDatas, new SoilDataComparer());
 
             _context.AttachRange(datas.ToArray());
             _context.SaveChanges();

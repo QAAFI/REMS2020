@@ -222,5 +222,20 @@ namespace Rems.Application.Common.Extensions
             else
                 set.Attach(data);
         }
+
+        internal static IEnumerable<Plot> FindPlots(this IRemsDbContext context, object content, Experiment experiment)
+        {
+            // Find all the plots in the experiment
+            var plots = context.Plots.Where(p => p.Treatment.Experiment == experiment);
+
+            var text = content.ToString().ToLower();
+
+            if (text == "all" || text == "avg")
+                return plots;
+
+            var ids = text.Split(',').Select(i => Convert.ToInt32(i));
+            
+            return plots.Where(p => ids.Contains(p.Column.GetValueOrDefault()));
+        }
     }
 }
