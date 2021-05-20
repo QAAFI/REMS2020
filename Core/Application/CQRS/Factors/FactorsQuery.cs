@@ -60,9 +60,11 @@ namespace Rems.Application.CQRS
 
         private string[] GetSpecification(Domain.Entities.Level level)
         {
+            // Check for user-defined defined specifications
             if (level.Specification != null)
                 return level.Specification.Split(';').Where(s => s != "").ToArray();
 
+            // If there is no defined specification, construct one based on the level
             var name = level.Name.Replace('/', 'x');
 
             switch (level.Factor.Name.Replace(" ", "").ToLower())
