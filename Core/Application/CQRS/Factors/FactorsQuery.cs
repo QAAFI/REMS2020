@@ -60,33 +60,42 @@ namespace Rems.Application.CQRS
 
         private string[] GetSpecification(Domain.Entities.Level level)
         {
+            // Check for user-defined defined specifications
             if (level.Specification != null)
                 return level.Specification.Split(';').Where(s => s != "").ToArray();
 
+            // If there is no defined specification, construct one based on the level
             var name = level.Name.Replace('/', 'x');
 
-            switch (level.Factor.Name)
+            switch (level.Factor.Name.Replace(" ", "").ToLower())
             {
-                case "Cultivar":
+                case "nitrogen":
+                case "nrates":
+                    return new[] { "[Fertilisation].Script.Amount = " + name };
+
+                case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };
 
-                case "Sow Date":
-                case "Planting Date":
+                case "date":
+                case "sowdate":
+                case "plantingdate":
                     return new[] { "[Sowing].Script.SowDate = " + name };
 
-                case "Row spacing":
-                    return new[] { "[Sowing].Script.RowSpacing = " + name };
+                case "rowpsace":
+                case "rowspacing":
+                    return new[] { "[Sowing].Script.RowSpacing = " + name };                
 
-                case "Nitrogen":
-                case "N Rates":
-                case "NRates":
-                    return new[] { "[Fertilisation].Script.Amount = " + name};
+                case "pop":
+                case "population":
+                case "density":
+                    return new[] { "[Sowing].Script.Density = " + name };
 
-                case "Population":
-                case "Treatment":
-                case "Density":
-                case "DayLength":
-                case "Irrigation":
+                case "depth":
+                    return new[] { "[Sowing].Script.Depth = " + name };
+
+                case "treatment":                
+                case "daylength":
+                case "irrigation":
                 default:
                     Report.AddLine("* No specification found for factor " + level.Factor.Name);
                     return new[] { "" };
