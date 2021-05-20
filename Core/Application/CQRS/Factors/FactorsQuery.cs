@@ -67,6 +67,10 @@ namespace Rems.Application.CQRS
 
             switch (level.Factor.Name.Replace(" ", "").ToLower())
             {
+                case "nitrogen":
+                case "nrates":
+                    return new[] { "[Fertilisation].Script.Amount = " + name };
+
                 case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };
 
@@ -77,15 +81,17 @@ namespace Rems.Application.CQRS
 
                 case "rowpsace":
                 case "rowspacing":
-                    return new[] { "[Sowing].Script.RowSpacing = " + name };
+                    return new[] { "[Sowing].Script.RowSpacing = " + name };                
 
-                case "nitrogen":
-                case "nrates":
-                    return new[] { "[Fertilisation].Script.Amount = " + name};
-
+                case "pop":
                 case "population":
-                case "treatment":
                 case "density":
+                    return new[] { "[Sowing].Script.Density = " + name };
+
+                case "depth":
+                    return new[] { "[Sowing].Script.Depth = " + name };
+
+                case "treatment":                
                 case "daylength":
                 case "irrigation":
                 default:
