@@ -4,6 +4,7 @@ using Models.Core;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,7 +48,7 @@ namespace Rems.Application.CQRS
 
             sowing.Parameters = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("Date", exp.Sowing?.Date.ToString("MM/dd/yyyy")),
+                new KeyValuePair<string, string>("Date", exp.Sowing?.Date.ToString(CultureInfo.InvariantCulture)),
                 new KeyValuePair<string, string>("Density", exp.Sowing?.Population.ToString()),
                 new KeyValuePair<string, string>("Depth", exp.Sowing?.Depth.ToString()),
                 new KeyValuePair<string, string>("Cultivar", exp.Sowing?.Cultivar?.Replace('/', 'x')),
