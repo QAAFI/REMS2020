@@ -38,7 +38,9 @@ namespace Rems.Infrastructure.Excel
 
         private static void AddTable(ISheet sheet, DataSet set)
         {
-            var table = CreateTable(sheet.GetRow(0), sheet.GetRow(1), sheet.SheetName);
+            if (!(sheet.GetRow(0) is IRow header)) return;
+
+            var table = CreateTable(header, sheet.GetRow(1), sheet.SheetName);
             
             for (int i = 1; i <= sheet.LastRowNum; i++)
             {
@@ -77,7 +79,7 @@ namespace Rems.Infrastructure.Excel
                 any = true;
 
                 if (c.ColumnIndex >= data.ItemArray.Length)
-                    throw new IndexOutOfRangeException($"The sheet contains extra data in cell {c.Address}." +
+                    throw new IndexOutOfRangeException($"The sheet {row.Sheet.SheetName} contains extra data in cell {c.Address}." +
                         $" Please ensure data is only listed under titled columns.");
 
                 switch (c.CellType)
