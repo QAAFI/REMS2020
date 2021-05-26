@@ -12,6 +12,6 @@ namespace Rems.Application.Common.Interfaces
 
         string ImportFolder { get; set; }
 
-        string GetFile(string filename, string extension);
+        string GetContent(string filename);
     }
 }

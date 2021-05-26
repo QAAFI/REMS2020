@@ -52,7 +52,7 @@ namespace Rems.Infrastructure.ApsimX
             report.Clear();
             report.AddSubHeading("REMS export summary", 1);
 
-            var simulations = JsonTools.LoadJson<Simulations>("Sorghum.apsimx");
+            var simulations = JsonTools.LoadJson<Simulations>("Sorghum.apsimx");       
 
             // Find the experiments
             var folder = new Folder() { Name = "Experiments" };
