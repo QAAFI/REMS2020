@@ -13,11 +13,6 @@ namespace WindowsClient.Models
         where TData : IDisposable
     {
         /// <summary>
-        /// Occurs when the data is changed
-        /// </summary>
-        event EventHandler<Args<string, object>> StateChanged;
-
-        /// <summary>
         /// The raw data
         /// </summary>
         TData Data { get; }
@@ -52,11 +47,6 @@ namespace WindowsClient.Models
         public abstract DataTable Source { get; }
         public abstract PropertyCollection State { get; }
 
-        public event EventHandler<Args<string, object>> StateChanged;
-
-        protected void InvokeStateChanged(string state, object value)
-            => StateChanged?.Invoke(this, new Args<string, object> { Item1 = state, Item2 = value });
-
         public abstract void Swap(int index);
 
         #region Disposable
@@ -71,8 +61,6 @@ namespace WindowsClient.Models
                     Data.Dispose();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                StateChanged = null;
                 disposedValue = true;
             }
         }
@@ -137,32 +125,6 @@ namespace WindowsClient.Models
             var info = column.FindProperty();
             State["Info"] = info;
             State["Ignore"] = false;                       
-        }
-
-        /// <inheritdoc/>
-        public void ConfigureMenu(params ToolStripMenuItem[] items)
-        {
-            if (State["Info"] != null)
-            {
-                items[2].Enabled = false;
-                return;
-            }
-
-            items[3].DropDownItems.Clear();
-
-            var props = Data.GetUnmappedProperties();
-
-            foreach (var prop in props)
-                items[3].DropDownItems.Add(prop.Name, null, SetProperty);
-        }
-
-        /// <inheritdoc/>
-        private void SetProperty(object sender, EventArgs args)
-        {
-            var item = sender as ToolStripMenuItem;
-            Name = item.Text;
-            State["Info"] = Data.FindProperty();
-            InvokeStateChanged("Valid", true);
         }
 
         /// <inheritdoc/>

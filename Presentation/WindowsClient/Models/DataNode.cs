@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MediatR;
 using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
@@ -47,13 +46,13 @@ namespace WindowsClient.Models
         {
             Excel = excel;
             Tag = Excel.Data;
-            excel.StateChanged += UpdateState;
             
             validater.StateChanged += UpdateState;
             validater.SetAdvice += (s, e) => Advice = e.Item;
             Validater = validater;
             
             ContextMenuStrip = new ContextMenuStrip();
+            ContextMenuStrip.Opening += OnMenuOpening;
 
             items.Add(new ToolStripMenuItem("Rename", null, Rename));
             items.Add(new ToolStripMenuItem("Ignore", null, async (s, e) => await ToggleIgnore(s, e)));
@@ -120,6 +119,13 @@ namespace WindowsClient.Models
         #region Menu functions
 
         /// <summary>
+        /// Handles any dynamic changes to the menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        protected abstract void OnMenuOpening(object sender, EventArgs args);
+
+        /// <summary>
         /// Begins editing the node label
         /// </summary>
         private void Rename(object sender, EventArgs args) => BeginEdit();       
@@ -163,6 +169,7 @@ namespace WindowsClient.Models
 
             UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
         }
+
         #endregion
 
         #region Validation 
@@ -200,6 +207,7 @@ namespace WindowsClient.Models
                 {
                     Excel.Dispose();
                     Validater.Dispose();
+                    ContextMenuStrip.Opening -= OnMenuOpening;
                 }
 
                 Updated = null;
@@ -218,15 +226,47 @@ namespace WindowsClient.Models
 
     public class ColumnNode : DataNode<DataColumn>
     {
+        private ToolStripMenuItem addtrait;
+        private ToolStripMenuItem properties = new ToolStripMenuItem("Set property");
+        private ToolStripMenuItem moveUp;
+        private ToolStripMenuItem moveDown;
+
         public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
         {
-            ContextMenuStrip.Opened += (s, e) => excel.ConfigureMenu(items.Cast<ToolStripMenuItem>().ToArray());
-            
-            items.Add(new ToolStripMenuItem("Add as trait", null, async (s, e) => await AddTrait(s, e)));
-            items.Add(new ToolStripMenuItem("Set property"));
+            addtrait = new ToolStripMenuItem("Add as trait", null, async (s, e) => await AddTrait(s, e));
+            moveUp = new ToolStripMenuItem("Move up", null, MoveUp);
+            moveDown = new ToolStripMenuItem("Move down", null, MoveDown);
+
+            items.Add(addtrait);
+            items.Add(properties);
             items.Add("-");
-            items.Add(new ToolStripMenuItem("Move up", null, MoveUp));
-            items.Add(new ToolStripMenuItem("Move down", null, MoveDown));
+            items.Add(moveUp);
+            items.Add(moveDown);
+        }
+
+        /// <inheritdoc/>
+        protected override void OnMenuOpening(object sender, EventArgs args)
+        {
+            if (Excel.State["Info"] != null)
+            {
+                items[2].Enabled = false;
+                return;
+            }
+
+            properties.DropDownItems.Clear();
+
+            var props = Excel.Data.GetUnmappedProperties();
+
+            foreach (var prop in props)
+                properties.DropDownItems.Add(prop.Name, null, SetProperty);
+        }
+
+        private void SetProperty(object sender, EventArgs args)
+        {
+            var item = sender as ToolStripMenuItem;
+            Name = item.Text;
+            Excel.State["Info"] = Excel.Data.FindProperty();
+            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
         }
 
         /// <summary>
@@ -282,6 +322,11 @@ namespace WindowsClient.Models
         {
             items.Add(new ToolStripMenuItem("Add invalids as traits", null, AddTraits));
             items.Add(new ToolStripMenuItem("Ignore all invalids", null, IgnoreAll));
+        }
+
+        protected override void OnMenuOpening(object sender, EventArgs args)
+        {
+            // No configuration required
         }
 
         /// <summary>
