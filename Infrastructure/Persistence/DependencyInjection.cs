@@ -9,7 +9,7 @@ namespace Rems.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
             return services
-                .AddSingleton<IFileManager, FileManager>()
+                .AddSingleton<IFileManager, FileManager>(s => FileManager.Instance)
                 .AddSingleton<IRemsDbContextFactory, RemsDbContextFactory>();
         }
 

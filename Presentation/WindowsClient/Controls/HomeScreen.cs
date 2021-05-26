@@ -68,7 +68,9 @@ namespace WindowsClient.Controls
 
             string file = Environment.GetFolderPath(local) + "\\REMS2020\\sessions.json";
 
-            return JsonTools.LoadJson<List<Session>>(file, JsonTools.JsonLoad.New);
+            var info = new FileInfo(file);
+
+            return JsonTools.LoadJson<List<Session>>(info, JsonTools.JsonLoad.New);
         }
 
         /// <summary>

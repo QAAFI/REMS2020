@@ -2,11 +2,8 @@
 using Models;
 using Models.Core;
 using Rems.Application.Common.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 
 
 namespace Rems.Application.CQRS
@@ -26,10 +23,8 @@ namespace Rems.Application.CQRS
         }
 
         protected override Folder Run()
-        {            
-            //var irrig = new Manager { Name = "Irrigation" },
-            //var fert = new Manager { Name = "Fertilisation", Code = _manager.GetFile("Fertilisation", "cs") },
-            var harvest = new Manager { Name = "Harvesting", Code = _manager.GetFile("Harvest", "cs") };            
+        {
+            var harvest = new Manager { Name = "Harvesting", Code = _manager.GetContent("Harvest") };            
 
             var folder = new Folder 
             { 
@@ -44,7 +39,7 @@ namespace Rems.Application.CQRS
         {
             var exp = _context.Experiments.Find(ExperimentId);
 
-            var sowing = new Manager { Name = "Sowing", Code = _manager.GetFile("Sowing", "cs") };
+            var sowing = new Manager { Name = "Sowing", Code = _manager.GetContent("Sowing") };
 
             sowing.Parameters = new List<KeyValuePair<string, string>>
             {

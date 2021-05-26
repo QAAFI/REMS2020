@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace Rems.Application.Common.Interfaces
 {
@@ -12,6 +11,8 @@ namespace Rems.Application.Common.Interfaces
 
         string ImportFolder { get; set; }
 
-        string GetFile(string filename, string extension);
+        string GetContent(string filename);
+
+        FileInfo GetFileInfo(string filename);
     }
 }
