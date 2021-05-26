@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using Newtonsoft.Json;
+using Rems.Persistence;
 
 namespace Rems.Infrastructure
 {
@@ -25,32 +26,26 @@ namespace Rems.Infrastructure
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="file">The source file</param>
         /// <param name="mode">Error handling mode</param>
-        public static T LoadJson<T>(string file, JsonLoad mode = JsonLoad.Exception) where T : new()
+        public static T LoadJson<T>(FileInfo file, JsonLoad mode = JsonLoad.Exception) where T : new()
         {
-            // Handle an absent file
-            if (!File.Exists(file))
-            {
-                if (mode == JsonLoad.Exception)
-                    throw new FileNotFoundException();
-                else if (mode == JsonLoad.New)
-                    return new T();
-                else
-                    return default;
-            }
+            if (!file.Exists)
+                return (mode == JsonLoad.Exception)
+                    ? throw new FileNotFoundException(null, file.Name)
+                    : (mode == JsonLoad.New) ? new T() : default;
 
             // Read the file into an object
-            using (var stream = new StreamReader(file))
-            using (var reader = new JsonTextReader(stream))
-            {
-                var serializer = new JsonSerializer()
-                {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.Objects
-                };
+            using var reader = file.OpenRead();
+            using var streamreader = new StreamReader(reader);
+            using var textreader = new JsonTextReader(streamreader);
 
-                var t = serializer.Deserialize<T>(reader);
-                return t;
-            }
+            var serializer = new JsonSerializer()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            var t = serializer.Deserialize<T>(textreader);
+            return t;
         }
 
         /// <summary>

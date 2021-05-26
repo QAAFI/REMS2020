@@ -1,22 +1,22 @@
-﻿using MediatR;
-using Models;
-using Models.Core;
-using Models.Core.ApsimFile;
-
-using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
-using Rems.Application.CQRS;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
+using MediatR;
+using Models;
+using Models.Core;
+using Models.Core.ApsimFile;
 using Models.Factorial;
 using Models.Soils;
 using Models.Soils.Arbitrator;
 using Models.Surface;
+
+using Rems.Application.Common;
+using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS;
+using Rems.Persistence;
 
 namespace Rems.Infrastructure.ApsimX
 {
@@ -43,6 +43,8 @@ namespace Rems.Infrastructure.ApsimX
 
         private Markdown report = new Markdown();
 
+        private IFileManager manager = FileManager.Instance;
+
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
@@ -52,7 +54,12 @@ namespace Rems.Infrastructure.ApsimX
             report.Clear();
             report.AddSubHeading("REMS export summary", 1);
 
-            var simulations = JsonTools.LoadJson<Simulations>("Sorghum.apsimx");       
+            var simulations = JsonTools.LoadJson<Simulations>(manager.GetFileInfo("Simulation"));
+
+            var sorghum = JsonTools.LoadJson<Folder>(manager.GetFileInfo("Sorghum"));
+
+            foreach (IModel model in sorghum.Children)
+                simulations.Children.Add(model);
 
             // Find the experiments
             var folder = new Folder() { Name = "Experiments" };

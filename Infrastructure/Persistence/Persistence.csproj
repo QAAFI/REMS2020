@@ -49,10 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Files\Content\Daily.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Files\Content\Harvest.txt">
+    <None Update="Files\Templates\Simulation.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Files\Templates\Sorghum.apsimx">
