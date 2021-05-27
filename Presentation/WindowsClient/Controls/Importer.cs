@@ -24,7 +24,12 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs after a file is imported
         /// </summary>
-        public event EventHandler FileImported;
+        public event EventHandler ImportCompleted;
+
+        /// <summary>
+        /// Occurs when the import is cancelled
+        /// </summary>
+        public event EventHandler ImportCancelled;
 
         /// <summary>
         /// If the import does not complete successfully
@@ -34,12 +39,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the current import stage has changed
         /// </summary>
-        public event EventHandler<Args<Stage>> StageChanged;
-
-        /// <summary>
-        /// Occurs when the file to import from has changed
-        /// </summary>
-        public event EventHandler<Args<string>> FileChanged;
+        public event EventHandler<Args<Stage>> StageChanged;        
 
         /// <summary>
         /// The excel data
@@ -202,9 +202,25 @@ namespace WindowsClient.Controls
                 default:
                     return new TableValidator(table);
             }
-        }
+        }        
 
-        #endregion Methods        
+        public async Task OpenFile()
+        {
+            using var open = new OpenFileDialog();
+            open.InitialDirectory = Folder;
+            open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
+
+            if (open.ShowDialog() != DialogResult.OK) 
+            {
+                ImportCancelled?.Invoke(this, EventArgs.Empty); 
+                return;
+            }
+
+            Folder = Path.GetDirectoryName(open.FileName);
+
+            if (!await LoadData(open.FileName))
+                ImportCancelled?.Invoke(this, EventArgs.Empty);
+        }
 
         /// <summary>
         /// Lets the user select a file to open for import
@@ -223,7 +239,6 @@ namespace WindowsClient.Controls
                 dataTree.SelectedNode = dataTree.TopNode;
 
                 StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
-                FileChanged?.Invoke(this, new Args<string> { Item = file });
 
                 return true;
             }
@@ -276,7 +291,7 @@ namespace WindowsClient.Controls
 
                 excel.NextItem += tracker.OnNextTask;
                 excel.IncrementProgress += tracker.OnProgressChanged;
-                excel.TaskFinished += FileImported;
+                excel.TaskFinished += ImportCompleted;
                 excel.TaskFailed += tracker.OnTaskFailed;
                 excel.Query += QueryManager.Request;
                 await excel.Run();
@@ -305,12 +320,17 @@ namespace WindowsClient.Controls
             }
         }
 
+        #endregion Methods
+
         #region Event handlers
 
         /// <summary>
         /// Handles the file button click event
         /// </summary>
-        private async void OnFileButtonClicked(object sender, EventArgs e) {}
+        private async void OnFileButtonClicked(object sender, EventArgs e) 
+        {
+            await OpenFile();
+        }
 
         /// <summary>
         /// Handles the selection of a new node in the tree

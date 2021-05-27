@@ -31,8 +31,9 @@ namespace WindowsClient
             homeScreen.DBOpened += OnDBOpened;
             homeScreen.ImportRequested += OnImportRequested;
 
-            importer.FileImported += OnImportCompleted;
-            importTab.Leave += (s, e) => RemoveImporter();
+            importer.ImportCompleted += OnImportCompleted;
+            importer.ImportCancelled += (s, e) => notebook.TabPages.Remove(importTab);
+            importTab.Leave += (s, e) => notebook.TabPages.Remove(importTab);
 
             notebook.TabPages.Remove(detailsTab);
             notebook.TabPages.Remove(importTab);
@@ -86,7 +87,7 @@ namespace WindowsClient
             if (!(sender is ImportLink link))
                 throw new Exception("Import requested from unknown control type.");
 
-            importer.FileImported += (s, e) => link.Stage = Stage.Imported;
+            importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
             importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
 
             importTab.Text = "Import " + link.Label;
@@ -99,7 +100,7 @@ namespace WindowsClient
         private async void OnImportCompleted(object sender, EventArgs args)
         {
             MessageBox.Show("Import successful!", "");
-            RemoveImporter();
+            notebook.TabPages.Remove(importTab);
             await homeScreen.LoadExportBox();
             await AttachDetailer();
         }
@@ -109,23 +110,7 @@ namespace WindowsClient
             notebook.TabPages.Add(importTab);
             notebook.SelectedTab = importTab;
 
-            using (var open = new OpenFileDialog())
-            {
-                open.InitialDirectory = importer.Folder;
-                open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
-
-                if (open.ShowDialog() != DialogResult.OK) { RemoveImporter(); return; }
-
-                importer.Folder = Path.GetDirectoryName(open.FileName);
-
-                if (! await importer.LoadData(open.FileName))
-                    RemoveImporter();
-            }
-        }
-
-        private void RemoveImporter()
-        {
-            notebook.TabPages.Remove(importTab);
+            await importer.OpenFile();
         }
 
         private async Task AttachDetailer()
