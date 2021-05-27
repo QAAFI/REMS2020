@@ -97,7 +97,10 @@ namespace WindowsClient.Controls
 
             // If overwriting a .db, remove the old session
             if (Sessions.Find(s => s.DB == file) is Session S)
+            {
                 Sessions.Remove(S);
+                File.Delete(file);
+            }
 
             // Change to the new session
             await ChangeSession(session);
@@ -179,17 +182,16 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnCreateClick(object sender, EventArgs e)
         {
-            using (var save = new SaveFileDialog())
-            {
-                save.InitialDirectory = Manager.ImportFolder;
-                save.AddExtension = true;
-                save.Filter = "SQLite (*.db)|*.db";
-                save.RestoreDirectory = true;
+            using var save = new SaveFileDialog();
 
-                if (save.ShowDialog() != DialogResult.OK) return;
+            save.InitialDirectory = Manager.ImportFolder;
+            save.AddExtension = true;
+            save.Filter = "SQLite (*.db)|*.db";
+            save.RestoreDirectory = true;
 
-                await CreateSession(save.FileName);
-            }
+            if (save.ShowDialog() != DialogResult.OK) return;
+
+            await CreateSession(save.FileName);
         }
 
         /// <summary>
