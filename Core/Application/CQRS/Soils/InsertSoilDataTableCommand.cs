@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -95,10 +96,6 @@ namespace Rems.Application.CQRS
         }
 
         public int GetHashCode(SoilData obj)
-        {
-            var a = obj.Date.GetHashCode();
-
-            return a ^ obj.TraitId ^ obj.PlotId;
-        }
+            => Utilities.GenerateHash(obj.Date.GetHashCode(), obj.TraitId, obj.PlotId);
     }
 }
