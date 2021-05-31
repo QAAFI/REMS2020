@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
@@ -49,15 +50,17 @@ namespace Rems.Application.CQRS
             var props = _context.GetEntityProperties(Type);
 
             IEntity entity = null;
-            Func<IEntity, bool> matches = other =>
-                    props.All(i => i.GetValue(entity)?.ToString().ToLower() == i.GetValue(other)?.ToString().ToLower());
+
+            // Test if the given entity matches the tracked entity for the non-key properties
+            bool matches(IEntity other) => props.All(i => PropertiesMatch(i, entity, other));
 
             // Add all the rows as entities, if the data is not already in the DB
             foreach (DataRow row in Table.Rows)
             {
                 entity = row.ToEntity(_context, Type, infos);
+                bool test = set.Any(matches);
 
-                if (!set.Any() || !set.All(matches))
+                if (!set.Any(matches))
                     _context.Attach(entity);
 
                 IncrementProgress();
@@ -65,6 +68,14 @@ namespace Rems.Application.CQRS
             _context.SaveChanges();
 
             return Unit.Value;            
+        }
+
+        private static bool PropertiesMatch(PropertyInfo info, IEntity entity, IEntity other)
+        {
+            var x = info.GetValue(entity)?.ToString().ToLower();
+            var y = info.GetValue(other)?.ToString().ToLower();
+
+            return x == y;
         }
     }
 }
