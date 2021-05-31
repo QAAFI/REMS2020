@@ -214,8 +214,7 @@ namespace WindowsClient.Controls
         {
             try
             {
-                //Data = ReadData(file);
-                Data = ExcelTools.ReadAsDataSet(file);
+                Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
                 await CleanData(Data);
 
                 fileBox.Text = Path.GetFileName(file);
