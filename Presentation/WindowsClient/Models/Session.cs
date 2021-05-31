@@ -16,18 +16,6 @@ namespace WindowsClient.Models
         /// </summary>
         public string DB { get; set; }
 
-        [JsonIgnore]
-        public TabPage Experiments { get; } = new TabPage("Experiment details");
-
-        [JsonIgnore]
-        public ExperimentDetailer Detailer { get; } = new ExperimentDetailer();
-
-        public Session()
-        {
-            Detailer.Dock = DockStyle.Fill;
-            Experiments.Controls.Add(Detailer);
-        }
-
         /// <inheritdoc/>
         public override string ToString() => Path.GetFileName(DB);
     }
