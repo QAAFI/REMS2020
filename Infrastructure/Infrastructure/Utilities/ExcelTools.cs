@@ -14,26 +14,24 @@ namespace Rems.Infrastructure.Excel
         {
             var format = Path.GetExtension(file);
 
-            using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            IWorkbook book;
+
+            if (format == ".xls")
+                book = new HSSFWorkbook(stream);
+            else if (format == ".xlsx")
+                book = new XSSFWorkbook(stream);
+            else
+                throw new Exception("Unknown file format: " + format);
+
+            var set = new DataSet(Path.GetFileNameWithoutExtension(file));
+
+            for (int i = 0; i < book.NumberOfSheets; i++)
             {
-                IWorkbook book;
-
-                if (format == ".xls")
-                    book = new HSSFWorkbook(stream);
-                else if (format == ".xlsx")
-                    book = new XSSFWorkbook(stream);
-                else
-                    throw new Exception("Unknown file format: " + format);
-
-                var set = new DataSet(Path.GetFileNameWithoutExtension(file));
-
-                for (int i = 0; i < book.NumberOfSheets; i++)
-                {
-                    var sheet = book.GetSheetAt(i);
-                    AddTable(sheet, set);
-                }
-                return set;
+                var sheet = book.GetSheetAt(i);
+                AddTable(sheet, set);
             }
+            return set;
         }
 
         private static void AddTable(ISheet sheet, DataSet set)
