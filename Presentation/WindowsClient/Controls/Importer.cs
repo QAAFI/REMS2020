@@ -286,12 +286,9 @@ namespace WindowsClient.Controls
                 // Create and run an importer for the data
                 var excel = new ExcelImporter { Data = Data };
 
-                tracker.SetSteps(excel);
+                tracker.AttachRunner(excel);
 
-                excel.NextItem += tracker.OnNextTask;
-                excel.IncrementProgress += tracker.OnProgressChanged;
                 excel.TaskFinished += ImportCompleted;
-                excel.TaskFailed += tracker.OnTaskFailed;
                 excel.Query += QueryManager.Request;
                 await excel.Run();
 

@@ -5,6 +5,7 @@ using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 using Rems.Domain.Entities;
 
 using Unit = MediatR.Unit;
@@ -26,9 +27,7 @@ namespace Rems.Application.CQRS
         /// </summary>
         public int Skip { get; set; }
 
-        public string Type { get; set; }
-
-        public Action IncrementProgress { get; set; }
+        public string Type { get; set; }        
 
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertMetDataTableCommand>
@@ -41,11 +40,13 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
+            var stations = _context.MetStations.ToDictionary(
+                m => m.Name,
+                m => m.MetStationId
+            );
+
             IEnumerable<MetData> convertRow(DataRow row)
             {
-                // Look for the station which sourced the data, create one if it isn't found
-                var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());                
-
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
                     if (row[i] is DBNull || row[i] is "") continue;
@@ -56,14 +57,14 @@ namespace Rems.Application.CQRS
 
                     yield return new MetData
                     {
-                        MetStationId = station?.MetStationId ?? 0,
+                        MetStationId =  stations[row[0].ToString()],
                         TraitId = trait.TraitId,
                         Date = date,
                         Value = value
                     };
                 }
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
 
             var datas = Table.Rows.Cast<DataRow>()

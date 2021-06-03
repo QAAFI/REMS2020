@@ -38,7 +38,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Importer));
             this.columnLabel = new System.Windows.Forms.Label();
             this.importData = new System.Windows.Forms.DataGridView();
@@ -70,7 +70,7 @@
             this.columnLabel.Location = new System.Drawing.Point(4, 8);
             this.columnLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.columnLabel.Name = "columnLabel";
-            this.columnLabel.Size = new System.Drawing.Size(852, 20);
+            this.columnLabel.Size = new System.Drawing.Size(851, 20);
             this.columnLabel.TabIndex = 10;
             this.columnLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -82,19 +82,19 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.NullValue = null;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.importData.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.NullValue = null;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.importData.DefaultCellStyle = dataGridViewCellStyle1;
             this.importData.Location = new System.Drawing.Point(4, 33);
             this.importData.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(852, 771);
+            this.importData.Size = new System.Drawing.Size(851, 771);
             this.importData.TabIndex = 0;
             // 
             // fileBox
@@ -173,7 +173,7 @@
             this.tracker.Location = new System.Drawing.Point(4, 33);
             this.tracker.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
             this.tracker.Name = "tracker";
-            this.tracker.Size = new System.Drawing.Size(295, 61);
+            this.tracker.Size = new System.Drawing.Size(295, 63);
             this.tracker.TabIndex = 14;
             // 
             // dataTree

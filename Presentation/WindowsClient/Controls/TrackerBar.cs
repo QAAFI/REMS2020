@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 
 namespace WindowsClient.Controls
 {
@@ -41,23 +42,13 @@ namespace WindowsClient.Controls
         /// <summary>
         /// The currently running task
         /// </summary>
-        private int task = 0;        
-
-        /// <summary>
-        /// The step size to increment the bar by
-        /// </summary>
-        private double step;
-
-        /// <summary>
-        /// The total progress of the bar
-        /// </summary>
-        private double progress;
+        private int task = 0;
 
         public TrackerBar()
         {
             InitializeComponent();
 
-            bar.Width = 0;
+            bar.Value = 0;
         }
 
         /// <summary>
@@ -69,23 +60,32 @@ namespace WindowsClient.Controls
                 Invoke(new Action(Reset));
             else
             {
-                bar.Width = 0;
+                bar.Value = 0;
                 label.Text = "";
                 pctLabel.Text = "0%";
                 task = 0;
-                progress = 0;
             }
         }
 
         /// <summary>
         /// Initialise the step size from the tracker
         /// </summary>
-        /// <param name="tracker"></param>
-        public void SetSteps(IProgressTracker tracker)
+        /// <param name="runner"></param>
+        public void AttachRunner(ITaskRunner runner)
         {
-            tasks = tracker.Items;
-            bar.Width = 0;
-            step = ((double)barPanel.Width) / tracker.Steps;
+            runner.NextItem += OnNextTask;
+            runner.TaskFailed += OnTaskFailed;
+
+            runner.Reporter = new ProgressReporter(amount => 
+            {
+                bar.Value = amount;
+                int pct = 100 * bar.Value / bar.Maximum;
+                pctLabel.Text = $"{pct}%";
+            });
+
+            tasks = runner.Items;
+            bar.Value = 0;
+            bar.Maximum = runner.Steps;
         }
 
         /// <summary>
@@ -102,16 +102,15 @@ namespace WindowsClient.Controls
         /// <summary>
         /// When the current task makes progress
         /// </summary>
-        public void OnProgressChanged(object sender, EventArgs args)
+        public void SetProgress(int amount)
         {
             if (InvokeRequired)
-                Invoke(new EventHandler(OnProgressChanged), sender, args);
+                Invoke(new Action<int>(SetProgress), amount);
             else
             {
-                progress += step;
-                bar.Width = Convert.ToInt32(progress);
-
-                int pct = Math.Min(100, 100 * bar.Width / barPanel.Width);
+                bar.Value = amount;
+                
+                int pct = bar.Value / bar.Maximum;
                 pctLabel.Text = $"{pct}%";
 
                 Refresh();
@@ -141,7 +140,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RunClicked(object sender, EventArgs e) 
+        private void RunClicked(object sender, EventArgs e)
             => TaskBegun?.Invoke(this, EventArgs.Empty);
     }
 }

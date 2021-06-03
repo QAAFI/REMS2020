@@ -28,8 +28,6 @@ namespace Rems.Application.CQRS
 
         public string Type { get; set; }
 
-        public Action IncrementProgress { get; set; }
-
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertPlotDataTableCommand>
         {
@@ -41,14 +39,24 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
+            var exps = _context.Experiments.ToDictionary(
+                e => e.Name,
+                e => e.Treatments.SelectMany(t => t.Plots).Distinct().ToArray()
+            );
+
             // Converts all the trait values in a row to their own PlotData entities
             IEnumerable<PlotData> convertRow(DataRow row)
-            {
-                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());
+            {                
                 var date = Convert.ToDateTime(row[2]);
                 var sample = row[3].ToString();
 
-                foreach (var plot in _context.FindPlots(row[1], exp))
+                var exp = row[0].ToString();
+                var text = row[1].ToString().ToLower();
+                var plots = (text == "all" || text == "avg") 
+                    ? exps[exp] 
+                    : exps[exp].Where(p => text.Split(',').Select(i => Convert.ToInt32(i)).Contains(p.Column.Value));
+
+                foreach (var plot in plots)
                 {
                     for (int i = Skip; i < row.ItemArray.Length; i++)
                     {
@@ -69,7 +77,7 @@ namespace Rems.Application.CQRS
                     }
                 }
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
 
             // Convert all the rows of the table

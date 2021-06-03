@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -7,17 +8,12 @@ namespace Rems.Application.Common.Interfaces
     /// <summary>
     /// Enables a process to report its progress and request data
     /// </summary>
-    public interface IProgressTracker
+    public interface ITaskRunner
     {
         /// <summary>
         /// Occurs when the tracker switches to the next item in its task
         /// </summary>
         event EventHandler<Args<string>> NextItem;
-
-        /// <summary>
-        /// Occurs when the tracker makes progress with its task
-        /// </summary>
-        event EventHandler IncrementProgress;
 
         /// <summary>
         /// Occurs when the tracker completes its task
@@ -33,6 +29,11 @@ namespace Rems.Application.Common.Interfaces
         /// Occurs when the tracker requests data
         /// </summary>
         event EventHandler<RequestArgs<object, Task<object>>> Query;
+
+        /// <summary>
+        /// Used to report the progress of the task
+        /// </summary>
+        ProgressReporter Reporter { get; set; }
 
         /// <summary>
         /// The number of items the tracker is processing

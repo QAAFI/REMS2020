@@ -59,10 +59,12 @@
             this.groupFile.Controls.Add(this.openLabel);
             this.groupFile.Controls.Add(this.createLabel);
             this.groupFile.Controls.Add(this.recentLabel);
-            this.groupFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupFile.Location = new System.Drawing.Point(3, 3);
+            this.groupFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupFile.Location = new System.Drawing.Point(4, 3);
+            this.groupFile.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupFile.Name = "groupFile";
-            this.groupFile.Size = new System.Drawing.Size(175, 360);
+            this.groupFile.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.groupFile.Size = new System.Drawing.Size(204, 415);
             this.groupFile.TabIndex = 0;
             this.groupFile.TabStop = false;
             this.groupFile.Text = "File";
@@ -72,23 +74,24 @@
             this.recentList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.recentList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.recentList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.recentList.FormattingEnabled = true;
             this.recentList.IntegralHeight = false;
-            this.recentList.Location = new System.Drawing.Point(6, 76);
+            this.recentList.Location = new System.Drawing.Point(7, 88);
+            this.recentList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.recentList.MultiColumn = true;
             this.recentList.Name = "recentList";
-            this.recentList.Size = new System.Drawing.Size(163, 278);
+            this.recentList.Size = new System.Drawing.Size(190, 320);
             this.recentList.TabIndex = 5;
             // 
             // openLabel
             // 
             this.openLabel.AutoSize = true;
             this.openLabel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.openLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.openLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.openLabel.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.openLabel.Location = new System.Drawing.Point(6, 38);
-            this.openLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.openLabel.Location = new System.Drawing.Point(7, 44);
+            this.openLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.openLabel.Name = "openLabel";
             this.openLabel.Size = new System.Drawing.Size(80, 13);
             this.openLabel.TabIndex = 4;
@@ -99,10 +102,10 @@
             // 
             this.createLabel.AutoSize = true;
             this.createLabel.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.createLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.createLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.createLabel.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.createLabel.Location = new System.Drawing.Point(6, 19);
-            this.createLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.createLabel.Location = new System.Drawing.Point(7, 22);
+            this.createLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.createLabel.Name = "createLabel";
             this.createLabel.Size = new System.Drawing.Size(70, 13);
             this.createLabel.TabIndex = 3;
@@ -112,9 +115,9 @@
             // recentLabel
             // 
             this.recentLabel.AutoSize = true;
-            this.recentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.recentLabel.Location = new System.Drawing.Point(6, 57);
-            this.recentLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.recentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.recentLabel.Location = new System.Drawing.Point(7, 66);
+            this.recentLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.recentLabel.Name = "recentLabel";
             this.recentLabel.Size = new System.Drawing.Size(45, 13);
             this.recentLabel.TabIndex = 1;
@@ -124,10 +127,12 @@
             // 
             this.groupExport.Controls.Add(this.exportTracker);
             this.groupExport.Controls.Add(this.exportList);
-            this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupExport.Location = new System.Drawing.Point(365, 3);
+            this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupExport.Location = new System.Drawing.Point(426, 3);
+            this.groupExport.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupExport.Name = "groupExport";
-            this.groupExport.Size = new System.Drawing.Size(175, 360);
+            this.groupExport.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.groupExport.Size = new System.Drawing.Size(204, 415);
             this.groupExport.TabIndex = 3;
             this.groupExport.TabStop = false;
             this.groupExport.Text = "Experiments";
@@ -135,22 +140,24 @@
             // exportTracker
             // 
             this.exportTracker.ButtonText = "Export";
-            this.exportTracker.DisplayTask = false;
-            this.exportTracker.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exportTracker.Location = new System.Drawing.Point(6, 301);
+            this.exportTracker.DisplayTask = true;
+            this.exportTracker.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.exportTracker.Location = new System.Drawing.Point(8, 345);
+            this.exportTracker.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.exportTracker.Name = "exportTracker";
-            this.exportTracker.Size = new System.Drawing.Size(163, 53);
-            this.exportTracker.TabIndex = 5;
+            this.exportTracker.Size = new System.Drawing.Size(189, 63);
+            this.exportTracker.TabIndex = 2;
             // 
             // exportList
             // 
             this.exportList.CheckOnClick = true;
-            this.exportList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.exportList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.exportList.FormattingEnabled = true;
             this.exportList.IntegralHeight = false;
-            this.exportList.Location = new System.Drawing.Point(6, 19);
+            this.exportList.Location = new System.Drawing.Point(7, 22);
+            this.exportList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.exportList.Name = "exportList";
-            this.exportList.Size = new System.Drawing.Size(163, 278);
+            this.exportList.Size = new System.Drawing.Size(190, 320);
             this.exportList.TabIndex = 1;
             // 
             // groupImport
@@ -159,10 +166,12 @@
             this.groupImport.Controls.Add(this.dataLink);
             this.groupImport.Controls.Add(this.expsLink);
             this.groupImport.Controls.Add(this.infoLink);
-            this.groupImport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupImport.Location = new System.Drawing.Point(184, 3);
+            this.groupImport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupImport.Location = new System.Drawing.Point(215, 3);
+            this.groupImport.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupImport.Name = "groupImport";
-            this.groupImport.Size = new System.Drawing.Size(175, 360);
+            this.groupImport.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.groupImport.Size = new System.Drawing.Size(204, 415);
             this.groupImport.TabIndex = 4;
             this.groupImport.TabStop = false;
             this.groupImport.Text = "Import";
@@ -170,59 +179,64 @@
             // importText
             // 
             this.importText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.importText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.importText.Location = new System.Drawing.Point(6, 114);
+            this.importText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.importText.Location = new System.Drawing.Point(7, 132);
+            this.importText.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.importText.Name = "importText";
             this.importText.ReadOnly = true;
-            this.importText.Size = new System.Drawing.Size(163, 240);
+            this.importText.Size = new System.Drawing.Size(190, 276);
             this.importText.TabIndex = 3;
             this.importText.Text = "A database must be connected prior to importing data.";
             // 
             // dataLink
             // 
             this.dataLink.Active = false;
-            this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
             this.dataLink.Label = "Data";
-            this.dataLink.Location = new System.Drawing.Point(6, 83);
+            this.dataLink.Location = new System.Drawing.Point(7, 96);
+            this.dataLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataLink.Name = "dataLink";
-            this.dataLink.Size = new System.Drawing.Size(163, 25);
+            this.dataLink.Size = new System.Drawing.Size(190, 29);
             this.dataLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.dataLink.TabIndex = 2;
             // 
             // expsLink
             // 
             this.expsLink.Active = false;
-            this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
             this.expsLink.Label = "Experiments";
-            this.expsLink.Location = new System.Drawing.Point(6, 52);
+            this.expsLink.Location = new System.Drawing.Point(7, 60);
+            this.expsLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.expsLink.Name = "expsLink";
-            this.expsLink.Size = new System.Drawing.Size(163, 25);
+            this.expsLink.Size = new System.Drawing.Size(190, 29);
             this.expsLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.expsLink.TabIndex = 1;
             // 
             // infoLink
             // 
             this.infoLink.Active = false;
-            this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
             this.infoLink.Label = "Information";
-            this.infoLink.Location = new System.Drawing.Point(6, 21);
+            this.infoLink.Location = new System.Drawing.Point(7, 24);
+            this.infoLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.infoLink.Name = "infoLink";
-            this.infoLink.Size = new System.Drawing.Size(163, 25);
+            this.infoLink.Size = new System.Drawing.Size(190, 29);
             this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.infoLink.TabIndex = 0;
             // 
             // HomeScreen
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupImport);
             this.Controls.Add(this.groupExport);
             this.Controls.Add(this.groupFile);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "HomeScreen";
-            this.Size = new System.Drawing.Size(694, 520);
+            this.Size = new System.Drawing.Size(810, 600);
             this.groupFile.ResumeLayout(false);
             this.groupFile.PerformLayout();
             this.groupExport.ResumeLayout(false);

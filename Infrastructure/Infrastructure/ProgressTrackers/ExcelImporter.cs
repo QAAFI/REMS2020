@@ -12,7 +12,7 @@ namespace Rems.Infrastructure.Excel
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
     /// </summary>
-    public class ExcelImporter : ProgressTracker
+    public class ExcelImporter : TaskRunner
     {
         /// <summary>
         /// The set of data tables to import
@@ -74,7 +74,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertPlotsCommand() 
                     { 
                         Table = table,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -85,7 +85,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 4,
                         Type = "Crop",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -95,7 +95,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 2,
                         Type = "Climate",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -105,7 +105,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 5,
                         Type = "SoilLayer",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -116,7 +116,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Table = table, 
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -126,7 +126,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 3,
                         Type = "Soil",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -135,7 +135,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -145,7 +145,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };
                     break;
 
@@ -154,7 +154,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Reporter
                     };                    
                     break;
             }
