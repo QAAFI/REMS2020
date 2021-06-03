@@ -41,13 +41,13 @@
             this.createLabel = new System.Windows.Forms.Label();
             this.recentLabel = new System.Windows.Forms.Label();
             this.groupExport = new System.Windows.Forms.GroupBox();
+            this.exportTracker = new WindowsClient.Controls.TrackerBar();
             this.exportList = new System.Windows.Forms.CheckedListBox();
             this.groupImport = new System.Windows.Forms.GroupBox();
             this.importText = new System.Windows.Forms.RichTextBox();
             this.dataLink = new WindowsClient.Controls.ImportLink();
             this.expsLink = new WindowsClient.Controls.ImportLink();
             this.infoLink = new WindowsClient.Controls.ImportLink();
-            this.exportTracker = new WindowsClient.Controls.TrackerBar();
             this.groupFile.SuspendLayout();
             this.groupExport.SuspendLayout();
             this.groupImport.SuspendLayout();
@@ -137,6 +137,17 @@
             this.groupExport.TabStop = false;
             this.groupExport.Text = "Experiments";
             // 
+            // exportTracker
+            // 
+            this.exportTracker.ButtonText = "Export";
+            this.exportTracker.DisplayTask = true;
+            this.exportTracker.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.exportTracker.Location = new System.Drawing.Point(8, 345);
+            this.exportTracker.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.exportTracker.Name = "exportTracker";
+            this.exportTracker.Size = new System.Drawing.Size(189, 63);
+            this.exportTracker.TabIndex = 2;
+            // 
             // exportList
             // 
             this.exportList.CheckOnClick = true;
@@ -215,16 +226,6 @@
             this.infoLink.Size = new System.Drawing.Size(190, 29);
             this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.infoLink.TabIndex = 0;
-            // 
-            // exportTracker
-            // 
-            this.exportTracker.ButtonText = "Run";
-            this.exportTracker.DisplayTask = true;
-            this.exportTracker.Location = new System.Drawing.Point(8, 345);
-            this.exportTracker.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.exportTracker.Name = "exportTracker";
-            this.exportTracker.Size = new System.Drawing.Size(189, 63);
-            this.exportTracker.TabIndex = 2;
             // 
             // HomeScreen
             // 

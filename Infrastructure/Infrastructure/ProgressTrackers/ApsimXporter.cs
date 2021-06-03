@@ -23,7 +23,7 @@ namespace Rems.Infrastructure.ApsimX
     /// <summary>
     /// Manages the construction and output of an .apsimx file
     /// </summary>
-    public class ApsimXporter : ProgressTracker
+    public class ApsimXporter : TaskRunner
     {
         /// <summary>
         /// The name of the .apsimx to output to
@@ -39,9 +39,11 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => Experiments.Count();
 
         /// <inheritdoc/>
-        public override int Steps => Items * 29;
+        public override int Steps => Items * numModelsToExport;
 
-        private Markdown report = new Markdown();
+        private readonly int numModelsToExport = 29;
+
+        private Markdown summary = new Markdown();
 
         private IFileManager manager = FileManager.Instance;
 
@@ -51,8 +53,8 @@ namespace Rems.Infrastructure.ApsimX
         public async override Task Run()
         {
             // Reset the markdown report
-            report.Clear();
-            report.AddSubHeading("REMS export summary", 1);
+            summary.Clear();
+            summary.AddSubHeading("REMS export summary", 1);
 
             var simulations = JsonTools.LoadJson<Simulations>(manager.GetFileInfo("Simulation"));
 
@@ -60,7 +62,7 @@ namespace Rems.Infrastructure.ApsimX
 
             foreach (IModel model in sorghum.Children)
                 simulations.Children.Add(model);
-
+            
             // Find the experiments
             var folder = new Folder() { Name = "Experiments" };
             var experiments = await InvokeQuery(new ExperimentsQuery());
@@ -78,8 +80,8 @@ namespace Rems.Infrastructure.ApsimX
 
             simulations.Children.Add(folder);
 
-            var summary = new Memo { Name = "ExportSummary", Text = report.Text };
-            simulations.Children.Add(summary);
+            var memo = new Memo { Name = "ExportSummary", Text = summary.Text };
+            simulations.Children.Add(memo);
 
             simulations.ParentAllDescendants();
             SanitiseNames(simulations);
@@ -104,7 +106,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            Progress.Increment(1);
+            Reporter.Increment(1);
 
             return model;
         }
@@ -126,7 +128,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            Progress.Increment(1);
+            Reporter.Increment(1);
 
             return model;
         }
@@ -150,24 +152,24 @@ namespace Rems.Infrastructure.ApsimX
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
             
-            report.AddSubHeading(name + ':', 2);
+            summary.AddSubHeading(name + ':', 2);
 
             var experiment =
             Create<Experiment>(name, new IModel[]
             {
-                await Request(new FactorsQuery{ ExperimentId = id, Report = report }),
+                await Request(new FactorsQuery{ ExperimentId = id, Report = summary }),
                 Create<Simulation>(name, new IModel[]
                 {
-                    await Request(new ClockQuery{ ExperimentId = id, Report = report }),
+                    await Request(new ClockQuery{ ExperimentId = id, Report = summary }),
                     Create<Summary>(),
-                    await Request(new WeatherQuery{ ExperimentId = id, Report = report }),
+                    await Request(new WeatherQuery{ ExperimentId = id, Report = summary }),
                     Create<SoilArbitrator>(),
-                    await Request(new ZoneQuery{ ExperimentId = id, Report = report }, new IModel[]
+                    await Request(new ZoneQuery{ ExperimentId = id, Report = summary }, new IModel[]
                     {
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport"),
                         await InvokeQuery(new ManagersQuery {ExperimentId = id }),
-                        await Request(new PlantQuery{ ExperimentId = id, Report = report }),
+                        await Request(new PlantQuery{ ExperimentId = id, Report = summary }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
                         Create<Operations>("Irrigations"),
@@ -189,21 +191,21 @@ namespace Rems.Infrastructure.ApsimX
                     })
                 })
             });
-            report.AddLine("\n");
+            summary.AddLine("\n");
             return experiment;
         }   
 
         private async Task<IModel> CreateSoilModel(int id)
         {
             var soil = 
-                await Request(new SoilQuery { ExperimentId = id, Report = report }, new IModel[] 
+                await Request(new SoilQuery { ExperimentId = id, Report = summary }, new IModel[] 
                 {
                     new InitialWater { PercentMethod = 0, FractionFull = 0.6 },
-                    await Request(new PhysicalQuery{ ExperimentId = id, Report = report }, new IModel[] 
+                    await Request(new PhysicalQuery{ ExperimentId = id, Report = summary }, new IModel[] 
                     {
-                        await Request(new SoilCropQuery{ ExperimentId = id, Report = report })
+                        await Request(new SoilCropQuery{ ExperimentId = id, Report = summary })
                     }),
-                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = report }),
+                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = summary }),
                     Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
                     {
                         Create<SoilNitrogenNH4>("NH4"),
@@ -212,10 +214,10 @@ namespace Rems.Infrastructure.ApsimX
                         Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
                         Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
                     }),
-                    await Request(new OrganicQuery{ ExperimentId = id, Report = report }),
-                    await Request(new ChemicalQuery{ ExperimentId = id, Report = report }),
+                    await Request(new OrganicQuery{ ExperimentId = id, Report = summary }),
+                    await Request(new ChemicalQuery{ ExperimentId = id, Report = summary }),
                     Create<CERESSoilTemperature>("Temperature"),
-                    await Request(new SampleQuery{ ExperimentId = id, Report = report })
+                    await Request(new SampleQuery{ ExperimentId = id, Report = summary })
                 });
 
             return soil;

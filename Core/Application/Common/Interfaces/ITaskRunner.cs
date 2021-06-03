@@ -8,7 +8,7 @@ namespace Rems.Application.Common.Interfaces
     /// <summary>
     /// Enables a process to report its progress and request data
     /// </summary>
-    public interface IProgressTracker
+    public interface ITaskRunner
     {
         /// <summary>
         /// Occurs when the tracker switches to the next item in its task
@@ -30,7 +30,10 @@ namespace Rems.Application.Common.Interfaces
         /// </summary>
         event EventHandler<RequestArgs<object, Task<object>>> Query;
 
-        ProgressReporter Progress { get; set; }
+        /// <summary>
+        /// Used to report the progress of the task
+        /// </summary>
+        ProgressReporter Reporter { get; set; }
 
         /// <summary>
         /// The number of items the tracker is processing

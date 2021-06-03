@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common
 {
-    public abstract class ProgressTracker : IProgressTracker, IDisposable
+    public abstract class TaskRunner : ITaskRunner, IDisposable
     {
         private bool disposedValue;
 
@@ -22,7 +22,8 @@ namespace Rems.Application.Common
         /// <inheritdoc/>
         public event EventHandler<RequestArgs<object, Task<object>>> Query;
 
-        public ProgressReporter Progress { get; set; }
+        /// <inheritdoc/>
+        public ProgressReporter Reporter { get; set; }
 
         /// <inheritdoc/>
         public abstract int Items { get; }

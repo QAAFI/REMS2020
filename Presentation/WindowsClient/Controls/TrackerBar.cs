@@ -71,12 +71,12 @@ namespace WindowsClient.Controls
         /// Initialise the step size from the tracker
         /// </summary>
         /// <param name="runner"></param>
-        public void AttachRunner(IProgressTracker runner)
+        public void AttachRunner(ITaskRunner runner)
         {
             runner.NextItem += OnNextTask;
             runner.TaskFailed += OnTaskFailed;
 
-            runner.Progress = new ProgressReporter(amount => 
+            runner.Reporter = new ProgressReporter(amount => 
             {
                 bar.Value = amount;
                 int pct = 100 * bar.Value / bar.Maximum;
