@@ -23,8 +23,6 @@ namespace Rems.Application.CQRS
 
         public Type Type { get; set; }
 
-        public Action IncrementProgress { get; set; }
-
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertOperationsTableCommand>
         {
@@ -75,7 +73,7 @@ namespace Rems.Application.CQRS
                     insertTreatment(row, treatment);
                 }
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
 
             _context.SaveChanges();

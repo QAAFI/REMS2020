@@ -20,11 +20,6 @@ namespace Rems.Application.CQRS
         /// </summary>
         public DataTable Table { get; set; }
 
-        /// <summary>
-        /// Occurs when progress has been made on the insertion
-        /// </summary>
-        public Action IncrementProgress { get; set; }
-
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertPlotsCommand>
         {
@@ -65,7 +60,7 @@ namespace Rems.Application.CQRS
                         };
                         plots.Add(plot);
 
-                        IncrementProgress();
+                        Progress.Increment(1);
                     }
                 }
             }

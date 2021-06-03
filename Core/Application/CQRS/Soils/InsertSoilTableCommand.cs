@@ -22,8 +22,6 @@ namespace Rems.Application.CQRS
 
         public Type Type { get; set; }
 
-        public Action IncrementProgress { get; set; }
-
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertSoilTableCommand>
         {
@@ -64,7 +62,7 @@ namespace Rems.Application.CQRS
                     entities.Add(soiltrait);
                 });
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
             _context.SaveChanges();
 
