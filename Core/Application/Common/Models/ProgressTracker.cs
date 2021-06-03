@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -8,9 +9,6 @@ namespace Rems.Application.Common
     public abstract class ProgressTracker : IProgressTracker, IDisposable
     {
         private bool disposedValue;
-
-        /// <inheritdoc/>
-        public event EventHandler IncrementProgress;
 
         /// <inheritdoc/>
         public event EventHandler TaskFinished;
@@ -23,6 +21,8 @@ namespace Rems.Application.Common
 
         /// <inheritdoc/>
         public event EventHandler<RequestArgs<object, Task<object>>> Query;
+
+        public ProgressReporter Progress { get; set; }
 
         /// <inheritdoc/>
         public abstract int Items { get; }
@@ -45,12 +45,6 @@ namespace Rems.Application.Common
         /// </summary>
         protected void OnNextItem(string item) 
             => NextItem?.Invoke(this, new Args<string> { Item = item });
-
-        /// <summary>
-        /// Invokes the IncrementProgress event
-        /// </summary>
-        protected void OnIncrementProgress()
-            => IncrementProgress?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         /// Invokes the TaskFinished event
@@ -76,7 +70,6 @@ namespace Rems.Application.Common
                     // TODO: dispose managed state (managed objects)
                 }
 
-                IncrementProgress = null;
                 TaskFinished = null;
                 NextItem = null;
                 TaskFailed = null;

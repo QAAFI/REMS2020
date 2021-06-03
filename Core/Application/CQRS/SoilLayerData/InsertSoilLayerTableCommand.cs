@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -27,11 +27,6 @@ namespace Rems.Application.CQRS
         public int Skip { get; set; }
 
         public string Type { get; set; }
-
-        /// <summary>
-        /// Alert the request sender that progress has been made on the command
-        /// </summary>
-        public Action IncrementProgress { get; set; }
 
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertSoilLayerTableCommand>
@@ -69,7 +64,7 @@ namespace Rems.Application.CQRS
                     }
                 }
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
 
             var datas = Table.Rows.Cast<DataRow>()

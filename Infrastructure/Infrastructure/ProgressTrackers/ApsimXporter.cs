@@ -39,7 +39,7 @@ namespace Rems.Infrastructure.ApsimX
         public override int Items => Experiments.Count();
 
         /// <inheritdoc/>
-        public override int Steps => Items * 28;
+        public override int Steps => Items * 29;
 
         private Markdown report = new Markdown();
 
@@ -104,7 +104,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            OnIncrementProgress();
+            Progress.Increment(1);
 
             return model;
         }
@@ -126,7 +126,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            OnIncrementProgress();
+            Progress.Increment(1);
 
             return model;
         }

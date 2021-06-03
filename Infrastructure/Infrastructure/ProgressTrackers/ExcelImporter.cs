@@ -74,7 +74,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertPlotsCommand() 
                     { 
                         Table = table,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -85,7 +85,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 4,
                         Type = "Crop",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -95,7 +95,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 2,
                         Type = "Climate",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -105,7 +105,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 5,
                         Type = "SoilLayer",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -116,7 +116,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Table = table, 
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -126,7 +126,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 3,
                         Type = "Soil",
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -135,7 +135,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -145,7 +145,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };
                     break;
 
@@ -154,7 +154,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Table = table,
                         Type = type,
-                        IncrementProgress = OnIncrementProgress
+                        Progress = Progress
                     };                    
                     break;
             }

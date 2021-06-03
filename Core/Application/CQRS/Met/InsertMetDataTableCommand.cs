@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.Common.Models;
 using Rems.Domain.Entities;
 
 using Unit = MediatR.Unit;
@@ -26,9 +27,7 @@ namespace Rems.Application.CQRS
         /// </summary>
         public int Skip { get; set; }
 
-        public string Type { get; set; }
-
-        public Action IncrementProgress { get; set; }
+        public string Type { get; set; }        
 
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertMetDataTableCommand>
@@ -63,7 +62,7 @@ namespace Rems.Application.CQRS
                     };
                 }
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
 
             var datas = Table.Rows.Cast<DataRow>()
