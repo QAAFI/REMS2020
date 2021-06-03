@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -40,11 +40,13 @@ namespace Rems.Application.CQRS
         {
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
 
+            var stations = _context.MetStations.ToDictionary(
+                m => m.Name,
+                m => m.MetStationId
+            );
+
             IEnumerable<MetData> convertRow(DataRow row)
             {
-                // Look for the station which sourced the data, create one if it isn't found
-                var station = _context.MetStations.FirstOrDefault(e => e.Name == row[0].ToString());                
-
                 for (int i = 2; i < row.ItemArray.Length; i++)
                 {
                     if (row[i] is DBNull || row[i] is "") continue;
@@ -55,7 +57,7 @@ namespace Rems.Application.CQRS
 
                     yield return new MetData
                     {
-                        MetStationId = station?.MetStationId ?? 0,
+                        MetStationId =  stations[row[0].ToString()],
                         TraitId = trait.TraitId,
                         Date = date,
                         Value = value

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -41,13 +41,21 @@ namespace Rems.Application.CQRS
                 throw new Exception("You cannot skip a negative number of columns");
 
             var traits = _context.GetTraitsFromColumns(Table, Skip, Type);
+            var exps = _context.Experiments.ToDictionary(
+                e => e.Name,
+                e => e.Treatments.SelectMany(t => t.Plots).Distinct().ToArray()
+            );
 
             IEnumerable<SoilData> convertRow(DataRow row)
             {
-                var exp = _context.Experiments.FirstOrDefault(e => e.Name == row[0].ToString());                
+                var exp = row[0].ToString();
+                var text = row[1].ToString().ToLower();
+                var plots = (text == "all" || text == "avg")
+                    ? exps[exp]
+                    : exps[exp].Where(p => text.Split(',').Select(i => Convert.ToInt32(i)).Contains(p.Column.Value));
 
                 // For each plot specified in the PlotId column
-                foreach (var plot in _context.FindPlots(row[1], exp))
+                foreach (var plot in plots)
                 {
                     // Convert all values from the 6th column onwards into SoilLayerData entities
                     for (int i = Skip; i < row.ItemArray.Length; i++)
