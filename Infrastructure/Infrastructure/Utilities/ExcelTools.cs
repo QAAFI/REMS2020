@@ -72,9 +72,7 @@ namespace Rems.Infrastructure.Excel
             foreach (ICell c in row.Cells)
             {
                 if (c.CellType == CellType.Blank)
-                    continue;
-
-                any = true;
+                    continue;                
 
                 if (c.ColumnIndex >= data.ItemArray.Length)
                     throw new IndexOutOfRangeException($"The sheet {row.Sheet.SheetName} contains extra data in cell {c.Address}." +
@@ -89,18 +87,21 @@ namespace Rems.Infrastructure.Excel
                             data[c.ColumnIndex] = date;
                         else if (c.StringCellValue != "")
                             data[c.ColumnIndex] = c.StringCellValue;
-                        continue;
+                        else
+                            continue; // Ignore empty cells by continuing here
+                        break;
 
                     case CellType.Numeric:
                         if (c.ToString().Contains("-"))
                             data[c.ColumnIndex] = c.ToString();
                         else
                             data[c.ColumnIndex] = c.NumericCellValue;
-                        continue;
+                        break;
 
                     default:
-                        continue;
-                }              
+                        break;
+                }
+                any = true;
             }
 
             if (any) table.Rows.Add(data);
