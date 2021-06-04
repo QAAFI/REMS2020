@@ -7,7 +7,45 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Fertilisation.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Harvest.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\SkipRow.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Sowing.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Panels\NewOld.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Panels\PredictedObserved.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ApplicationFiles\Templates\Simulation.apsimx" />
+    <None Remove="ApplicationFiles\Templates\Sorghum.apsimx" />
     <None Remove="Resources\TeeChart.licenses" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ApplicationFiles\Scripts\Managers\Fertilisation.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Scripts\Managers\Harvest.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Scripts\Managers\SkipRow.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Scripts\Managers\Sowing.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Scripts\Panels\NewOld.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Scripts\Panels\PredictedObserved.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Templates\Simulation.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Templates\Sorghum.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
