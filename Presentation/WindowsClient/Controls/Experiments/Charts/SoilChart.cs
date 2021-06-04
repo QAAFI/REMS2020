@@ -195,7 +195,7 @@ namespace WindowsClient.Controls
                         };
 
                         var data = await QueryManager.Request(query);
-                        data.AddToChart(chart);
+                        data.AddToChart(chart, true);
                     }
                 }
 
@@ -232,7 +232,7 @@ namespace WindowsClient.Controls
                         };
 
                         var data = await QueryManager.Request(query);
-                        data.AddToChart(chart);
+                        data.AddToChart(chart, true);
                     }
                 }
 
@@ -274,7 +274,7 @@ namespace WindowsClient.Controls
                         var series = await QueryManager.Request(query);
 
                         foreach (var data in series)
-                            data.AddToChart(chart);
+                            data.AddToChart(chart, true);
                     }
                 }
 
