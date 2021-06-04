@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\TeeChart.licenses" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TeeChart.licenses" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Steema.TeeChart.NET50.WinForms" Version="5.2021.5.6" />
   </ItemGroup>
 
