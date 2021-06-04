@@ -13,16 +13,25 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="series">The data</param>
         /// <param name="chart">The chart</param>
-        public static void AddToChart<TX, TY>(this SeriesData<TX, TY> series, Chart chart)
+        /// <param name="vertical">If the data is ordered vertically, not horizontally</param>
+        public static void AddToChart<TX, TY>(this SeriesData<TX, TY> series, Chart chart, bool vertical = false)
         {
             if (series is null) return;
             if (series.X.Length == 0) return;            
 
-            Points points = new Points();
+            Points points = new();
             points.Legend.Text = series.Name;
 
-            Line line = new Line();
+            Line line = new();
             line.Legend.Visible = false;
+
+            if (vertical)
+            {
+                points.XValues.Order = ValueListOrder.None;
+                points.YValues.Order = ValueListOrder.Ascending;
+                line.XValues.Order = ValueListOrder.None;
+                line.YValues.Order = ValueListOrder.Ascending;
+            }
 
             if (typeof(TX) == typeof(DateTime))
             {
