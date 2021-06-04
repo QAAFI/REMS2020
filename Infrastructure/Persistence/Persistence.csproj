@@ -5,39 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Files\Scripts\Managers\Fertilisation.cs" />
-    <Compile Remove="Files\Scripts\Managers\Harvest.cs" />
-    <Compile Remove="Files\Scripts\Managers\SkipRow.cs" />
-    <Compile Remove="Files\Scripts\Managers\Sowing.cs" />
-    <Compile Remove="Files\Scripts\Panels\NewOld.cs" />
-    <Compile Remove="Files\Scripts\Panels\PredictedObserved.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Files\Scripts\Managers\Fertilisation.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="Files\Scripts\Managers\Harvest.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="Files\Scripts\Managers\SkipRow.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Files\Scripts\Managers\Sowing.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Files\Scripts\Panels\NewOld.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Files\Scripts\Panels\PredictedObserved.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
@@ -46,15 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Application\Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Files\Templates\Simulation.apsimx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Files\Templates\Sorghum.apsimx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

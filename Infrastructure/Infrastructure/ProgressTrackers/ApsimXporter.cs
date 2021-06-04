@@ -35,6 +35,8 @@ namespace Rems.Infrastructure.ApsimX
         /// </summary>
         public IEnumerable<string> Experiments { get; set; }
 
+        public IFileManager Manager { get; set; }
+
         /// <inheritdoc/>
         public override int Items => Experiments.Count();
 
@@ -43,9 +45,7 @@ namespace Rems.Infrastructure.ApsimX
 
         private readonly int numModelsToExport = 29;
 
-        private Markdown summary = new Markdown();
-
-        private IFileManager manager = FileManager.Instance;
+        private Markdown summary = new Markdown();        
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
@@ -56,9 +56,9 @@ namespace Rems.Infrastructure.ApsimX
             summary.Clear();
             summary.AddSubHeading("REMS export summary", 1);
 
-            var simulations = JsonTools.LoadJson<Simulations>(manager.GetFileInfo("Simulation"));
+            var simulations = JsonTools.LoadJson<Simulations>(Manager.GetFileInfo("Simulation"));
 
-            var sorghum = JsonTools.LoadJson<Folder>(manager.GetFileInfo("Sorghum"));
+            var sorghum = JsonTools.LoadJson<Folder>(Manager.GetFileInfo("Sorghum"));
 
             foreach (IModel model in sorghum.Children)
                 simulations.Children.Add(model);

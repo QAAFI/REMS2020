@@ -4,7 +4,7 @@ using System.Linq;
 
 using Rems.Application.Common.Interfaces;
 
-namespace Rems.Persistence
+namespace WindowsClient
 {
     public sealed class FileManager : IFileManager
     {
@@ -29,7 +29,7 @@ namespace Rems.Persistence
         /// <inheritdoc/>
         public string ImportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        private DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory() + "/Files");
+        private DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory() + "/ApplicationFiles");
 
         public string GetContent(string filename)
         {

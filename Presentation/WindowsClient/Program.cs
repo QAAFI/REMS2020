@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using Rems.Application;
+using Rems.Application.Common.Interfaces;
 using Rems.Persistence;
 
 using System;
@@ -20,6 +21,7 @@ namespace WindowsClient
             Application.SetCompatibleTextRenderingDefault(false);
 
             IServiceProvider ServiceProvider = new ServiceCollection()
+                .AddSingleton<IFileManager, FileManager>(s => FileManager.Instance)
                 .AddPersistence()
                 .AddApplication()                
                 .BuildServiceProvider();

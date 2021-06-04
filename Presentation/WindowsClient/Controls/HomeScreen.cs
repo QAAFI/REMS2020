@@ -239,21 +239,21 @@ namespace WindowsClient.Controls
 
                 try
                 {
-                    using (var exporter = new ApsimXporter
+                    using var exporter = new ApsimXporter
                     {
                         Experiments = exportList.CheckedItems.Cast<string>(),
-                        FileName = save.FileName
-                    })
-                    {
-                        exportTracker.AttachRunner(exporter);
+                        FileName = save.FileName,
+                        Manager = FileManager.Instance
+                    };
 
-                        exporter.Query += QueryManager.Request;
-                        exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
+                    exportTracker.AttachRunner(exporter);
 
-                        await exporter.Run();
+                    exporter.Query += QueryManager.Request;
+                    exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
 
-                        exportTracker.Reset();
-                    }
+                    await exporter.Run();
+
+                    exportTracker.Reset();
                 }
                 catch (Exception error)
                 {
