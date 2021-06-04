@@ -24,8 +24,6 @@ namespace Rems.Application.CQRS
 
         public Type Dependency { get; set; }
 
-        public Action IncrementProgress { get; set; }
-
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertSoilLayerTraitsCommand>
         {
@@ -72,7 +70,7 @@ namespace Rems.Application.CQRS
                     entities.Add(slt);
                 });
 
-                IncrementProgress();
+                Progress.Increment(1);
             }
             _context.SaveChanges();
 
