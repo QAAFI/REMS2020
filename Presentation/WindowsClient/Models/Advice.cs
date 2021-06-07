@@ -39,7 +39,8 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="text">The content of the message</param>
         /// <param name="color">The display color of the message</param>
-        public void Include(string text, Color color) => Message.Add(new RichText { Text = text, Color = color });
+        public void Include(string text, Color? color = null)
+            => Message.Add(new RichText { Text = text, Color = color.GetValueOrDefault(Color.Black) });
 
         /// <summary>
         /// Displays the advice in the given <see cref="RichTextBox"/>
