@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
+using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -26,15 +28,15 @@ namespace WindowsClient.Models
 
         public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
         {
-            addtrait = new ToolStripMenuItem("Add as trait", null, async (s, e) => await AddTrait(s, e));
+            addtrait = new ToolStripMenuItem("Add as trait", null, AddTraitClicked);
             moveUp = new ToolStripMenuItem("Move up", null, MoveUp);
             moveDown = new ToolStripMenuItem("Move down", null, MoveDown);
 
-            items.Add(addtrait);
-            items.Add(properties);
-            items.Add("-");
-            items.Add(moveUp);
-            items.Add(moveDown);
+            Items.Add(addtrait);
+            Items.Add(properties);
+            Items.Add("-");
+            Items.Add(moveUp);
+            Items.Add(moveDown);
         }
 
         #region Menu functions
@@ -43,7 +45,7 @@ namespace WindowsClient.Models
         {
             if (Excel.State["Info"] != null)
             {
-                items[2].Enabled = false;
+                Items[2].Enabled = false;
                 return;
             }
 
@@ -52,21 +54,46 @@ namespace WindowsClient.Models
             var props = Excel.Data.GetUnmappedProperties();
 
             foreach (var prop in props)
-                properties.DropDownItems.Add(prop.Name, null, SetProperty);
+                properties.DropDownItems.Add(prop.Name, null, (s, e) => SetProperty(prop));
         }
 
-        private void SetProperty(object sender, EventArgs args)
+        /// <summary>
+        /// Adds a trait to the database representing the current node
+        /// </summary>
+        public async void AddTraitClicked(object sender, EventArgs args)
         {
-            var item = sender as ToolStripMenuItem;
-            Name = item.Text;
-            Excel.State["Info"] = Excel.Data.FindProperty();
-            Validator.Validate();
+            await AddTrait();
+            InvokeUpdated();
+        }
+
+        public async Task AddTrait()
+        {
+            if (Ignore)
+                return;
+
+            var query = new AddTraitCommand
+            {
+                Name = Excel.Data.ColumnName,
+                Type = (Excel.Source.ExtendedProperties["Type"] as Type).Name
+            };
+
+            await QueryManager.Request(query);
+
+            await (Excel as ExcelColumn).CheckIfTrait();
+        }
+
+        private void SetProperty(PropertyInfo info)
+        {
+            Text = info.Name;
+            Excel.State["Info"] = info;
+
+            InvokeUpdated();
         }
 
         /// <summary>
         /// Switches this node with the sibling immediately above it in the tree
         /// </summary>
-        public async void MoveUp(object sender, EventArgs args)
+        public void MoveUp(object sender, EventArgs args)
         {
             // Store references so they are not lost on removal
             int i = Index;
@@ -89,7 +116,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Switches this node with the sibling immediately below it in the tree
         /// </summary>
-        public async void MoveDown(object sender, EventArgs args)
+        public void MoveDown(object sender, EventArgs args)
         {
             // Store references so they are not lost on removal
             int i = Index;

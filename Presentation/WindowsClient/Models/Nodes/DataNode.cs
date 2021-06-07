@@ -1,9 +1,6 @@
 using System;
-using System.Data;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -29,8 +26,8 @@ namespace WindowsClient.Models
             validator.SetAdvice += (s, e) => Advice = e.Item;
             Validator = validator;
 
-            items.Add(new ToolStripMenuItem("Rename", null, Rename));
-            items.Add(new ToolStripMenuItem("Ignore", null, ToggleIgnore));
+            Items.Add(new ToolStripMenuItem("Rename", null, Rename));
+            Items.Add(new ToolStripMenuItem("Ignored", null, IgnoreClicked));
         }
 
         #region Menu functions       
@@ -44,43 +41,26 @@ namespace WindowsClient.Models
             InvokeUpdated();
         }
 
-        /// <summary>
-        /// Toggles the ignored state of the current node
-        /// </summary>
-        public void ToggleIgnore(object sender, EventArgs args)
+        public void IgnoreClicked(object sender, EventArgs args)
         {
-            Excel.Source.ExtendedProperties["Ignore"] = Ignore = !Ignore;
+            ToggleIgnore();
 
-            if (sender is not ToolStripMenuItem item)
-                return;
-
-            if (item.Checked = Ignore)
-            {
-                Advice.Clear();
-                Advice.Include("Ignored items will not be imported.\n", Color.Black);
-            }
+            if (sender is ToolStripMenuItem item)            
+                item.Checked = Ignore;
 
             InvokeUpdated();
         }
 
         /// <summary>
-        /// Adds a trait to the database representing the current node
+        /// Toggles the ignored state of the current node
         /// </summary>
-        public async Task AddTrait(object sender, EventArgs args)
+        public void ToggleIgnore()
         {
-            if (Ignore)
-                return;
+            Excel.State["Ignore"] = Ignore = !Ignore;
 
-            if (Tag is DataTable)
-                throw new Exception("A table cannot be added as a trait");
-
-            var name = (Tag as DataColumn).ColumnName;
-            var type = (Tag as DataColumn).Table.ExtendedProperties["Type"] as Type;
-            await QueryManager.Request(new AddTraitCommand() { Name = name, Type = type.Name });
-
-            Validator.Validate();
+            Advice.Clear();
+            Advice.Include("Ignored items will not be imported.\n", Color.Black);            
         }
-
         #endregion
 
         #region Disposable

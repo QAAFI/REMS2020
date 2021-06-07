@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
@@ -38,7 +39,7 @@ namespace WindowsClient.Models
         {
             get
             {
-                if (Excel.State["Ignore"] is true)
+                if (Ignore)
                     return "ExcelOff";
                 else if (!Validator.Valid)
                     return "Warning";
@@ -53,22 +54,67 @@ namespace WindowsClient.Models
             Nodes.Add(Traits);
             Nodes.Add(Unknowns);
             Nodes.Add(Ignored);
+
+            Unknowns.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
+            Unknowns.Items.Add(new ToolStripMenuItem("Ignore all", null, ToggleIgnoreAll));
+
+            Ignored.Items.Add(new ToolStripMenuItem("Import all", null, ToggleIgnoreAll));
         }
 
         protected override void OnMenuOpening(object sender, EventArgs args)
         {
             // No configuration required
-        }        
+        }
+
+        /// <summary>
+        /// Adds a trait to the database for every invalid child node
+        /// </summary>
+        public async void AddTraits(object sender, EventArgs args)
+        {
+            var nodes = TreeView.SelectedNode.Nodes.OfType<ColumnNode>();
+            foreach (var node in nodes)
+                if (!node.Validator.Valid)
+                    await node.AddTrait();
+
+            Validate();
+        }
+
+        /// <summary>
+        /// Sets the ignored state of all child nodes
+        /// </summary>
+        private void ToggleIgnoreAll(object sender, EventArgs args)
+        {
+            var nodes = TreeView.SelectedNode.Nodes.OfType<ColumnNode>();
+            foreach (var node in nodes)
+                node.ToggleIgnore();
+
+            Validate();
+        }
+
+        private void UpdateColumn(ColumnNode node)
+        {
+            node.Parent.Nodes.Remove(node);
+
+            if (node.Ignore)
+                Ignored.Nodes.Add(node);
+            else if (node.Excel.State["IsTrait"] is true)
+                Traits.Nodes.Add(node);
+            else if (node.Excel.State["Info"] is not null)
+                Properties.Nodes.Add(node);
+            else
+                Unknowns.Nodes.Add(node);
+        }
 
         public override void Validate()
         {
             Validator.Valid = true;
 
-            var nodes = Nodes.OfType<GroupNode>().SelectMany(g => g.Nodes.OfType<ColumnNode>());
+            var nodes = Nodes.OfType<GroupNode>().SelectMany(g => g.Nodes.OfType<ColumnNode>()).ToArray();
             
             foreach (var node in nodes)
             {
                 node.Validate();
+                UpdateColumn(node);
 
                 if (!node.Ignore)
                     Validator.Valid &= node.Validator.Valid;

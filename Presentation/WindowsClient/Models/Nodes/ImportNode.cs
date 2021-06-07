@@ -16,7 +16,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
-        protected ToolStripItemCollection items => ContextMenuStrip.Items;
+        public ToolStripItemCollection Items => ContextMenuStrip.Items;
 
         /// <summary>
         /// Used to validate the data prior to import
