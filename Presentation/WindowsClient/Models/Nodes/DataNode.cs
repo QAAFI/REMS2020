@@ -11,21 +11,9 @@ namespace WindowsClient.Models
     /// <summary>
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
-    public abstract class DataNode<TData> : TreeNode, IDisposable
+    public abstract class DataNode<TData> : ImportNode
         where TData : IDisposable
     {
-        /// <summary>
-        /// Occurs when some change is applied to the node
-        /// </summary>
-        public event EventHandler Updated;
-
-        protected void InvokeUpdated() => Updated?.Invoke(this, EventArgs.Empty);
-
-        /// <summary>
-        /// The advice which is displayed alongside the node
-        /// </summary>
-        public Advice Advice { get; set; } = new Advice();
-
         /// <summary>
         /// Used to validate the data prior to import
         /// </summary>
@@ -115,20 +103,8 @@ namespace WindowsClient.Models
                 parent.Validater.Validate();
         }
 
-        #region Menu functions
+        #region Menu functions       
 
-        /// <summary>
-        /// Handles any dynamic changes to the menu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        protected abstract void OnMenuOpening(object sender, EventArgs args);
-
-        /// <summary>
-        /// Begins editing the node label
-        /// </summary>
-        private void Rename(object sender, EventArgs args) => BeginEdit();       
-        
         /// <summary>
         /// Toggles the ignored state of the current node
         /// </summary>
@@ -196,9 +172,8 @@ namespace WindowsClient.Models
         #endregion
 
         #region Disposable
-        private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -208,17 +183,8 @@ namespace WindowsClient.Models
                     Validater.Dispose();
                     ContextMenuStrip.Opening -= OnMenuOpening;
                 }
-
-                Updated = null;
-                disposedValue = true;
+                base.Dispose();
             }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
         #endregion
     }
