@@ -6,8 +6,21 @@ namespace WindowsClient.Models
 {
     public class TableNode : DataNode<DataTable, ITableValidator>
     {
+        public GroupNode Properties = new GroupNode("Properties")
+        { Advice = new("These nodes represent information about the experiment") };
+
+        public GroupNode Traits = new GroupNode("Traits")
+        { Advice = new("These nodes represent trait data with measured values") };
+
+        public GroupNode Unknowns = new GroupNode("Unknowns")
+        { Advice = new("These nodes represent unidentified data types") };
+
         public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
         {
+            Nodes.Add(Properties);
+            Nodes.Add(Traits);
+            Nodes.Add(Unknowns);
+
             items.Add(new ToolStripMenuItem("Add invalids as traits", null, AddTraits));
             items.Add(new ToolStripMenuItem("Ignore all invalids", null, IgnoreAll));
         }

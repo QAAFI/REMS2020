@@ -149,19 +149,6 @@ namespace WindowsClient.Controls
 
             vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
 
-            var properties = new GroupNode("Properties");
-            properties.Advice.Include("These nodes represent information about the experiment");
-
-            var traits = new GroupNode("Traits");
-            traits.Advice.Include("These nodes represent trait data with measured values");
-
-            var unknowns = new GroupNode("Unknown");
-            unknowns.Advice.Include("These nodes represent trait data with measured values");
-
-            tnode.Nodes.Add(properties);
-            tnode.Nodes.Add(traits);
-            tnode.Nodes.Add(unknowns);
-
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
@@ -173,11 +160,11 @@ namespace WindowsClient.Controls
                 };
 
                 if (cnode.Excel.State["Info"] is not null)
-                    properties.Nodes.Add(cnode);
+                    tnode.Properties.Nodes.Add(cnode);
                 else if (cnode.Excel.State["IsTrait"] is true)
-                    traits.Nodes.Add(cnode);
+                    tnode.Traits.Nodes.Add(cnode);
                 else
-                    unknowns.Nodes.Add(cnode);
+                    tnode.Unknowns.Nodes.Add(cnode);
             }
 
             tnode.Validate();
@@ -352,7 +339,7 @@ namespace WindowsClient.Controls
             columnLabel.Text = e.Node.Text;
 
             var node = e.Node;
-            while (node.Parent != null) node = e.Node.Parent;
+            while (node.Parent != null) node = node.Parent;
 
             if (node is not TableNode root)
                 return;

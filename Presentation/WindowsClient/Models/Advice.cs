@@ -34,6 +34,14 @@ namespace WindowsClient.Models
 
         private List<RichText> Message = new List<RichText>();
 
+        public Advice()
+        { }
+
+        public Advice(string message) : base()
+        {
+            Include(message);
+        }
+
         /// <summary>
         /// Adds a new message to the advice
         /// </summary>
