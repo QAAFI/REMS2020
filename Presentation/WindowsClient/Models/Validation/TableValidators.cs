@@ -38,8 +38,8 @@ namespace WindowsClient.Models
             if (Valid)
                 Advice = new ("This table is valid. Check the other tables prior to import.");
             else
-                Advice = new ("This table contains unknown columns. Right-click on a column to " +
-                    "see options for import validation.");            
+                Advice = new ("This table contains unknown columns. Right-click on an unknown " +
+                    "column to see options for import validation.");            
         }
 
         /// <inheritdoc/>
@@ -71,10 +71,10 @@ namespace WindowsClient.Models
         public override void Validate()
         {
             if (Valid)
-                Advice = new ("Ready for import.");
+                Advice = new ("This table is valid. Check the other tables prior to import.");
             else
             {
-                Advice = new ("Mismatch in expected node order. \n\n" +
+                Advice = new ("Mismatch in expected node order.\n\n" +
                     $"{"EXPECTED:",-20}{"DETECTED:",-20}\n");
 
                 for (int i = 0; i < columns.Length; i++)
@@ -92,7 +92,8 @@ namespace WindowsClient.Models
                     Advice.Include($"{columns[i],-20}{name,-20}\n", color);
                 }
 
-                Advice.Include("\nRight-click nodes to see options.", Color.Black);
+                Advice.Include("\nUse the move up / move down " +
+                    "right-click option to reorder nodes.", Color.Black);
             }
         }
 
