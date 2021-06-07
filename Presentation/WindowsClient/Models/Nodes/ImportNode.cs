@@ -28,6 +28,8 @@ namespace WindowsClient.Models
         /// </summary>
         public Advice Advice { get; set; } = new Advice();
 
+        public abstract string Key { get; }
+
         public ImportNode(string name) : base(name)
         {
             ContextMenuStrip = new ContextMenuStrip();

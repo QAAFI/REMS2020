@@ -5,6 +5,7 @@ using Rems.Infrastructure.Excel;
 
 using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,34 +50,43 @@ namespace WindowsClient.Controls
         /// </summary>
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        /// <summary>
-        /// Collection of icons used by the data tree
-        /// </summary>
-        private ImageList images;
-
         public Importer() : base()
         {
             InitializeComponent();
-            Dock = DockStyle.Fill;
+            Dock = DockStyle.Fill;            
 
-            // Add icons to the image list
-            images = new ImageList();
-            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
-            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
-            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
-            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
-            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
-            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
-            images.Images.Add("Add", Properties.Resources.Add);
-            images.ImageSize = new System.Drawing.Size(14, 14);
-
-            dataTree.ImageList = images;
+            dataTree.ImageList = GetTreeImages();
 
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
 
             tracker.TaskBegun += RunImporter;
+        }
+
+        private ImageList GetTreeImages()
+        {
+            // Add icons to the image list
+            var images = new ImageList();
+            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
+            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
+            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
+            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
+            
+            images.Images.Add("Add", Properties.Resources.Add);
+            images.Images.Add("Question", Properties.Resources.Question);
+            images.Images.Add("Traits", Properties.Resources.Traits);
+            images.Images.Add("Excel", Properties.Resources.Excel);
+            images.Images.Add("ExcelOff", Properties.Resources.ExcelOff);
+            images.Images.Add("Properties", Properties.Resources.Properties);
+
+            images.Images.Add("Warning", SystemIcons.Warning);
+            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
+            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
+
+            images.ImageSize = new System.Drawing.Size(14, 14);
+
+            return images;
         }
 
         #region Methods

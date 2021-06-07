@@ -13,6 +13,28 @@ namespace WindowsClient.Models
         private ToolStripMenuItem moveUp;
         private ToolStripMenuItem moveDown;
 
+        public override string Key
+        {
+            get
+            {
+                string key = "";
+
+                if (Excel.State["Override"] is string s && s != "")
+                    key = s;
+                else if (Excel.State["Valid"] is true)
+                    key += "Valid";
+                else
+                    key += "Invalid";
+
+                if (Excel.State["Ignore"] is true)
+                    key += "Off";
+                else
+                    key += "On";
+
+                return key;
+            }
+        }
+
         public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
         {
             addtrait = new ToolStripMenuItem("Add as trait", null, async (s, e) => await AddTrait(s, e));

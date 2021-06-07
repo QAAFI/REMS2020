@@ -7,13 +7,38 @@ namespace WindowsClient.Models
     public class TableNode : DataNode<DataTable, ITableValidator>
     {
         public GroupNode Properties = new GroupNode("Properties")
-        { Advice = new("These nodes represent information about the experiment") };
+        {
+            Advice = new("These nodes represent information about the experiment"),
+            ImageKey = "Properties",
+            SelectedImageKey = "Properties"
+        };
 
         public GroupNode Traits = new GroupNode("Traits")
-        { Advice = new("These nodes represent trait data with measured values") };
+        {
+            Advice = new("These nodes represent trait data with measured values"),
+            ImageKey = "Traits",
+            SelectedImageKey = "Traits"
+        };
 
         public GroupNode Unknowns = new GroupNode("Unknowns")
-        { Advice = new("These nodes represent unidentified data types") };
+        {
+            Advice = new("These nodes represent unidentified data types"),
+            ImageKey = "Question",
+            SelectedImageKey = "Question"
+        };
+
+        public override string Key 
+        {
+            get
+            {
+                if (Excel.State["Ignore"] is true)
+                    return "ExcelOff";
+                else if (Excel.State["Valid"] is not true)
+                    return "Warning";
+                else
+                    return "Excel";                
+            }
+        }
 
         public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
         {

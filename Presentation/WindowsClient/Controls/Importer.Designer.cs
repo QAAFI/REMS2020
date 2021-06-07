@@ -19,7 +19,6 @@
             
             dataTree.AfterLabelEdit -= AfterLabelEdit;
             tracker.TaskBegun -= RunImporter;
-            images.Dispose();
 
             Data?.Dispose();
 

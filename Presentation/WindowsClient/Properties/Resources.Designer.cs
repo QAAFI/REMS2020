@@ -73,6 +73,26 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Excel {
+            get {
+                object obj = ResourceManager.GetObject("Excel", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExcelOff {
+            get {
+                object obj = ResourceManager.GetObject("ExcelOff", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap InvalidOff {
             get {
                 object obj = ResourceManager.GetObject("InvalidOff", resourceCulture);
@@ -86,6 +106,26 @@ namespace WindowsClient.Properties {
         internal static System.Drawing.Bitmap InvalidOn {
             get {
                 object obj = ResourceManager.GetObject("InvalidOn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Properties {
+            get {
+                object obj = ResourceManager.GetObject("Properties", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Question {
+            get {
+                object obj = ResourceManager.GetObject("Question", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -107,6 +147,16 @@ namespace WindowsClient.Properties {
             get {
                 object obj = ResourceManager.GetObject("TeeChart", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Traits {
+            get {
+                object obj = ResourceManager.GetObject("Traits", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

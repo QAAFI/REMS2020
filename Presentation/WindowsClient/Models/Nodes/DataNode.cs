@@ -66,24 +66,10 @@ namespace WindowsClient.Models
             // Prevent recursively updating states
             if (Excel.State[state] == value) return;
 
-            Excel.State[state] = value;
+            Excel.State[state] = value;           
 
-            string key = "";
-
-            if (Excel.State["Override"] is string s && s != "")
-                key = s;
-            else if (Excel.State["Valid"] is true)
-                key += "Valid";
-            else
-                key += "Invalid";
-
-            if (Excel.State["Ignore"] is true)
-                key += "Off";
-            else
-                key += "On";
-
-            ImageKey = key;
-            SelectedImageKey = key;
+            ImageKey = Key;
+            SelectedImageKey = Key;
 
             // Update the node parent
             if (Parent is TableNode parent) 
