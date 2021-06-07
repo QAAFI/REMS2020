@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -8,7 +7,6 @@ using System;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -151,22 +149,40 @@ namespace WindowsClient.Controls
 
             vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
 
+            var properties = new GroupNode("Properties");
+            properties.Advice.Include("These nodes represent information about the experiment");
+
+            var traits = new GroupNode("Traits");
+            traits.Advice.Include("These nodes represent trait data with measured values");
+
+            var unknowns = new GroupNode("Unknown");
+            unknowns.Advice.Include("These nodes represent trait data with measured values");
+
+            tnode.Nodes.Add(properties);
+            tnode.Nodes.Add(traits);
+            tnode.Nodes.Add(unknowns);
+
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i);
+                var cnode = await vt.CreateColumnNode(i);
                 cnode.Updated += (s, e) =>
                 {
                     importData.DataSource = cnode.Excel.Source;
                     importData.Format();
                 };
-                tnode.Nodes.Add(cnode);
+
+                if (cnode.Excel.State["Info"] is not null)
+                    properties.Nodes.Add(cnode);
+                else if (cnode.Excel.State["IsTrait"] is true)
+                    traits.Nodes.Add(cnode);
+                else
+                    unknowns.Nodes.Add(cnode);
             }
 
-            await tnode.Validate();
+            tnode.Validate();
 
             return tnode;
-
         }
 
         /// <summary>
@@ -335,24 +351,28 @@ namespace WindowsClient.Controls
         {
             columnLabel.Text = e.Node.Text;
 
-            var node = e.Node is ColumnNode c ? (TableNode)c.Parent : (TableNode)e.Node;
+            var node = e.Node;
+            while (node.Parent != null) node = e.Node.Parent;
 
-            importData.DataSource = node.Excel.Source;
+            if (node is not TableNode root)
+                return;
+
+            importData.DataSource = root.Excel.Source;
             importData.Format();            
 
-            if (!node.Advice.Empty)
-                node.Advice.AddToTextBox(adviceBox);            
+            if (!root.Advice.Empty)
+                root.Advice.AddToTextBox(adviceBox);            
         }
 
         /// <summary>
         /// Handles the renaming of a node in the tree
         /// </summary>
-        private async void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Node is DataNode<IDisposable> node && e.Label != null)
+            if (e.Node is DataNode<IDisposable, INodeValidator> node && e.Label != null)
             {
                 node.Excel.Name = e.Label;
-                await node.Validate();
+                node.Validate();
             }
         }
 
