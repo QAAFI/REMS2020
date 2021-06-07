@@ -17,35 +17,24 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override void Validate()
         {
-            bool isProperty = Component.ExtendedProperties["Info"] is null;
+            Advice = new Advice();
+
+            bool isProperty = Component.ExtendedProperties["Info"] is not null;
             bool isTrait = Component.ExtendedProperties["IsTrait"] is true;
-
-            // If the colum node is not valid for import, update the state to warn the user
-            if (isProperty && !isTrait)
-            {
-                Valid = false;
-
-                var advice = new Advice();
-                advice.Include("The type of column could not be determined. ", Color.Black);
-                advice.Include("Right click to view options. \n\n", Color.Black);
-                advice.Include("Ignore\n", Color.Blue);
-                advice.Include("    - The column is not imported\n\n", Color.Black);
-                advice.Include("Add trait\n", Color.Blue);
-                advice.Include("    - Add a trait named for the column\n", Color.Black);
-                advice.Include("    - Only valid traits are imported\n\n", Color.Black);
-                advice.Include("Set property\n", Color.Blue);
-                advice.Include("    - Match the column to a REMS property\n", Color.Black);
-
-                InvokeSetAdvice(advice);
-            }
+            
+            if (Valid = isProperty || isTrait)
+                Advice.Include("Ready to be imported.\n", Color.Black);
             else
             {
-                Valid = true;
-
-                var advice = new Advice();
-                advice.Include("Ready to be imported.\n", Color.Black);
-
-                InvokeSetAdvice(advice);
+                Advice.Include("The type of column could not be determined. ", Color.Black);
+                Advice.Include("Right click to view options. \n\n", Color.Black);
+                Advice.Include("Ignore\n", Color.Blue);
+                Advice.Include("    - The column is not imported\n\n", Color.Black);
+                Advice.Include("Add trait\n", Color.Blue);
+                Advice.Include("    - Add a trait named for the column\n", Color.Black);
+                Advice.Include("    - Only valid traits are imported\n\n", Color.Black);
+                Advice.Include("Set property\n", Color.Blue);
+                Advice.Include("    - Match the column to a REMS property\n", Color.Black);
             }
         }
     }

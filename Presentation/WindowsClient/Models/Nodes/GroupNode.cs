@@ -6,6 +6,8 @@ namespace WindowsClient.Models
     {
         public override string Key { get; }
 
+        public override NullValidator Validator { get; set; } = new();
+
         public GroupNode(string name) : base(name)
         { }
 
@@ -18,6 +20,8 @@ namespace WindowsClient.Models
         {
             foreach (ColumnNode node in Nodes)
                 node.Validate();
+
+            Validator.Advice = Advice;
         }
     }
 }

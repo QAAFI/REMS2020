@@ -23,7 +23,6 @@ namespace WindowsClient.Models
             Excel = excel;
             Tag = Excel.Data;
             
-            validator.SetAdvice += (s, e) => Advice = e.Item;
             Validator = validator;
 
             Items.Add(new ToolStripMenuItem("Rename", null, Rename));

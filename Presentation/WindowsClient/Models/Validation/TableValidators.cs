@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace WindowsClient.Models
@@ -37,19 +36,10 @@ namespace WindowsClient.Models
         {
             // A table is valid if all of its columns are valid or ignored
             if (Valid)
-            {
-                var advice = new Advice();
-                advice.Include("This table is valid. Check the other tables prior to import.", Color.Black);
-
-                InvokeSetAdvice(advice);
-            }
+                Advice = new ("This table is valid. Check the other tables prior to import.");
             else
-            {
-                var advice = new Advice();
-                advice.Include("This table contains columns that REMS does not recognise." +
-                    " Please fix the columns before importing", Color.Black);
-                InvokeSetAdvice(advice);
-            }
+                Advice = new ("This table contains unknown columns. Right-click on a column to " +
+                    "see options for import validation.");            
         }
 
         /// <inheritdoc/>
@@ -58,9 +48,7 @@ namespace WindowsClient.Models
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
             await excel.CheckIfTrait();
-            var validater = new ColumnValidator(col);
-           
-            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
+            var validater = new ColumnValidator(col);           
 
             return new ColumnNode(excel, validater);
         }
@@ -83,16 +71,11 @@ namespace WindowsClient.Models
         public override void Validate()
         {
             if (Valid)
-            {
-                var advice = new Advice();
-                advice.Include("Ready for import.", Color.Black);
-                InvokeSetAdvice(advice);
-            }
+                Advice = new ("Ready for import.");
             else
             {
-                var advice = new Advice();
-                advice.Include("Mismatch in expected node order. \n\n" +
-                    $"{"EXPECTED:",-20}{"DETECTED:",-20}\n", Color.Black);
+                Advice = new ("Mismatch in expected node order. \n\n" +
+                    $"{"EXPECTED:",-20}{"DETECTED:",-20}\n");
 
                 for (int i = 0; i < columns.Length; i++)
                 {
@@ -106,12 +89,10 @@ namespace WindowsClient.Models
                     else
                         color = Color.MediumVioletRed;
 
-                    advice.Include($"{columns[i],-20}{name,-20}\n", color);
+                    Advice.Include($"{columns[i],-20}{name,-20}\n", color);
                 }
 
-                advice.Include("\nRight-click nodes to see options.", Color.Black);
-
-                InvokeSetAdvice(advice);
+                Advice.Include("\nRight-click nodes to see options.", Color.Black);
             }
         }
 
@@ -125,8 +106,6 @@ namespace WindowsClient.Models
             INodeValidator validater = (i < columns.Length)
                 ? new OrdinalValidator(col, i, columns[i])
                 : new NullValidator();
-            
-            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
 
             return new ColumnNode(excel, validater);
         }

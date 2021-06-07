@@ -158,8 +158,6 @@ namespace WindowsClient.Controls
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
 
-            vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
-
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
@@ -347,20 +345,21 @@ namespace WindowsClient.Controls
         /// Handles the selection of a new node in the tree
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
-        {
-            columnLabel.Text = e.Node.Text;
-
+        {            
             var node = e.Node;
+
+            columnLabel.Text = node.Text;
+
+            var advice = (node as ColumnNode)?.Advice ?? (node as GroupNode)?.Advice ?? (node as TableNode).Advice;
+            advice.AddToTextBox(adviceBox);
+
             while (node.Parent != null) node = node.Parent;
 
             if (node is not TableNode root)
                 return;
 
             importData.DataSource = root.Excel.Source;
-            importData.Format();            
-
-            if (!root.Advice.Empty)
-                root.Advice.AddToTextBox(adviceBox);            
+            importData.Format();
         }
 
         /// <summary>

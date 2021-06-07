@@ -21,12 +21,16 @@ namespace WindowsClient.Models
         /// <summary>
         /// Used to validate the data prior to import
         /// </summary>
-        public TValidator Validator { get; set; }
+        public virtual TValidator Validator { get; set; }
 
         /// <summary>
         /// The advice which is displayed alongside the node
         /// </summary>
-        public Advice Advice { get; set; } = new Advice();
+        public Advice Advice 
+        {
+            get => Validator.Advice;
+            set => Validator.Advice = value;
+        }
 
         public abstract string Key { get; }
 

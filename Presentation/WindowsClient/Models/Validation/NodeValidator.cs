@@ -9,9 +9,9 @@ namespace WindowsClient.Models
     public interface INodeValidator : IDisposable
     {
         /// <summary>
-        /// Occurs when the advice provided to the user is changed
+        /// The advice provided to the user
         /// </summary>
-        event EventHandler<Args<Advice>> SetAdvice;
+        Advice Advice { get; set; }
 
         bool Valid { get; set; }
 
@@ -26,14 +26,11 @@ namespace WindowsClient.Models
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event EventHandler<Args<Advice>> SetAdvice;
+        public Advice Advice { get; set; } = new Advice();
 
         public TComponent Component { get; set; }
 
         public bool Valid { get; set; } = false;
-
-        protected void InvokeSetAdvice(Advice advice)
-            => SetAdvice?.Invoke(this, new Args<Advice> { Item = advice });
 
         public abstract void Validate();
 
@@ -46,8 +43,6 @@ namespace WindowsClient.Models
                     if (Component is IDisposable disposable)
                         disposable.Dispose();
                 }
-
-                SetAdvice = null;
 
                 disposedValue = true;                
             }
