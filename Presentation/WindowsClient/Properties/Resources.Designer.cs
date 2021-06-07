@@ -93,6 +93,16 @@ namespace WindowsClient.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Ignore {
+            get {
+                object obj = ResourceManager.GetObject("Ignore", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap InvalidOff {
             get {
                 object obj = ResourceManager.GetObject("InvalidOff", resourceCulture);

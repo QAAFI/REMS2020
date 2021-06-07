@@ -33,9 +33,7 @@ namespace WindowsClient.Models
         public ImportNode(string name) : base(name)
         {
             ContextMenuStrip = new ContextMenuStrip();
-            ContextMenuStrip.Opening += OnMenuOpening;
-
-            items.Add(new ToolStripMenuItem("Rename", null, Rename));
+            ContextMenuStrip.Opening += OnMenuOpening;            
         }
 
         /// <summary>
@@ -43,39 +41,34 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        protected abstract void OnMenuOpening(object sender, EventArgs args);
-
-        /// <summary>
-        /// Begins editing the node label
-        /// </summary>
-        protected void Rename(object sender, EventArgs args) => BeginEdit();
+        protected abstract void OnMenuOpening(object sender, EventArgs args);        
 
         /// <summary>
         /// Test a node for validity
         /// </summary>
         public abstract void Validate();
 
-    #region Disposable
-    protected bool disposedValue;
+        #region Disposable
+        protected bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
+            protected virtual void Dispose(bool disposing)
             {
-                if (disposing)
-                {                  
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {                  
+                    }
+                    Updated = null;
+                    disposedValue = true;
                 }
-                Updated = null;
-                disposedValue = true;
             }
-        }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+            #endregion
     }
 }

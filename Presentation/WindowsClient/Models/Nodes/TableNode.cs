@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Windows.Forms;
+using System.Linq;
 
 namespace WindowsClient.Models
 {
@@ -27,13 +27,20 @@ namespace WindowsClient.Models
             SelectedImageKey = "Question"
         };
 
+        public GroupNode Ignored = new GroupNode("Ignored")
+        {
+            Advice = new("These nodes are ignored during import"),
+            ImageKey = "Ignore",
+            SelectedImageKey = "Ignore"
+        };
+
         public override string Key 
         {
             get
             {
                 if (Excel.State["Ignore"] is true)
                     return "ExcelOff";
-                else if (Excel.State["Valid"] is not true)
+                else if (!Validator.Valid)
                     return "Warning";
                 else
                     return "Excel";                
@@ -45,42 +52,44 @@ namespace WindowsClient.Models
             Nodes.Add(Properties);
             Nodes.Add(Traits);
             Nodes.Add(Unknowns);
-
-            items.Add(new ToolStripMenuItem("Add invalids as traits", null, AddTraits));
-            items.Add(new ToolStripMenuItem("Ignore all invalids", null, IgnoreAll));
+            Nodes.Add(Ignored);
         }
 
         protected override void OnMenuOpening(object sender, EventArgs args)
         {
             // No configuration required
-        }
-
-        /// <summary>
-        /// Adds a trait to the database for every invalid child node
-        /// </summary>
-        public async void AddTraits(object sender, EventArgs args)
-        {
-            foreach (ColumnNode n in Nodes)
-                if (n.Excel.State["Valid"] is false)
-                    await n.AddTrait(sender, args);
-        }
-
-        /// <summary>
-        /// Sets the ignored state of all child nodes
-        /// </summary>
-        private async void IgnoreAll(object sender, EventArgs args)
-        {
-            foreach (ColumnNode n in Nodes)
-                if (n.Excel.State["Valid"] is false)
-                    n.ToggleIgnore(null, args);
-        }
+        }        
 
         public override void Validate()
         {
-            foreach (GroupNode node in Nodes)
+            Validator.Valid = true;
+
+            var nodes = Nodes.OfType<GroupNode>().SelectMany(g => g.Nodes.OfType<ColumnNode>());
+            
+            foreach (var node in nodes)
+            {
                 node.Validate();
 
+                if (!node.Ignore)
+                    Validator.Valid &= node.Validator.Valid;
+            }
+
             Validator.Validate();
+
+            CheckNode(Properties);
+            CheckNode(Traits);
+            CheckNode(Unknowns);
+            CheckNode(Ignored);
+
+            ImageKey = SelectedImageKey = Key;
+        }
+
+        private void CheckNode(GroupNode node)
+        {
+            if (node.Nodes.Count == 0)
+                Nodes.Remove(node);
+            else if (!Nodes.Contains(node))
+                Nodes.Add(node);
         }
     }
 }

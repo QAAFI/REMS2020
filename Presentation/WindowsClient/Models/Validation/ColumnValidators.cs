@@ -17,10 +17,13 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override void Validate()
         {
+            bool isProperty = Component.ExtendedProperties["Info"] is null;
+            bool isTrait = Component.ExtendedProperties["IsTrait"] is true;
+
             // If the colum node is not valid for import, update the state to warn the user
-            if (Component.ExtendedProperties["Info"] is null && Component.ExtendedProperties["IsTrait"] is false)
+            if (isProperty && !isTrait)
             {
-                InvokeStateChanged("Valid", false);
+                Valid = false;
 
                 var advice = new Advice();
                 advice.Include("The type of column could not be determined. ", Color.Black);
@@ -37,8 +40,7 @@ namespace WindowsClient.Models
             }
             else
             {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
+                Valid = true;
 
                 var advice = new Advice();
                 advice.Include("Ready to be imported.\n", Color.Black);
@@ -66,9 +68,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override void Validate()
         {
-            bool valid = Component.Ordinal == ordinal && Component.ColumnName == name;
-            InvokeStateChanged("Valid", valid);
-            InvokeStateChanged("Override", valid ? "" : "Warning");
+            Valid = Component.Ordinal == ordinal && Component.ColumnName == name;
         }
     }
 }

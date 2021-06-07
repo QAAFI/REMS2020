@@ -17,19 +17,8 @@ namespace WindowsClient.Models
         {
             get
             {
-                string key = "";
-
-                if (Excel.State["Override"] is string s && s != "")
-                    key = s;
-                else if (Excel.State["Valid"] is true)
-                    key += "Valid";
-                else
-                    key += "Invalid";
-
-                if (Excel.State["Ignore"] is true)
-                    key += "Off";
-                else
-                    key += "On";
+                string key = Validator.Valid ? "Valid" : "Invalid";
+                key += Ignore ? "Off" : "On";
 
                 return key;
             }
@@ -71,7 +60,7 @@ namespace WindowsClient.Models
             var item = sender as ToolStripMenuItem;
             Name = item.Text;
             Excel.State["Info"] = Excel.Data.FindProperty();
-            UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
+            Validator.Validate();
         }
 
         /// <summary>
@@ -121,6 +110,11 @@ namespace WindowsClient.Models
         }
         #endregion        
 
-        public override void Validate() => Validator.Validate();        
+        public override void Validate()
+        {
+            Validator.Validate();
+
+            ImageKey = SelectedImageKey = Key;
+        }
     }
 }

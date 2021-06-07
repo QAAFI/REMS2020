@@ -9,14 +9,11 @@ namespace WindowsClient.Models
     public interface INodeValidator : IDisposable
     {
         /// <summary>
-        /// Occurs when the data is modified
-        /// </summary>
-        event EventHandler<Args<string, object>> StateChanged;
-
-        /// <summary>
         /// Occurs when the advice provided to the user is changed
         /// </summary>
         event EventHandler<Args<Advice>> SetAdvice;
+
+        bool Valid { get; set; }
 
         /// <summary>
         /// Checks if the node is ready to be imported and updates the state accordingly
@@ -29,15 +26,11 @@ namespace WindowsClient.Models
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event EventHandler<Args<string, object>> StateChanged;
-
-        /// <inheritdoc/>
         public event EventHandler<Args<Advice>> SetAdvice;
 
         public TComponent Component { get; set; }
 
-        protected void InvokeStateChanged(string state, object value)
-            => StateChanged?.Invoke(this, new Args<string, object> { Item1 = state, Item2 = value });
+        public bool Valid { get; set; } = false;
 
         protected void InvokeSetAdvice(Advice advice)
             => SetAdvice?.Invoke(this, new Args<Advice> { Item = advice });
@@ -54,10 +47,9 @@ namespace WindowsClient.Models
                         disposable.Dispose();
                 }
 
-                StateChanged = null;
                 SetAdvice = null;
 
-                disposedValue = true;
+                disposedValue = true;                
             }
         }
 
@@ -75,6 +67,9 @@ namespace WindowsClient.Models
     public class NullValidator : BaseValidator<object>
     {
         /// <inheritdoc/>
-        public override void Validate() => InvokeStateChanged("Valid", true);        
+        public override void Validate()
+        {
+            Valid = true;
+        }
     }
 }

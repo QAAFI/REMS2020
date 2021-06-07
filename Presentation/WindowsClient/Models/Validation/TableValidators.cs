@@ -25,6 +25,8 @@ namespace WindowsClient.Models
     /// </summary>
     public class TableValidator : BaseValidator<DataTable>, ITableValidator
     {
+        public bool ValidChildren { get; set; } = false;
+
         public TableValidator(DataTable table)
         {
             Component = table;
@@ -33,17 +35,9 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override void Validate()
         {
-            var valid = Component.Columns
-                .Cast<DataColumn>()
-                .Select(c => (bool)c.ExtendedProperties["Valid"] || (bool)c.ExtendedProperties["Ignore"])
-                .Aggregate((v1, v2) => v1 &= v2);
-
             // A table is valid if all of its columns are valid or ignored
-            if (valid)
+            if (Valid)
             {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
-
                 var advice = new Advice();
                 advice.Include("This table is valid. Check the other tables prior to import.", Color.Black);
 
@@ -51,9 +45,6 @@ namespace WindowsClient.Models
             }
             else
             {
-                InvokeStateChanged("Valid", false);
-                InvokeStateChanged("Override", "Warning");
-
                 var advice = new Advice();
                 advice.Include("This table contains columns that REMS does not recognise." +
                     " Please fix the columns before importing", Color.Black);
@@ -91,16 +82,8 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override void Validate()
         {
-            bool valid = true;
-
-            foreach (DataColumn col in Component.Columns)
-                valid &= (bool)col.ExtendedProperties["Valid"];
-
-            if (valid)
+            if (Valid)
             {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
-
                 var advice = new Advice();
                 advice.Include("Ready for import.", Color.Black);
                 InvokeSetAdvice(advice);
@@ -129,8 +112,6 @@ namespace WindowsClient.Models
                 advice.Include("\nRight-click nodes to see options.", Color.Black);
 
                 InvokeSetAdvice(advice);
-                InvokeStateChanged("Valid", false);
-                InvokeStateChanged("Override", "Warning");
             }
         }
 
