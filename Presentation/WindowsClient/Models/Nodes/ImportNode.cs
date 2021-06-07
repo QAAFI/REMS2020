@@ -4,7 +4,8 @@ using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
-    public abstract class ImportNode : TreeNode, IDisposable
+    public abstract class ImportNode<TValidator> : TreeNode, IDisposable
+        where TValidator : INodeValidator
     {
         /// <summary>
         /// Occurs when some change is applied to the node
@@ -14,12 +15,27 @@ namespace WindowsClient.Models
         protected void InvokeUpdated() => Updated?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
+        /// The contents of the popup context menu when the node is right-clicked
+        /// </summary>
+        protected ToolStripItemCollection items => ContextMenuStrip.Items;
+
+        /// <summary>
+        /// Used to validate the data prior to import
+        /// </summary>
+        public TValidator Validator { get; set; }
+
+        /// <summary>
         /// The advice which is displayed alongside the node
         /// </summary>
         public Advice Advice { get; set; } = new Advice();
 
         public ImportNode(string name) : base(name)
-        { }
+        {
+            ContextMenuStrip = new ContextMenuStrip();
+            ContextMenuStrip.Opening += OnMenuOpening;
+
+            items.Add(new ToolStripMenuItem("Rename", null, Rename));
+        }
 
         /// <summary>
         /// Handles any dynamic changes to the menu

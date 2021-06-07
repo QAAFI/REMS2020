@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -11,37 +11,24 @@ namespace WindowsClient.Models
     /// <summary>
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
-    public abstract class DataNode<TData> : ImportNode
+    public abstract class DataNode<TData, TValidator> : ImportNode<TValidator>
         where TData : IDisposable
+        where TValidator : INodeValidator
     {
-        /// <summary>
-        /// Used to validate the data prior to import
-        /// </summary>
-        public INodeValidator Validater { get; set; }
-
         /// <summary>
         /// Manages an instance of excel data
         /// </summary>
         public IExcelData<TData> Excel { get; }
 
-        /// <summary>
-        /// The contents of the popup context menu when the node is right-clicked
-        /// </summary>
-        protected ToolStripItemCollection items => ContextMenuStrip.Items;
-
-        public DataNode(IExcelData<TData> excel, INodeValidator validater) : base(excel.Name)
+        public DataNode(IExcelData<TData> excel, TValidator validator) : base(excel.Name)
         {
             Excel = excel;
             Tag = Excel.Data;
             
-            validater.StateChanged += UpdateState;
-            validater.SetAdvice += (s, e) => Advice = e.Item;
-            Validater = validater;
+            validator.StateChanged += UpdateState;
+            validator.SetAdvice += (s, e) => Advice = e.Item;
+            Validator = validator;            
             
-            ContextMenuStrip = new ContextMenuStrip();
-            ContextMenuStrip.Opening += OnMenuOpening;
-
-            items.Add(new ToolStripMenuItem("Rename", null, Rename));
             items.Add(new ToolStripMenuItem("Ignore", null, async (s, e) => await ToggleIgnore(s, e)));
         }
 
@@ -99,8 +86,8 @@ namespace WindowsClient.Models
             SelectedImageKey = key;
 
             // Update the node parent
-            if (Parent is DataNode<DataTable> parent) 
-                parent.Validater.Validate();
+            if (Parent is TableNode parent) 
+                parent.Validator.Validate();
         }
 
         #region Menu functions       
@@ -155,7 +142,7 @@ namespace WindowsClient.Models
         {
             UpdateState(this, new Args<string, object> { Item1 = "Valid", Item2 = true });
 
-            foreach (DataNode<DataColumn> node in Nodes)
+            foreach (ColumnNode node in Nodes)
                 node.ForceValidate();
         }
 
@@ -164,10 +151,10 @@ namespace WindowsClient.Models
         /// </summary>
         public async Task Validate()
         {
-            foreach (DataNode<DataColumn> node in Nodes)
+            foreach (ColumnNode node in Nodes)
                 await node.Validate();
 
-            await Validater.Validate();
+            await Validator.Validate();
         }
         #endregion
 
@@ -180,7 +167,7 @@ namespace WindowsClient.Models
                 if (disposing)
                 {
                     Excel.Dispose();
-                    Validater.Dispose();
+                    Validator.Dispose();
                     ContextMenuStrip.Opening -= OnMenuOpening;
                 }
                 base.Dispose();

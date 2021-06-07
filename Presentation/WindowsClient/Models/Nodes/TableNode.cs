@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
-    public class TableNode : DataNode<DataTable>
+    public class TableNode : DataNode<DataTable, ITableValidator>
     {
         public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
         {
@@ -22,7 +22,7 @@ namespace WindowsClient.Models
         /// </summary>
         public async void AddTraits(object sender, EventArgs args)
         {
-            foreach (DataNode<DataColumn> n in Nodes)
+            foreach (ColumnNode n in Nodes)
                 if (n.Excel.State["Valid"] is false)
                     await n.AddTrait(sender, args);
         }
@@ -32,7 +32,7 @@ namespace WindowsClient.Models
         /// </summary>
         private async void IgnoreAll(object sender, EventArgs args)
         {
-            foreach (DataNode<DataColumn> n in Nodes)
+            foreach (ColumnNode n in Nodes)
                 if (n.Excel.State["Valid"] is false)
                     await n.ToggleIgnore(null, args);
         }

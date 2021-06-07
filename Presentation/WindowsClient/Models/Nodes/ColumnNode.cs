@@ -6,7 +6,7 @@ using Rems.Application.Common.Extensions;
 
 namespace WindowsClient.Models
 {
-    public class ColumnNode : DataNode<DataColumn>
+    public class ColumnNode : DataNode<DataColumn, INodeValidator>
     {
         private ToolStripMenuItem addtrait;
         private ToolStripMenuItem properties = new ToolStripMenuItem("Set property");
@@ -26,6 +26,7 @@ namespace WindowsClient.Models
             items.Add(moveDown);
         }
 
+        #region Menu functions
         /// <inheritdoc/>
         protected override void OnMenuOpening(object sender, EventArgs args)
         {
@@ -68,7 +69,7 @@ namespace WindowsClient.Models
                 Excel.Swap(i - 1);
             }
 
-            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await ((ColumnNode)p.Nodes[i]).Validate();
             await Validate();
 
             InvokeUpdated();
@@ -91,10 +92,11 @@ namespace WindowsClient.Models
                 Excel.Swap(i + 1);
             }
 
-            await ((DataNode<DataColumn>)p.Nodes[i]).Validate();
+            await ((ColumnNode)p.Nodes[i]).Validate();
             await Validate();
 
             InvokeUpdated();
         }
+        #endregion        
     }
 }
