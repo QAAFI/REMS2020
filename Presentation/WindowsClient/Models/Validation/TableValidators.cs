@@ -17,7 +17,7 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        DataNode<DataColumn> CreateColumnNode(int i);
+        Task<ColumnNode> CreateColumnNode(int i);
     }   
 
     /// <summary>
@@ -31,13 +31,13 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
             var valid = Component.Columns
                 .Cast<DataColumn>()
                 .Select(c => (bool)c.ExtendedProperties["Valid"] || (bool)c.ExtendedProperties["Ignore"])
                 .Aggregate((v1, v2) => v1 &= v2);
-            
+
             // A table is valid if all of its columns are valid or ignored
             if (valid)
             {
@@ -62,10 +62,11 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i)
+        public async Task<ColumnNode> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
+            await excel.CheckIfTrait();
             var validater = new ColumnValidator(col);
            
             validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
@@ -88,7 +89,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
             bool valid = true;
 
@@ -108,7 +109,7 @@ namespace WindowsClient.Models
             {
                 var advice = new Advice();
                 advice.Include("Mismatch in expected node order. \n\n" +
-                    $"{"EXPECTED:", -20}{"DETECTED:", -20}\n",  Color.Black);
+                    $"{"EXPECTED:",-20}{"DETECTED:",-20}\n", Color.Black);
 
                 for (int i = 0; i < columns.Length; i++)
                 {
@@ -131,18 +132,18 @@ namespace WindowsClient.Models
                 InvokeStateChanged("Valid", false);
                 InvokeStateChanged("Override", "Warning");
             }
-                
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i)
+        public async Task<ColumnNode> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
+            await excel.CheckIfTrait();
 
-            INodeValidator validater = (i < columns.Length) ? 
-                new OrdinalValidator(col, i, columns[i]) as INodeValidator : 
-                new NullValidator<DataColumn>();
+            INodeValidator validater = (i < columns.Length)
+                ? new OrdinalValidator(col, i, columns[i])
+                : new NullValidator();
             
             validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
 

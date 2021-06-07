@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Threading.Tasks;
 
 namespace WindowsClient.Models
 {
@@ -16,9 +15,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate() => await Task.Run(Validation);
-
-        private void Validation()
+        public override void Validate()
         {
             // If the colum node is not valid for import, update the state to warn the user
             if (Component.ExtendedProperties["Info"] is null && Component.ExtendedProperties["IsTrait"] is false)
@@ -67,7 +64,7 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
             bool valid = Component.Ordinal == ordinal && Component.ColumnName == name;
             InvokeStateChanged("Valid", valid);

@@ -69,8 +69,8 @@ namespace WindowsClient.Models
                 Excel.Swap(i - 1);
             }
 
-            await ((ColumnNode)p.Nodes[i]).Validate();
-            await Validate();
+            ((ColumnNode)p.Nodes[i]).Validate();
+            Validate();
 
             InvokeUpdated();
         }
@@ -92,11 +92,13 @@ namespace WindowsClient.Models
                 Excel.Swap(i + 1);
             }
 
-            await ((ColumnNode)p.Nodes[i]).Validate();
-            await Validate();
+            ((ColumnNode)p.Nodes[i]).Validate();
+            Validate();
 
             InvokeUpdated();
         }
         #endregion        
+
+        public override void Validate() => Validator.Validate();        
     }
 }

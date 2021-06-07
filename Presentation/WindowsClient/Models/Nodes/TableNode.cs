@@ -34,7 +34,15 @@ namespace WindowsClient.Models
         {
             foreach (ColumnNode n in Nodes)
                 if (n.Excel.State["Valid"] is false)
-                    await n.ToggleIgnore(null, args);
+                    n.ToggleIgnore(null, args);
+        }
+
+        public override void Validate()
+        {
+            foreach (GroupNode node in Nodes)
+                node.Validate();
+
+            Validator.Validate();
         }
     }
 }

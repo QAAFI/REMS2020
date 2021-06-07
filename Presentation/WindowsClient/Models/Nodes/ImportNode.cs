@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
@@ -49,8 +48,13 @@ namespace WindowsClient.Models
         /// </summary>
         protected void Rename(object sender, EventArgs args) => BeginEdit();
 
-        #region Disposable
-        protected bool disposedValue;
+        /// <summary>
+        /// Test a node for validity
+        /// </summary>
+        public abstract void Validate();
+
+    #region Disposable
+    protected bool disposedValue;
 
         protected virtual void Dispose(bool disposing)
         {

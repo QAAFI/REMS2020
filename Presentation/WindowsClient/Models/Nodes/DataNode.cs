@@ -29,7 +29,7 @@ namespace WindowsClient.Models
             validator.SetAdvice += (s, e) => Advice = e.Item;
             Validator = validator;            
             
-            items.Add(new ToolStripMenuItem("Ignore", null, async (s, e) => await ToggleIgnore(s, e)));
+            items.Add(new ToolStripMenuItem("Ignore", null, ToggleIgnore));
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Toggles the ignored state of the current node
         /// </summary>
-        public async Task ToggleIgnore(object sender, EventArgs args)
+        public void ToggleIgnore(object sender, EventArgs args)
         {
             var state = new Args<string, object> { Item1 = "Ignore", Item2 = !(bool)Excel.State["Ignore"] };
             UpdateState(this, state);
@@ -111,7 +111,7 @@ namespace WindowsClient.Models
                 Advice.Include("Ignored items will not be imported.\n", Color.Black);
             }
             else
-                await Validate();
+                Validate();
         }
 
         /// <summary>
@@ -144,18 +144,7 @@ namespace WindowsClient.Models
 
             foreach (ColumnNode node in Nodes)
                 node.ForceValidate();
-        }
-
-        /// <summary>
-        /// Recursively test a node and its children for validity
-        /// </summary>
-        public async Task Validate()
-        {
-            foreach (ColumnNode node in Nodes)
-                await node.Validate();
-
-            await Validator.Validate();
-        }
+        }        
         #endregion
 
         #region Disposable
