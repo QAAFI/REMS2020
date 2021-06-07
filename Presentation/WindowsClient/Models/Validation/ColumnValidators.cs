@@ -1,9 +1,7 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
-using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -18,10 +16,12 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public async override Task Validate() => await Task.Run(Validation);
+
+        private void Validation()
         {
             // If the colum node is not valid for import, update the state to warn the user
-            if (Component.ExtendedProperties["Info"] is null && !await IsTrait())
+            if (Component.ExtendedProperties["Info"] is null && Component.ExtendedProperties["IsTrait"] is false)
             {
                 InvokeStateChanged("Valid", false);
 
@@ -31,10 +31,10 @@ namespace WindowsClient.Models
                 advice.Include("Ignore\n", Color.Blue);
                 advice.Include("    - The column is not imported\n\n", Color.Black);
                 advice.Include("Add trait\n", Color.Blue);
-                advice.Include("    - Add a trait named for the column\n", Color.Black );
-                advice.Include("    - Only valid traits are imported\n\n", Color.Black );
+                advice.Include("    - Add a trait named for the column\n", Color.Black);
+                advice.Include("    - Only valid traits are imported\n\n", Color.Black);
                 advice.Include("Set property\n", Color.Blue);
-                advice.Include("    - Match the column to a REMS property\n", Color.Black );
+                advice.Include("    - Match the column to a REMS property\n", Color.Black);
 
                 InvokeSetAdvice(advice);
             }
@@ -48,22 +48,6 @@ namespace WindowsClient.Models
 
                 InvokeSetAdvice(advice);
             }
-        }
-
-        /// <summary>
-        /// Tests if the column is referring to a known database trait
-        /// </summary>
-        private async Task<bool> IsTrait()
-        {
-            return
-                    // Test if the trait is in the database
-                    await QueryManager.Request(new TraitExistsQuery() { Name = Component.ColumnName })
-                    // Or in the spreadsheet traits table
-                    || Component.Table.DataSet.Tables["Traits"] is DataTable traits
-                    // If it is, find the column of trait names
-                    && traits.Columns["Name"] is DataColumn name
-                    // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString().ToLower() == Component.ColumnName.ToLower());
         }
     }
 
