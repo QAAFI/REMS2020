@@ -2,14 +2,13 @@
 using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
-using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Find data for each plot in a treatment for a given trait
     /// </summary>
-    public class AllCropTraitDataQuery : ContextQuery<IEnumerable<SeriesData<DateTime, double>>>
+    public class AllCropTraitDataQuery : ContextQuery<SeriesData<DateTime, double>[]>
     {
         /// <summary>
         /// The source treatment
@@ -28,12 +27,11 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override IEnumerable<SeriesData<DateTime, double>> Run()
+        protected override SeriesData<DateTime, double>[] Run()
         {
             var plots = _context.Treatments.Find(TreatmentId).Plots;
 
-            foreach (var plot in plots)
-                yield return GetPlotData(plot.PlotId, TraitName);
+            return plots.Select(plot => GetPlotData(plot.PlotId, TraitName)).ToArray();
         }
 
         private SeriesData<DateTime, double> GetPlotData(int id, string trait)
