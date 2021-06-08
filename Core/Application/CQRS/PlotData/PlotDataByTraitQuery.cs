@@ -2,6 +2,7 @@
 using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
+using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
@@ -29,13 +30,29 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override SeriesData<DateTime, double> Run()
         {
-            var data = _context.PlotData
-                .Where(p => p.Plot.PlotId == PlotId)
-                .Where(p => p.Trait.Name == TraitName)
-                .OrderBy(p => p.Date)
-                .ToArray();
+            if (_context.Traits.FirstOrDefault(t => t.Name == TraitName) is not Trait trait)
+                return null;
 
-            if (data.Length == 0) return null;
+            if (_context.Plots.Find(PlotId) is not Plot plot)
+                return null;
+
+            DateTime[] dates;
+            double[] values;
+            
+            if (trait.Type == "Soil")
+            {
+                var ordered = plot.SoilData.Where(d => d.Trait == trait).OrderBy(d => d.Date);
+
+                dates = ordered.Select(d => d.Date).ToArray();
+                values = ordered.Select(d => d.Value).ToArray();
+            }
+            else
+            {
+                var ordered = plot.PlotData.Where(d => d.Trait == trait).OrderBy(d => d.Date);
+
+                dates = ordered.Select(d => d.Date).ToArray();
+                values = ordered.Select(d => d.Value).ToArray();
+            }       
 
             var rep = _context.Plots.Where(p => p.PlotId == PlotId);
             var x = rep.Select(p => p.Repetition).First();
@@ -44,17 +61,11 @@ namespace Rems.Application.CQRS
             var series = new SeriesData<DateTime, double>
             {
                 Name = name,
-                X = data.Select(d => d.Date).ToArray(),
-                Y = data.Select(d => d.Value).ToArray(),
+                X = dates,
+                Y = values,
                 XName = "Value",
                 YName = "Date"
             };
-
-            for (int i = 0; i < data.Count(); i++)
-            {
-                series.X.SetValue(data[i].Date, i);
-                series.Y.SetValue(data[i].Value, i);
-            }
 
             return series;
         }
