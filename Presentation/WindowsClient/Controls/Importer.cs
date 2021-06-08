@@ -347,19 +347,29 @@ namespace WindowsClient.Controls
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
         {            
             var node = e.Node;
+            int selected = -1;
+            if (node is ColumnNode column)
+            {
+                selected = column.Excel.Data.Ordinal;
+                column.Advice.AddToTextBox(adviceBox);
+                gridLabel.Text = column.Excel.Source.TableName;
+                importData.DataSource = column.Excel.Source;
+            }
+            else if (node is GroupNode group)
+            {
+                var table = group.Parent as TableNode;
+                group.Advice.AddToTextBox(adviceBox);
+                importData.DataSource = table?.Excel.Source;
+                gridLabel.Text = table.Excel.Data.TableName;
+            }
+            else if (node is TableNode table)
+            {
+                table.Advice.AddToTextBox(adviceBox);
+                importData.DataSource = table.Excel.Data;
+                gridLabel.Text = table.Excel.Data.TableName;
+            }
 
-            columnLabel.Text = node.Text;
-
-            var advice = (node as ColumnNode)?.Advice ?? (node as GroupNode)?.Advice ?? (node as TableNode).Advice;
-            advice.AddToTextBox(adviceBox);
-
-            while (node.Parent != null) node = node.Parent;
-
-            if (node is not TableNode root)
-                return;
-
-            importData.DataSource = root.Excel.Source;
-            importData.Format();
+            importData.Format(selected);
         }
 
         /// <summary>

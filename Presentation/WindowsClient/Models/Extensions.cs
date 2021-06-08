@@ -2,6 +2,7 @@
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
@@ -67,32 +68,39 @@ namespace WindowsClient.Models
         /// <summary>
         /// Override the formatting of columns in a <see cref="DataGridView"/>
         /// </summary>
-        public static void Format(this DataGridView grid)
+        public static void Format(this DataGridView grid, int selectedColumn = -1)
         {
             foreach (DataGridViewColumn column in grid.Columns)
             {
                 column.DisplayIndex = column.Index;
 
+                DataGridViewCellStyle style;
+
                 // Set doubles to be right aligned, 3 decimal places
                 if (column.ValueType == typeof(double))
-                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    style = new DataGridViewCellStyle
                     {
                         Alignment = DataGridViewContentAlignment.MiddleRight,
                         Format = "N3"
                     };
                 // Set integers to be right aligned, 0 decimal places
                 else if (column.ValueType == typeof(int) || column.ValueType == typeof(long))
-                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    style = new DataGridViewCellStyle
                     {
                         Alignment = DataGridViewContentAlignment.MiddleRight,
                         Format = "N0"
                     };
                 // Set the default alignment to be left aligned
                 else
-                    column.DefaultCellStyle = new DataGridViewCellStyle
+                    style = new DataGridViewCellStyle
                     {
                         Alignment = DataGridViewContentAlignment.MiddleLeft,
                     };
+
+                if (column.Index == selectedColumn)
+                    style.BackColor = SystemColors.Highlight;
+
+                column.DefaultCellStyle = style;
             }
         }
     }
