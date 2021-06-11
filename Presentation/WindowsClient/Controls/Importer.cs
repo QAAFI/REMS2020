@@ -1,14 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -51,34 +50,44 @@ namespace WindowsClient.Controls
         /// </summary>
         public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        /// <summary>
-        /// Collection of icons used by the data tree
-        /// </summary>
-        private ImageList images;
-
         public Importer() : base()
         {
             InitializeComponent();
-            Dock = DockStyle.Fill;
+            Dock = DockStyle.Fill;            
 
-            // Add icons to the image list
-            images = new ImageList();
-            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
-            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
-            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
-            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
-            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
-            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
-            images.Images.Add("Add", Properties.Resources.Add);
-            images.ImageSize = new System.Drawing.Size(14, 14);
-
-            dataTree.ImageList = images;
+            dataTree.ImageList = GetTreeImages();
 
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
 
             tracker.TaskBegun += RunImporter;
+        }
+
+        private ImageList GetTreeImages()
+        {
+            // Add icons to the image list
+            var images = new ImageList();
+            images.Images.Add("ValidOff", Properties.Resources.ValidOff);
+            images.Images.Add("InvalidOff", Properties.Resources.InvalidOff);
+            images.Images.Add("ValidOn", Properties.Resources.ValidOn);
+            images.Images.Add("InvalidOn", Properties.Resources.InvalidOn);
+            
+            images.Images.Add("Add", Properties.Resources.Add);
+            images.Images.Add("Question", SystemIcons.Question);
+            images.Images.Add("Traits", Properties.Resources.Traits);
+            images.Images.Add("Excel", Properties.Resources.Excel);
+            images.Images.Add("ExcelOff", Properties.Resources.ExcelOff);
+            images.Images.Add("Properties", Properties.Resources.Properties);
+            images.Images.Add("Ignore", Properties.Resources.Ignore);
+
+            images.Images.Add("Warning", SystemIcons.Warning);
+            images.Images.Add("WarningOn", Properties.Resources.WarningOn);
+            images.Images.Add("WarningOff", Properties.Resources.WarningOff);
+
+            images.ImageSize = new System.Drawing.Size(16, 16);
+
+            return images;
         }
 
         #region Methods
@@ -149,24 +158,28 @@ namespace WindowsClient.Controls
             var vt = CreateTableValidater(table);
             var tnode = new TableNode(xt, vt);
 
-            vt.SetAdvice += (s, e) => e.Item.AddToTextBox(adviceBox);
-
             // Prepare individual columns for import
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                var cnode = vt.CreateColumnNode(i);
+                var cnode = await vt.CreateColumnNode(i);
                 cnode.Updated += (s, e) =>
                 {
                     importData.DataSource = cnode.Excel.Source;
                     importData.Format();
+                    tnode.Validate();
                 };
-                tnode.Nodes.Add(cnode);
+
+                if (cnode.Excel.State["Info"] is not null)
+                    tnode.Properties.Nodes.Add(cnode);
+                else if (cnode.Excel.State["IsTrait"] is true)
+                    tnode.Traits.Nodes.Add(cnode);
+                else
+                    tnode.Unknowns.Nodes.Add(cnode);
             }
 
-            await tnode.Validate();
+            tnode.Validate();
 
             return tnode;
-
         }
 
         /// <summary>
@@ -332,27 +345,42 @@ namespace WindowsClient.Controls
         /// Handles the selection of a new node in the tree
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
-        {
-            columnLabel.Text = e.Node.Text;
+        {            
+            var node = e.Node;
+            int selected = -1;
+            if (node is ColumnNode column)
+            {
+                selected = column.Excel.Data.Ordinal;
+                column.Advice.AddToTextBox(adviceBox);
+                gridLabel.Text = column.Excel.Source.TableName;
+                importData.DataSource = column.Excel.Source;
+            }
+            else if (node is GroupNode group)
+            {
+                var table = group.Parent as TableNode;
+                group.Advice.AddToTextBox(adviceBox);
+                importData.DataSource = table?.Excel.Source;
+                gridLabel.Text = table.Excel.Data.TableName;
+            }
+            else if (node is TableNode table)
+            {
+                table.Advice.AddToTextBox(adviceBox);
+                importData.DataSource = table.Excel.Data;
+                gridLabel.Text = table.Excel.Data.TableName;
+            }
 
-            var node = e.Node is ColumnNode c ? (TableNode)c.Parent : (TableNode)e.Node;
-
-            importData.DataSource = node.Excel.Source;
-            importData.Format();            
-
-            if (!node.Advice.Empty)
-                node.Advice.AddToTextBox(adviceBox);            
+            importData.Format(selected);
         }
 
         /// <summary>
         /// Handles the renaming of a node in the tree
         /// </summary>
-        private async void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Node is DataNode<IDisposable> node && e.Label != null)
+            if (e.Node is DataNode<IDisposable, INodeValidator> node && e.Label != null)
             {
                 node.Excel.Name = e.Label;
-                await node.Validate();
+                node.Validate();
             }
         }
 

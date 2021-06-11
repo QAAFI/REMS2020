@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Rems.Application.Common.Interfaces;
+using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
@@ -23,8 +25,16 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override string[] Run()
         {
+            IEnumerable<string> getTraits(Plot p)
+            {
+                var x = p.SoilData.Select(d => d.Trait.Name);
+                var y = p.PlotData.Select(d => d.Trait.Name);
+
+                return x.Union(y);
+            };
+
             var traits = _context.Treatments.Find(TreatmentId)
-                .Plots.SelectMany(p => p.PlotData.Select(d => d.Trait.Name))
+                .Plots.SelectMany(p => getTraits(p))
                 .Distinct()
                 .ToArray();
 

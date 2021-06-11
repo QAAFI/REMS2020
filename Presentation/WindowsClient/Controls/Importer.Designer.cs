@@ -19,7 +19,6 @@
             
             dataTree.AfterLabelEdit -= AfterLabelEdit;
             tracker.TaskBegun -= RunImporter;
-            images.Dispose();
 
             Data?.Dispose();
 
@@ -40,7 +39,7 @@
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Importer));
-            this.columnLabel = new System.Windows.Forms.Label();
+            this.gridLabel = new System.Windows.Forms.Label();
             this.importData = new System.Windows.Forms.DataGridView();
             this.fileBox = new System.Windows.Forms.TextBox();
             this.splitter = new System.Windows.Forms.SplitContainer();
@@ -64,15 +63,15 @@
             // 
             // columnLabel
             // 
-            this.columnLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.gridLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.columnLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.columnLabel.Location = new System.Drawing.Point(4, 8);
-            this.columnLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.columnLabel.Name = "columnLabel";
-            this.columnLabel.Size = new System.Drawing.Size(851, 20);
-            this.columnLabel.TabIndex = 10;
-            this.columnLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.gridLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.gridLabel.Location = new System.Drawing.Point(4, 8);
+            this.gridLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.gridLabel.Name = "columnLabel";
+            this.gridLabel.Size = new System.Drawing.Size(851, 20);
+            this.gridLabel.TabIndex = 10;
+            this.gridLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // importData
             // 
@@ -122,7 +121,7 @@
             // 
             // splitter.Panel2
             // 
-            this.splitter.Panel2.Controls.Add(this.columnLabel);
+            this.splitter.Panel2.Controls.Add(this.gridLabel);
             this.splitter.Panel2.Controls.Add(this.importData);
             this.splitter.Size = new System.Drawing.Size(1167, 808);
             this.splitter.SplitterDistance = 303;
@@ -240,7 +239,7 @@
         private System.Windows.Forms.DataGridView importData;
         private System.Windows.Forms.TextBox fileBox;
         private System.Windows.Forms.SplitContainer splitter;
-        private System.Windows.Forms.Label columnLabel;
+        private System.Windows.Forms.Label gridLabel;
         private System.Windows.Forms.TreeView dataTree;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RichTextBox adviceBox;

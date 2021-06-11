@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace WindowsClient.Models
@@ -17,7 +16,7 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        DataNode<DataColumn> CreateColumnNode(int i);
+        Task<ColumnNode> CreateColumnNode(int i);
     }   
 
     /// <summary>
@@ -25,50 +24,31 @@ namespace WindowsClient.Models
     /// </summary>
     public class TableValidator : BaseValidator<DataTable>, ITableValidator
     {
+        public bool ValidChildren { get; set; } = false;
+
         public TableValidator(DataTable table)
         {
             Component = table;
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
-            var valid = Component.Columns
-                .Cast<DataColumn>()
-                .Select(c => (bool)c.ExtendedProperties["Valid"] || (bool)c.ExtendedProperties["Ignore"])
-                .Aggregate((v1, v2) => v1 &= v2);
-            
             // A table is valid if all of its columns are valid or ignored
-            if (valid)
-            {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
-
-                var advice = new Advice();
-                advice.Include("This table is valid. Check the other tables prior to import.", Color.Black);
-
-                InvokeSetAdvice(advice);
-            }
+            if (Valid)
+                Advice = new ("This table is valid. Check the other tables prior to import.");
             else
-            {
-                InvokeStateChanged("Valid", false);
-                InvokeStateChanged("Override", "Warning");
-
-                var advice = new Advice();
-                advice.Include("This table contains columns that REMS does not recognise." +
-                    " Please fix the columns before importing", Color.Black);
-                InvokeSetAdvice(advice);
-            }
+                Advice = new ("This table contains unknown columns. Right-click on an unknown " +
+                    "column to see options for import validation.");            
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i)
+        public async Task<ColumnNode> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
-            var validater = new ColumnValidator(col);
-           
-            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
+            await excel.CheckIfTrait();
+            var validater = new ColumnValidator(col);           
 
             return new ColumnNode(excel, validater);
         }
@@ -88,27 +68,14 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
-            bool valid = true;
-
-            foreach (DataColumn col in Component.Columns)
-                valid &= (bool)col.ExtendedProperties["Valid"];
-
-            if (valid)
-            {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
-
-                var advice = new Advice();
-                advice.Include("Ready for import.", Color.Black);
-                InvokeSetAdvice(advice);
-            }
+            if (Valid)
+                Advice = new ("This table is valid. Check the other tables prior to import.");
             else
             {
-                var advice = new Advice();
-                advice.Include("Mismatch in expected node order. \n\n" +
-                    $"{"EXPECTED:", -20}{"DETECTED:", -20}\n",  Color.Black);
+                Advice = new ("Mismatch in expected node order.\n\n" +
+                    $"{"EXPECTED:",-20}{"DETECTED:",-20}\n");
 
                 for (int i = 0; i < columns.Length; i++)
                 {
@@ -122,29 +89,24 @@ namespace WindowsClient.Models
                     else
                         color = Color.MediumVioletRed;
 
-                    advice.Include($"{columns[i],-20}{name,-20}\n", color);
+                    Advice.Include($"{columns[i],-20}{name,-20}\n", color);
                 }
 
-                advice.Include("\nRight-click nodes to see options.", Color.Black);
-
-                InvokeSetAdvice(advice);
-                InvokeStateChanged("Valid", false);
-                InvokeStateChanged("Override", "Warning");
+                Advice.Include("\nUse the move up / move down " +
+                    "right-click option to reorder nodes.", Color.Black);
             }
-                
         }
 
         /// <inheritdoc/>
-        public DataNode<DataColumn> CreateColumnNode(int i)
+        public async Task<ColumnNode> CreateColumnNode(int i)
         {
             var col = Component.Columns[i];
             var excel = new ExcelColumn(col);
+            await excel.CheckIfTrait();
 
-            INodeValidator validater = (i < columns.Length) ? 
-                new OrdinalValidator(col, i, columns[i]) as INodeValidator : 
-                new NullValidator<DataColumn>();
-            
-            validater.SetAdvice += (s, e) => InvokeSetAdvice(e.Item);
+            INodeValidator validater = (i < columns.Length)
+                ? new OrdinalValidator(col, i, columns[i])
+                : new NullValidator();
 
             return new ColumnNode(excel, validater);
         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Data;
-using System.Windows.Forms;
-using Rems.Application.Common;
+using System.Linq;
+using System.Threading.Tasks;
 using Rems.Application.Common.Extensions;
+using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -124,13 +125,42 @@ namespace WindowsClient.Models
 
             var info = column.FindProperty();
             State["Info"] = info;
-            State["Ignore"] = false;                       
+            State["Ignore"] = false;
+            State["IsTrait"] = false;
         }
 
         /// <inheritdoc/>
         public override void Swap(int index)
         {
             Data.SetOrdinal(index);
+        }
+
+        /// <summary>
+        /// Tests if the column is referring to a known database trait
+        /// </summary>
+        public async Task CheckIfTrait()
+        {
+            // Test if the trait is in the database
+            bool inDB = await QueryManager.Request(new TraitExistsQuery() { Name = Data.ColumnName });
+
+            // Test if the trait is in the excel data
+            bool inExcel()
+            {
+                // Is there a traits table
+                if (Data.Table.DataSet.Tables["Traits"] is not DataTable traits)
+                    return false;
+
+                // Is there a column with trait names
+                if (traits.Columns["Name"] is not DataColumn name)
+                    return false;
+
+                var rows = traits.Rows.Cast<DataRow>();
+                var trait = Data.ColumnName.ToLower();
+
+                return rows.Any(r => r[name].ToString().ToLower() == trait);
+            };
+
+            State["IsTrait"] = inDB || inExcel();
         }
     }
 }

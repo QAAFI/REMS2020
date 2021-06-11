@@ -10,9 +10,9 @@ namespace Rems.Domain.Entities
 
         public int TraitId { get; set; }
 
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
-        public double? Value { get; set; }
+        public double Value { get; set; }
 
 
         public virtual Plot Plot { get; set; }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-
 using Rems.Application.Common;
 
 namespace WindowsClient.Models
@@ -11,41 +9,30 @@ namespace WindowsClient.Models
     public interface INodeValidator : IDisposable
     {
         /// <summary>
-        /// Occurs when the data is modified
+        /// The advice provided to the user
         /// </summary>
-        event EventHandler<Args<string, object>> StateChanged;
+        Advice Advice { get; set; }
 
-        /// <summary>
-        /// Occurs when the advice provided to the user is changed
-        /// </summary>
-        event EventHandler<Args<Advice>> SetAdvice;
+        bool Valid { get; set; }
 
         /// <summary>
         /// Checks if the node is ready to be imported and updates the state accordingly
         /// </summary>
-        Task Validate();
+        void Validate();
     }
 
-    public abstract class BaseValidator<TDisposable> : INodeValidator
-        where TDisposable : IDisposable
+    public abstract class BaseValidator<TComponent> : INodeValidator
     {
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event EventHandler<Args<string, object>> StateChanged;
+        public Advice Advice { get; set; } = new Advice();
 
-        /// <inheritdoc/>
-        public event EventHandler<Args<Advice>> SetAdvice;
+        public TComponent Component { get; set; }
 
-        public TDisposable Component { get; set; }
+        public bool Valid { get; set; } = false;
 
-        protected void InvokeStateChanged(string state, object value)
-            => StateChanged?.Invoke(this, new Args<string, object> { Item1 = state, Item2 = value });
-
-        protected void InvokeSetAdvice(Advice advice)
-            => SetAdvice?.Invoke(this, new Args<Advice> { Item = advice });
-
-        public abstract Task Validate();
+        public abstract void Validate();
 
         protected virtual void Dispose(bool disposing)
         {
@@ -53,13 +40,11 @@ namespace WindowsClient.Models
             {
                 if (disposing)
                 {
-                    Component?.Dispose();
+                    if (Component is IDisposable disposable)
+                        disposable.Dispose();
                 }
 
-                StateChanged = null;
-                SetAdvice = null;
-
-                disposedValue = true;
+                disposedValue = true;                
             }
         }
 
@@ -74,13 +59,12 @@ namespace WindowsClient.Models
     /// <summary>
     /// A default implementation of <see cref="BaseValidator{T}"/> that always successfully validates
     /// </summary>
-    public class NullValidator<TDisposable> : BaseValidator<TDisposable>
-        where TDisposable : IDisposable
+    public class NullValidator : BaseValidator<object>
     {
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
-            InvokeStateChanged("Valid", true);
+            Valid = true;
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
-using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
@@ -18,52 +15,28 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
-            // If the colum node is not valid for import, update the state to warn the user
-            if (Component.ExtendedProperties["Info"] is null && !await IsTrait())
-            {
-                InvokeStateChanged("Valid", false);
+            Advice = new Advice();
 
-                var advice = new Advice();
-                advice.Include("The type of column could not be determined. ", Color.Black);
-                advice.Include("Right click to view options. \n\n", Color.Black);
-                advice.Include("Ignore\n", Color.Blue);
-                advice.Include("    - The column is not imported\n\n", Color.Black);
-                advice.Include("Add trait\n", Color.Blue);
-                advice.Include("    - Add a trait named for the column\n", Color.Black );
-                advice.Include("    - Only valid traits are imported\n\n", Color.Black );
-                advice.Include("Set property\n", Color.Blue);
-                advice.Include("    - Match the column to a REMS property\n", Color.Black );
-
-                InvokeSetAdvice(advice);
-            }
+            bool isProperty = Component.ExtendedProperties["Info"] is not null;
+            bool isTrait = Component.ExtendedProperties["IsTrait"] is true;
+            
+            if (Valid = isProperty || isTrait)
+                Advice.Include("Ready to be imported.\n", Color.Black);
             else
             {
-                InvokeStateChanged("Valid", true);
-                InvokeStateChanged("Override", "");
-
-                var advice = new Advice();
-                advice.Include("Ready to be imported.\n", Color.Black);
-
-                InvokeSetAdvice(advice);
+                Advice.Include("The type of node could not be determined. ", Color.Black);
+                Advice.Include("Right click to view options. \n\n", Color.Black);
+                Advice.Include("Ignore\n", Color.Blue);
+                Advice.Include("    - The node data is not imported\n\n", Color.Black);
+                Advice.Include("Add trait\n", Color.Blue);
+                Advice.Include("    - Add a trait named for the node\n", Color.Black);
+                Advice.Include("    - Only valid traits are imported\n\n", Color.Black);
+                Advice.Include("Set property\n", Color.Blue);
+                Advice.Include("    - Match the node to a REMS property\n", Color.Black);
+                Advice.Include("    - See available properties through right-click\n", Color.Black);
             }
-        }
-
-        /// <summary>
-        /// Tests if the column is referring to a known database trait
-        /// </summary>
-        private async Task<bool> IsTrait()
-        {
-            return
-                    // Test if the trait is in the database
-                    await QueryManager.Request(new TraitExistsQuery() { Name = Component.ColumnName })
-                    // Or in the spreadsheet traits table
-                    || Component.Table.DataSet.Tables["Traits"] is DataTable traits
-                    // If it is, find the column of trait names
-                    && traits.Columns["Name"] is DataColumn name
-                    // 
-                    && traits.Rows.Cast<DataRow>().Any(r => r[name].ToString().ToLower() == Component.ColumnName.ToLower());
         }
     }
 
@@ -83,11 +56,9 @@ namespace WindowsClient.Models
         }
 
         /// <inheritdoc/>
-        public async override Task Validate()
+        public override void Validate()
         {
-            bool valid = Component.Ordinal == ordinal && Component.ColumnName == name;
-            InvokeStateChanged("Valid", valid);
-            InvokeStateChanged("Override", valid ? "" : "Warning");
+            Valid = Component.Ordinal == ordinal && Component.ColumnName == name;
         }
     }
 }
