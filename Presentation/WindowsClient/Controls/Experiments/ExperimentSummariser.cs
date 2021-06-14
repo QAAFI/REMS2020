@@ -11,10 +11,16 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsClient.Models;
 
-namespace WindowsClient.Controls.Experiments
+namespace WindowsClient.Controls
 {
-    public partial class ExperimentSummariser : UserControl
+    public partial class ExperimentSummariser : UserControl, IExperimentControl
     {
+        /// <inheritdoc/>
+        public int Experiment { get; set; }
+
+        /// <inheritdoc/>
+        public int Treatment { get; set; }
+
         public ExperimentSummariser()
         {
             InitializeComponent();

@@ -42,11 +42,11 @@ namespace WindowsClient.Controls
             public int PID { get; set; }
         }
         #endregion
- 
+
         public ExperimentDetailer()
         {
             InitializeComponent();          
-
+            
             experimentsTree.AfterSelect += OnNodeSelected;
             Load += async (s, e) => await LoadNodes(); 
         }
@@ -63,11 +63,11 @@ namespace WindowsClient.Controls
             foreach (var exp in exps)
             {
                 var node = await AddTreatmentNodes(exp.Key, exp.Value);
-
-                node.Nodes.Add("Design");
-                node.Nodes.Add("Operations");
-                node.Nodes.Add("Crop");
-                node.Nodes.Add("Soil");
+                                
+                node.Nodes.Add(new ControlNode<ExperimentSummariser>("Design"));
+                node.Nodes.Add(new ControlNode<OperationsChart>("Operations"));
+                node.Nodes.Add(new ControlNode<TraitChart>("Crop"));
+                node.Nodes.Add(new ControlNode<SoilChart>("Soil"));
             }
 
             experimentsTree.SelectedNode = experimentsTree.TopNode;
@@ -176,7 +176,7 @@ namespace WindowsClient.Controls
             await summariser.GetSummary(id);
 
             var design = new DesignsTableQuery() { ExperimentId = id };
-            designData.DataSource = await QueryManager.Request(design);
+            //designData.DataSource = await QueryManager.Request(design);
         }
     }
 }

@@ -16,8 +16,14 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of operation data for a treatment
     /// </summary>
-    public partial class OperationsChart : UserControl
+    public partial class OperationsChart : UserControl, IExperimentControl
     {
+        /// <inheritdoc/>
+        public int Experiment { get; set; }
+
+        /// <inheritdoc/>
+        public int Treatment { get; set; }
+
         /// <summary>
         /// The ID of the currently displayed treatment
         /// </summary>

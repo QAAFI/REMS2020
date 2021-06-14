@@ -14,8 +14,14 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of soil data for a treatment
     /// </summary>
-    public partial class SoilChart : UserControl
+    public partial class SoilChart : UserControl, IExperimentControl
     {
+        /// <inheritdoc/>
+        public int Experiment { get; set; }
+
+        /// <inheritdoc/>
+        public int Treatment { get; set; }
+
         /// <summary>
         /// Tracks which update function to call when a trait is selected
         /// </summary>
