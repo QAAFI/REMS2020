@@ -134,31 +134,7 @@ namespace WindowsClient
             Text = "REMS 2020 - " + Path.GetFileName(args.Item);
 
             // Update the tables
-            await LoadListView();
             await AttachDetailer();
-        }
-
-        /// <summary>
-        /// When a different item in the list box is selected
-        /// </summary>
-        private async void OnRelationsIndexChanged(object sender, EventArgs e)
-        {
-            var item = (string)relationsListBox.SelectedItem;
-            if (item == null) return;
-            dataGridView.DataSource = await QueryManager.Request(new DataTableQuery() { TableName = item });
-            dataGridView.Format();
-        }
-
-        /// <summary>
-        /// Fills the listbox
-        /// </summary>
-        private async Task LoadListView()
-        {
-            var query = new GetTableNamesQuery();
-            var items = await QueryManager.Request(query);
-
-            relationsListBox.Items.Clear();
-            relationsListBox.Items.AddRange(items);
         }
 
         /// <summary>
