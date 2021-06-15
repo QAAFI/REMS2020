@@ -70,9 +70,17 @@ namespace Rems.Infrastructure.Excel
             switch (table.TableName)
             {
                 case "Design":
-                    await InvokeQuery(new InsertDesignsCommand() { Table = table });
-                    command = new InsertPlotsCommand() 
+                    await InvokeQuery(new InsertDesignsCommand { Table = table });
+                    command = new InsertPlotsCommand
                     { 
+                        Table = table,
+                        Progress = Reporter
+                    };
+                    break;
+
+                case "Experiments":
+                    command = new InsertExperimentsTableCommand
+                    {
                         Table = table,
                         Progress = Reporter
                     };
@@ -80,7 +88,7 @@ namespace Rems.Infrastructure.Excel
 
                 case "HarvestData":
                 case "PlotData":
-                    command = new InsertPlotDataTableCommand()
+                    command = new InsertPlotDataTableCommand
                     {
                         Table = table,
                         Skip = 4,
@@ -90,7 +98,7 @@ namespace Rems.Infrastructure.Excel
                     break;
 
                 case "MetData":
-                    command = new InsertMetDataTableCommand()
+                    command = new InsertMetDataTableCommand
                     {
                         Table = table,
                         Skip = 2,
@@ -100,7 +108,7 @@ namespace Rems.Infrastructure.Excel
                     break;
 
                 case "SoilLayerData":
-                    command = new InsertSoilLayerTableCommand()
+                    command = new InsertSoilLayerTableCommand
                     {
                         Table = table,
                         Skip = 5,
@@ -112,7 +120,7 @@ namespace Rems.Infrastructure.Excel
                 case "Irrigation":
                 case "Fertilization":
                 case "Tillage":
-                    command = new InsertOperationsTableCommand() 
+                    command = new InsertOperationsTableCommand
                     { 
                         Table = table, 
                         Type = type,
@@ -141,7 +149,7 @@ namespace Rems.Infrastructure.Excel
 
                 case "SoilLayer":
                 case "SoilLayers":
-                    command = new InsertSoilLayerTraitsCommand()
+                    command = new InsertSoilLayerTraitsCommand
                     {
                         Table = table,
                         Type = type,
@@ -150,7 +158,7 @@ namespace Rems.Infrastructure.Excel
                     break;
 
                 default:
-                    command = new InsertTableCommand()
+                    command = new InsertTableCommand
                     { 
                         Table = table,
                         Type = type,
