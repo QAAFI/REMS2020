@@ -22,16 +22,17 @@ namespace WindowsClient.Controls
     public partial class HomeScreen : UserControl
     {
         /// <summary>
-        /// Occurs when a database is opened
-        /// </summary>
-        public event EventHandler<Args<string>> DBOpened;
-
-        /// <summary>
         /// Occurs when excel data is requested
         /// </summary>
         public event EventHandler ImportRequested;
-        
+
+        public event EventHandler AttachTab;
+        public event EventHandler RemoveTab;
+
         public IFileManager Manager { get; set; }
+
+        private Importer importer = new();
+        private ExperimentDetailer detailer = new();
 
         /// <summary>
         /// All known sessions
@@ -47,9 +48,12 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            infoLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
-            expsLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
-            dataLink.Clicked += (s, e) => ImportRequested?.Invoke(s, e);
+            importer.ImportCompleted += OnImportCompleted;
+            importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
+
+            infoLink.Clicked += OnImportLinkClicked;
+            expsLink.Clicked += OnImportLinkClicked;
+            dataLink.Clicked += OnImportLinkClicked;
 
             Sessions = LoadSessions();
             recentList.DataSource = snoisses;
@@ -58,6 +62,7 @@ namespace WindowsClient.Controls
             exportTracker.TaskBegun += OnExportClick;
         }
 
+        #region Sessions
         /// <summary>
         /// Loads the list of recent sessions
         /// </summary>
@@ -93,7 +98,7 @@ namespace WindowsClient.Controls
         /// <returns></returns>
         private async Task CreateSession(string file)
         {
-            var session = new Session() { DB = file };
+            var session = new Session { DB = file };
 
             // If overwriting a .db, remove the old session
             if (Sessions.Find(s => s.DB == file) is Session S)
@@ -117,10 +122,20 @@ namespace WindowsClient.Controls
             Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
             EnableImport();
-            await CheckTables();
+
+            infoLink.Stage = session.HasInformation ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = session.HasExperiments ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = session.HasData ? Stage.Imported : Stage.Missing;
 
             // Reset the export box
-            await LoadExportBox();
+            exportList.Items.Clear();
+            if (session.HasExperiments)
+            {
+                await LoadExportBox();
+                AttachTab.Invoke(detailer, EventArgs.Empty);
+            }
+            else
+                RemoveTab.Invoke(detailer, EventArgs.Empty);
 
             // Reorder the list
             Sessions.Remove(session);
@@ -132,9 +147,9 @@ namespace WindowsClient.Controls
 
             recentList.DataSource = snoisses;
 
-            var args = new Args<string> { Item = session.DB };
-            DBOpened?.Invoke(this, args);
+            ParentForm.Text = "REMS2020 - " + session.DB;
         }
+        #endregion
 
         /// <summary>
         /// Activates the <see cref="ImportLink"/> controls if a database is connected
@@ -156,13 +171,29 @@ namespace WindowsClient.Controls
         }
 
         /// <summary>
-        /// Check if any data has previously been loaded
+        /// When an import link starts the import process
         /// </summary>
-        public async Task CheckTables()
+        private async void OnImportLinkClicked(object sender, EventArgs args)
         {
-            infoLink.Stage = await QueryManager.Request(new LoadedInformation()) ? Stage.Imported : Stage.Missing;
-            expsLink.Stage = await QueryManager.Request(new LoadedExperiments()) ? Stage.Imported : Stage.Missing;
-            dataLink.Stage = await QueryManager.Request(new LoadedData()) ? Stage.Imported : Stage.Missing;
+            if (!(sender is ImportLink link))
+                throw new Exception("Import requested from unknown control type.");
+
+            importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
+            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
+
+            importer.Name = link.Label;
+            AttachTab.Invoke(importer, EventArgs.Empty);
+            await importer.OpenFile();
+        }
+
+        private async void OnImportCompleted(object sender, EventArgs args)
+        {
+            MessageBox.Show("Import successful!", "");
+
+            RemoveTab.Invoke(importer, EventArgs.Empty);
+            
+            await LoadExportBox();
+            AttachTab.Invoke(detailer, EventArgs.Empty);
         }
 
         /// <summary>
@@ -172,8 +203,7 @@ namespace WindowsClient.Controls
         {
             var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
             var items = exps.Select(e => e.Value).Distinct().ToArray();
-
-            exportList.Items.Clear();
+            
             exportList.Items.AddRange(items);
         }
 

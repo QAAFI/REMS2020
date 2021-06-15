@@ -16,6 +16,21 @@ namespace WindowsClient.Models
         /// </summary>
         public string DB { get; set; }
 
+        /// <summary>
+        /// If information has been loaded in the session
+        /// </summary>
+        public bool HasInformation { get; set; } = false;
+
+        /// <summary>
+        /// If experiments have been loaded in the session
+        /// </summary>
+        public bool HasExperiments { get; set; } = false;
+
+        /// <summary>
+        /// If experiments have been loaded in the session
+        /// </summary>
+        public bool HasData { get; set; } = false;
+
         /// <inheritdoc/>
         public override string ToString() => Path.GetFileName(DB);
     }

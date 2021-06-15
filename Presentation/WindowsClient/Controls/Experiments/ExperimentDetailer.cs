@@ -48,6 +48,7 @@ namespace WindowsClient.Controls
             InitializeComponent();          
 
             experimentsTree.AfterSelect += OnNodeSelected;
+            Load += async (s, e) => await LoadNodes(); 
         }
 
         /// <summary>
