@@ -225,6 +225,7 @@ namespace Rems.Application.Common.Extensions
             {"amp", "Amplitude" },
             {"tav", "TemperatureAverage" },
             {"PlotID", "Plot" },
+            {"Number of Reps", "Repetitions"},
             {"Reps", "Repetitions" },
             {"Rep", "Repetition" },
             {"RepNo", "Repetition" },

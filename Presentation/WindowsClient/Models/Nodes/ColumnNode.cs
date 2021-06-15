@@ -86,6 +86,7 @@ namespace WindowsClient.Models
         {
             Text = info.Name;
             Excel.State["Info"] = info;
+            Excel.Data.ColumnName = info.Name;
 
             InvokeUpdated();
         }

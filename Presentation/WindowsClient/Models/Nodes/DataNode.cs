@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
@@ -34,9 +35,12 @@ namespace WindowsClient.Models
         /// <summary>
         /// Begins editing the node label
         /// </summary>
-        protected void Rename(object sender, EventArgs args)
+        protected async void Rename(object sender, EventArgs args)
         {
             BeginEdit();
+
+            await Task.Run(() => { while (IsEditing) { } });
+
             InvokeUpdated();
         }
 
