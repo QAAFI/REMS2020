@@ -37,12 +37,9 @@ namespace Rems.Application.CQRS
 
                 return Task.Run(() =>
                 {
-                    TResponse result;
-                    using (request._context = _factory.Create())
-                    {
-                        result = request.Run();
-                    }
-                    return result;
+                    using var context = _factory.Create();
+                    request._context = context;
+                    return request.Run();
                 });
             }
         }

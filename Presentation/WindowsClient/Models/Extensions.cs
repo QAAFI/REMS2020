@@ -70,6 +70,8 @@ namespace WindowsClient.Models
         /// </summary>
         public static void Format(this DataGridView grid, int selectedColumn = -1)
         {
+            grid.ClearSelection();
+
             foreach (DataGridViewColumn column in grid.Columns)
             {
                 column.DisplayIndex = column.Index;
@@ -97,11 +99,13 @@ namespace WindowsClient.Models
                         Alignment = DataGridViewContentAlignment.MiddleLeft,
                     };
 
-                if (column.Index == selectedColumn)
-                    style.BackColor = SystemColors.Highlight;
-
                 column.DefaultCellStyle = style;
             }
+
+            // Highlight the selected column
+            if (selectedColumn >= 0)
+                foreach (DataGridViewRow row in grid.Rows)                
+                    row.Cells[selectedColumn].Selected = true;                
         }
     }
 }
