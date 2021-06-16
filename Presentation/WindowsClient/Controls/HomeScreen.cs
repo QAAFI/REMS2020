@@ -12,7 +12,6 @@ using Rems.Infrastructure;
 
 using WindowsClient.Models;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common;
 
 namespace WindowsClient.Controls
 {
@@ -21,11 +20,6 @@ namespace WindowsClient.Controls
     /// </summary>
     public partial class HomeScreen : UserControl
     {
-        /// <summary>
-        /// Occurs when excel data is requested
-        /// </summary>
-        public event EventHandler ImportRequested;
-
         public event EventHandler AttachTab;
         public event EventHandler RemoveTab;
 
@@ -34,15 +28,17 @@ namespace WindowsClient.Controls
         private Importer importer = new();
         private ExperimentDetailer detailer = new();
 
+        private Session session;
+
         /// <summary>
         /// All known sessions
         /// </summary>
-        private List<Session> Sessions { get; }
+        private List<Session> sessions { get; }
 
         /// <summary>
         /// The list of sessions reversed
         /// </summary>
-        private List<Session> snoisses => Sessions.Reverse<Session>().ToList();
+        private List<Session> snoisses => sessions.Reverse<Session>().ToList();
 
         public HomeScreen()
         {
@@ -55,7 +51,7 @@ namespace WindowsClient.Controls
             expsLink.Clicked += OnImportLinkClicked;
             dataLink.Clicked += OnImportLinkClicked;
 
-            Sessions = LoadSessions();
+            sessions = LoadSessions();
             recentList.DataSource = snoisses;
 
             recentList.DoubleClick += OnRecentListDoubleClick;
@@ -88,7 +84,7 @@ namespace WindowsClient.Controls
             Directory.CreateDirectory(path + "\\REMS2020");
             string file = path + "\\REMS2020\\sessions.json";
 
-            JsonTools.SaveJson(file, Sessions);
+            JsonTools.SaveJson(file, sessions);
         }
 
         /// <summary>
@@ -98,76 +94,72 @@ namespace WindowsClient.Controls
         /// <returns></returns>
         private async Task CreateSession(string file)
         {
-            var session = new Session { DB = file };
+            session = new Session { DB = file };
 
             // If overwriting a .db, remove the old session
-            if (Sessions.Find(s => s.DB == file) is Session S)
+            if (sessions.Find(s => s.DB == file) is Session s)
             {
-                Sessions.Remove(S);
+                sessions.Remove(s);
                 File.Delete(file);
-            }
+            }            
 
             // Change to the new session
-            await ChangeSession(session);
+            await RefreshSession();
         }
 
         /// <summary>
         /// Changes the current session
         /// </summary>
         /// <param name="session"></param>
-        private async Task ChangeSession(Session session)
+        private async Task RefreshSession()
         {
             // Open the DB from the new session
             Manager.DbConnection = session.DB;            
-            Manager.ImportFolder = Path.GetDirectoryName(session.DB);
+            Manager.ImportFolder = Path.GetDirectoryName(session.DB);            
 
-            EnableImport();
-
-            infoLink.Stage = session.HasInformation ? Stage.Imported : Stage.Missing;
-            expsLink.Stage = session.HasExperiments ? Stage.Imported : Stage.Missing;
-            dataLink.Stage = session.HasData ? Stage.Imported : Stage.Missing;
+            await DisplayImport();            
 
             // Reset the export box
-            exportList.Items.Clear();
-            if (session.HasExperiments)
-            {
-                await LoadExportBox();
-                AttachTab.Invoke(detailer, EventArgs.Empty);
-            }
-            else
-                RemoveTab.Invoke(detailer, EventArgs.Empty);
+            await DisplayExperiments();
 
-            // Reorder the list
-            Sessions.Remove(session);
-            Sessions.Add(session);
+            UpdateRecents();
 
-            // Limit the number of sessions to 8
-            if (Sessions.Count > 8)
-                Sessions.RemoveAt(0);
-
-            recentList.DataSource = snoisses;
-
-            ParentForm.Text = "REMS2020 - " + session.DB;
+            ParentForm.Text = "REMS2020 - " + Path.GetFileName(session.DB);
         }
         #endregion
 
         /// <summary>
         /// Activates the <see cref="ImportLink"/> controls if a database is connected
         /// </summary>
-        private void EnableImport()
+        private async Task DisplayImport()
         {
-            importText.Text = "Select one of the above options to begin the import process."
-            + "\n\n"
-            + "The data must come from an excel document based on the template file,"
-            + "or the importer will not recognise it."
-            + "\n\n"
-            + "The data must be imported in the listed order (i.e., information before experiments)."
-            + "\n\n"
-            + "A green tick indicates that some data is already present in the database.";
+            session.HasInformation = await QueryManager.Request(new LoadedInformation());
+            session.HasExperiments = await QueryManager.Request(new LoadedExperiments());
+            session.HasData = await QueryManager.Request(new LoadedData());
+
+            // Set visibility based on the session status
+            if (!(groupImport.Visible = session is not null))
+                return;
+
+            string text = "Click one of the links above to begin the import process.\n";
 
             infoLink.Active = true;
-            expsLink.Active = true;
-            dataLink.Active = true;
+
+            if (!(expsLink.Active = session.HasInformation))
+                text += "\nInformation must be loaded before experiments.\n";
+            else
+                text += "\nAble to load experiments, or click information again to include additional content.\n";
+
+            if (!(dataLink.Active = session.HasExperiments))
+                text += "\nExperiments must be loaded before data.\n";
+            else
+                text += "\nAble to load data, or click the previous links to include additional content.\n";
+
+            importText.Text = text;
+
+            infoLink.Stage = session.HasInformation ? Stage.Imported : Stage.Missing;
+            expsLink.Stage = session.HasExperiments ? Stage.Imported : Stage.Missing;
+            dataLink.Stage = session.HasData ? Stage.Imported : Stage.Missing;
         }
 
         /// <summary>
@@ -181,8 +173,11 @@ namespace WindowsClient.Controls
             importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
             importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
 
-            importer.Name = link.Label;
+            importer.Name = "Import " + link.Label;
             AttachTab.Invoke(importer, EventArgs.Empty);
+
+            importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
+
             await importer.OpenFile();
         }
 
@@ -191,20 +186,47 @@ namespace WindowsClient.Controls
             MessageBox.Show("Import successful!", "");
 
             RemoveTab.Invoke(importer, EventArgs.Empty);
-            
-            await LoadExportBox();
-            AttachTab.Invoke(detailer, EventArgs.Empty);
+
+            await DisplayImport();
+            await DisplayExperiments();
         }
 
         /// <summary>
         /// Adds the available experiments to the export box
         /// </summary>
-        public async Task LoadExportBox()
+        public async Task DisplayExperiments()
         {
-            var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
-            var items = exps.Select(e => e.Value).Distinct().ToArray();
-            
-            exportList.Items.AddRange(items);
+            exportList.Items.Clear();
+
+            if (session.HasExperiments)
+            {
+                groupExport.Visible = true;
+
+                var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
+                var items = exps.Select(e => e.Value).Distinct().ToArray();
+
+                exportList.Items.AddRange(items);
+
+                AttachTab.Invoke(detailer, EventArgs.Empty);
+            }
+            else
+            {
+                groupExport.Visible = false;
+                RemoveTab.Invoke(detailer, EventArgs.Empty);
+            }
+        }
+
+        public void UpdateRecents()
+        {
+            // Reorder the list
+            sessions.Remove(session);
+            sessions.Add(session);
+
+            // Limit the number of sessions to 8
+            if (sessions.Count > 8)
+                sessions.RemoveAt(0);
+
+            recentList.DataSource = snoisses;
         }
 
         /// <summary>
@@ -229,20 +251,21 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnOpenClick(object sender, EventArgs e)
         {
-            using (var open = new OpenFileDialog())
+            using var open = new OpenFileDialog();
+            open.InitialDirectory = Manager.ImportFolder;
+            open.Filter = "SQLite (*.db)|*.db";
+
+            if (open.ShowDialog() != DialogResult.OK) return;
+
+            if (sessions.FirstOrDefault(s => s.DB == open.FileName) is Session existing)
             {
-                open.InitialDirectory = Manager.ImportFolder;
-                open.Filter = "SQLite (*.db)|*.db";
-
-                if (open.ShowDialog() != DialogResult.OK) return;
-
-                if (Sessions.FirstOrDefault(s => s.DB == open.FileName) is Session session)
-                    await ChangeSession(session);
-                else
-                    await CreateSession(open.FileName);
-
-                Manager.DbConnection = open.FileName;                                
+                session = existing;
+                await RefreshSession();
             }
+            else
+                await CreateSession(open.FileName);
+
+            Manager.DbConnection = open.FileName;
         }
 
         /// <summary>
@@ -258,38 +281,36 @@ namespace WindowsClient.Controls
                 return;
             }
 
-            using (var save = new SaveFileDialog())
+            using var save = new SaveFileDialog();
+            save.InitialDirectory = Manager.ExportFolder;
+            save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
+
+            if (save.ShowDialog() != DialogResult.OK) return;
+
+            Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
+
+            try
             {
-                save.InitialDirectory = Manager.ExportFolder;
-                save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
-
-                if (save.ShowDialog() != DialogResult.OK) return;
-
-                Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
-
-                try
+                using var exporter = new ApsimXporter
                 {
-                    using var exporter = new ApsimXporter
-                    {
-                        Experiments = exportList.CheckedItems.Cast<string>(),
-                        FileName = save.FileName,
-                        Manager = FileManager.Instance
-                    };
+                    Experiments = exportList.CheckedItems.Cast<string>(),
+                    FileName = save.FileName,
+                    Manager = FileManager.Instance
+                };
 
-                    exportTracker.AttachRunner(exporter);
+                exportTracker.AttachRunner(exporter);
 
-                    exporter.Query += QueryManager.Request;
-                    exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
+                exporter.Query += QueryManager.Request;
+                exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
 
-                    await exporter.Run();
+                await exporter.Run();
 
-                    exportTracker.Reset();
-                }
-                catch (Exception error)
-                {
-                    MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    exportTracker.Reset();
-                }
+                exportTracker.Reset();
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                exportTracker.Reset();
             }
         }
 
@@ -306,8 +327,11 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnRecentListDoubleClick(object sender, EventArgs e)
         {
-            if (recentList.SelectedItem is Session session)
-                await ChangeSession(session);
+            if (recentList.SelectedItem is not Session existing)
+                return;
+
+            session = existing;
+            await RefreshSession();
 
             recentList.SelectedIndex = -1;
         }

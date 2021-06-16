@@ -74,6 +74,10 @@ namespace WindowsClient
             if (sender is not Control control)
                 throw new Exception("Source object was not a control");
 
+            var existing = notebook.TabPages.OfType<TabPage>().FirstOrDefault(t => t.Text == control.Name);
+            if (existing is not null)
+                return;
+
             var tab = new TabPage(control.Name);
             tab.Controls.Add(control);
             control.Dock = DockStyle.Fill;

@@ -240,6 +240,15 @@ namespace Rems.Application.Common.Extensions
             if (map.ContainsKey(col.ColumnName))
                 col.ColumnName = map[col.ColumnName];
         }
+
+        public static T GetValue<T>(this DataRow row, string column)
+        {
+            var value = row[column];
+            if (value is DBNull)
+                return default;
+
+            return (T)System.Convert.ChangeType(value, typeof(T));            
+        }
     }
 
     /// <summary>
