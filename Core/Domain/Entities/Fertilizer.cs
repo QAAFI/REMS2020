@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelSource(RemsSource.Information)]
     public class Fertilizer : IEntity
     {
         public Fertilizer()
@@ -11,22 +13,31 @@ namespace Rems.Domain.Entities
 
         public int FertilizerId { get; set; }
 
+        [Expected("Name", "Fertiliser", "Fertilizer")]
         public string Name { get; set; }
 
-        public double? Nitrogen { get; set; }
+        [Expected("Nitrogen", "N%")]
+        public double? Nitrogen { get; set; } = null;
 
-        public double? Phosphorus { get; set; }
+        [Expected("Phosphorus", "P%")]
+        public double? Phosphorus { get; set; } = null;
 
-        public double? Potassium { get; set; }
+        [Expected("Potassium", "K%")]
+        public double? Potassium { get; set; } = null;
 
-        public double? Calcium { get; set; }
+        [Expected("Calcium", "Ca%")]
+        public double? Calcium { get; set; } = null;
 
-        public double? Sulfur { get; set; }
+        [Expected("Sulfur", "S%")]
+        public double? Sulfur { get; set; } = null;
 
-        public double? OtherPercent { get; set; }
+        [Expected("OtherPercent", "Other%")]
+        public double? OtherPercent { get; set; } = null;
 
+        [Expected("Other")]
         public string Other { get; set; }
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
 

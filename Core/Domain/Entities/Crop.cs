@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelSource(RemsSource.Information)]
     public class Crop : IEntity
     {
         public Crop()
@@ -11,12 +13,12 @@ namespace Rems.Domain.Entities
 
         public int CropId { get; set; }
 
+        [Expected("Name", "Crop")]
         public string Name { get; set; }
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
-        public virtual ICollection<Experiment> Experiments { get; set; }
-
-        
+        public virtual ICollection<Experiment> Experiments { get; set; }        
     }
 }

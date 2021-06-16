@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelSource(RemsSource.Information)]
     public class Unit : IEntity
     {
         public Unit()
@@ -15,8 +17,10 @@ namespace Rems.Domain.Entities
 
         public int UnitId { get; set; }
 
+        [Expected("Unit", "Units", "Name", "UnitName")]
         public string Name { get; set; } = null;
 
+        [Expected("Notes")]
         public string Notes { get; set; } = null;
 
         public virtual ICollection<ChemicalApplication> ChemicalApplications { get; set; }

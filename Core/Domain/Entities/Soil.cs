@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelSource(RemsSource.Information)]
     public class Soil : IEntity
     {
         public Soil()
@@ -13,10 +15,11 @@ namespace Rems.Domain.Entities
 
         public int SoilId { get; set; }
 
-        public string SoilType { get; set; } = null;
+        [Expected("SoilType", "Type")]
+        public string SoilType { get; set; }
 
-        public string Notes { get; set; } = null;
-
+        [Expected("Notes")]
+        public string Notes { get; set; }
 
         public virtual ICollection<Field> Fields { get; set; }
         public virtual ICollection<SoilLayer> SoilLayers { get; set; }
