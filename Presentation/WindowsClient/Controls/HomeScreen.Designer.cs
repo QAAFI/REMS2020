@@ -13,9 +13,6 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            DBOpened = null;
-            ImportRequested = null;
-
             recentList.DoubleClick -= OnRecentListDoubleClick;
             exportTracker.TaskBegun -= OnExportClick;
 
@@ -136,6 +133,7 @@
             this.groupExport.TabIndex = 3;
             this.groupExport.TabStop = false;
             this.groupExport.Text = "Experiments";
+            this.groupExport.Visible = false;
             // 
             // exportTracker
             // 
@@ -175,6 +173,7 @@
             this.groupImport.TabIndex = 4;
             this.groupImport.TabStop = false;
             this.groupImport.Text = "Import";
+            this.groupImport.Visible = false;
             // 
             // importText
             // 

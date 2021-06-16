@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
@@ -31,27 +32,27 @@ namespace Rems.Application.CQRS
         {
             Experiment convertRow(DataRow row)
             {
-                var crop = _context.Crops.FirstOrDefault(c => c.Name == Convert.ToString(row["Crop"]));
+                var crop = _context.Crops.FirstOrDefault(c => c.Name == row.GetValue<string>("Crop"));
 
-                var site = _context.Sites.FirstOrDefault(s => s.Name == Convert.ToString(row["SiteName"]));
-                var field = site.Fields.FirstOrDefault(f => f.Name == Convert.ToString(row["Field"]));
+                var site = _context.Sites.FirstOrDefault(s => s.Name == row.GetValue<string>("SiteName"));
+                var field = site.Fields.FirstOrDefault(f => f.Name == row.GetValue<string>("Field"));
 
-                var met = _context.MetStations.FirstOrDefault(s => s.Name == Convert.ToString(row["MetStation"]));
+                var met = _context.MetStations.FirstOrDefault(s => s.Name == row.GetValue<string>("MetStation"));
                 
                 var result = new Experiment
                 {
-                    Name = Convert.ToString(row["Name"]),
-                    Description = Convert.ToString(row["Description"]),
+                    Name = row.GetValue<string>("Name"),
+                    Description = row.GetValue<string>("Description"),
                     Crop = crop,
                     Field = field,
-                    BeginDate = Convert.ToDateTime(row["BeginDate"]),
-                    EndDate = Convert.ToDateTime(row["EndDate"]),
+                    BeginDate = row.GetValue<DateTime>("BeginDate"),
+                    EndDate = row.GetValue<DateTime>("EndDate"),
                     MetStation = met,
-                    Design = Convert.ToString(row["Design"]),
-                    Repetitions = Convert.ToInt32(row["Repetitions"]),
-                    Rating = Convert.ToInt32(row["Rating"]),
-                    Notes = Convert.ToString(row["Notes"])
-            };
+                    Design = row.GetValue<string>("Design"),
+                    Repetitions = row.GetValue<int>("Repetitions"),
+                    Rating = row.GetValue<int>("Rating"),
+                    Notes = row.GetValue<string>("Notes")
+                };
 
                 Progress.Increment(1);
 

@@ -101,8 +101,13 @@ namespace WindowsClient.Controls
         /// </summary>
         private void LabelMouseEnter(object sender, EventArgs e)
         {
-            if (active) 
+            if (active)
+            {
+                label.Cursor = Cursors.Hand;
                 label.ForeColor = SystemColors.MenuHighlight;
+            }
+            else
+                label.Cursor = Cursors.Default;
         }
 
         /// <summary>

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
-using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.CQRS;
-using WindowsClient.Controls;
 using WindowsClient.Models;
 
 namespace WindowsClient
@@ -28,15 +25,8 @@ namespace WindowsClient
             
             FormClosed += REMSClientFormClosed;
 
-            homeScreen.DBOpened += OnDBOpened;
-            homeScreen.ImportRequested += OnImportRequested;
-
-            importer.ImportCompleted += OnImportCompleted;
-            importer.ImportCancelled += (s, e) => notebook.TabPages.Remove(importTab);
-            importTab.Leave += (s, e) => notebook.TabPages.Remove(importTab);
-
-            notebook.TabPages.Remove(detailsTab);
-            notebook.TabPages.Remove(importTab);
+            homeScreen.AttachTab += OnAttachTab;
+            homeScreen.RemoveTab += OnRemoveTab;
         }
 
         /// <summary>
@@ -79,62 +69,32 @@ namespace WindowsClient
             writer.Close();
         }
 
-        /// <summary>
-        /// When an import link starts the import process
-        /// </summary>
-        private async void OnImportRequested(object sender, EventArgs args)
+        private void OnAttachTab(object sender, EventArgs e)
         {
-            if (!(sender is ImportLink link))
-                throw new Exception("Import requested from unknown control type.");
+            if (sender is not Control control)
+                throw new Exception("Source object was not a control");
 
-            importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
-            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
-
-            importTab.Text = "Import " + link.Label;
-            await AttachImporter();
-        }         
-
-        /// <summary>
-        /// When an import link confirms the import has finished
-        /// </summary>
-        private async void OnImportCompleted(object sender, EventArgs args)
-        {
-            MessageBox.Show("Import successful!", "");
-            notebook.TabPages.Remove(importTab);
-            await homeScreen.LoadExportBox();
-            await AttachDetailer();
-        }
-
-        private async Task AttachImporter()
-        {
-            notebook.TabPages.Add(importTab);
-            notebook.SelectedTab = importTab;
-
-            await importer.OpenFile();
-        }
-
-        private async Task AttachDetailer()
-        {
-            if (notebook.TabPages.Contains(detailsTab))
+            var existing = notebook.TabPages.OfType<TabPage>().FirstOrDefault(t => t.Text == control.Name);
+            if (existing is not null)
                 return;
 
-            if (!await QueryManager.Request(new LoadedExperiments()))
-                return;
-            
-            notebook.TabPages.Add(detailsTab);
-            await detailer.LoadNodes();
+            var tab = new TabPage(control.Name);
+            tab.Controls.Add(control);
+            control.Dock = DockStyle.Fill;
+
+            notebook.TabPages.Add(tab);
+            notebook.SelectedTab = tab;
         }
 
-        /// <summary>
-        /// When a new database is opened
-        /// </summary>
-        private async void OnDBOpened(object sender, Args<string> args)
+        private void OnRemoveTab(object sender, EventArgs e)
         {
-            // Update the title
-            Text = "REMS 2020 - " + Path.GetFileName(args.Item);
+            if (sender is not Control control)
+                throw new Exception("Source object was not a control");
 
-            // Update the tables
-            await AttachDetailer();
+            var tab = notebook.TabPages.OfType<TabPage>().FirstOrDefault(t => t.Text == control.Name);
+
+            if (tab is not null)
+                notebook.TabPages.Remove(tab);                
         }
 
         /// <summary>
