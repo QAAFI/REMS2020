@@ -20,7 +20,7 @@ namespace Rems.Persistence.Configurations
                 .HasMaxLength(50);
 
             // Define constraints
-            builder.HasOne(d => d.TillageMethod)
+            builder.HasOne(d => d.Method)
                 .WithMany(p => p.Tillages)
                 .HasForeignKey(d => d.MethodId)
                 .OnDelete(DeleteBehavior.Cascade)

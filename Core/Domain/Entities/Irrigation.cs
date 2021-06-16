@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Rems.Domain.Attributes;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelSource(RemsSource.Experiments)]
     public class Irrigation : ITreatment
     {
         public Irrigation()
@@ -16,16 +19,25 @@ namespace Rems.Domain.Entities
 
         public int TreatmentId { get; set; }
 
-        public DateTime Date { get; set; }        
+        [Expected("Date")]
+        public DateTime Date { get; set; }
 
+        [Expected("Amount")]
         public double Amount { get; set; }
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
+        [NotMapped]
+        [Expected("Experiment")]
+        public Experiment Experiment { get; set; }
 
+        [Expected("Method")]
         public virtual Method Method { get; set; }
+        
+        [Expected("Treatment")]
         public virtual Treatment Treatment { get; set; }
-        public virtual ICollection<IrrigationInfo> IrrigationInfo { get; set; }
 
+        public virtual ICollection<IrrigationInfo> IrrigationInfo { get; set; }
     }
 }
