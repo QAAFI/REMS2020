@@ -92,6 +92,36 @@ namespace WindowsClient.Controls
 
         #region Methods
 
+        private async Task GenerateNodes(DataSet data)
+        {
+            var remsData = await QueryManager.Request(new InformationQuery { Data = data });
+
+            foreach (DataTable table in remsData.Tables)
+            {
+                var xl = new ExcelTable(table);
+                var val = CreateTableValidater(table);
+                var node = new TableNode(xl, val);
+
+                var expected = await QueryManager.Request(new ExpectedQuery { Table = table });
+
+                // Add expected nodes
+                foreach (var col in expected)
+                {
+                    var cn = await val.CreateColumnNode(col.Ordinal);
+                    node.Properties.Nodes.Add(cn);
+                }
+
+                // Add unknown nodes
+                foreach (var col in table.Columns.OfType<DataColumn>().Except(expected))
+                {
+                    var cn = await val.CreateColumnNode(col.Ordinal);
+                    node.Unknowns.Nodes.Add(cn);
+                }
+                node.Validate();
+                dataTree.Nodes.Add(node);
+            }
+        }
+
         /// <summary>
         /// Attempts to sanitise raw excel data so it can be read into the database
         /// </summary>        
@@ -245,6 +275,11 @@ namespace WindowsClient.Controls
             {
                 Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
                 await CleanData(Data);
+
+                // temporary empty separator node
+                dataTree.Nodes.Add(new TreeNode("--------------"));
+                // testing new nodes
+                await GenerateNodes(Data);
 
                 fileBox.Text = Path.GetFileName(file);
 
