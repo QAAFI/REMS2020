@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelSource(RemsSource.Information)]
+    [ExcelSource(RemsSource.Information, "Fields")]
     public class Field : IEntity
     {
         public Field()

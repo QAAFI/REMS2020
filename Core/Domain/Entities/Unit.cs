@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelSource(RemsSource.Information)]
+    [ExcelSource(RemsSource.Information, "Units")]
     public class Unit : IEntity
     {
         public Unit()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelSource(RemsSource.Information)]
+    [ExcelSource(RemsSource.Information, "Sites")]
     public class Site : IEntity
     {
         public Site()

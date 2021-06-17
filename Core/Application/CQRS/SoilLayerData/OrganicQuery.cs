@@ -31,8 +31,8 @@ namespace Rems.Application.CQRS
             // Find the values
             var layers = _context.GetSoilLayers(ExperimentId);
 
-            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
-            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth}").ToArray();
+            var thickness = layers.Select(l => (double)(l.ToDepth - l.FromDepth)).ToArray();
             var carbon = _context.GetSoilLayerTraitData(layers, nameof(Organic.Carbon));
             var soilCNRatio = _context.GetSoilLayerTraitData(layers, nameof(Organic.SoilCNRatio));
             var FBiom = _context.GetSoilLayerTraitData(layers, nameof(Organic.FBiom));

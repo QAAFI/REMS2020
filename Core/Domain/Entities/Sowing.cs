@@ -3,7 +3,7 @@ using System;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelSource(RemsSource.Experiments)]
+    [ExcelSource(RemsSource.Experiments, "Sowing")]
     public class Sowing : IEntity
     {
         public int SowingId { get; set; }

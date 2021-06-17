@@ -29,9 +29,12 @@ namespace Rems.Domain.Attributes
     {
         public RemsSource Source { get; private set; }
 
-        public ExcelSource(RemsSource source)
+        public string[] Names { get; private set; }
+
+        public ExcelSource(RemsSource source, params string[] names)
         {
             Source = source;
+            Names = names;
         }
     }
 }
