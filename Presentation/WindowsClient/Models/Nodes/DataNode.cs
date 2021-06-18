@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.Common;
 
@@ -22,20 +21,6 @@ namespace WindowsClient.Models
         {
             Excel = excel;
             Tag = Excel.Data;
-
-            Items.Add(new ToolStripMenuItem("Ignored", null, IgnoreClicked));
-        }
-
-        #region Menu functions       
-
-        public void IgnoreClicked(object sender, EventArgs args)
-        {
-            ToggleIgnore();
-
-            if (sender is ToolStripMenuItem item)            
-                item.Checked = Excel.Ignore;
-
-            InvokeUpdated();
         }
 
         /// <summary>
@@ -46,9 +31,10 @@ namespace WindowsClient.Models
             Excel.Ignore = !Excel.Ignore;
 
             Advice.Clear();
-            Advice.Include("Ignored items will not be imported.\n", Color.Black);            
+            Advice.Include("Ignored items will not be imported.\n", Color.Black);
+
+            Root.Refresh();
         }
-        #endregion
 
         #region Disposable
 
@@ -58,8 +44,7 @@ namespace WindowsClient.Models
             {
                 if (disposing)
                 {
-                    Excel.Dispose();
-                    ContextMenuStrip.Opening -= OnMenuOpening;
+                    Excel.Dispose();                    
                 }
                 base.Dispose();
             }

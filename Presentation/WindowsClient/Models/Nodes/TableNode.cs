@@ -12,15 +12,13 @@ namespace WindowsClient.Models
         {
             Advice = new("These nodes describe the columns that REMS expects to find in the spreadsheet" +
                 "and are required for the import."),
-            ImageKey = "Properties",
-            SelectedImageKey = "Properties"
+            Key = "Properties"
         };
 
         public GroupNode Traits = new GroupNode("Traits")
         {
             Advice = new("Any additional columns in the spreadsheet will be imported as trait data."),
-            ImageKey = "Traits",
-            SelectedImageKey = "Traits"
+            Key = "Traits"
         };
 
         public override string Key 
@@ -29,7 +27,7 @@ namespace WindowsClient.Models
             {
                 if (Excel.Ignore)
                     return "ExcelOff";
-                else if (!Excel.Valid)
+                else if (!Valid)
                     return "Warning";
                 else
                     return "Excel";                
@@ -41,13 +39,18 @@ namespace WindowsClient.Models
             Nodes.Add(Required);
             Nodes.Add(Traits);
 
-            Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
-            Traits.Items.Add(new ToolStripMenuItem("Ignore all", null, ToggleIgnoreAll));
-        }
+            var ignore = new ToolStripMenuItem("Ignore", null, (s, e) => ToggleIgnore())
+            {
+                Enabled = !Excel.Required,
+                ToolTipText = Excel.Required
+                ? "This table is required and cannot be ignored in the import"
+                : "Ignore this table and do not import its data"
+            };
 
-        protected override void OnMenuOpening(object sender, EventArgs args)
-        {
-            // No configuration required
+            Items.Add(ignore);
+
+            Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
+            Traits.Items.Add(new ToolStripMenuItem("Toggle ignore", null, ToggleIgnoreAll));
         }
 
         /// <summary>
@@ -57,7 +60,7 @@ namespace WindowsClient.Models
         {
             var nodes = TreeView.SelectedNode.Nodes.OfType<TraitNode>();
             foreach (var node in nodes)
-                if (!node.Excel.Valid)
+                if (!node.Valid)
                     await node.AddTrait();
 
             Refresh();
@@ -73,36 +76,6 @@ namespace WindowsClient.Models
                 node.ToggleIgnore();
 
             Refresh();
-        }
-
-        public override void Refresh()
-        {
-            Excel.Valid = true;
-
-            var nodes = Nodes.OfType<GroupNode>()
-                .SelectMany(g => g.Nodes.OfType<DataNode<ExcelColumn, DataColumn>>())
-                .ToArray();
-            
-            foreach (var node in nodes)
-            {
-                node.Refresh();
-
-                if (!node.Excel.Ignore)
-                    Excel.Valid &= node.Excel.Valid;
-            }
-
-            CheckNode(Required);
-            CheckNode(Traits);
-
-            ImageKey = SelectedImageKey = Key;
-        }
-
-        private void CheckNode(GroupNode node)
-        {
-            if (node.Nodes.Count == 0)
-                Nodes.Remove(node);
-            else if (!Nodes.Contains(node))
-                Nodes.Add(node);
         }
     }
 }

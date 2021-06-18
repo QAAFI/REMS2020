@@ -1,23 +1,12 @@
-﻿using System;
+﻿using Rems.Application.Common;
+using System;
+using System.Data;
 
 namespace WindowsClient.Models
 {
     public class GroupNode : ImportNode
     {
-        public override string Key { get; }
-
         public GroupNode(string name) : base(name)
         { }
-
-        protected override void OnMenuOpening(object sender, EventArgs args)
-        {
-            // No current implementation
-        }
-
-        public override void Refresh()
-        {
-            foreach (RequiredNode node in Nodes)
-                node.Refresh();
-        }
     }
 }

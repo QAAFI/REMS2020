@@ -119,8 +119,8 @@ namespace WindowsClient.Controls
                 foreach (var col in unknowns)
                 {
                     var excel = new ExcelColumn { Data = col };
-                    await excel.CheckIfTrait();
                     var cn = new TraitNode(excel);
+                    await cn.CheckForTrait();
 
                     node.Traits.Nodes.Add(cn);
                 }
@@ -255,18 +255,24 @@ namespace WindowsClient.Controls
                     return;
                 }
 
-                var states = dataTree.Nodes.Cast<TreeNode>()
-                    .Select(n => n.Tag as DataTable)
-                    .Where(t => t.ExtendedProperties["Valid"] is false);
+                var invalid = dataTree.Nodes.OfType<TableNode>()                    
+                    .Where(t => t.Valid is false)
+                    .Any();
 
-                if (states.Any())
+                if (invalid)
                 {
                     MessageBox.Show("All nodes must be valid or ignored before attempting to import");
                     return;
                 }
 
                 // Create and run an importer for the data
-                var excel = new ExcelImporter { Data = Data };
+                var data = dataTree.Nodes
+                    .OfType<TableNode>()
+                    .Where(n => !n.Excel.Ignore)
+                    .Select(n => n.Excel.Data)
+                    .OrderBy(t => t.DataSet.Tables.IndexOf(t));
+
+                var excel = new ExcelImporter { Data = data };
 
                 tracker.AttachRunner(excel);
 

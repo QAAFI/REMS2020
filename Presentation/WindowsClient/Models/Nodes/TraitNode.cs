@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.Common;
@@ -9,13 +10,15 @@ namespace WindowsClient.Models
 {
     public class TraitNode : DataNode<ExcelColumn, DataColumn>
     {
-        private ToolStripMenuItem addtrait;
+        public override bool Valid => Excel.Ignore || traitExists;
+
+        private bool traitExists;
 
         public override string Key
         {
             get
             {
-                string key = Excel.Valid ? "Valid" : "Invalid";
+                string key = Valid ? "Valid" : "Invalid";
                 key += Excel.Ignore ? "Off" : "On";
 
                 return key;
@@ -24,16 +27,11 @@ namespace WindowsClient.Models
 
         public TraitNode(ExcelColumn excel) : base(excel)
         {
-            addtrait = new ToolStripMenuItem("Add as trait", null, AddTraitClicked);
-
+            var ignore = new ToolStripMenuItem("Ignore", null, (s, e) => ToggleIgnore());
+            var addtrait = new ToolStripMenuItem("Add as trait", null, AddTraitClicked);
+            
+            Items.Add(ignore);
             Items.Add(addtrait);
-        }
-
-        #region Menu functions
-        /// <inheritdoc/>
-        protected override void OnMenuOpening(object sender, EventArgs args)
-        {
-                
         }
 
         /// <summary>
@@ -42,7 +40,6 @@ namespace WindowsClient.Models
         public async void AddTraitClicked(object sender, EventArgs args)
         {
             await AddTrait();
-            InvokeUpdated();
         }
 
         public async Task AddTrait()
@@ -58,15 +55,42 @@ namespace WindowsClient.Models
 
             await QueryManager.Request(query);
 
-            await Excel.CheckIfTrait();
+            traitExists = true;
+            Root.Refresh();
         }
 
-        
-        #endregion        
-
-        public override void Refresh()
+        /// <summary>
+        /// Tests if the column is referring to a known database trait
+        /// </summary>
+        public async Task CheckForTrait()
         {
-            ImageKey = SelectedImageKey = Key;
+            if (Excel.Data is null)
+            {
+                traitExists = false;
+                return;
+            }                
+
+            // Test if the trait is in the database
+            bool inDB = await QueryManager.Request(new TraitExistsQuery() { Name = Excel.Data.ColumnName });
+
+            // Test if the trait is in the excel data
+            bool inExcel()
+            {
+                // Is there a traits table
+                if (Excel.Data.Table?.DataSet?.Tables["Traits"] is not DataTable traits)
+                    return false;
+
+                // Is there a column with trait names
+                if (traits.Columns["Name"] is not DataColumn name)
+                    return false;
+
+                var rows = traits.Rows.Cast<DataRow>();
+                var trait = Excel.Data.ColumnName.ToLower();
+
+                return rows.Any(r => r[name].ToString().ToLower() == trait);
+            };
+
+            traitExists = inDB || inExcel();
         }
     }
 }

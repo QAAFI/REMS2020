@@ -7,11 +7,13 @@ namespace WindowsClient.Models
 {
     public class RequiredNode : DataNode<ExcelColumn, DataColumn>
     {
+        public override bool Valid => Excel.Info is not null && Excel.Data.Table is not null;
+
         public override string Key
         {
             get
             {
-                string key = Excel.Valid ? "Valid" : "Invalid";
+                string key = Valid ? "Valid" : "Invalid";
                 key += Excel.Ignore ? "Off" : "On";
 
                 return key;
@@ -19,20 +21,20 @@ namespace WindowsClient.Models
         }
 
         public RequiredNode(ExcelColumn excel) : base(excel)
-        { }
+        {
+            ContextMenuStrip.Opening += OnMenuOpening;
+        }
 
-        #region Menu functions
-        /// <inheritdoc/>
-        protected override void OnMenuOpening(object sender, EventArgs args)
+        protected void OnMenuOpening(object sender, EventArgs args)
         {
             Items.Clear();
 
             if (Root is not TableNode table)
                 return;
 
-            if (Excel.Valid)
+            if (Valid)
             {
-                var detach = new ToolStripMenuItem("Detach from column", null, (s, e) => DetachColumn(table))
+                var detach = new ToolStripMenuItem("Detach column", null, (s, e) => DetachColumn(table))
                 {
                     ToolTipText = "Detach the column from this node and put it back into the " +
                     "'Traits' pool, making it available to attach to other nodes."
@@ -63,11 +65,10 @@ namespace WindowsClient.Models
             Excel = new ExcelColumn
             {
                 Data = col,
-                Valid = false,
                 Info = node.Excel.Info
             };
 
-            Refresh();
+            Root.Refresh();
         }
 
         private void AttachColumn(TraitNode node)
@@ -79,14 +80,7 @@ namespace WindowsClient.Models
             Excel = node.Excel;            
             
             node.Parent.Nodes.Remove(node);
-            Excel.Valid = true;
-            Refresh();
-        }        
-        #endregion        
-
-        public override void Refresh()
-        {
-            ImageKey = SelectedImageKey = Key;
+            Root.Refresh();
         }
     }
 }

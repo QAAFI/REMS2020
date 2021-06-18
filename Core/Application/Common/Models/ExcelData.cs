@@ -19,8 +19,6 @@ namespace Rems.Application.Common
         /// </summary>
         TData Data { get; }
 
-        bool Valid { get; set; }
-
         bool Ignore { get; set; }
 
         /// <summary>
@@ -32,19 +30,12 @@ namespace Rems.Application.Common
         /// The table which the data is sourced from
         /// </summary>
         DataTable Source { get; }
-
-        ///// <summary>
-        ///// If the data is a column, swap its position to the given index
-        ///// </summary>
-        //void Swap(int index);
     }
 
     public abstract class BaseExcelData<TData> : IExcelData<TData>
         where TData : IDisposable
     {
         public TData Data { get; init; }
-        
-        public bool Valid { get; set; }
 
         public bool Ignore { get; set; }
 
@@ -91,11 +82,7 @@ namespace Rems.Application.Common
 
         public Type Type { get; set; }
 
-        ///// <inheritdoc/>
-        //public override void Swap(int i)
-        //{
-        //    throw new NotImplementedException("Cannot swap the ordinal of a table");
-        //}
+        public bool Required { get; init; }
     }
 
     public class ExcelColumn : BaseExcelData<DataColumn>
@@ -108,14 +95,8 @@ namespace Rems.Application.Common
         }
 
         /// <inheritdoc/>
-        public override DataTable Source => Data.Table;
+        public override DataTable Source => Data?.Table;
 
-        public PropertyInfo Info { get; set; }
-
-        ///// <inheritdoc/>
-        //public override void Swap(int index)
-        //{
-        //    Data.SetOrdinal(index);
-        //}        
+        public PropertyInfo Info { get; set; }    
     }
 }

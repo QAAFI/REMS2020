@@ -2,6 +2,7 @@
 using Rems.Application.Common;
 using Rems.Application.CQRS;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -17,12 +18,12 @@ namespace Rems.Infrastructure.Excel
         /// <summary>
         /// The set of data tables to import
         /// </summary>
-        public DataSet Data { get; set; }
+        public IEnumerable<DataTable> Data { get; set; }
 
         /// <inheritdoc/>
-        public override int Items => Data.Tables.Count;
+        public override int Items => Data.Count();
         /// <inheritdoc/>
-        public override int Steps => Data.Tables.Cast<DataTable>().Sum(d => d.Rows.Count);        
+        public override int Steps => Data.Sum(d => d.Rows.Count);        
  
         /// <summary>
         /// Sequentially insert each table into the database
@@ -34,7 +35,7 @@ namespace Rems.Infrastructure.Excel
                 if (! await InvokeQuery(new ConnectionExists()))
                     throw new Exception("No existing database connection");
 
-                foreach (DataTable table in Data.Tables)
+                foreach (DataTable table in Data)
                     await InsertTable(table);
 
                 Thread.Sleep(500);

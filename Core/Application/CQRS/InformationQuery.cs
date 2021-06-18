@@ -38,12 +38,13 @@ namespace Rems.Application.CQRS
 
             foreach (var type in types)
             {
-                var names = type.GetCustomAttribute<ExcelFormat>().Names;
+                var format = type.GetCustomAttribute<ExcelFormat>();
+                var names = format.Names;
                 var table = data.FirstOrDefault(t => names.Contains(t.TableName));
 
-                var excel = new ExcelTable { Data = table, Type = type };
+                var excel = new ExcelTable { Data = table, Type = type, Required = format.Required };
 
-                if (excel.Valid = table is not null)
+                if (table is not null)
                     tables.Add(excel, GetColumns(table, type));
             }
 
@@ -71,7 +72,6 @@ namespace Rems.Application.CQRS
                 {
                     Info = prop,
                     Data = col ?? new DataColumn(prop.Name + " not found"),
-                    Valid = col is not null
                 };
 
                 columns.Add(xl);

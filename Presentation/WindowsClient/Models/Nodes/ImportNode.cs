@@ -1,17 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
     public abstract class ImportNode : TreeNode, IDisposable
     {
-        /// <summary>
-        /// Occurs when some change is applied to the node
-        /// </summary>
-        public event EventHandler Updated;
-
-        protected void InvokeUpdated() => Updated?.Invoke(this, EventArgs.Empty);
-
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
@@ -22,27 +16,27 @@ namespace WindowsClient.Models
         /// </summary>
         public Advice Advice { get; set; } = new Advice();
 
-        public abstract string Key { get; }
+        public virtual bool Valid => Nodes.OfType<ImportNode>().All(n => n.Valid); 
+
+        public virtual string Key { get; init; }
 
         public ImportNode(string name) : base(name)
         {
-            ContextMenuStrip = new ContextMenuStrip();
-            ContextMenuStrip.Opening += OnMenuOpening;            
+            ContextMenuStrip = new ContextMenuStrip();                        
         }
 
-        public ImportNode Root => (Parent as ImportNode)?.Root ?? this;
-
-        /// <summary>
-        /// Handles any dynamic changes to the menu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        protected abstract void OnMenuOpening(object sender, EventArgs args);        
+        public ImportNode Root => (Parent as ImportNode)?.Root ?? this;       
 
         /// <summary>
         /// Test a node for validity
         /// </summary>
-        public abstract void Refresh();
+        public void Refresh()
+        {
+            ImageKey = SelectedImageKey = Key;
+
+            foreach (var node in Nodes.OfType<ImportNode>())
+                node.Refresh();           
+        }
 
         #region Disposable
         protected bool disposedValue;
@@ -54,7 +48,6 @@ namespace WindowsClient.Models
                     if (disposing)
                     {                  
                     }
-                    Updated = null;
                     disposedValue = true;
                 }
             }
