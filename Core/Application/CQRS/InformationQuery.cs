@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -17,6 +17,8 @@ namespace Rems.Application.CQRS
     {
         public DataSet Data { get; set; }
 
+        public string Format { get; set; }
+
         /// <inheritdoc/>
         public class Handler : BaseHandler<InformationQuery>
         {
@@ -29,7 +31,7 @@ namespace Rems.Application.CQRS
             var assembly = Assembly.Load("Rems.Domain");
 
             var types = assembly.GetTypes()
-                .Where(t => t.GetCustomAttribute<ExcelSource>()?.Source == RemsSource.Information);
+                .Where(t => t.GetCustomAttribute<ExcelSource>()?.Format == Format);
 
             var data = Data.Tables.OfType<DataTable>();
             var tables = new Dictionary<ExcelTable, ExcelColumn[]>();

@@ -178,7 +178,7 @@ namespace WindowsClient.Controls
 
             importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
 
-            await importer.OpenFile();
+            await importer.OpenFile(link.Label);
         }
 
         private async void OnImportCompleted(object sender, EventArgs args)

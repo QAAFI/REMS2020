@@ -1,4 +1,4 @@
-﻿using Rems.Application.Common;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -93,11 +93,9 @@ namespace WindowsClient.Controls
 
         #region Methods
 
-        private async Task GenerateNodes(DataSet data)
+        private async Task GenerateNodes(DataSet data, string format)
         {
-            data.FindExperiments();
-
-            var query = new InformationQuery { Data = data };
+            var query = new InformationQuery { Data = data, Format = format };
             var tables = await QueryManager.Request(query);
 
             foreach (var pair in tables)
@@ -187,7 +185,7 @@ namespace WindowsClient.Controls
                     col.ReplaceName();
         }                
 
-        public async Task OpenFile()
+        public async Task OpenFile(string format)
         {
             using var open = new OpenFileDialog();
             open.InitialDirectory = Folder;
@@ -201,7 +199,7 @@ namespace WindowsClient.Controls
 
             Folder = Path.GetDirectoryName(open.FileName);
 
-            if (!await LoadData(open.FileName))
+            if (!await LoadData(open.FileName, format))
                 ImportCancelled?.Invoke(this, EventArgs.Empty);
         }
 
@@ -209,13 +207,13 @@ namespace WindowsClient.Controls
         /// Lets the user select a file to open for import
         /// </summary>
         /// <returns>True if the file is valid, false otherwise</returns>
-        public async Task<bool> LoadData(string file)
+        public async Task<bool> LoadData(string file, string format)
         {
             try
             {
                 Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
                 await CleanData(Data);
-                await GenerateNodes(Data);
+                await GenerateNodes(Data, format);
 
                 fileBox.Text = Path.GetFileName(file);
 
@@ -309,7 +307,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) 
         {
-            await OpenFile();
+            //await OpenFile();
         }
 
         /// <summary>
