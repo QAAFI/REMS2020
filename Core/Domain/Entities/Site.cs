@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
-        [Expected("Name", "SiteName", "Site")]
+        [Expected("Name", "Site Name", "SiteName", "Site")]
         public string Name { get; set; }
 
         [Expected("Latitude", "Lat")]
@@ -30,7 +30,7 @@ namespace Rems.Domain.Entities
         [Expected("Notes")]
         public string Notes { get; set; }
 
-        [Expected("Region", "RegionName")]
+        [Expected("Region", "RegionName", "Region Name")]
         public virtual Region Region { get; set; }
 
         public virtual ICollection<Field> Fields { get; set; }

@@ -13,10 +13,10 @@ namespace Rems.Domain.Entities
 
         public int ResearcherId { get; set; }
 
-        [Expected("Name", "Researcher")]
+        [Expected("Name", "Researcher", "Researcher Name")]
         public string Name { get; set; }
 
-        [Expected("Organisation", "Organization", "Org")]
+        [Expected("Organisation", "Organisation Name", "Organization", "Org")]
         public string Organisation { get; set; }
 
         [Expected("Notes")]

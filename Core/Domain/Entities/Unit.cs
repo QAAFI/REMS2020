@@ -17,7 +17,7 @@ namespace Rems.Domain.Entities
 
         public int UnitId { get; set; }
 
-        [Expected("Unit", "Units", "Name", "UnitName")]
+        [Expected("Name", "Unit", "Units", "UnitName", "UnitName")]
         public string Name { get; set; } = null;
 
         [Expected("Notes")]

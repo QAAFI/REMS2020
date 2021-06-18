@@ -19,10 +19,10 @@ namespace Rems.Domain.Entities
 
         public int MethodId { get; set; }
 
-        [Expected("Name", "Method")]
+        [Expected("Name", "Method", "Method Name")]
         public string Name { get; set; }
 
-        [Expected("Type", "MethodType")]
+        [Expected("Type", "MethodType", "Method Type")]
         public string Type { get; set; }
 
         [Expected("Notes")]

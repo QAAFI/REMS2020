@@ -17,7 +17,7 @@ namespace Rems.Domain.Entities
 
         public int SoilId { get; set; }
 
-        [Expected("Name", "FieldName")]
+        [Expected("Name", "FieldName", "Field Name")]
         public string Name { get; set; }
 
         [Expected("Latitude", "Lat")]
@@ -38,10 +38,10 @@ namespace Rems.Domain.Entities
         [Expected("Notes")]
         public string Notes { get; set; } = null;
 
-        [Expected("Site", "SiteName")]
+        [Expected("Site", "SiteName", "Site Name")]
         public virtual Site Site { get; set; }
 
-        [Expected("Soil", "SoilType")]
+        [Expected("Soil", "SoilType", "Soil Type")]
         public virtual Soil Soil { get; set; }
 
         public virtual ICollection<Experiment> Experiments { get; set; }

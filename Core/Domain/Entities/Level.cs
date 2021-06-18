@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
 
         public int FactorId { get; set; }
 
-        [Expected("Name", "Level")]
+        [Expected("Name", "Level", "Level Name")]
         public string Name { get; set; }
 
         [Expected("Notes")]
@@ -23,7 +23,7 @@ namespace Rems.Domain.Entities
 
         public string Specification { get; set; }
 
-        [Expected("Factor")]
+        [Expected("Factor", "Factor Name")]
         public virtual Factor Factor { get; set; }
 
         public virtual ICollection<Design> Designs { get; set; }

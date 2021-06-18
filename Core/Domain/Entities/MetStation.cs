@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
 
         public int MetStationId { get; set; }
 
-        [Expected("Name", "MetStation", "Station")]
+        [Expected("Name", "MetStation", "MetStation Name", "Station")]
         public string Name { get; set; }
 
         [Expected("Latitude", "Lat")]

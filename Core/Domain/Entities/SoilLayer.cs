@@ -1,5 +1,6 @@
 ﻿using Rems.Domain.Attributes;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
@@ -21,7 +22,11 @@ namespace Rems.Domain.Entities
         [Expected("ToDepth", "DepthTo")]
         public int ToDepth { get; set; }
 
-        [Expected("Soil", "SoilType")]
+        [NotMapped]
+        [Expected("Notes")]
+        public string Notes { get; set; }
+
+        [Expected("Soil", "Soil Name", "SoilType")]
         public virtual Soil Soil { get; set; }
 
         public virtual ICollection<SoilLayerTrait> SoilLayerTraits { get; set; }

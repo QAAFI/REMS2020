@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
-        [Expected("Name", "Region")]
+        [Expected("Name", "Region", "Region Name")]
         public string Name { get; set; }
 
         [Expected("Notes")]

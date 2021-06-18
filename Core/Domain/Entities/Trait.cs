@@ -21,10 +21,10 @@ namespace Rems.Domain.Entities
 
         public int? UnitId { get; set; }
 
-        [Expected("Trait", "TraitName", "Name")]
+        [Expected("Name", "Trait Name", "Traits", "TraitNames", "Names")]
         public string Name { get; set; }
 
-        [Expected("Type", "TraitType")]
+        [Expected("Type", "Types", "Trait Type", "TraitType")]
         public string Type { get; set; }
 
         [Expected("Description")]
@@ -33,7 +33,7 @@ namespace Rems.Domain.Entities
         [Expected("Notes")]
         public string Notes { get; set; }
 
-        [Expected("Unit", "Units", "DefaultUnits")]
+        [Expected("Unit", "Units", "Default Units", "DefaultUnits")]
         public virtual Unit Unit { get; set; }
         
         public virtual ICollection<MetData> MetData { get; set; }
