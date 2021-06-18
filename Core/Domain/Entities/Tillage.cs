@@ -32,10 +32,10 @@ namespace Rems.Domain.Entities
         [Expected("Experiment")]
         public Experiment Experiment { get; set; }
 
-        [Expected("Method")]
+        [Expected("Method", "Tillage Method")]
         public virtual Method Method { get; set; }
 
-        [Expected("Treatment")]
+        [Expected("Treatment", "TreatmentName", "Treatment Name")]
         public virtual Treatment Treatment { get; set; }
         
         public virtual ICollection<TillageInfo> TillageInfo { get; set; }

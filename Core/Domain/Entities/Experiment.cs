@@ -25,26 +25,26 @@ namespace Rems.Domain.Entities
 
         public int? MethodId { get; set; }
 
-        [Expected("Name", "Experiment")]
+        [Expected("Name", "Experiment", "Exp Name")]
         public string Name { get; set; }
 
-        [Expected("Description")]
+        [Expected("Description", "Exp Description")]
         public string Description { get; set; }
 
         [NotMapped]
-        [Expected("Notes")]
+        [Expected("Site", "SiteName", "Site Name")]
         public string SiteName { get; set; }
 
-        [Expected("BeginDate")]
+        [Expected("BeginDate", "Begin Date")]
         public DateTime BeginDate { get; set; }
 
-        [Expected("EndDate")]
+        [Expected("EndDate", "End Date")]
         public DateTime EndDate { get; set; }
 
-        [Expected("Design", "ExpDesign")]
+        [Expected("Design", "ExpDesign", "Exp Design")]
         public string Design { get; set; }
 
-        [Expected("Repetitions", "Reps")]
+        [Expected("Repetitions", "Reps", "Number of Reps")]
         public int Repetitions { get; set; }
 
         [Expected("Rating")]
@@ -56,10 +56,10 @@ namespace Rems.Domain.Entities
         [Expected("Crop")]
         public virtual Crop Crop { get; set; }
 
-        [Expected("Field", "FieldName")]
+        [Expected("Field", "FieldName", "Field Name")]
         public virtual Field Field { get; set; }
 
-        [Expected("MetStation", "Station")]
+        [Expected("MetStation", "MetStationName", "MetStation Name", "Station")]
         public virtual MetStation MetStation { get; set; }
                 
         public virtual Method Method { get; set; }

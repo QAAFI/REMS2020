@@ -3,7 +3,7 @@ using System;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", "Sowing")]
+    [ExcelFormat("Information", "Sowing", "Planting")]
     public class Sowing : IEntity
     {
         public int SowingId { get; set; }
@@ -12,13 +12,13 @@ namespace Rems.Domain.Entities
 
         public int MethodId { get; set; }
 
-        [Expected("Date")]
+        [Expected("Date", "PlantingDate")]
         public DateTime Date { get; set; }
 
         [Expected("Cultivar")]
         public string Cultivar { get; set; }
 
-        [Expected("Depth")]
+        [Expected("Depth", "PlantingDepth")]
         public double Depth { get; set; }
 
         [Expected("RowSpace", "RowSpan")]
@@ -33,7 +33,7 @@ namespace Rems.Domain.Entities
         [Expected("Experiment")]
         public virtual Experiment Experiment { get; set; }
 
-        [Expected("Method")]
+        [Expected("Method", "PlantingMethod")]
         public virtual Method Method { get; set; }
     }
 }

@@ -17,14 +17,14 @@ namespace Rems.Domain.Entities
         public string Experiment { get; set; }
 
         [NotMapped]
-        [Expected("Repetition", "Rep")]
+        [Expected("Repetition", "Rep", "RepNo")]
         public int Repetition{ get; set; }
 
         [NotMapped]
         [Expected("Plot")]
         public string Plot { get; set; }
 
-        [Expected("Treatment")]
+        [Expected("Treatment", "TreatmentName", "Treatment Name")]
         public virtual Treatment Treatment { get; set; }
 
         public virtual Level Level { get; set; }

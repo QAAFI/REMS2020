@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
         [Expected("Experiment")]
         public virtual Experiment Experiment { get; set; }
 
-        [Expected("Researcher")]
+        [Expected("Researcher", "ResearcherName", "Researcher Name")]
         public virtual Researcher Researcher { get; set; }
     }
 }

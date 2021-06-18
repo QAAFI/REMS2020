@@ -39,20 +39,18 @@ namespace Rems.Domain.Entities
         [Expected("Experiment")]
         public Experiment Experiment { get; set; }
 
-        [Expected("Fertilizer")]
+        [Expected("Fertilizer", "FertilizerName", "Fertilizer Name")]
         public virtual Fertilizer Fertilizer { get; set; }
         
-        [Expected("Method")]
+        [Expected("Method", "Fertilization Method")]
         public virtual Method Method { get; set; }
         
-        [Expected("Treatment")]
+        [Expected("Treatment", "TreatmentName", "Treatment Name")]
         public virtual Treatment Treatment { get; set; }
 
         [Expected("Unit", "Units")]
         public virtual Unit Unit { get; set; }
 
         public virtual ICollection<FertilizationInfo> FertilizationInfo { get; set; }
-
-
     }
 }
