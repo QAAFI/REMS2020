@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Experiments", "Irrigation")]
+    [ExcelFormat("Experiments", false, "Irrigation")]
     public class Irrigation : ITreatment
     {
         public Irrigation()

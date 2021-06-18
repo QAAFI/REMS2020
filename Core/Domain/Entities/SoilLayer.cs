@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", "SoilLayers")]
+    [ExcelFormat("Information", true, "SoilLayers")]
     public class SoilLayer : IEntity
     {
         public SoilLayer()

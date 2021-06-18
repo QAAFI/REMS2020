@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Data", "Stats")]
+    [ExcelFormat("Data", false, "Stats")]
     public class Stat : IEntity
     {
         public int StatId { get; set; }

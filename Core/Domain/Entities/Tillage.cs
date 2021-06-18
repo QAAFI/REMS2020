@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", "Tillage")]
+    [ExcelFormat("Information", false, "Tillage")]
     public class Tillage : IEntity
     {
         public Tillage()

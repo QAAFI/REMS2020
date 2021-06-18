@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Data", "SoilLayerData")]
+    [ExcelFormat("Data", false, "SoilLayerData")]
     public class SoilLayerData : IEntity, IValue
     {
         public int SoilLayerDataId { get; set; }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", "Levels", "Factors")]
+    [ExcelFormat("Information", true, "Levels", "Factors")]
     public class Level : IEntity
     {
         public Level()
