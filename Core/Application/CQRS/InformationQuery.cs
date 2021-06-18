@@ -31,14 +31,14 @@ namespace Rems.Application.CQRS
             var assembly = Assembly.Load("Rems.Domain");
 
             var types = assembly.GetTypes()
-                .Where(t => t.GetCustomAttribute<ExcelSource>()?.Format == Format);
+                .Where(t => t.GetCustomAttribute<ExcelFormat>()?.Format == Format);
 
             var data = Data.Tables.OfType<DataTable>();
             var tables = new Dictionary<ExcelTable, ExcelColumn[]>();
 
             foreach (var type in types)
             {
-                var names = type.GetCustomAttribute<ExcelSource>().Names;
+                var names = type.GetCustomAttribute<ExcelFormat>().Names;
                 var table = data.FirstOrDefault(t => names.Contains(t.TableName));
 
                 var excel = new ExcelTable { Data = table, Type = type };

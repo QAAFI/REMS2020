@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace Rems.Domain.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class ExcelSource : Attribute
+    public class ExcelFormat : Attribute
     {
         public string Format { get; private set; }
 
         public string[] Names { get; private set; }
 
-        public ExcelSource(string format, params string[] names)
+        public ExcelFormat(string format, params string[] names)
         {
             Format = format;
             Names = names;
