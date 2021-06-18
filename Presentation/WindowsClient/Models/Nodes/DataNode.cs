@@ -23,23 +23,10 @@ namespace WindowsClient.Models
             Excel = excel;
             Tag = Excel.Data;
 
-            Items.Add(new ToolStripMenuItem("Rename", null, Rename));
             Items.Add(new ToolStripMenuItem("Ignored", null, IgnoreClicked));
         }
 
         #region Menu functions       
-
-        /// <summary>
-        /// Begins editing the node label
-        /// </summary>
-        protected async void Rename(object sender, EventArgs args)
-        {
-            BeginEdit();
-
-            await Task.Run(() => { while (IsEditing) { } });
-
-            InvokeUpdated();
-        }
 
         public void IgnoreClicked(object sender, EventArgs args)
         {

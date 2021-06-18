@@ -8,16 +8,17 @@ namespace WindowsClient.Models
 {
     public class TableNode : DataNode<ExcelTable, DataTable>
     {
-        public GroupNode Properties = new GroupNode("Properties")
+        public GroupNode Required = new GroupNode("Required")
         {
-            Advice = new("These nodes represent information about the experiment"),
+            Advice = new("These nodes describe the columns that REMS expects to find in the spreadsheet" +
+                "and are required for the import."),
             ImageKey = "Properties",
             SelectedImageKey = "Properties"
         };
 
         public GroupNode Traits = new GroupNode("Traits")
         {
-            Advice = new("These nodes represent trait data with measured values"),
+            Advice = new("Any additional columns in the spreadsheet will be imported as trait data."),
             ImageKey = "Traits",
             SelectedImageKey = "Traits"
         };
@@ -37,7 +38,7 @@ namespace WindowsClient.Models
 
         public TableNode(ExcelTable excel) : base(excel)
         {
-            Nodes.Add(Properties);
+            Nodes.Add(Required);
             Nodes.Add(Traits);
 
             Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
@@ -54,7 +55,7 @@ namespace WindowsClient.Models
         /// </summary>
         public async void AddTraits(object sender, EventArgs args)
         {
-            var nodes = TreeView.SelectedNode.Nodes.OfType<ColumnNode>();
+            var nodes = TreeView.SelectedNode.Nodes.OfType<TraitNode>();
             foreach (var node in nodes)
                 if (!node.Excel.Valid)
                     await node.AddTrait();
@@ -67,7 +68,7 @@ namespace WindowsClient.Models
         /// </summary>
         private void ToggleIgnoreAll(object sender, EventArgs args)
         {
-            var nodes = TreeView.SelectedNode.Nodes.OfType<ColumnNode>();
+            var nodes = TreeView.SelectedNode.Nodes.OfType<DataNode<ExcelColumn, DataColumn>>();
             foreach (var node in nodes)
                 node.ToggleIgnore();
 
@@ -78,7 +79,9 @@ namespace WindowsClient.Models
         {
             Excel.Valid = true;
 
-            var nodes = Nodes.OfType<GroupNode>().SelectMany(g => g.Nodes.OfType<ColumnNode>()).ToArray();
+            var nodes = Nodes.OfType<GroupNode>()
+                .SelectMany(g => g.Nodes.OfType<DataNode<ExcelColumn, DataColumn>>())
+                .ToArray();
             
             foreach (var node in nodes)
             {
@@ -88,7 +91,7 @@ namespace WindowsClient.Models
                     Excel.Valid &= node.Excel.Valid;
             }
 
-            CheckNode(Properties);
+            CheckNode(Required);
             CheckNode(Traits);
 
             ImageKey = SelectedImageKey = Key;

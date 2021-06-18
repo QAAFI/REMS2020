@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -69,6 +69,7 @@ namespace Rems.Application.CQRS
 
                 var xl = new ExcelColumn
                 {
+                    Info = prop,
                     Data = col ?? new DataColumn(prop.Name + " not found"),
                     Valid = col is not null
                 };

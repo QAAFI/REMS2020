@@ -16,7 +16,7 @@ namespace WindowsClient.Models
 
         public override void Refresh()
         {
-            foreach (ColumnNode node in Nodes)
+            foreach (RequiredNode node in Nodes)
                 node.Refresh();
         }
     }

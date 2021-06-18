@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Data;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
-    public class ColumnNode : DataNode<ExcelColumn, DataColumn>
+    public class TraitNode : DataNode<ExcelColumn, DataColumn>
     {
         private ToolStripMenuItem addtrait;
-        private ToolStripMenuItem properties = new ToolStripMenuItem("Set property");
 
         public override string Key
         {
@@ -25,31 +22,18 @@ namespace WindowsClient.Models
             }
         }
 
-        public ColumnNode(ExcelColumn excel) : base(excel)
+        public TraitNode(ExcelColumn excel) : base(excel)
         {
             addtrait = new ToolStripMenuItem("Add as trait", null, AddTraitClicked);
 
             Items.Add(addtrait);
-            Items.Add(properties);
         }
 
         #region Menu functions
         /// <inheritdoc/>
         protected override void OnMenuOpening(object sender, EventArgs args)
         {
-            if (Excel.Info != null)
-            {
-                Items[2].Enabled = false;
-                return;
-            }
-
-            properties.DropDownItems.Clear();
-
-            if (Root is not TableNode table)
-                return;
-
-            foreach (ColumnNode node in table.Traits.Nodes)
-                properties.DropDownItems.Add(node.Text, null, (s, e) => SetColumn(node));                
+                
         }
 
         /// <summary>
@@ -77,14 +61,7 @@ namespace WindowsClient.Models
             await Excel.CheckIfTrait();
         }
 
-        private void SetColumn(ColumnNode node)
-        {
-            Excel = node.Excel;
-            Text = node.Text;
-            node.Parent.Nodes.Remove(node);
-            Excel.Valid = true;
-            Refresh();
-        }
+        
         #endregion        
 
         public override void Refresh()

@@ -1,4 +1,4 @@
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
@@ -107,8 +107,8 @@ namespace WindowsClient.Controls
                 // Add expected nodes
                 foreach (var col in pair.Value)
                 {
-                    var cn = new ColumnNode(col);
-                    node.Properties.Nodes.Add(cn);
+                    var cn = new RequiredNode(col);
+                    node.Required.Nodes.Add(cn);
                 }
 
                 // Add unknown nodes
@@ -120,7 +120,7 @@ namespace WindowsClient.Controls
                 {
                     var excel = new ExcelColumn { Data = col };
                     await excel.CheckIfTrait();
-                    var cn = new ColumnNode(excel);
+                    var cn = new TraitNode(excel);
 
                     node.Traits.Nodes.Add(cn);
                 }
@@ -281,7 +281,7 @@ namespace WindowsClient.Controls
 
                 dataTree.Nodes.ForEach<TableNode>(t =>
                 {
-                    t.Nodes.ForEach<ColumnNode>(c => c.Dispose());
+                    t.Nodes.ForEach<RequiredNode>(c => c.Dispose());
                     t.Dispose();
                 });
                 dataTree.Nodes.Clear();
@@ -317,7 +317,7 @@ namespace WindowsClient.Controls
         {            
             var node = e.Node;
             int selected = -1;
-            if (node is ColumnNode column)
+            if (node is DataNode<ExcelColumn, DataColumn> column)
             {
                 selected = column.Excel.Data.Ordinal;
                 column.Advice?.AddToTextBox(adviceBox);

@@ -15,16 +15,12 @@ namespace WindowsClient.Models
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
-        public ToolStripItemCollection Items => ContextMenuStrip.Items;        
+        public ToolStripItemCollection Items => ContextMenuStrip.Items;
 
         /// <summary>
         /// The advice which is displayed alongside the node
         /// </summary>
-        public Advice Advice 
-        {
-            get;
-            set;
-        }
+        public Advice Advice { get; set; } = new Advice();
 
         public abstract string Key { get; }
 
