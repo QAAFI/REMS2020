@@ -3,47 +3,41 @@ using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
 namespace WindowsClient.Models
 {
-    public class ColumnNode : DataNode<DataColumn, INodeValidator>
+    public class ColumnNode : DataNode<ExcelColumn, DataColumn>
     {
         private ToolStripMenuItem addtrait;
         private ToolStripMenuItem properties = new ToolStripMenuItem("Set property");
-        private ToolStripMenuItem moveUp;
-        private ToolStripMenuItem moveDown;
 
         public override string Key
         {
             get
             {
-                string key = Validator.Valid ? "Valid" : "Invalid";
-                key += Ignore ? "Off" : "On";
+                string key = Excel.Valid ? "Valid" : "Invalid";
+                key += Excel.Ignore ? "Off" : "On";
 
                 return key;
             }
         }
 
-        public ColumnNode(ExcelColumn excel, INodeValidator validator) : base(excel, validator)
+        public ColumnNode(ExcelColumn excel) : base(excel)
         {
             addtrait = new ToolStripMenuItem("Add as trait", null, AddTraitClicked);
-            moveUp = new ToolStripMenuItem("Move up", null, MoveUp);
-            moveDown = new ToolStripMenuItem("Move down", null, MoveDown);
 
             Items.Add(addtrait);
             Items.Add(properties);
-            Items.Add("-");
-            Items.Add(moveUp);
-            Items.Add(moveDown);
         }
 
         #region Menu functions
         /// <inheritdoc/>
         protected override void OnMenuOpening(object sender, EventArgs args)
         {
-            if (Excel.State["Info"] != null)
+            if (Excel.Info != null)
             {
                 Items[2].Enabled = false;
                 return;
@@ -51,10 +45,11 @@ namespace WindowsClient.Models
 
             properties.DropDownItems.Clear();
 
-            var props = Excel.Data.GetUnmappedProperties();
+            if (Root is not TableNode table)
+                return;
 
-            foreach (var prop in props)
-                properties.DropDownItems.Add(prop.Name, null, (s, e) => SetProperty(prop));
+            foreach (ColumnNode node in table.Traits.Nodes)
+                properties.DropDownItems.Add(node.Text, null, (s, e) => SetColumn(node));                
         }
 
         /// <summary>
@@ -68,7 +63,7 @@ namespace WindowsClient.Models
 
         public async Task AddTrait()
         {
-            if (Ignore)
+            if (Excel.Ignore)
                 return;
 
             var query = new AddTraitCommand
@@ -79,69 +74,21 @@ namespace WindowsClient.Models
 
             await QueryManager.Request(query);
 
-            await (Excel as ExcelColumn).CheckIfTrait();
+            await Excel.CheckIfTrait();
         }
 
-        private void SetProperty(PropertyInfo info)
+        private void SetColumn(ColumnNode node)
         {
-            Text = info.Name;
-            Excel.State["Info"] = info;
-            Excel.Data.ColumnName = info.Name;
-
-            InvokeUpdated();
-        }
-
-        /// <summary>
-        /// Switches this node with the sibling immediately above it in the tree
-        /// </summary>
-        public void MoveUp(object sender, EventArgs args)
-        {
-            // Store references so they are not lost on removal
-            int i = Index;
-            var p = Parent;
-
-            if (i > 0)
-            {
-                p.Nodes.Remove(this);
-                p.Nodes.Insert(i - 1, this);
-                TreeView.SelectedNode = this;
-                Excel.Swap(i - 1);
-            }
-
-            ((ColumnNode)p.Nodes[i]).Validate();
-            Validate();
-
-            InvokeUpdated();
-        }
-
-        /// <summary>
-        /// Switches this node with the sibling immediately below it in the tree
-        /// </summary>
-        public void MoveDown(object sender, EventArgs args)
-        {
-            // Store references so they are not lost on removal
-            int i = Index;
-            var p = Parent;
-
-            if (i + 1 < p.Nodes.Count)
-            {
-                p.Nodes.Remove(this);
-                p.Nodes.Insert(i + 1, this);
-                TreeView.SelectedNode = this;
-                Excel.Swap(i + 1);
-            }
-
-            ((ColumnNode)p.Nodes[i]).Validate();
-            Validate();
-
-            InvokeUpdated();
+            Excel = node.Excel;
+            Text = node.Text;
+            node.Parent.Nodes.Remove(node);
+            Excel.Valid = true;
+            Refresh();
         }
         #endregion        
 
-        public override void Validate()
+        public override void Refresh()
         {
-            Validator.Validate();
-
             ImageKey = SelectedImageKey = Key;
         }
     }

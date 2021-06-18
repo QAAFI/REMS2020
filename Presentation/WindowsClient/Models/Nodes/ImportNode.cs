@@ -3,8 +3,7 @@ using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
-    public abstract class ImportNode<TValidator> : TreeNode, IDisposable
-        where TValidator : INodeValidator
+    public abstract class ImportNode : TreeNode, IDisposable
     {
         /// <summary>
         /// Occurs when some change is applied to the node
@@ -16,20 +15,15 @@ namespace WindowsClient.Models
         /// <summary>
         /// The contents of the popup context menu when the node is right-clicked
         /// </summary>
-        public ToolStripItemCollection Items => ContextMenuStrip.Items;
-
-        /// <summary>
-        /// Used to validate the data prior to import
-        /// </summary>
-        public virtual TValidator Validator { get; set; }
+        public ToolStripItemCollection Items => ContextMenuStrip.Items;        
 
         /// <summary>
         /// The advice which is displayed alongside the node
         /// </summary>
         public Advice Advice 
         {
-            get => Validator.Advice;
-            set => Validator.Advice = value;
+            get;
+            set;
         }
 
         public abstract string Key { get; }
@@ -39,6 +33,8 @@ namespace WindowsClient.Models
             ContextMenuStrip = new ContextMenuStrip();
             ContextMenuStrip.Opening += OnMenuOpening;            
         }
+
+        public ImportNode Root => (Parent as ImportNode)?.Root ?? this;
 
         /// <summary>
         /// Handles any dynamic changes to the menu
@@ -50,7 +46,7 @@ namespace WindowsClient.Models
         /// <summary>
         /// Test a node for validity
         /// </summary>
-        public abstract void Validate();
+        public abstract void Refresh();
 
         #region Disposable
         protected bool disposedValue;

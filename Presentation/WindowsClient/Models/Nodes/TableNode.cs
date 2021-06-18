@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Rems.Application.Common;
+using System;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
-    public class TableNode : DataNode<DataTable, ITableValidator>
+    public class TableNode : DataNode<ExcelTable, DataTable>
     {
         public GroupNode Properties = new GroupNode("Properties")
         {
@@ -21,44 +22,26 @@ namespace WindowsClient.Models
             SelectedImageKey = "Traits"
         };
 
-        public GroupNode Unknowns = new GroupNode("Unknowns")
-        {
-            Advice = new("These nodes represent unidentified data types"),
-            ImageKey = "Question",
-            SelectedImageKey = "Question"
-        };
-
-        public GroupNode Ignored = new GroupNode("Ignored")
-        {
-            Advice = new("These nodes are ignored during import"),
-            ImageKey = "Ignore",
-            SelectedImageKey = "Ignore"
-        };
-
         public override string Key 
         {
             get
             {
-                if (Ignore)
+                if (Excel.Ignore)
                     return "ExcelOff";
-                else if (!Validator.Valid)
+                else if (!Excel.Valid)
                     return "Warning";
                 else
                     return "Excel";                
             }
         }
 
-        public TableNode(ExcelTable excel, ITableValidator validator) : base(excel, validator)
+        public TableNode(ExcelTable excel) : base(excel)
         {
             Nodes.Add(Properties);
             Nodes.Add(Traits);
-            Nodes.Add(Unknowns);
-            Nodes.Add(Ignored);
 
-            Unknowns.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
-            Unknowns.Items.Add(new ToolStripMenuItem("Ignore all", null, ToggleIgnoreAll));
-
-            Ignored.Items.Add(new ToolStripMenuItem("Import all", null, ToggleIgnoreAll));
+            Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
+            Traits.Items.Add(new ToolStripMenuItem("Ignore all", null, ToggleIgnoreAll));
         }
 
         protected override void OnMenuOpening(object sender, EventArgs args)
@@ -73,10 +56,10 @@ namespace WindowsClient.Models
         {
             var nodes = TreeView.SelectedNode.Nodes.OfType<ColumnNode>();
             foreach (var node in nodes)
-                if (!node.Validator.Valid)
+                if (!node.Excel.Valid)
                     await node.AddTrait();
 
-            Validate();
+            Refresh();
         }
 
         /// <summary>
@@ -88,44 +71,25 @@ namespace WindowsClient.Models
             foreach (var node in nodes)
                 node.ToggleIgnore();
 
-            Validate();
+            Refresh();
         }
 
-        private void UpdateColumn(ColumnNode node)
+        public override void Refresh()
         {
-            node.Parent.Nodes.Remove(node);
-
-            if (node.Ignore)
-                Ignored.Nodes.Add(node);
-            else if (node.Excel.State["IsTrait"] is true)
-                Traits.Nodes.Add(node);
-            else if (node.Excel.State["Info"] is not null)
-                Properties.Nodes.Add(node);
-            else
-                Unknowns.Nodes.Add(node);
-        }
-
-        public override void Validate()
-        {
-            Validator.Valid = true;
+            Excel.Valid = true;
 
             var nodes = Nodes.OfType<GroupNode>().SelectMany(g => g.Nodes.OfType<ColumnNode>()).ToArray();
             
             foreach (var node in nodes)
             {
-                node.Validate();
-                UpdateColumn(node);
+                node.Refresh();
 
-                if (!node.Ignore)
-                    Validator.Valid &= node.Validator.Valid;
+                if (!node.Excel.Ignore)
+                    Excel.Valid &= node.Excel.Valid;
             }
-
-            Validator.Validate();
 
             CheckNode(Properties);
             CheckNode(Traits);
-            CheckNode(Unknowns);
-            CheckNode(Ignored);
 
             ImageKey = SelectedImageKey = Key;
         }

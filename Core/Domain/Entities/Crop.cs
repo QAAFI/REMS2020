@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
 
         public int CropId { get; set; }
 
-        [Expected("Name", "Crop")]
+        [Expected("Name", "Crop", "Crop Name")]
         public string Name { get; set; }
 
         [Expected("Notes")]

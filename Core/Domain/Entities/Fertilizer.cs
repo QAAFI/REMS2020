@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
 
         public int FertilizerId { get; set; }
 
-        [Expected("Name", "Fertiliser", "Fertilizer")]
+        [Expected("Name", "Fertiliser", "Fertilizer", "Fertilizer Name")]
         public string Name { get; set; }
 
         [Expected("Nitrogen", "N%")]

@@ -2,11 +2,9 @@
 
 namespace WindowsClient.Models
 {
-    public class GroupNode : ImportNode<NullValidator>
+    public class GroupNode : ImportNode
     {
         public override string Key { get; }
-
-        public override NullValidator Validator { get; set; } = new();
 
         public GroupNode(string name) : base(name)
         { }
@@ -16,12 +14,10 @@ namespace WindowsClient.Models
             // No current implementation
         }
 
-        public override void Validate()
+        public override void Refresh()
         {
             foreach (ColumnNode node in Nodes)
-                node.Validate();
-
-            Validator.Advice = Advice;
+                node.Refresh();
         }
     }
 }

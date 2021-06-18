@@ -2,29 +2,26 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Rems.Application.Common;
 
 namespace WindowsClient.Models
 {
     /// <summary>
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
-    public abstract class DataNode<TData, TValidator> : ImportNode<TValidator>
+    public abstract class DataNode<TExcel, TData> : ImportNode
+        where TExcel : IExcelData<TData>
         where TData : IDisposable
-        where TValidator : INodeValidator
     {
         /// <summary>
         /// Manages an instance of excel data
         /// </summary>
-        public IExcelData<TData> Excel { get; }
+        public TExcel Excel { get; set; }
 
-        public bool Ignore { get; set; } = false;
-
-        public DataNode(IExcelData<TData> excel, TValidator validator) : base(excel.Name)
+        public DataNode(TExcel excel) : base(excel.Name)
         {
             Excel = excel;
             Tag = Excel.Data;
-            
-            Validator = validator;
 
             Items.Add(new ToolStripMenuItem("Rename", null, Rename));
             Items.Add(new ToolStripMenuItem("Ignored", null, IgnoreClicked));
@@ -49,7 +46,7 @@ namespace WindowsClient.Models
             ToggleIgnore();
 
             if (sender is ToolStripMenuItem item)            
-                item.Checked = Ignore;
+                item.Checked = Excel.Ignore;
 
             InvokeUpdated();
         }
@@ -59,7 +56,7 @@ namespace WindowsClient.Models
         /// </summary>
         public void ToggleIgnore()
         {
-            Excel.State["Ignore"] = Ignore = !Ignore;
+            Excel.Ignore = !Excel.Ignore;
 
             Advice.Clear();
             Advice.Include("Ignored items will not be imported.\n", Color.Black);            
@@ -75,7 +72,6 @@ namespace WindowsClient.Models
                 if (disposing)
                 {
                     Excel.Dispose();
-                    Validator.Dispose();
                     ContextMenuStrip.Opening -= OnMenuOpening;
                 }
                 base.Dispose();

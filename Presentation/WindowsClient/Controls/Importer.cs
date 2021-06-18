@@ -4,6 +4,7 @@ using Rems.Application.CQRS;
 using Rems.Infrastructure.Excel;
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -94,30 +95,39 @@ namespace WindowsClient.Controls
 
         private async Task GenerateNodes(DataSet data)
         {
-            var remsData = await QueryManager.Request(new InformationQuery { Data = data });
+            data.FindExperiments();
 
-            foreach (DataTable table in remsData.Tables)
+            var query = new InformationQuery { Data = data };
+            var tables = await QueryManager.Request(query);
+
+            foreach (var pair in tables)
             {
-                var xl = new ExcelTable(table);
-                var val = CreateTableValidater(table);
-                var node = new TableNode(xl, val);
+                var node = new TableNode(pair.Key);
 
-                var expected = await QueryManager.Request(new ExpectedQuery { Table = table });
+                if (pair.Key.Type is null) continue;
 
                 // Add expected nodes
-                foreach (var col in expected)
+                foreach (var col in pair.Value)
                 {
-                    var cn = await val.CreateColumnNode(col.Ordinal);
+                    var cn = new ColumnNode(col);
                     node.Properties.Nodes.Add(cn);
                 }
 
                 // Add unknown nodes
-                foreach (var col in table.Columns.OfType<DataColumn>().Except(expected))
+                var unknowns = pair.Key.Data.Columns
+                    .OfType<DataColumn>()
+                    .Except(pair.Value.Select(x => x.Data));
+
+                foreach (var col in unknowns)
                 {
-                    var cn = await val.CreateColumnNode(col.Ordinal);
-                    node.Unknowns.Nodes.Add(cn);
+                    var excel = new ExcelColumn { Data = col };
+                    await excel.CheckIfTrait();
+                    var cn = new ColumnNode(excel);
+
+                    node.Traits.Nodes.Add(cn);
                 }
-                node.Validate();
+
+                node.Refresh();
                 dataTree.Nodes.Add(node);
             }
         }
@@ -147,9 +157,9 @@ namespace WindowsClient.Controls
 
                 table.ConvertExperiments();
 
-                var node = await CreateTableNode(table);
+                //var node = await CreateTableNode(table);
 
-                dataTree.Nodes.Add(node);
+                //dataTree.Nodes.Add(node);
             }
         }
 
@@ -175,77 +185,7 @@ namespace WindowsClient.Controls
                     table.Columns.Remove(col);
                 else
                     col.ReplaceName();
-        }
-
-        /// <summary>
-        /// Validate the contents of a table
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        private async Task<TreeNode> CreateTableNode(DataTable table)
-        {
-            var xt = new ExcelTable(table);
-            var vt = CreateTableValidater(table);
-            var tnode = new TableNode(xt, vt);
-
-            // Prepare individual columns for import
-            for (int i = 0; i < table.Columns.Count; i++)
-            {
-                var cnode = await vt.CreateColumnNode(i);
-                cnode.Updated += (s, e) =>
-                {
-                    importData.DataSource = cnode.Excel.Source;
-                    importData.Format();
-                    tnode.Validate();
-                };
-
-                if (cnode.Excel.State["Info"] is not null)
-                    tnode.Properties.Nodes.Add(cnode);
-                else if (cnode.Excel.State["IsTrait"] is true)
-                    tnode.Traits.Nodes.Add(cnode);
-                else
-                    tnode.Unknowns.Nodes.Add(cnode);
-            }
-
-            tnode.Validate();
-
-            return tnode;
-        }
-
-        /// <summary>
-        /// Generate a validater for a data table
-        /// </summary>
-        private ITableValidator CreateTableValidater(DataTable table)
-        {
-            switch (table.TableName)
-            {
-                case "Design":
-                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment", "Repetition", "Plot" });
-
-                case "HarvestData":
-                case "PlotData":
-                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "Sample" });
-
-                case "MetData":
-                    return new CustomTableValidator(table, new string[] { "MetStation", "Date" });
-
-                case "SoilLayerData":
-                    return new CustomTableValidator(table, new string[] { "Experiment", "Plot", "Date", "DepthFrom", "DepthTo" });
-
-                case "Irrigation":
-                case "Fertilization":
-                case "Tillage":
-                    return new CustomTableValidator(table, new string[] { "Experiment", "Treatment" });
-
-                case "Soils":
-                case "SoilLayer":
-                case "SoilLayers":
-                    return new TableValidator(table);
-
-                default:
-                    return new TableValidator(table);
-            }
-        }        
+        }                
 
         public async Task OpenFile()
         {
@@ -275,10 +215,6 @@ namespace WindowsClient.Controls
             {
                 Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
                 await CleanData(Data);
-
-                // temporary empty separator node
-                dataTree.Nodes.Add(new TreeNode("--------------"));
-                // testing new nodes
                 await GenerateNodes(Data);
 
                 fileBox.Text = Path.GetFileName(file);
@@ -386,25 +322,31 @@ namespace WindowsClient.Controls
             if (node is ColumnNode column)
             {
                 selected = column.Excel.Data.Ordinal;
-                column.Advice.AddToTextBox(adviceBox);
-                gridLabel.Text = column.Excel.Source.TableName;
-                importData.DataSource = column.Excel.Source;
+                column.Advice?.AddToTextBox(adviceBox);
+                UpdateGrid(column.Excel.Source);
             }
             else if (node is GroupNode group)
             {
                 var table = group.Parent as TableNode;
-                group.Advice.AddToTextBox(adviceBox);
-                importData.DataSource = table?.Excel.Source;
-                gridLabel.Text = table.Excel.Data.TableName;
+                group.Advice?.AddToTextBox(adviceBox);
+                UpdateGrid(table.Excel.Source);
             }
             else if (node is TableNode table)
             {
-                table.Advice.AddToTextBox(adviceBox);
-                importData.DataSource = table.Excel.Data;
-                gridLabel.Text = table.Excel.Data.TableName;
+                table.Advice?.AddToTextBox(adviceBox);
+                UpdateGrid(table.Excel.Source);
             }
 
             importData.Format(selected);
+        }
+
+        private void UpdateGrid(object source)
+        {
+            if (source is DataTable table)
+            {
+                gridLabel.Text = table.TableName;
+                importData.DataSource = table;
+            }
         }
 
         /// <summary>
@@ -412,11 +354,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Node is DataNode<IDisposable, INodeValidator> node && e.Label != null)
-            {
-                node.Excel.Name = e.Label;
-                node.Validate();
-            }
+            
         }
 
         #endregion Event handlers

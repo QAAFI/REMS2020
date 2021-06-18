@@ -1,8 +1,12 @@
 ﻿using Rems.Application.Common;
+using Rems.Application.CQRS;
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
+using System.Data;
 using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models
@@ -106,6 +110,34 @@ namespace WindowsClient.Models
             if (selectedColumn >= 0)
                 foreach (DataGridViewRow row in grid.Rows)                
                     row.Cells[selectedColumn].Selected = true;                
+        }
+
+        /// <summary>
+        /// Tests if the column is referring to a known database trait
+        /// </summary>
+        public static async Task CheckIfTrait(this ExcelColumn excel)
+        {
+            // Test if the trait is in the database
+            bool inDB = await QueryManager.Request(new TraitExistsQuery() { Name = excel.Data.ColumnName });
+
+            // Test if the trait is in the excel data
+            bool inExcel()
+            {
+                // Is there a traits table
+                if (excel.Data.Table?.DataSet?.Tables["Traits"] is not DataTable traits)
+                    return false;
+
+                // Is there a column with trait names
+                if (traits.Columns["Name"] is not DataColumn name)
+                    return false;
+
+                var rows = traits.Rows.Cast<DataRow>();
+                var trait = excel.Data.ColumnName.ToLower();
+
+                return rows.Any(r => r[name].ToString().ToLower() == trait);
+            };
+
+            excel.Valid = inDB || inExcel();
         }
     }
 }
