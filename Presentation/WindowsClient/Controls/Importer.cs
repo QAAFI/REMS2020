@@ -328,7 +328,7 @@ namespace WindowsClient.Controls
             
             if (node is RequiredNode required)
             {
-                if (warning.Visible = required.Valid)
+                if (warning.Visible = !required.Valid)
                 {
                     importData.Visible = false;
                     return;
