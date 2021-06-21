@@ -46,6 +46,9 @@ namespace WindowsClient.Models
             {
                 foreach (TraitNode node in table.Traits.Nodes)
                 {
+                    // Don't want the option to map to known traits to reduce clutter
+                    if (node.Valid) continue;
+
                     var attach = new ToolStripMenuItem("Attach to " + node.Text, null, (s, e) => AttachColumn(node))
                     {
                         ToolTipText = "Specify the column that contains the required data for this node."
