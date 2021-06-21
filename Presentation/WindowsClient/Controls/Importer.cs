@@ -100,34 +100,47 @@ namespace WindowsClient.Controls
 
             foreach (var pair in tables)
             {
-                var node = new TableNode(pair.Key);
+                TreeNode node;
 
-                if (pair.Key.Type is null) continue;
+                if (pair.Key.Data is not null)
+                    node = await GenerateTableNode(pair.Key, pair.Value);
+                else
+                    node = new InvalidNode(pair.Key);
 
-                // Add expected nodes
-                foreach (var col in pair.Value)
-                {
-                    var cn = new RequiredNode(col);
-                    node.Required.Nodes.Add(cn);
-                }
-
-                // Add unknown nodes
-                var unknowns = pair.Key.Data.Columns
-                    .OfType<DataColumn>()
-                    .Except(pair.Value.Select(x => x.Data));
-
-                foreach (var col in unknowns)
-                {
-                    var excel = new ExcelColumn { Data = col };
-                    var cn = new TraitNode(excel);
-                    await cn.CheckForTrait();
-
-                    node.Traits.Nodes.Add(cn);
-                }
-
-                node.Refresh();
-                dataTree.Nodes.Add(node);
+                if (node is not null)
+                    dataTree.Nodes.Add(node);
             }
+        }
+
+        private async Task<TableNode> GenerateTableNode(ExcelTable table, ExcelColumn[] columns)
+        {
+            var node = new TableNode(table);
+
+            if (table.Type is null) return null;
+
+            // Add expected nodes
+            foreach (var col in columns)
+            {
+                var cn = new RequiredNode(col);
+                node.Required.Nodes.Add(cn);
+            }
+
+            // Add unknown nodes
+            var unknowns = table.Data.Columns
+                .OfType<DataColumn>()
+                .Except(columns.Select(x => x.Data));
+
+            foreach (var col in unknowns)
+            {
+                var excel = new ExcelColumn { Data = col };
+                var cn = new TraitNode(excel);
+                await cn.CheckForTrait();
+
+                node.Traits.Nodes.Add(cn);
+            }
+
+            node.Refresh();
+            return node;
         }
 
         /// <summary>
@@ -331,6 +344,8 @@ namespace WindowsClient.Controls
                 if (warning.Visible = !required.Valid)
                 {
                     importData.Visible = false;
+                    warninglabel.Text = "Missing required columns. Please include the specified columns " +
+                        "in your excel file before continuing.";
                     return;
                 }
 
@@ -354,6 +369,19 @@ namespace WindowsClient.Controls
             {
                 table.Advice?.AddToTextBox(adviceBox);
                 UpdateGrid(table.Excel.Source);
+            }
+            else if (node is InvalidNode invalid)
+            {
+                importData.Visible = false;
+                
+                string text = $"REMS looked for a {invalid.Excel.Type.Name} table but did not find one. ";
+
+                text += (invalid.Excel.Required)
+                    ? "This data is required for the import process. Please update the spreadsheet and try again."
+                    : "This data is non-essential and this node can be safely ignored to continue the import.";
+
+                warning.Visible = true;
+                warninglabel.Text = text;
             }
 
             importData.Format(selected);

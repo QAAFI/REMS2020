@@ -50,7 +50,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.adviceBox = new System.Windows.Forms.RichTextBox();
             this.warning = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.warninglabel = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.importData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitter)).BeginInit();
@@ -74,7 +74,7 @@
             this.gridLabel.Location = new System.Drawing.Point(4, 8);
             this.gridLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.gridLabel.Name = "gridLabel";
-            this.gridLabel.Size = new System.Drawing.Size(849, 20);
+            this.gridLabel.Size = new System.Drawing.Size(845, 20);
             this.gridLabel.TabIndex = 10;
             this.gridLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -98,7 +98,7 @@
             this.importData.Location = new System.Drawing.Point(4, 31);
             this.importData.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(850, 774);
+            this.importData.Size = new System.Drawing.Size(846, 774);
             this.importData.TabIndex = 0;
             // 
             // fileBox
@@ -226,30 +226,30 @@
             this.warning.ColumnCount = 2;
             this.warning.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10.11765F));
             this.warning.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 89.88235F));
-            this.warning.Controls.Add(this.label1, 1, 0);
+            this.warning.Controls.Add(this.warninglabel, 1, 0);
             this.warning.Controls.Add(this.pictureBox1, 0, 0);
             this.warning.Location = new System.Drawing.Point(4, 33);
             this.warning.Name = "warning";
             this.warning.RowCount = 1;
             this.warning.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.warning.Size = new System.Drawing.Size(850, 81);
+            this.warning.Size = new System.Drawing.Size(846, 200);
             this.warning.TabIndex = 12;
             this.warning.Visible = false;
             // 
-            // label1
+            // warninglabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label1.Location = new System.Drawing.Point(89, 0);
-            this.label1.MaximumSize = new System.Drawing.Size(700, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(700, 81);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Missing required columns. Please include the specified columns in your excel file" +
+            this.warninglabel.AutoSize = true;
+            this.warninglabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.warninglabel.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.warninglabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.warninglabel.Location = new System.Drawing.Point(88, 0);
+            this.warninglabel.MaximumSize = new System.Drawing.Size(700, 0);
+            this.warninglabel.Name = "warninglabel";
+            this.warninglabel.Size = new System.Drawing.Size(700, 200);
+            this.warninglabel.TabIndex = 11;
+            this.warninglabel.Text = "Missing required columns. Please include the specified columns in your excel file" +
     " before continuing.";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.warninglabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // pictureBox1
             // 
@@ -258,7 +258,7 @@
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(80, 75);
+            this.pictureBox1.Size = new System.Drawing.Size(79, 194);
             this.pictureBox1.TabIndex = 12;
             this.pictureBox1.TabStop = false;
             // 
@@ -300,7 +300,7 @@
         private TrackerBar tracker;
         private System.Windows.Forms.Button fileBtn;
         private System.Windows.Forms.TableLayoutPanel warning;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label warninglabel;
         private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
