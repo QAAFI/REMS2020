@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "Fields")]
     public class Field : IEntity
     {
         public Field()
@@ -15,23 +17,33 @@ namespace Rems.Domain.Entities
 
         public int SoilId { get; set; }
 
-        public string Name { get; set; } = null;
+        [Expected("Name", "FieldName", "Field Name")]
+        public string Name { get; set; }
 
+        [Expected("Latitude", "Lat")]
         public double? Latitude { get; set; } = null;
 
+        [Expected("Longitude", "Lon")]
         public double? Longitude { get; set; } = null;
 
+        [Expected("Elevation")]
         public double? Elevation { get; set; } = null;
 
+        [Expected("Slope")]
         public double? Slope { get; set; } = null;
 
+        [Expected("Depth")]
         public int? Depth { get; set; } = null;
 
+        [Expected("Notes")]
         public string Notes { get; set; } = null;
 
-
+        [Expected("Site", "SiteName", "Site Name")]
         public virtual Site Site { get; set; }
+
+        [Expected("Soil", "SoilType", "Soil Type")]
         public virtual Soil Soil { get; set; }
+
         public virtual ICollection<Experiment> Experiments { get; set; }
 
 

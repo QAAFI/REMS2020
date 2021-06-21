@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "Regions")]
     public class Region : IEntity
     {
         public Region()
@@ -11,8 +13,10 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
+        [Expected("Name", "Region", "Region Name")]
         public string Name { get; set; }
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
 

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "Sites")]
     public class Site : IEntity
     {
         public Site()
@@ -13,18 +15,24 @@ namespace Rems.Domain.Entities
 
         public int RegionId { get; set; }
 
+        [Expected("Name", "Site Name", "SiteName", "Site")]
         public string Name { get; set; }
 
-        public double? Latitude { get; set; }
+        [Expected("Latitude", "Lat")]
+        public double? Latitude { get; set; } = null;
 
-        public double? Longitude { get; set; }
+        [Expected("Longitude", "Lon")]
+        public double? Longitude { get; set; } = null;
 
-        public double? Elevation { get; set; }
+        [Expected("Elevation")]
+        public double? Elevation { get; set; } = null;
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
-
+        [Expected("Region", "RegionName", "Region Name")]
         public virtual Region Region { get; set; }
+
         public virtual ICollection<Field> Fields { get; set; }
 
 

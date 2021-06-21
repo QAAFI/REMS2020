@@ -154,7 +154,9 @@ namespace Rems.Application.Common.Extensions
             // Be careful when changing the order of these tests - they look independent are not.
             // Some of the later tests rely on assumptions that are excluded in the initial tests.
 
-            var type = col.Table.ExtendedProperties["Type"] as Type;
+            if (col.Table?.ExtendedProperties["Type"] is not Type type)
+                return null;
+
             col.ExtendedProperties["Valid"] = true;
 
             // Trim whitespace

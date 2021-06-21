@@ -30,8 +30,8 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(ExperimentId);
 
-            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth ?? 0}").ToArray();
-            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth}").ToArray();
+            var thickness = layers.Select(l => (double)(l.ToDepth - l.FromDepth)).ToArray();
             var NO3N = _context.GetSoilLayerTraitData(layers, nameof(Chemical.NO3N));
             var NH4N = _context.GetSoilLayerTraitData(layers, nameof(Chemical.NH4N));
             var PH = _context.GetSoilLayerTraitData(layers, nameof(Chemical.PH));

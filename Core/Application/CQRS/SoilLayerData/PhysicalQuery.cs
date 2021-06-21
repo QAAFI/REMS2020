@@ -31,7 +31,7 @@ namespace Rems.Application.CQRS
         {
             var layers = _context.GetSoilLayers(ExperimentId);
 
-            var thickness = layers.Select(l => (double)((l.ToDepth ?? 0) - (l.FromDepth ?? 0))).ToArray();
+            var thickness = layers.Select(l => (double)(l.ToDepth - l.FromDepth)).ToArray();
             var bd = _context.GetSoilLayerTraitData(layers, nameof(Physical.BD));
             var airdry = _context.GetSoilLayerTraitData(layers, nameof(Physical.AirDry));
             var ll15 = _context.GetSoilLayerTraitData(layers, nameof(Physical.LL15));

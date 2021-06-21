@@ -1,8 +1,12 @@
 ﻿using Rems.Application.Common;
+using Rems.Application.CQRS;
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
+using System.Data;
 using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsClient.Models

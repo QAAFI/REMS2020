@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "Methods")]
     public class Method : IEntity
     {
         public Method()
@@ -17,10 +19,13 @@ namespace Rems.Domain.Entities
 
         public int MethodId { get; set; }
 
+        [Expected("Name", "Method", "Method Name")]
         public string Name { get; set; }
 
+        [Expected("Type", "MethodType", "Method Type")]
         public string Type { get; set; }
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
 

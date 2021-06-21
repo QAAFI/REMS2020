@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "Traits")]
     public class Trait : IEntity
     {
         public Trait()
@@ -19,16 +21,21 @@ namespace Rems.Domain.Entities
 
         public int? UnitId { get; set; }
 
-        public string Name { get; set; } = null;
+        [Expected("Name", "Trait Name", "Traits", "TraitNames", "Names")]
+        public string Name { get; set; }
 
-        public string Type { get; set; } = null;
+        [Expected("Type", "Types", "Trait Type", "TraitType")]
+        public string Type { get; set; }
 
-        public string Description { get; set; } = null;
+        [Expected("Description")]
+        public string Description { get; set; }
 
-        public string Notes { get; set; } = null;
+        [Expected("Notes")]
+        public string Notes { get; set; }
 
-
+        [Expected("Unit", "Units", "Default Units", "DefaultUnits")]
         public virtual Unit Unit { get; set; }
+        
         public virtual ICollection<MetData> MetData { get; set; }
         public virtual ICollection<PlotData> PlotData { get; set; }
         public virtual ICollection<SoilData> SoilData { get; set; }

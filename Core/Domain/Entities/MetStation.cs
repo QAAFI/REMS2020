@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Rems.Domain.Attributes;
+using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
+    [ExcelFormat("Information", true, "MetStations")]
     public class MetStation : IEntity
     {
         public MetStation()
@@ -13,18 +15,25 @@ namespace Rems.Domain.Entities
 
         public int MetStationId { get; set; }
 
+        [Expected("Name", "MetStation", "MetStation Name", "Station")]
         public string Name { get; set; }
 
-        public double? Latitude { get; set; }
+        [Expected("Latitude", "Lat")]
+        public double? Latitude { get; set; } = null;
 
-        public double? Longitude { get; set; }
+        [Expected("Longitude", "Lon")]
+        public double? Longitude { get; set; } = null;
 
-        public double? Elevation { get; set; }
+        [Expected("Elevation")]
+        public double? Elevation { get; set; } = null;
 
-        public double? Amplitude { get; set; }
+        [Expected("Amplitude", "amp")]
+        public double? Amplitude { get; set; } = null;
 
-        public double? TemperatureAverage { get; set; }
+        [Expected("TemperatureAverage", "tav")]
+        public double? TemperatureAverage { get; set; } = null;
 
+        [Expected("Notes")]
         public string Notes { get; set; }
 
         public virtual ICollection<Experiment> Experiments { get; set; }
