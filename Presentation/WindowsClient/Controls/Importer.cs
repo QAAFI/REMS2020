@@ -320,10 +320,25 @@ namespace WindowsClient.Controls
         /// Handles the selection of a new node in the tree
         /// </summary>
         private void TreeAfterSelect(object sender, TreeViewEventArgs e)
-        {            
+        {
+            warning.Visible = false;
+            importData.Visible = true;
             var node = e.Node;
             int selected = -1;
-            if (node is DataNode<ExcelColumn, DataColumn> column)
+            
+            if (node is RequiredNode required)
+            {
+                if (warning.Visible = required.Valid)
+                {
+                    importData.Visible = false;
+                    return;
+                }
+
+                selected = required.Excel.Data.Ordinal;
+                required.Advice?.AddToTextBox(adviceBox);
+                UpdateGrid(required.Excel.Source);
+            }
+            else if (node is TraitNode column)
             {
                 selected = column.Excel.Data.Ordinal;
                 column.Advice?.AddToTextBox(adviceBox);
