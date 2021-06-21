@@ -54,7 +54,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Update the experiments tree view
         /// </summary>
-        public async Task LoadNodes()
+        public async Task LoadTreeView()
         {
             experimentsTree.Nodes.Clear();
 
@@ -62,28 +62,41 @@ namespace WindowsClient.Controls
 
             foreach (var exp in exps)
             {
-                ENode eNode = new ENode(exp.Value) { EID = exp.Key };
+                var node = await AddTreatmentNodes(exp.Key, exp.Value);
 
-                var treats = await QueryManager.Request(new TreatmentsQuery{ ExperimentId = exp.Key });
-
-                foreach (var treat in treats)
-                {
-                    TNode tNode = new TNode(treat.Value) { EID = exp.Key, TID = treat.Key };
-
-                    tNode.Nodes.Add(new TNode("All") { EID = exp.Key, TID = treat.Key });
-
-                    var plots = await QueryManager.Request(new PlotsQuery{ TreatmentId = treat.Key });
-
-                    tNode.Nodes.AddRange(plots.Select(p => 
-                        new PNode(p.Value) { EID = exp.Key, TID = treat.Key, PID = p.Key}
-                    ).ToArray());
-                    eNode.Nodes.Add(tNode);
-                }
-
-                experimentsTree.Nodes.Add(eNode);
+                node.Nodes.Add("Design");
+                node.Nodes.Add("Operations");
+                node.Nodes.Add("Crop");
+                node.Nodes.Add("Soil");
             }
+
             experimentsTree.SelectedNode = experimentsTree.TopNode;
             experimentsTree.Refresh();
+        }
+
+        private async Task<ENode> AddTreatmentNodes(int id, string name)
+        {
+            ENode eNode = new ENode(name) { EID = id };
+
+            var treats = await QueryManager.Request(new TreatmentsQuery { ExperimentId = id });
+
+            foreach (var treat in treats)
+            {
+                TNode tNode = new TNode(treat.Value) { EID = id, TID = treat.Key };
+
+                tNode.Nodes.Add(new TNode("All") { EID = id, TID = treat.Key });
+
+                var plots = await QueryManager.Request(new PlotsQuery { TreatmentId = treat.Key });
+
+                tNode.Nodes.AddRange(plots.Select(p =>
+                    new PNode(p.Value) { EID = id, TID = treat.Key, PID = p.Key }
+                ).ToArray());
+                eNode.Nodes.Add(tNode);
+            }
+
+            experimentsTree.Nodes.Add(eNode);
+
+            return eNode;
         }
 
         /// <summary>
