@@ -44,16 +44,15 @@ namespace Rems.Application.CQRS
 
                 var excel = new ExcelTable { Data = table, Type = type, Required = format.Required };
 
-                if (table is not null)
-                    tables.Add(excel, GetColumns(table, type));
+                tables.Add(excel, GetColumns(table, type));
             }
 
             return tables;
         }
 
         private ExcelColumn[] GetColumns(DataTable table, Type type)
-        {
-            var cols = table.Columns.OfType<DataColumn>();
+        {   
+            var cols = table?.Columns.OfType<DataColumn>();
 
             var expected = type.GetProperties()
                 .Where(p => p.GetCustomAttribute<Expected>() is not null);
@@ -64,7 +63,7 @@ namespace Rems.Application.CQRS
             {
                 var att = prop.GetCustomAttribute<Expected>();
 
-                var col = cols.FirstOrDefault(c => att.Names.Contains(c.ColumnName));
+                var col = cols?.FirstOrDefault(c => att.Names.Contains(c.ColumnName));
                 if (col is not null)
                     col.ColumnName = prop.Name;
 

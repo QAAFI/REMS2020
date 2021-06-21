@@ -73,7 +73,7 @@ namespace Rems.Application.Common
         /// <inheritdoc/>
         public override string Name
         {
-            get => Data.TableName;
+            get => Data?.TableName;
             set => Data.TableName = value;
         }
 
