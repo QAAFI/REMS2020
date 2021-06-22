@@ -14,22 +14,11 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of soil data for a treatment
     /// </summary>
-    public partial class SoilChart : UserControl, IExperimentControl
+    public partial class SoilChart : UserControl, ITreatmentControl
     {
-        /// <inheritdoc/>
-        public int Experiment { get; set; }
-
         /// <inheritdoc/>
         public int Treatment { get; set; }
 
-        /// <summary>
-        /// Tracks which update function to call when a trait is selected
-        /// </summary>
-        public Func<int, TreeNode, Task> Updater;
-
-        private int treatment = -1;
-        private int plot;
-        private TreeNode selected;
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
@@ -66,9 +55,11 @@ namespace WindowsClient.Controls
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) 
+            => await UpdateAll();
 
-        private async void OnDateSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+        private async void OnDateSelected(object sender, EventArgs e) 
+            => await UpdateAll();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -86,49 +77,35 @@ namespace WindowsClient.Controls
             tip.SetToolTip(traitsBox, text);
         }
 
-        /// <summary>
-        /// Displays the data for the given node
-        /// </summary>
-        /// <param name="node">The node</param>
-        public async Task DisplayNodeData(TreeNode node)
+        public async Task LoadTreatment(int id)
         {
-            int id = treatment;
+            Treatment = id;
 
-            if (Updater == UpdateSingle) id = plot;
-
-            if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
-            else
-                await Task.Run(() => { if (Updater != null) Updater(id, node); });
+            await LoadBoxes();
         }
 
         /// <summary>
         /// Load the traits / dates box items for the treatment
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        public async Task LoadBoxes(int id)
+        public async Task LoadBoxes()
         {
-            if (id == treatment)
-                return;
-            else
-                treatment = id;
-
-            await LoadTraitsBox(id);
-            await LoadDatesBox(id);
+            await LoadTraitsBox();
+            await LoadDatesBox();
         }
 
         /// <summary>
         /// Fills the traits box with all traits in a treatment that have graphable data
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        public async Task LoadTraitsBox(int id)
+        public async Task LoadTraitsBox()
         {
             if (InvokeRequired)
-                Invoke(new Func<int, Task>(LoadTraitsBox), id);
+                Invoke(new Func<Task>(LoadTraitsBox));
             else
             {
                 // Load the trait type box
-                var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = id });
+                var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = Treatment });
                 descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
                 lock (traitsBox)
@@ -147,13 +124,13 @@ namespace WindowsClient.Controls
         /// Fills the dates box with all dates in a treatment that have graphable data
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        private async Task LoadDatesBox(int id)
+        private async Task LoadDatesBox()
         {
             if (InvokeRequired)
-                Invoke(new Func<int, Task>(LoadDatesBox), id);
+                Invoke(new Func<Task>(LoadDatesBox));
             else
             {
-                var query = new SoilLayerDatesQuery() { TreatmentId = id };
+                var query = new SoilLayerDatesQuery() { TreatmentId = Treatment };
                 var items = await QueryManager.Request(query);
 
                 lock (datesBox)
@@ -186,9 +163,6 @@ namespace WindowsClient.Controls
 
                 tChart.Text = "Soil trait values for a single treatment plot";
 
-                plot = id;
-                selected = node;
-
                 foreach (DateTime date in dates)
                 {
                     foreach (string trait in traits)
@@ -204,8 +178,6 @@ namespace WindowsClient.Controls
                         data.AddToChart(chart, true);
                     }
                 }
-
-                Updater = UpdateSingle;
             }
         }
 
@@ -224,8 +196,6 @@ namespace WindowsClient.Controls
 
                 tChart.Text = "Average soil trait values across all treatment plots";
 
-                treatment = id;
-                selected = node;
                 foreach (DateTime date in dates)
                 {
                     foreach (string trait in traits)
@@ -241,8 +211,6 @@ namespace WindowsClient.Controls
                         data.AddToChart(chart, true);
                     }
                 }
-
-                Updater = UpdateMean;
             }
         }
 
@@ -251,20 +219,15 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="id">The treatment ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateAll(int id, TreeNode node)
+        public async Task UpdateAll()
         {
             if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateAll), id, node);
+                Invoke(new Func<Task>(UpdateAll));
             else
             {
                 chart.Series.Clear();
 
                 tChart.Text = "Comparison of soil trait values across all treatment plots";
-
-                if (node is null) return;
-
-                treatment = id;
-                selected = node;
 
                 foreach (DateTime date in dates)
                 {
@@ -273,7 +236,7 @@ namespace WindowsClient.Controls
                         var query = new AllSoilTraitDataQuery
                         {
                             TraitName = trait,
-                            TreatmentId = id,
+                            TreatmentId = Treatment,
                             Date = date
                         };
 
@@ -283,9 +246,7 @@ namespace WindowsClient.Controls
                             data.AddToChart(chart, true);
                     }
                 }
-
-                Updater = UpdateAll;
             }
-        }
+        }        
     }
 }

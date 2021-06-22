@@ -16,7 +16,7 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of operation data for a treatment
     /// </summary>
-    public partial class OperationsChart : UserControl, IExperimentControl
+    public partial class OperationsChart : UserControl, ITreatmentControl
     {
         /// <inheritdoc/>
         public int Experiment { get; set; }
@@ -66,7 +66,7 @@ namespace WindowsClient.Controls
         /// Updates the displayed data for a new treatment
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        public async Task UpdateData(int id)
+        public async Task LoadTreatment(int id)
         {
             // Don't need to update if the ID matches
             if (id == TreatmentID) return;
