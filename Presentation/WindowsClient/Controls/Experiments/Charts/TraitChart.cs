@@ -20,7 +20,7 @@ namespace WindowsClient.Controls
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private string[] traits => traitsBox.SelectedItems.Cast<string>().ToArray();
 
         public TraitChart()
         {
@@ -29,6 +29,7 @@ namespace WindowsClient.Controls
 
             var tip = new ToolTip();
 
+            plotsBox.SelectedIndex = 0;
             plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
 
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
@@ -40,8 +41,6 @@ namespace WindowsClient.Controls
         /// </summary>
         private void InitialiseChart()
         {
-            plotsBox.SelectedIndex = 0;
-
             // Set the titles
             tChart.Text = "Crop Traits";
             chart.Axes.Left.Title.Text = "Value";
@@ -64,7 +63,7 @@ namespace WindowsClient.Controls
         }
 
         private async void OnTraitSelected(object sender, EventArgs e) 
-            => await UpdateAll();
+            => await LoadPlots();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -87,8 +86,7 @@ namespace WindowsClient.Controls
             Treatment = id;
 
             await AddPlots();
-            await LoadTraitsBox();
-            await LoadPlots();
+            await LoadTraitsBox();            
         }  
 
         public async Task AddPlots()
@@ -105,23 +103,18 @@ namespace WindowsClient.Controls
         /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox()
         {
-            if (InvokeRequired)
-                Invoke(new Func<Task>(LoadTraitsBox));
-            else
+            // Load the trait type box
+            var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
+            descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+
+            lock (traitsBox)
             {
-                // Load the trait type box
-                var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
-                descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+                traitsBox.Items.Clear();
 
-                lock (traitsBox)
-                {
-                    traitsBox.Items.Clear();
+                if (traits.Length < 1) return;
 
-                    if (traits.Length < 1) return;
-
-                    traitsBox.Items.AddRange(traits);
-                    traitsBox.SelectedIndex = 0;
-                }
+                traitsBox.Items.AddRange(traits);
+                traitsBox.SelectedIndex = 0;
             }
         }        
 
@@ -146,23 +139,18 @@ namespace WindowsClient.Controls
         /// <param name="node">The selected node</param>
         public async Task UpdateSingle(int id)
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, Task>(UpdateSingle), id);
-            else
+            tChart.Text = "Trait values for a treatment plot";
+
+            foreach (string trait in traits)
             {
-                tChart.Text = "Trait values for a treatment plot";
-
-                foreach (string trait in traits)
+                var query = new PlotDataByTraitQuery
                 {
-                    var query = new PlotDataByTraitQuery
-                    {
-                        TraitName = trait,
-                        PlotId = id
-                    };
+                    TraitName = trait,
+                    PlotId = id
+                };
 
-                    var data = await QueryManager.Request(query);
-                    data.AddToChart(chart);
-                }
+                var data = await QueryManager.Request(query);
+                data.AddToChart(chart);
             }
         }
 
@@ -173,24 +161,19 @@ namespace WindowsClient.Controls
         /// <param name="node">The selected node</param>
         public async Task UpdateMean()
         {
-            if (InvokeRequired)
-                Invoke(new Func<Task>(UpdateMean));
-            else
+            tChart.Text = "Average trait values across all treatment plots";
+
+            foreach (string trait in traits)
             {
-                tChart.Text = "Average trait values across all treatment plots";
-
-                foreach (string trait in traits)
+                var query = new MeanCropTraitDataQuery
                 {
-                    var query = new MeanCropTraitDataQuery
-                    {
-                        TraitName = trait,
-                        TreatmentId = Treatment
-                    };
+                    TraitName = trait,
+                    TreatmentId = Treatment
+                };
 
-                    var data = await QueryManager.Request(query);
-                    data.AddToChart(chart);
-                }
-            }            
+                var data = await QueryManager.Request(query);
+                data.AddToChart(chart);
+            }
         }
 
         /// <summary>
@@ -199,25 +182,20 @@ namespace WindowsClient.Controls
         /// <param name="id">The treatment ID</param>
         public async Task UpdateAll()
         {
-            if (InvokeRequired)
-                Invoke(new Func<Task>(UpdateAll));
-            else
+            tChart.Text = "Comparison of trait values across all treatment plots";
+
+            foreach (string trait in traits)
             {
-                tChart.Text = "Comparison of trait values across all treatment plots";
-
-                foreach (string trait in traits)
+                var query = new AllCropTraitDataQuery
                 {
-                    var query = new AllCropTraitDataQuery
-                    {
-                        TraitName = trait,
-                        TreatmentId = Treatment
-                    };
+                    TraitName = trait,
+                    TreatmentId = Treatment
+                };
 
-                    var series = await QueryManager.Request(query);
+                var series = await QueryManager.Request(query);
 
-                    foreach (var data in series)
-                        data.AddToChart(chart);
-                }
+                foreach (var data in series)
+                    data.AddToChart(chart);
             }
         }        
     }
