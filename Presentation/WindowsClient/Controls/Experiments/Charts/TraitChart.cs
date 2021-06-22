@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MediatR;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
 using WindowsClient.Models;
@@ -14,21 +12,15 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of trait data for a treatment
     /// </summary>
-    public partial class TraitChart : UserControl
+    public partial class TraitChart : UserControl, ITreatmentControl
     {
-        /// <summary>
-        /// Tracks which update function to call when a trait is selected
-        /// </summary>
-        public Func<int, TreeNode, Task> Updater;
-
-        private int treatment = -1;
-        private int plot;
-        private TreeNode selected;
+        /// <inheritdoc/>
+        public int Treatment { get; set; }
 
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private string[] traits => traitsBox.SelectedItems.Cast<string>().ToArray();
 
         public TraitChart()
         {
@@ -36,6 +28,9 @@ namespace WindowsClient.Controls
             InitialiseChart();
 
             var tip = new ToolTip();
+
+            plotsBox.SelectedIndex = 0;
+            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
 
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
             traitsBox.SelectedIndexChanged += OnTraitSelected;            
@@ -67,7 +62,8 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Title.AutoPosition = true;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) 
+            => await LoadPlots();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -85,85 +81,76 @@ namespace WindowsClient.Controls
             tip.SetToolTip(traitsBox, text);
         }
 
-        /// <summary>
-        /// Displays the data for the given node
-        /// </summary>
-        /// <param name="node">The node</param>
-        public async Task DisplayNodeData(TreeNode node)
+        public async Task LoadTreatment(int id)
         {
-            int id = treatment;
+            Treatment = id;
 
-            if (Updater == UpdateSingle) id = plot;
+            await AddPlots();
+            await LoadTraitsBox();            
+        }  
 
-            if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
-            else
-                await Task.Run(() => { if (Updater != null) Updater(id, node); });
-        }        
+        public async Task AddPlots()
+        {
+            var plots = await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment });
+
+            foreach (var plot in plots)
+                plotsBox.Items.Add(new PlotDTO { ID = plot.Key, Name = plot.Value });
+        }
 
         /// <summary>
         /// Fills the traits box with all traits in a treatment that have graphable data
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        public async Task LoadTraitsBox(int id)
+        public async Task LoadTraitsBox()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, Task>(LoadTraitsBox), id);
-            else
+            // Load the trait type box
+            var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
+            descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+
+            lock (traitsBox)
             {
-                if (id == treatment)
-                    return;
-                else
-                    treatment = id;                
+                traitsBox.Items.Clear();
 
-                // Load the trait type box
-                var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = id });
-                descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+                if (traits.Length < 1) return;
 
-                lock (traitsBox)
-                {
-                    traitsBox.Items.Clear();
-
-                    if (traits.Length < 1) return;
-
-                    traitsBox.Items.AddRange(traits);
-                    traitsBox.SelectedIndex = 0;
-                }
+                traitsBox.Items.AddRange(traits);
+                traitsBox.SelectedIndex = 0;
             }
         }        
+
+        public async Task LoadPlots()
+        {
+            chart.Series.Clear();
+
+            if (plotsBox.SelectedItem.ToString() == "All")
+                await UpdateAll();
+
+            else if (plotsBox.SelectedItem.ToString() == "Mean")
+                await UpdateMean();
+
+            else if (plotsBox.SelectedItem is PlotDTO plot)
+                await UpdateSingle(plot.ID);
+        }
 
         /// <summary>
         /// Updates the displayed data for a single plot
         /// </summary>
         /// <param name="id">The plot ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateSingle(int id, TreeNode node)
+        public async Task UpdateSingle(int id)
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateSingle), id, node);
-            else
+            tChart.Text = "Trait values for a treatment plot";
+
+            foreach (string trait in traits)
             {
-                if (node.Name != "All") 
-                    chart.Series.Clear();
-
-                tChart.Text = "Trait values for a treatment plot";
-
-                plot = id;
-                selected = node;
-
-                foreach (string trait in traits)
+                var query = new PlotDataByTraitQuery
                 {
-                    var query = new PlotDataByTraitQuery
-                    {
-                        TraitName = trait,
-                        PlotId = id
-                    };
+                    TraitName = trait,
+                    PlotId = id
+                };
 
-                    var data = await QueryManager.Request(query);
-                    data.AddToChart(chart);
-                }
-
-                Updater = UpdateSingle;
+                var data = await QueryManager.Request(query);
+                data.AddToChart(chart);
             }
         }
 
@@ -172,72 +159,44 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="id">The treatment ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateMean(int id, TreeNode node)
+        public async Task UpdateMean()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateMean), id, node);
-            else
+            tChart.Text = "Average trait values across all treatment plots";
+
+            foreach (string trait in traits)
             {
-                chart.Series.Clear();
-
-                tChart.Text = "Average trait values across all treatment plots";
-
-                treatment = id;
-                selected = node;
-
-                foreach (string trait in traits)
+                var query = new MeanCropTraitDataQuery
                 {
-                    var query = new MeanCropTraitDataQuery
-                    {
-                        TraitName = trait,
-                        TreatmentId = id
-                    };
+                    TraitName = trait,
+                    TreatmentId = Treatment
+                };
 
-                    var data = await QueryManager.Request(query);
-                    data.AddToChart(chart);
-                }
-
-                Updater = UpdateMean;
-            }            
+                var data = await QueryManager.Request(query);
+                data.AddToChart(chart);
+            }
         }
 
         /// <summary>
         /// Updates the displayed data for all the plots in a treatment
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        /// <param name="node">The selected node</param>
-        public async Task UpdateAll(int id, TreeNode node)
+        public async Task UpdateAll()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateAll), id, node);
-            else
+            tChart.Text = "Comparison of trait values across all treatment plots";
+
+            foreach (string trait in traits)
             {
-                chart.Series.Clear();
-
-                tChart.Text = "Comparison of trait values across all treatment plots";
-
-                if (node is null) return;
-
-                treatment = id;
-                selected = node;
-
-                foreach (string trait in traits)
+                var query = new AllCropTraitDataQuery
                 {
-                    var query = new AllCropTraitDataQuery
-                    {
-                        TraitName = trait,
-                        TreatmentId = id
-                    };
+                    TraitName = trait,
+                    TreatmentId = Treatment
+                };
 
-                    var series = await QueryManager.Request(query);
+                var series = await QueryManager.Request(query);
 
-                    foreach (var data in series)
-                        data.AddToChart(chart);
-                }
-
-                Updater = UpdateAll;
+                foreach (var data in series)
+                    data.AddToChart(chart);
             }
-        }
-    
+        }        
     }
 }

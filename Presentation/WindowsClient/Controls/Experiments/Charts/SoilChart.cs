@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MediatR;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
 using WindowsClient.Models;
@@ -14,25 +12,20 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of soil data for a treatment
     /// </summary>
-    public partial class SoilChart : UserControl
+    public partial class SoilChart : UserControl, ITreatmentControl
     {
-        /// <summary>
-        /// Tracks which update function to call when a trait is selected
-        /// </summary>
-        public Func<int, TreeNode, Task> Updater;
+        /// <inheritdoc/>
+        public int Treatment { get; set; }
 
-        private int treatment = -1;
-        private int plot;
-        private TreeNode selected;
         private Chart chart => tChart.Chart;
 
         private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private IEnumerable<string> traits => traitsBox.SelectedItems.Cast<string>().ToArray();
-        private IEnumerable<DateTime> dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
+        private string[] traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private DateTime[] dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
 
         public SoilChart()
         {
-            InitializeComponent();
+            InitializeComponent();            
 
             // Set the titles
             tChart.Text = "Soil Traits";
@@ -56,13 +49,18 @@ namespace WindowsClient.Controls
 
             var tip = new ToolTip();
 
+            plotsBox.SelectedIndex = 0;
+            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
+
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        private async void OnTraitSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+        private async void OnTraitSelected(object sender, EventArgs e) 
+            => await LoadPlots();
 
-        private async void OnDateSelected(object sender, EventArgs e) => await DisplayNodeData(selected);
+        private async void OnDateSelected(object sender, EventArgs e) 
+            => await LoadPlots();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -80,60 +78,41 @@ namespace WindowsClient.Controls
             tip.SetToolTip(traitsBox, text);
         }
 
-        /// <summary>
-        /// Displays the data for the given node
-        /// </summary>
-        /// <param name="node">The node</param>
-        public async Task DisplayNodeData(TreeNode node)
+        public async Task LoadTreatment(int id)
         {
-            int id = treatment;
+            Treatment = id;
 
-            if (Updater == UpdateSingle) id = plot;
-
-            if (InvokeRequired)
-                Invoke(new Func<TreeNode, Task>(DisplayNodeData), node);
-            else
-                await Task.Run(() => { if (Updater != null) Updater(id, node); });
+            await AddPlots();
+            await LoadTraitsBox();
+            await LoadDatesBox();
         }
 
-        /// <summary>
-        /// Load the traits / dates box items for the treatment
-        /// </summary>
-        /// <param name="id">The treatment ID</param>
-        public async Task LoadBoxes(int id)
+        public async Task AddPlots()
         {
-            if (id == treatment)
-                return;
-            else
-                treatment = id;
+            var plots = await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment });
 
-            await LoadTraitsBox(id);
-            await LoadDatesBox(id);
+            foreach (var plot in plots)
+                plotsBox.Items.Add(new PlotDTO { ID = plot.Key, Name = plot.Value });
         }
 
         /// <summary>
         /// Fills the traits box with all traits in a treatment that have graphable data
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        public async Task LoadTraitsBox(int id)
+        public async Task LoadTraitsBox()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, Task>(LoadTraitsBox), id);
-            else
+            // Load the trait type box
+            var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = Treatment });
+            descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+
+            lock (traitsBox)
             {
-                // Load the trait type box
-                var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = id });
-                descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+                traitsBox.Items.Clear();
 
-                lock (traitsBox)
-                {
-                    traitsBox.Items.Clear();
+                if (traits.Length < 1) return;
 
-                    if (traits.Length < 1) return;
-
-                    traitsBox.Items.AddRange(traits);
-                    traitsBox.SelectedIndex = 0;
-                }
+                traitsBox.Items.AddRange(traits);
+                traitsBox.SelectedIndex = 0;
             }
         }
 
@@ -141,27 +120,36 @@ namespace WindowsClient.Controls
         /// Fills the dates box with all dates in a treatment that have graphable data
         /// </summary>
         /// <param name="id">The treatment ID</param>
-        private async Task LoadDatesBox(int id)
+        private async Task LoadDatesBox()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, Task>(LoadDatesBox), id);
-            else
+            var query = new SoilLayerDatesQuery() { TreatmentId = Treatment };
+            var items = await QueryManager.Request(query);
+
+            lock (datesBox)
             {
-                var query = new SoilLayerDatesQuery() { TreatmentId = id };
-                var items = await QueryManager.Request(query);
+                datesBox.Items.Clear();
 
-                lock (datesBox)
-                {
-                    datesBox.Items.Clear();
+                if (items.Length < 1) return;
 
-                    if (items.Length < 1) return;
+                foreach (var date in items)
+                    datesBox.Items.Add(date);
 
-                    foreach (var date in items)
-                        datesBox.Items.Add(date);
-
-                    datesBox.SelectedIndex = 0;
-                }
+                datesBox.SelectedIndex = 0;
             }
+        }
+
+        public async Task LoadPlots()
+        {
+            chart.Series.Clear();
+
+            if (plotsBox.SelectedItem.ToString() == "All")
+                await UpdateAll();
+
+            else if (plotsBox.SelectedItem.ToString() == "Mean")
+                await UpdateMean();
+
+            else if (plotsBox.SelectedItem is PlotDTO plot)
+                await UpdateSingle(plot.ID);
         }
 
         /// <summary>
@@ -169,37 +157,24 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="id">The plot ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateSingle(int id, TreeNode node)
+        public async Task UpdateSingle(int id)
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateSingle), id, node);
-            else
+            tChart.Text = "Soil trait values for a single treatment plot";
+
+            foreach (DateTime date in dates)
             {
-                if (node.Name != "All")
-                    chart.Series.Clear();
-
-                tChart.Text = "Soil trait values for a single treatment plot";
-
-                plot = id;
-                selected = node;
-
-                foreach (DateTime date in dates)
+                foreach (string trait in traits)
                 {
-                    foreach (string trait in traits)
+                    var query = new SoilLayerTraitDataQuery
                     {
-                        var query = new SoilLayerTraitDataQuery
-                        {
-                            TraitName = trait,
-                            PlotId = id,
-                            Date = date
-                        };
+                        TraitName = trait,
+                        PlotId = id,
+                        Date = date
+                    };
 
-                        var data = await QueryManager.Request(query);
-                        data.AddToChart(chart, true);
-                    }
+                    var data = await QueryManager.Request(query);
+                    data.AddToChart(chart, true);
                 }
-
-                Updater = UpdateSingle;
             }
         }
 
@@ -208,35 +183,24 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="id">The treatment ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateMean(int id, TreeNode node)
+        public async Task UpdateMean()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateMean), id, node);
-            else
+            tChart.Text = "Average soil trait values across all treatment plots";
+
+            foreach (DateTime date in dates)
             {
-                chart.Series.Clear();
-
-                tChart.Text = "Average soil trait values across all treatment plots";
-
-                treatment = id;
-                selected = node;
-                foreach (DateTime date in dates)
+                foreach (string trait in traits)
                 {
-                    foreach (string trait in traits)
+                    var query = new MeanSoilTraitDataQuery
                     {
-                        var query = new MeanSoilTraitDataQuery
-                        {
-                            TraitName = trait,
-                            TreatmentId = id,
-                            Date = date
-                        };
+                        TraitName = trait,
+                        TreatmentId = Treatment,
+                        Date = date
+                    };
 
-                        var data = await QueryManager.Request(query);
-                        data.AddToChart(chart, true);
-                    }
+                    var data = await QueryManager.Request(query);
+                    data.AddToChart(chart, true);
                 }
-
-                Updater = UpdateMean;
             }
         }
 
@@ -245,41 +209,27 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="id">The treatment ID</param>
         /// <param name="node">The selected node</param>
-        public async Task UpdateAll(int id, TreeNode node)
+        public async Task UpdateAll()
         {
-            if (InvokeRequired)
-                Invoke(new Func<int, TreeNode, Task>(UpdateAll), id, node);
-            else
+            tChart.Text = "Comparison of soil trait values across all treatment plots";
+
+            foreach (DateTime date in dates)
             {
-                chart.Series.Clear();
-
-                tChart.Text = "Comparison of soil trait values across all treatment plots";
-
-                if (node is null) return;
-
-                treatment = id;
-                selected = node;
-
-                foreach (DateTime date in dates)
+                foreach (string trait in traits)
                 {
-                    foreach (string trait in traits)
+                    var query = new AllSoilTraitDataQuery
                     {
-                        var query = new AllSoilTraitDataQuery
-                        {
-                            TraitName = trait,
-                            TreatmentId = id,
-                            Date = date
-                        };
+                        TraitName = trait,
+                        TreatmentId = Treatment,
+                        Date = date
+                    };
 
-                        var series = await QueryManager.Request(query);
+                    var series = await QueryManager.Request(query);
 
-                        foreach (var data in series)
-                            data.AddToChart(chart, true);
-                    }
+                    foreach (var data in series)
+                        data.AddToChart(chart, true);
                 }
-
-                Updater = UpdateAll;
             }
-        }
+        }        
     }
 }

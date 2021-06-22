@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
-using System.Collections.Generic;
 
 namespace Rems.Application.CQRS
 {
     /// <summary>
     /// Find soil trait data for all plots in a treatment on a given date
     /// </summary>
-    public class AllSoilTraitDataQuery : ContextQuery<IEnumerable<SeriesData<double, int>>>
+    public class AllSoilTraitDataQuery : ContextQuery<SeriesData<double, int>[]>
     {
         /// <summary>
         /// The source treatment
@@ -37,12 +32,15 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override IEnumerable<SeriesData<double, int>> Run()
+        protected override SeriesData<double, int>[] Run()
         {
-            var plots = _context.Treatments.Find(TreatmentId).Plots;
+            var data = _context.Treatments
+                .Find(TreatmentId)
+                .Plots
+                .Select(p => GetPlotData(p.PlotId, Date, TraitName))
+                .ToArray();
 
-            foreach (var plot in plots)
-                yield return GetPlotData(plot.PlotId, Date, TraitName);
+            return data;
         }
 
         private SeriesData<double, int> GetPlotData(int id, DateTime date, string trait)

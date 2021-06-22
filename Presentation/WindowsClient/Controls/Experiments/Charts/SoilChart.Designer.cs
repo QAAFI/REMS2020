@@ -35,6 +35,8 @@
             this.traitsBox = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.datesBox = new System.Windows.Forms.ListBox();
+            this.plotsBox = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -56,14 +58,7 @@
             // 
             // 
             // 
-            this.tChart.Axes.Bottom.Grid.Visible = true;
-            // 
-            // 
-            // 
-            // 
-            // 
-            // 
-            this.tChart.Axes.Bottom.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Bottom.Labels.Axis = this.tChart.Axes.Bottom;
             // 
             // 
             // 
@@ -91,6 +86,7 @@
             this.tChart.Axes.Bottom.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Bottom.Labels.Font.Size = 9;
             this.tChart.Axes.Bottom.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.Bottom.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -112,11 +108,21 @@
             // 
             // 
             // 
-            this.tChart.Axes.Bottom.Title.Angle = 0;
+            this.tChart.Axes.Bottom.MinorTicks.Length = 2;
+            this.tChart.Axes.Bottom.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Bottom.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Bottom.Ticks.Length = 4;
+            this.tChart.Axes.Bottom.Ticks.Visible = false;
+            // 
+            // 
+            // 
+            this.tChart.Axes.Bottom.TicksInner.Length = 0;
+            this.tChart.Axes.Bottom.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -144,6 +150,7 @@
             this.tChart.Axes.Bottom.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Bottom.Title.Font.Size = 11;
             this.tChart.Axes.Bottom.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.Bottom.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -168,10 +175,11 @@
             // 
             // 
             // 
+            this.tChart.Axes.Depth.AxisPen.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Depth.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Depth.Labels.Axis = this.tChart.Axes.Depth;
             // 
             // 
             // 
@@ -199,6 +207,7 @@
             this.tChart.Axes.Depth.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Depth.Labels.Font.Size = 9;
             this.tChart.Axes.Depth.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.Depth.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -220,11 +229,21 @@
             // 
             // 
             // 
-            this.tChart.Axes.Depth.Title.Angle = 0;
+            this.tChart.Axes.Depth.MinorTicks.Length = 2;
+            this.tChart.Axes.Depth.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Depth.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Depth.Ticks.Length = 4;
+            this.tChart.Axes.Depth.Ticks.Visible = false;
+            // 
+            // 
+            // 
+            this.tChart.Axes.Depth.TicksInner.Length = 0;
+            this.tChart.Axes.Depth.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -252,6 +271,7 @@
             this.tChart.Axes.Depth.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Depth.Title.Font.Size = 11;
             this.tChart.Axes.Depth.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.Depth.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -276,10 +296,11 @@
             // 
             // 
             // 
+            this.tChart.Axes.DepthTop.AxisPen.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.DepthTop.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.DepthTop.Labels.Axis = this.tChart.Axes.DepthTop;
             // 
             // 
             // 
@@ -307,6 +328,7 @@
             this.tChart.Axes.DepthTop.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.DepthTop.Labels.Font.Size = 9;
             this.tChart.Axes.DepthTop.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.DepthTop.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -328,11 +350,21 @@
             // 
             // 
             // 
-            this.tChart.Axes.DepthTop.Title.Angle = 0;
+            this.tChart.Axes.DepthTop.MinorTicks.Length = 2;
+            this.tChart.Axes.DepthTop.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.DepthTop.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.DepthTop.Ticks.Length = 4;
+            this.tChart.Axes.DepthTop.Ticks.Visible = false;
+            // 
+            // 
+            // 
+            this.tChart.Axes.DepthTop.TicksInner.Length = 0;
+            this.tChart.Axes.DepthTop.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -360,6 +392,7 @@
             this.tChart.Axes.DepthTop.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.DepthTop.Title.Font.Size = 11;
             this.tChart.Axes.DepthTop.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.DepthTop.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -384,14 +417,7 @@
             // 
             // 
             // 
-            this.tChart.Axes.Left.AxisPen.Visible = true;
-            // 
-            // 
-            // 
-            // 
-            // 
-            // 
-            this.tChart.Axes.Left.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Left.Labels.Axis = this.tChart.Axes.Left;
             // 
             // 
             // 
@@ -419,6 +445,7 @@
             this.tChart.Axes.Left.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Left.Labels.Font.Size = 9;
             this.tChart.Axes.Left.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.Left.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -440,15 +467,20 @@
             // 
             // 
             // 
-            this.tChart.Axes.Left.Ticks.Visible = true;
+            this.tChart.Axes.Left.MinorTicks.Length = 2;
+            this.tChart.Axes.Left.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Left.Title.Angle = 90;
+            this.tChart.Axes.Left.Ticks.Length = 4;
             // 
             // 
             // 
-            this.tChart.Axes.Left.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Left.TicksInner.Length = 0;
+            this.tChart.Axes.Left.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -476,6 +508,7 @@
             this.tChart.Axes.Left.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Left.Title.Font.Size = 11;
             this.tChart.Axes.Left.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.Left.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -500,10 +533,11 @@
             // 
             // 
             // 
+            this.tChart.Axes.Right.AxisPen.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Right.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Right.Labels.Axis = this.tChart.Axes.Right;
             // 
             // 
             // 
@@ -531,6 +565,7 @@
             this.tChart.Axes.Right.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Right.Labels.Font.Size = 9;
             this.tChart.Axes.Right.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.Right.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -552,11 +587,21 @@
             // 
             // 
             // 
-            this.tChart.Axes.Right.Title.Angle = 270;
+            this.tChart.Axes.Right.MinorTicks.Length = 2;
+            this.tChart.Axes.Right.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Right.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Right.Ticks.Length = 4;
+            this.tChart.Axes.Right.Ticks.Visible = false;
+            // 
+            // 
+            // 
+            this.tChart.Axes.Right.TicksInner.Length = 0;
+            this.tChart.Axes.Right.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -584,6 +629,7 @@
             this.tChart.Axes.Right.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Right.Title.Font.Size = 11;
             this.tChart.Axes.Right.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.Right.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -612,10 +658,7 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Axes.Top.Labels.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Top.Labels.Axis = this.tChart.Axes.Top;
             // 
             // 
             // 
@@ -643,6 +686,7 @@
             this.tChart.Axes.Top.Labels.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Top.Labels.Font.Size = 9;
             this.tChart.Axes.Top.Labels.Font.SizeFloat = 9F;
+            this.tChart.Axes.Top.Labels.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -664,11 +708,21 @@
             // 
             // 
             // 
-            this.tChart.Axes.Top.Title.Angle = 0;
+            this.tChart.Axes.Top.MinorTicks.Length = 2;
+            this.tChart.Axes.Top.MinorTicks.Visible = false;
             // 
             // 
             // 
-            this.tChart.Axes.Top.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
+            this.tChart.Axes.Top.Ticks.Length = 4;
+            this.tChart.Axes.Top.Ticks.Visible = false;
+            // 
+            // 
+            // 
+            this.tChart.Axes.Top.TicksInner.Length = 0;
+            this.tChart.Axes.Top.TicksInner.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -696,6 +750,7 @@
             this.tChart.Axes.Top.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Axes.Top.Title.Font.Size = 11;
             this.tChart.Axes.Top.Title.Font.SizeFloat = 11F;
+            this.tChart.Axes.Top.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -719,10 +774,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Footer.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -750,6 +801,7 @@
             this.tChart.Footer.Font.Shadow.Brush.Visible = true;
             this.tChart.Footer.Font.Size = 8;
             this.tChart.Footer.Font.SizeFloat = 8F;
+            this.tChart.Footer.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -771,10 +823,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Header.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -802,6 +850,7 @@
             this.tChart.Header.Font.Shadow.Brush.Visible = true;
             this.tChart.Header.Font.Size = 12;
             this.tChart.Header.Font.SizeFloat = 12F;
+            this.tChart.Header.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -825,10 +874,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Legend.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -856,6 +901,7 @@
             this.tChart.Legend.Font.Shadow.Brush.Visible = true;
             this.tChart.Legend.Font.Size = 9;
             this.tChart.Legend.Font.SizeFloat = 9F;
+            this.tChart.Legend.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -868,6 +914,10 @@
             // 
             // 
             // 
+            this.tChart.Legend.Pen.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -877,6 +927,7 @@
             // 
             // 
             // 
+            this.tChart.Legend.Symbol.Legend = this.tChart.Legend;
             // 
             // 
             // 
@@ -889,10 +940,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Legend.Title.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -920,6 +967,7 @@
             this.tChart.Legend.Title.Font.Shadow.Brush.Visible = true;
             this.tChart.Legend.Title.Font.Size = 8;
             this.tChart.Legend.Title.Font.SizeFloat = 8F;
+            this.tChart.Legend.Title.Font.Style = Steema.TeeChart.Drawing.FontStyle.Bold;
             // 
             // 
             // 
@@ -932,6 +980,10 @@
             // 
             // 
             // 
+            this.tChart.Legend.Title.Pen.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
@@ -939,6 +991,7 @@
             this.tChart.Legend.Title.Shadow.Brush.Solid = true;
             this.tChart.Legend.Title.Shadow.Brush.Visible = true;
             this.tChart.Location = new System.Drawing.Point(0, 0);
+            this.tChart.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tChart.Name = "tChart";
             // 
             // 
@@ -946,11 +999,11 @@
             // 
             // 
             // 
-            this.tChart.Panel.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
-            // 
-            // 
-            // 
             this.tChart.Panel.Brush.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            // 
+            // 
+            // 
+            this.tChart.Panel.Brush.Gradient.UseMiddle = true;
             this.tChart.Panel.Brush.Solid = true;
             this.tChart.Panel.Brush.Visible = true;
             // 
@@ -965,24 +1018,16 @@
             // 
             // 
             // 
-            this.tChart.Panel.Pen.Visible = true;
-            // 
-            // 
-            // 
             // 
             // 
             // 
             this.tChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Panel.Shadow.Brush.Solid = true;
             this.tChart.Panel.Shadow.Brush.Visible = true;
-            this.tChart.Size = new System.Drawing.Size(567, 573);
+            this.tChart.Size = new System.Drawing.Size(616, 661);
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.SubFooter.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -1010,6 +1055,7 @@
             this.tChart.SubFooter.Font.Shadow.Brush.Visible = true;
             this.tChart.SubFooter.Font.Size = 8;
             this.tChart.SubFooter.Font.SizeFloat = 8F;
+            this.tChart.SubFooter.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -1031,10 +1077,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.SubHeader.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -1062,6 +1104,7 @@
             this.tChart.SubHeader.Font.Shadow.Brush.Visible = true;
             this.tChart.SubHeader.Font.Size = 12;
             this.tChart.SubHeader.Font.SizeFloat = 12F;
+            this.tChart.SubHeader.Font.Style = Steema.TeeChart.Drawing.FontStyle.Regular;
             // 
             // 
             // 
@@ -1087,10 +1130,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Walls.Back.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -1121,10 +1160,6 @@
             // 
             // 
             // 
-            this.tChart.Walls.Bottom.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
-            // 
-            // 
-            // 
             this.tChart.Walls.Bottom.Brush.Color = System.Drawing.Color.White;
             this.tChart.Walls.Bottom.Brush.Solid = true;
             this.tChart.Walls.Bottom.Brush.Visible = true;
@@ -1152,10 +1187,6 @@
             // 
             // 
             // 
-            this.tChart.Walls.Left.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
-            // 
-            // 
-            // 
             this.tChart.Walls.Left.Brush.Color = System.Drawing.Color.LightYellow;
             this.tChart.Walls.Left.Brush.Solid = true;
             this.tChart.Walls.Left.Brush.Visible = true;
@@ -1180,10 +1211,6 @@
             // 
             // 
             // 
-            // 
-            // 
-            // 
-            this.tChart.Walls.Right.Bevel.Outer = Steema.TeeChart.Drawing.BevelStyles.None;
             // 
             // 
             // 
@@ -1222,23 +1249,30 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.plotsBox);
+            this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.listSplitter);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tChart);
-            this.splitContainer1.Size = new System.Drawing.Size(704, 573);
-            this.splitContainer1.SplitterDistance = 133;
+            this.splitContainer1.Size = new System.Drawing.Size(821, 661);
+            this.splitContainer1.SplitterDistance = 200;
+            this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 17;
             // 
             // listSplitter
             // 
-            this.listSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listSplitter.Location = new System.Drawing.Point(0, 0);
+            this.listSplitter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listSplitter.Location = new System.Drawing.Point(0, 24);
+            this.listSplitter.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.listSplitter.Name = "listSplitter";
             this.listSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -1251,18 +1285,20 @@
             // 
             this.listSplitter.Panel2.Controls.Add(this.label1);
             this.listSplitter.Panel2.Controls.Add(this.datesBox);
-            this.listSplitter.Size = new System.Drawing.Size(133, 573);
-            this.listSplitter.SplitterDistance = 286;
+            this.listSplitter.Size = new System.Drawing.Size(200, 637);
+            this.listSplitter.SplitterDistance = 317;
+            this.listSplitter.SplitterWidth = 5;
             this.listSplitter.TabIndex = 17;
             // 
             // traitsLabel
             // 
             this.traitsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.traitsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.traitsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point);
             this.traitsLabel.Location = new System.Drawing.Point(0, 0);
+            this.traitsLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.traitsLabel.Name = "traitsLabel";
-            this.traitsLabel.Size = new System.Drawing.Size(133, 20);
+            this.traitsLabel.Size = new System.Drawing.Size(200, 23);
             this.traitsLabel.TabIndex = 1;
             this.traitsLabel.Text = "Traits";
             this.traitsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1274,20 +1310,23 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.traitsBox.FormattingEnabled = true;
             this.traitsBox.IntegralHeight = false;
-            this.traitsBox.Location = new System.Drawing.Point(0, 23);
+            this.traitsBox.ItemHeight = 15;
+            this.traitsBox.Location = new System.Drawing.Point(6, 27);
+            this.traitsBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.traitsBox.Name = "traitsBox";
             this.traitsBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.traitsBox.Size = new System.Drawing.Size(133, 263);
+            this.traitsBox.Size = new System.Drawing.Size(190, 287);
             this.traitsBox.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point);
             this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(133, 16);
+            this.label1.Size = new System.Drawing.Size(200, 18);
             this.label1.TabIndex = 2;
             this.label1.Text = "Dates";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1299,21 +1338,47 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.datesBox.FormattingEnabled = true;
             this.datesBox.IntegralHeight = false;
-            this.datesBox.Location = new System.Drawing.Point(0, 19);
+            this.datesBox.ItemHeight = 15;
+            this.datesBox.Location = new System.Drawing.Point(6, 22);
+            this.datesBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.datesBox.Name = "datesBox";
             this.datesBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.datesBox.Size = new System.Drawing.Size(133, 264);
+            this.datesBox.Size = new System.Drawing.Size(190, 290);
             this.datesBox.TabIndex = 0;
             this.datesBox.SelectedIndexChanged += new System.EventHandler(this.OnDateSelected);
             // 
+            // plotsBox
+            // 
+            this.plotsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.plotsBox.FormattingEnabled = true;
+            this.plotsBox.Items.AddRange(new object[] {
+            "All",
+            "Mean"});
+            this.plotsBox.Location = new System.Drawing.Point(48, 3);
+            this.plotsBox.Name = "plotsBox";
+            this.plotsBox.Size = new System.Drawing.Size(149, 23);
+            this.plotsBox.TabIndex = 19;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 6);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(36, 15);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "Plots:";
+            // 
             // SoilChart
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "SoilChart";
-            this.Size = new System.Drawing.Size(704, 573);
+            this.Size = new System.Drawing.Size(821, 661);
             this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -1333,5 +1398,7 @@
         private System.Windows.Forms.ListBox traitsBox;
         private System.Windows.Forms.Label traitsLabel;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox plotsBox;
+        private System.Windows.Forms.Label label2;
     }
 }

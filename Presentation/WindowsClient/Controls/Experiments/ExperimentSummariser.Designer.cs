@@ -1,5 +1,5 @@
 ﻿
-namespace WindowsClient.Controls.Experiments
+namespace WindowsClient.Controls
 {
     partial class ExperimentSummariser
     {
