@@ -51,8 +51,23 @@ namespace WindowsClient.Controls
                     AttachControl(await exp.GetSelectedControl());
                 else if (node is ExperimentNode en)
                 {
-                    var summary = new ExperimentSummariser();
-                    AttachControl(summary);
+                    var summary = new ExperimentSummariser { Dock = DockStyle.Fill };
+                    var design = new DataGridView { Dock = DockStyle.Fill };
+
+                    var pages = new TabControl { Dock = DockStyle.Fill };
+                    
+                    var p1 = new TabPage("Summary");
+                    p1.Controls.Add(summary);
+
+                    var p2 = new TabPage("Design");
+                    p2.Controls.Add(design);
+
+                    pages.TabPages.Add(p1);
+                    pages.TabPages.Add(p2);
+
+                    AttachControl(pages);
+
+                    design.DataSource = await QueryManager.Request(new DesignsTableQuery { ExperimentId = en.ID });
                     await summary.GetSummary(en.ID);
                 }
             }
