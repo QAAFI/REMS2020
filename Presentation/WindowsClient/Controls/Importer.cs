@@ -95,7 +95,7 @@ namespace WindowsClient.Controls
 
         private async Task GenerateNodes(DataSet data, string format)
         {
-            var query = new InformationQuery { Data = data, Format = format };
+            var query = new ExcelDataQuery { Data = data, Format = format };
             var tables = await QueryManager.Request(query);
 
             foreach (var pair in tables)
@@ -133,10 +133,10 @@ namespace WindowsClient.Controls
             foreach (var col in unknowns)
             {
                 var excel = new ExcelColumn { Data = col };
-                var cn = new TraitNode(excel);
-                await cn.CheckForTrait();
+                var cn = new TraitNode(excel);           
 
                 node.Traits.Nodes.Add(cn);
+                await cn.Initialise();
             }
 
             node.Refresh();
@@ -167,10 +167,6 @@ namespace WindowsClient.Controls
                 await CleanTable(table);
 
                 table.ConvertExperiments();
-
-                //var node = await CreateTableNode(table);
-
-                //dataTree.Nodes.Add(node);
             }
         }
 
