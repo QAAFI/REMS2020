@@ -39,6 +39,5 @@ namespace Rems.Domain.Entities
         public virtual Treatment Treatment { get; set; }
         
         public virtual ICollection<TillageInfo> TillageInfo { get; set; }
-
     }
 }
