@@ -49,19 +49,19 @@ namespace WindowsClient.Models
 
             Items.Add(ignore);
 
-            Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddTraits));
+            Traits.Items.Add(new ToolStripMenuItem("Add all as Traits", null, AddAllNodes));
             Traits.Items.Add(new ToolStripMenuItem("Toggle ignore", null, ToggleIgnoreAll));
         }
 
         /// <summary>
         /// Adds a trait to the database for every invalid child node
         /// </summary>
-        public async void AddTraits(object sender, EventArgs args)
+        public async void AddAllNodes(object sender, EventArgs args)
         {
             var nodes = TreeView.SelectedNode.Nodes.OfType<TraitNode>();
             foreach (var node in nodes)
                 if (!node.Valid)
-                    await node.AddTrait();
+                    await node.Add.Invoke();
 
             Refresh();
         }

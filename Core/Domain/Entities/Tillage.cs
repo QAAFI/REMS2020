@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", false, "Tillage")]
+    [ExcelFormat("Experiments", false, "Tillage")]
     public class Tillage : IEntity
     {
         public Tillage()
@@ -39,6 +39,5 @@ namespace Rems.Domain.Entities
         public virtual Treatment Treatment { get; set; }
         
         public virtual ICollection<TillageInfo> TillageInfo { get; set; }
-
     }
 }

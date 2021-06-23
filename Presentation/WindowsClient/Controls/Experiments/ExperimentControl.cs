@@ -30,7 +30,6 @@ namespace WindowsClient.Controls
 
         public ExperimentNode(string text) : base(text)
         {
-            //Nodes.Add(design);
             Nodes.Add(operations);
             Nodes.Add(crop);
             Nodes.Add(soil);
@@ -38,9 +37,6 @@ namespace WindowsClient.Controls
 
         public Task<TabControl> GetSelectedControl()
         {
-            //if (design.IsSelected)
-            //    return design.Create(ID);
-
             if (operations.IsSelected)
                 return operations.Create(ID);
 

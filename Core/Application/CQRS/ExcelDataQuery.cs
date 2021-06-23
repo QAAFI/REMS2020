@@ -13,14 +13,14 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Return a collection of all experiments paired by ID and Name
     /// </summary>
-    public class InformationQuery : ContextQuery<Dictionary<ExcelTable, ExcelColumn[]>>
+    public class ExcelDataQuery : ContextQuery<Dictionary<ExcelTable, ExcelColumn[]>>
     {
         public DataSet Data { get; set; }
 
         public string Format { get; set; }
 
         /// <inheritdoc/>
-        public class Handler : BaseHandler<InformationQuery>
+        public class Handler : BaseHandler<ExcelDataQuery>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
