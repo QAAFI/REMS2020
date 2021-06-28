@@ -78,7 +78,6 @@
         #endregion
 
         private System.Windows.Forms.TreeView experimentsTree;
-        private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer container;
     }
 }

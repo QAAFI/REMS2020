@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Experiments", true, "Design")]
+    [ExcelFormat("Experiments", 1, true, "Design")]
     public class Design : IEntity
     {
         public int DesignId { get; set; }

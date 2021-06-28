@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Data", false, "HarvestData", "PlotData")]
+    [ExcelFormat("Data", 1, false, "HarvestData", "PlotData")]
     public class PlotData : IEntity, IValue
     {
         public int PlotDataId { get; set; }

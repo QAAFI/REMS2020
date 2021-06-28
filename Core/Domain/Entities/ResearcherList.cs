@@ -3,7 +3,7 @@ using Rems.Domain.Attributes;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Experiments", true, "ResearcherList")]
+    [ExcelFormat("Experiments", 1, true, "ResearcherList")]
     public class ResearcherList : IEntity
     {
         public int ResearcherListId { get; set; }
