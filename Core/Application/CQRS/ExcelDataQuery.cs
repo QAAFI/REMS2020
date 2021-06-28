@@ -29,21 +29,21 @@ namespace Rems.Application.CQRS
         {
             var assembly = Assembly.Load("Rems.Domain");
 
-            var types = assembly.GetTypes()
-                .Where(t => t.GetCustomAttribute<ExcelFormat>()?.Format == Format);
+            var anons = assembly.GetTypes()
+                .Select(t => new {Type = t, Format = t.GetCustomAttribute<ExcelFormat>()})
+                .Where(a => a.Format?.Format == Format)
+                .OrderBy(a => a.Format.Dependency);
 
             var data = Data.Tables.OfType<DataTable>();
             var tables = new Dictionary<ExcelTable, ExcelColumn[]>();
 
-            foreach (var type in types)
+            foreach (var a in anons)
             {
-                var format = type.GetCustomAttribute<ExcelFormat>();
-                var names = format.Names;
-                var table = data.FirstOrDefault(t => names.Contains(t.TableName));
+                var table = data.FirstOrDefault(t => a.Format.Names.Contains(t.TableName));
 
-                var excel = new ExcelTable { Data = table, Type = type, Required = format.Required };
+                var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
 
-                tables.Add(excel, GetColumns(table, type));
+                tables.Add(excel, GetColumns(table, a.Type));
             }
 
             return tables;
