@@ -6,12 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Rems.Application.CQRS;
-using Rems.Infrastructure.ApsimX;
-using Rems.Infrastructure;
-
-using WindowsClient.Models;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS;
+using WindowsClient.Models;
+using WindowsClient.Utilities;
 
 namespace WindowsClient.Controls
 {
@@ -300,7 +298,6 @@ namespace WindowsClient.Controls
 
                 exportTracker.AttachRunner(exporter);
 
-                exporter.Query += QueryManager.Request;
                 exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
 
                 await exporter.Run();

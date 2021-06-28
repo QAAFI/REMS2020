@@ -16,9 +16,9 @@ using Models.Surface;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
-using Rems.Persistence;
+using WindowsClient.Utilities;
 
-namespace Rems.Infrastructure.ApsimX
+namespace WindowsClient.Models
 {
     /// <summary>
     /// Manages the construction and output of an .apsimx file
@@ -65,7 +65,7 @@ namespace Rems.Infrastructure.ApsimX
             
             // Find the experiments
             var folder = new Folder() { Name = "Experiments" };
-            var experiments = await InvokeQuery(new ExperimentsQuery());
+            var experiments = await QueryManager.Request(new ExperimentsQuery());
 
             // Convert each experiment into an APSIM model
             foreach (var experiment in experiments)
@@ -100,7 +100,7 @@ namespace Rems.Infrastructure.ApsimX
         /// <param name="children">Any child models to include</param>
         private async Task<T> Request<T>(IRequest<T> query, IEnumerable<IModel> children = null) where T : IModel
         {
-            var model = await InvokeQuery(query);
+            var model = await QueryManager.Request(query);
 
             // Attach child models
             if (children != null) foreach (var child in children)
@@ -168,7 +168,7 @@ namespace Rems.Infrastructure.ApsimX
                     {
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport"),
-                        await InvokeQuery(new ManagersQuery {ExperimentId = id }),
+                        await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery{ ExperimentId = id, Report = summary }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),

@@ -1,10 +1,8 @@
 ﻿using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Infrastructure.Excel;
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -13,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using WindowsClient.Models;
+using WindowsClient.Utilities;
 
 namespace WindowsClient.Controls
 {
@@ -286,7 +285,6 @@ namespace WindowsClient.Controls
                 tracker.AttachRunner(excel);
 
                 excel.TaskFinished += ImportCompleted;
-                excel.Query += QueryManager.Request;
                 await excel.Run();
 
                 // Clean up

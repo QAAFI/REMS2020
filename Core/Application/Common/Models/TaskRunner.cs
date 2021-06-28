@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Rems.Application.Common.Interfaces;
+﻿using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
@@ -20,9 +19,6 @@ namespace Rems.Application.Common
         public event EventHandler<Args<Exception>> TaskFailed;
 
         /// <inheritdoc/>
-        public event EventHandler<RequestArgs<object, Task<object>>> Query;
-
-        /// <inheritdoc/>
         public ProgressReporter Reporter { get; set; }
 
         /// <inheritdoc/>
@@ -30,16 +26,6 @@ namespace Rems.Application.Common
 
         /// <inheritdoc/>
         public abstract int Steps { get; }
-
-        /// <summary>
-        /// Invokes the Query event
-        /// </summary>
-        protected async Task<T> InvokeQuery<T>(IRequest<T> query)
-        {
-            var args = new RequestArgs<object, Task<object>> { Item = query };
-            Query?.Invoke(this, args);
-            return (T)await args.Result;
-        }
 
         /// <summary>
         /// Invokes the NextItem event
@@ -74,7 +60,6 @@ namespace Rems.Application.Common
                 TaskFinished = null;
                 NextItem = null;
                 TaskFailed = null;
-                Query = null;
 
                 disposedValue = true;
             }
@@ -85,8 +70,6 @@ namespace Rems.Application.Common
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
-
-        
+        }        
     }
 }
