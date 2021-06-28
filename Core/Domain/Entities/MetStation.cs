@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", true, "MetStations")]
+    [ExcelFormat("Information", 0, true, "MetStations")]
     public class MetStation : IEntity
     {
         public MetStation()

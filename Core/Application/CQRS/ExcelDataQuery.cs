@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using MediatR;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Attributes;

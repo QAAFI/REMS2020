@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", true, "Researchers")]
+    [ExcelFormat("Information", 0, true, "Researchers")]
     public class Researcher : IEntity
     {
         public Researcher()

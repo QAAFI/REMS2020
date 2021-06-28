@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", true, "SoilLayers")]
+    [ExcelFormat("Information", 1, true, "SoilLayers")]
     public class SoilLayer : IEntity
     {
         public SoilLayer()
@@ -21,10 +21,6 @@ namespace Rems.Domain.Entities
 
         [Expected("ToDepth", "DepthTo")]
         public int ToDepth { get; set; }
-
-        [NotMapped]
-        [Expected("Notes")]
-        public string Notes { get; set; }
 
         [Expected("Soil", "Soil Name", "SoilType")]
         public virtual Soil Soil { get; set; }
