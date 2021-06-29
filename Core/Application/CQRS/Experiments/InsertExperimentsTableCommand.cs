@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
@@ -67,11 +70,47 @@ namespace Rems.Application.CQRS
                 datas = datas.Except(_context.Experiments, new ExperimentComparer());
 
             _context.AddRange(datas.ToArray());
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.InnerException is SqliteException sql)
+                    throw new Exception(GetErrorMessage(sql, e.Entries.First()));                
+            }
 
             return Unit.Value;
         }
         
+        private string GetErrorMessage(SqliteException sql, EntityEntry entry)
+        {
+            var exp = entry.Entity as Experiment;
+            switch (sql.SqliteExtendedErrorCode)
+            {
+                case 787:
+                    var keys = entry.Properties.Select(p => p.Metadata)
+                        .Where(m => m.IsForeignKey());
+
+                    foreach (var prop in keys)
+                    {
+                        var value = prop.PropertyInfo.GetValue(entry.Entity);
+
+                        if (Convert.ToInt32(value) == 0)
+                            return $"No match found in the database for " +
+                                $"{prop.Name} in experiment {exp.Name}";
+                    }
+
+                    return $"Failed to import experiment {exp.Name}," +
+                        $" please ensure all the properties refer to items in the database";
+
+                case 1299:
+                    return $"One of the expected values for {exp.Name} was null.";
+
+                default:
+                    return $"Unrecognised SQLite error code: {sql.SqliteExtendedErrorCode}";
+            }
+        }
     }
 
     /// <summary>

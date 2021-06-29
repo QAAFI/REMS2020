@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
@@ -30,30 +30,28 @@ namespace WindowsClient.Models
         /// </summary>
         public async override Task Run()
         {
+            Application.UseWaitCursor = true;
             try
             {
-                if (! await QueryManager.Request(new ConnectionExists()))
+                if (!await QueryManager.Request(new ConnectionExists()))
                     throw new Exception("No existing database connection");
 
                 foreach (DataTable table in Data)
                     await InsertTable(table);
 
-                Thread.Sleep(500);
-
                 OnTaskFinished();
             }
-            catch(ImportException e)
+            catch (Exception error)
             {
-                OnTaskFailed(e);
+                while (error.InnerException != null) 
+                    error = error.InnerException;
+
+                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            catch (InvalidOperationException)
+            finally
             {
-                OnTaskFailed(new Exception("Import failed. Data contains duplicate measurements."));
+                Application.UseWaitCursor = false;
             }
-            catch (Exception e)
-            {
-                OnTaskFailed(e);
-            }      
         }
 
         /// <summary>
