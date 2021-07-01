@@ -169,7 +169,6 @@ namespace WindowsClient.Controls
                 throw new Exception("Import requested from unknown control type.");
 
             importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
-            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
 
             importer.Name = "Import " + link.Label;
             AttachTab.Invoke(importer, EventArgs.Empty);
@@ -181,9 +180,9 @@ namespace WindowsClient.Controls
 
         private async void OnImportCompleted(object sender, EventArgs args)
         {
-            MessageBox.Show("Import successful!", "");
-
             RemoveTab.Invoke(importer, EventArgs.Empty);
+
+            MessageBox.Show("Import successful!", "");
 
             await DisplayImport();
             await DisplayExperiments();
@@ -286,29 +285,25 @@ namespace WindowsClient.Controls
             if (save.ShowDialog() != DialogResult.OK) return;
 
             Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
-
-            try
+            
+            using var exporter = new ApsimXporter
             {
-                using var exporter = new ApsimXporter
-                {
-                    Experiments = exportList.CheckedItems.Cast<string>(),
-                    FileName = save.FileName,
-                    Manager = FileManager.Instance
-                };
+                Experiments = exportList.CheckedItems.Cast<string>(),
+                FileName = save.FileName,
+                Manager = FileManager.Instance
+            };
 
-                exportTracker.AttachRunner(exporter);
+            exportTracker.AttachRunner(exporter);
 
-                exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
+            var task = exporter.Run();
+            await task.TryRun();
 
-                await exporter.Run();
+            if (task.IsCompletedSuccessfully)
+                MessageBox.Show("Export complete!");
+            else
+                MessageBox.Show("Export failed.\n" + task.Exception.InnerException.Message);
 
-                exportTracker.Reset();
-            }
-            catch (Exception error)
-            {
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                exportTracker.Reset();
-            }
+            exportTracker.Reset();
         }
 
         /// <summary>
@@ -328,7 +323,7 @@ namespace WindowsClient.Controls
                 return;
 
             session = existing;
-            await RefreshSession();
+            await RefreshSession().TryRun();
 
             recentList.SelectedIndex = -1;
         }

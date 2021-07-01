@@ -15,11 +15,6 @@ namespace Rems.Application.Common.Interfaces
         event EventHandler<Args<string>> NextItem;
 
         /// <summary>
-        /// Occurs when the tracker completes its task
-        /// </summary>
-        event EventHandler TaskFinished;
-
-        /// <summary>
         /// Occurs if the tracker fails to complete its task
         /// </summary>
         event EventHandler<Args<Exception>> TaskFailed;

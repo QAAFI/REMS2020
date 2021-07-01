@@ -10,9 +10,6 @@ namespace Rems.Application.Common
         private bool disposedValue;
 
         /// <inheritdoc/>
-        public event EventHandler TaskFinished;
-
-        /// <inheritdoc/>
         public event EventHandler<Args<string>> NextItem;
 
         /// <inheritdoc/>
@@ -34,12 +31,6 @@ namespace Rems.Application.Common
             => NextItem?.Invoke(this, new Args<string> { Item = item });
 
         /// <summary>
-        /// Invokes the TaskFinished event
-        /// </summary>
-        protected void OnTaskFinished()
-            => TaskFinished?.Invoke(this, EventArgs.Empty);
-
-        /// <summary>
         /// Invokes the TaskFailed event
         /// </summary>
         protected void OnTaskFailed(Exception error) 
@@ -57,7 +48,6 @@ namespace Rems.Application.Common
                     // TODO: dispose managed state (managed objects)
                 }
 
-                TaskFinished = null;
                 NextItem = null;
                 TaskFailed = null;
 

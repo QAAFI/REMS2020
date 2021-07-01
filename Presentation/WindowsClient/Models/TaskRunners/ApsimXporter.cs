@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -85,7 +85,7 @@ namespace WindowsClient.Models
                 simulations.Children.Add(model);
 
             // Find the experiments
-            var folder = new Folder() { Name = "Experiments" };
+            var folder = new Folder { Name = "Experiments" };
             var experiments = await QueryManager.Request(new ExperimentsQuery());
 
             // Convert each experiment into an APSIM model
@@ -109,8 +109,6 @@ namespace WindowsClient.Models
 
             // Save the file
             File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
-
-            OnTaskFinished();
         }
 
         /// <summary>

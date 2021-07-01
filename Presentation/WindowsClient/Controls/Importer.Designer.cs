@@ -14,7 +14,6 @@
         protected override void Dispose(bool disposing)
         {
             ImportCompleted = null;
-            StageChanged = null;
             ImportCancelled = null;
             
             dataTree.AfterLabelEdit -= AfterLabelEdit;
