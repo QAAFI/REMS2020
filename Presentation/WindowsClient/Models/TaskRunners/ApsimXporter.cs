@@ -17,6 +17,7 @@ using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Utilities;
+using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {
@@ -45,12 +46,32 @@ namespace WindowsClient.Models
 
         private readonly int numModelsToExport = 29;
 
-        private Markdown summary = new Markdown();        
+        private Markdown summary = new Markdown();
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
+        {
+            Application.UseWaitCursor = true;
+            try
+            {
+                await ExportExperiments();
+            }
+            catch (Exception error)
+            {
+                while (error.InnerException != null)
+                    error = error.InnerException;
+
+                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Application.UseWaitCursor = false;
+            }
+        }
+
+        private async Task ExportExperiments()
         {
             // Reset the markdown report
             summary.Clear();
@@ -62,7 +83,7 @@ namespace WindowsClient.Models
 
             foreach (IModel model in sorghum.Children)
                 simulations.Children.Add(model);
-            
+
             // Find the experiments
             var folder = new Folder() { Name = "Experiments" };
             var experiments = await QueryManager.Request(new ExperimentsQuery());
