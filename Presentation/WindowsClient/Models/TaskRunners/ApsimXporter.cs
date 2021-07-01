@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -52,26 +52,6 @@ namespace WindowsClient.Models
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
-        {
-            Application.UseWaitCursor = true;
-            try
-            {
-                await ExportExperiments();
-            }
-            catch (Exception error)
-            {
-                while (error.InnerException != null)
-                    error = error.InnerException;
-
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Application.UseWaitCursor = false;
-            }
-        }
-
-        private async Task ExportExperiments()
         {
             // Reset the markdown report
             summary.Clear();

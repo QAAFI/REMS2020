@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -29,29 +30,12 @@ namespace WindowsClient.Models
         /// Sequentially insert each table into the database
         /// </summary>
         public async override Task Run()
-        {
-            Application.UseWaitCursor = true;
-            try
-            {
-                if (!await QueryManager.Request(new ConnectionExists()))
-                    throw new Exception("No existing database connection");
+        {            
+            if (!await QueryManager.Request(new ConnectionExists()))
+                throw new Exception("No existing database connection");
 
-                foreach (DataTable table in Data)
-                    await InsertTable(table);
-
-                OnTaskFinished();
-            }
-            catch (Exception error)
-            {
-                while (error.InnerException != null) 
-                    error = error.InnerException;
-
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Application.UseWaitCursor = false;
-            }
+            foreach (DataTable table in Data)
+                await InsertTable(table);       
         }
 
         /// <summary>
