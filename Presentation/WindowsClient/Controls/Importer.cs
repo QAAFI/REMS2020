@@ -181,10 +181,13 @@ namespace WindowsClient.Controls
                     table.Columns.Remove(col);
                 else
                     col.ReplaceName();
-        }                
+        }
 
+        private string storeformat;
         public async Task OpenFile(string format)
         {
+            storeformat = format;
+
             using var open = new OpenFileDialog();
             open.InitialDirectory = Folder;
             open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
@@ -300,7 +303,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) 
         {
-            //await OpenFile();
+            await OpenFile(storeformat);
         }
 
         /// <summary>
