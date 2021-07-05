@@ -56,7 +56,7 @@
             this.groupFile.Controls.Add(this.openLabel);
             this.groupFile.Controls.Add(this.createLabel);
             this.groupFile.Controls.Add(this.recentLabel);
-            this.groupFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupFile.Location = new System.Drawing.Point(4, 3);
             this.groupFile.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupFile.Name = "groupFile";
@@ -74,11 +74,11 @@
             this.recentList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.recentList.FormattingEnabled = true;
             this.recentList.IntegralHeight = false;
-            this.recentList.Location = new System.Drawing.Point(7, 88);
+            this.recentList.Location = new System.Drawing.Point(7, 85);
             this.recentList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.recentList.MultiColumn = true;
             this.recentList.Name = "recentList";
-            this.recentList.Size = new System.Drawing.Size(190, 320);
+            this.recentList.Size = new System.Drawing.Size(190, 323);
             this.recentList.TabIndex = 5;
             // 
             // openLabel
@@ -87,7 +87,7 @@
             this.openLabel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.openLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.openLabel.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.openLabel.Location = new System.Drawing.Point(7, 44);
+            this.openLabel.Location = new System.Drawing.Point(7, 47);
             this.openLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.openLabel.Name = "openLabel";
             this.openLabel.Size = new System.Drawing.Size(80, 13);
@@ -101,7 +101,7 @@
             this.createLabel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.createLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.createLabel.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.createLabel.Location = new System.Drawing.Point(7, 22);
+            this.createLabel.Location = new System.Drawing.Point(7, 28);
             this.createLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.createLabel.Name = "createLabel";
             this.createLabel.Size = new System.Drawing.Size(70, 13);
@@ -113,7 +113,7 @@
             // 
             this.recentLabel.AutoSize = true;
             this.recentLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.recentLabel.Location = new System.Drawing.Point(7, 66);
+            this.recentLabel.Location = new System.Drawing.Point(8, 66);
             this.recentLabel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.recentLabel.Name = "recentLabel";
             this.recentLabel.Size = new System.Drawing.Size(45, 13);
@@ -124,7 +124,7 @@
             // 
             this.groupExport.Controls.Add(this.exportTracker);
             this.groupExport.Controls.Add(this.exportList);
-            this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupExport.Location = new System.Drawing.Point(426, 3);
             this.groupExport.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupExport.Name = "groupExport";
@@ -152,10 +152,10 @@
             this.exportList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.exportList.FormattingEnabled = true;
             this.exportList.IntegralHeight = false;
-            this.exportList.Location = new System.Drawing.Point(7, 22);
+            this.exportList.Location = new System.Drawing.Point(7, 28);
             this.exportList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.exportList.Name = "exportList";
-            this.exportList.Size = new System.Drawing.Size(190, 320);
+            this.exportList.Size = new System.Drawing.Size(190, 314);
             this.exportList.TabIndex = 1;
             // 
             // groupImport
@@ -164,7 +164,7 @@
             this.groupImport.Controls.Add(this.dataLink);
             this.groupImport.Controls.Add(this.expsLink);
             this.groupImport.Controls.Add(this.infoLink);
-            this.groupImport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.groupImport.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.groupImport.Location = new System.Drawing.Point(215, 3);
             this.groupImport.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupImport.Name = "groupImport";

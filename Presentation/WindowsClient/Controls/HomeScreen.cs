@@ -50,8 +50,9 @@ namespace WindowsClient.Controls
 
             sessions = LoadSessions();
             recentList.DataSource = snoisses;
-
             recentList.DoubleClick += OnRecentListDoubleClick;
+            recentList.MouseHover += OnRecentsHover;
+
             exportTracker.TaskBegun += OnExportClick;
         }
 
@@ -327,6 +328,22 @@ namespace WindowsClient.Controls
             await RefreshSession().TryRun();
 
             recentList.SelectedIndex = -1;
+        }
+
+        private ToolTip tip = new ToolTip();
+        private void OnRecentsHover(object sender, EventArgs e)
+        {
+            tip.RemoveAll();
+
+            var mouse = MousePosition;
+            var client = recentList.PointToClient(mouse);
+            int index = recentList.IndexFromPoint(client);
+
+            if (index == -1) return;
+
+            var sess = recentList.Items[index] as Session;
+            var text = sess.DB;
+            tip.SetToolTip(recentList, text);
         }
     }
 }
