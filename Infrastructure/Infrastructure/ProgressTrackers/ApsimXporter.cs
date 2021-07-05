@@ -182,6 +182,7 @@ namespace Rems.Infrastructure.ApsimX
                             b_interception = 1,
                             c_interception = 0,
                             d_interception = 0,
+                            soil_albedo = 0.13,
                             SoilHeatFluxFraction = 0.4,
                             MinimumHeightDiffForNewLayer = 0,
                             NightInterceptionFraction = 0.5,
