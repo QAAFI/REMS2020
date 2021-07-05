@@ -6,16 +6,6 @@ using System.IO;
 namespace WindowsClient.Controls
 {
     /// <summary>
-    /// The current stage of the import
-    /// </summary>
-    public enum Stage
-    {
-        Missing,
-        Validation,
-        Imported
-    }
-
-    /// <summary>
     /// A text link that manages the creation of an importer tab
     /// </summary>
     public partial class ImportLink : UserControl
@@ -38,12 +28,16 @@ namespace WindowsClient.Controls
         /// <summary>
         /// The current stage of the import process
         /// </summary>
-        public Stage Stage
+        public bool HasData 
         {
-            get => stage;
-            set => SetStage(value);
+            get => hasData; 
+            set
+            {
+                hasData = value;
+                image.BackgroundImage = value ? Properties.Resources.ValidOn : Properties.Resources.InvalidOn;
+            }
         }
-        private Stage stage;
+        private bool hasData = false;
 
         /// <summary>
         /// The link text
@@ -54,31 +48,11 @@ namespace WindowsClient.Controls
             set => label.Text = value;
         }
 
-        /// <summary>
-        /// The link icon
-        /// </summary>
-        public Image Image
-        {
-            get => image.BackgroundImage;
-            set => image.BackgroundImage = value;
-        }
-
-        /// <summary>
-        /// The images used by the link
-        /// </summary>
-        public ImageList Images { get; }
-
         public ImportLink()
         {
             InitializeComponent();
 
-            Images = new ImageList();
-
-            Images.Images.Add("Imported", Properties.Resources.ValidOn);
-            Images.Images.Add("Missing", Properties.Resources.InvalidOn);
-            Images.Images.Add("Validation", Properties.Resources.WarningOn);
-
-            SetStage(Stage.Missing);                       
+            image.BackgroundImage = Properties.Resources.InvalidOn;
 
             label.Click += OnClick;
             label.MouseEnter += LabelMouseEnter;
@@ -93,8 +67,7 @@ namespace WindowsClient.Controls
         private void OnClick(object sender, EventArgs e)
         { 
             if (active) Clicked?.Invoke(this, e);
-        }
-        
+        }        
 
         /// <summary>
         /// Changes the label colour on mouse enter
@@ -125,20 +98,7 @@ namespace WindowsClient.Controls
         private void ToggleEnabled(bool value)
         {
             active = value;
-
-            if (active)
-                label.ForeColor = SystemColors.HotTrack;
-            else
-                label.ForeColor = SystemColors.GrayText;
-        }
-
-        /// <summary>
-        /// Sets the current stage of the link
-        /// </summary>
-        private void SetStage(Stage _stage)
-        {
-            stage = _stage;
-            Image = Images.Images[_stage.ToString()];
+            label.ForeColor = active ? SystemColors.HotTrack : SystemColors.GrayText;
         }
     }
 }
