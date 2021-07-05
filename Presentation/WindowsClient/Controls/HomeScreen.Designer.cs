@@ -191,39 +191,33 @@
             // 
             this.dataLink.Active = false;
             this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.dataLink.Image = ((System.Drawing.Image)(resources.GetObject("dataLink.Image")));
             this.dataLink.Label = "Data";
             this.dataLink.Location = new System.Drawing.Point(7, 96);
             this.dataLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataLink.Name = "dataLink";
             this.dataLink.Size = new System.Drawing.Size(190, 29);
-            this.dataLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.dataLink.TabIndex = 2;
             // 
             // expsLink
             // 
             this.expsLink.Active = false;
             this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.expsLink.Image = ((System.Drawing.Image)(resources.GetObject("expsLink.Image")));
             this.expsLink.Label = "Experiments";
             this.expsLink.Location = new System.Drawing.Point(7, 60);
             this.expsLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.expsLink.Name = "expsLink";
             this.expsLink.Size = new System.Drawing.Size(190, 29);
-            this.expsLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.expsLink.TabIndex = 1;
             // 
             // infoLink
             // 
             this.infoLink.Active = false;
             this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.infoLink.Image = ((System.Drawing.Image)(resources.GetObject("infoLink.Image")));
             this.infoLink.Label = "Information";
             this.infoLink.Location = new System.Drawing.Point(7, 24);
             this.infoLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.infoLink.Name = "infoLink";
             this.infoLink.Size = new System.Drawing.Size(190, 29);
-            this.infoLink.Stage = WindowsClient.Controls.Stage.Missing;
             this.infoLink.TabIndex = 0;
             // 
             // HomeScreen

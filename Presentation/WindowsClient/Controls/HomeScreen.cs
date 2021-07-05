@@ -6,12 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Rems.Application.CQRS;
-using Rems.Infrastructure.ApsimX;
-using Rems.Infrastructure;
-
-using WindowsClient.Models;
 using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS;
+using WindowsClient.Models;
+using WindowsClient.Utilities;
 
 namespace WindowsClient.Controls
 {
@@ -44,7 +42,6 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
-            importer.ImportCompleted += OnImportCompleted;
             importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
 
             infoLink.Clicked += OnImportLinkClicked;
@@ -104,7 +101,7 @@ namespace WindowsClient.Controls
             }            
 
             // Change to the new session
-            await RefreshSession();
+            await RefreshSession().TryRun();
         }
 
         /// <summary>
@@ -115,9 +112,15 @@ namespace WindowsClient.Controls
         {
             // Open the DB from the new session
             Manager.DbConnection = session.DB;            
-            Manager.ImportFolder = Path.GetDirectoryName(session.DB);            
+            Manager.ImportFolder = Path.GetDirectoryName(session.DB);
 
-            await DisplayImport();            
+            // Set the link icons based on existing session data
+            infoLink.HasData = session.HasInformation;
+            expsLink.HasData = session.HasExperiments;
+            dataLink.HasData = session.HasData;
+
+            // Update the import display
+            DisplayImport();          
 
             // Reset the export box
             await DisplayExperiments();
@@ -131,12 +134,8 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Activates the <see cref="ImportLink"/> controls if a database is connected
         /// </summary>
-        private async Task DisplayImport()
+        private void DisplayImport()
         {
-            session.HasInformation = await QueryManager.Request(new LoadedInformation());
-            session.HasExperiments = await QueryManager.Request(new LoadedExperiments());
-            session.HasData = await QueryManager.Request(new LoadedData());
-
             // Set visibility based on the session status
             if (!(groupImport.Visible = session is not null))
                 return;
@@ -155,11 +154,7 @@ namespace WindowsClient.Controls
             else
                 text += "\nAble to load data, or click the previous links to include additional content.\n";
 
-            importText.Text = text;
-
-            infoLink.Stage = session.HasInformation ? Stage.Imported : Stage.Missing;
-            expsLink.Stage = session.HasExperiments ? Stage.Imported : Stage.Missing;
-            dataLink.Stage = session.HasData ? Stage.Imported : Stage.Missing;
+            importText.Text = text;            
         }
 
         /// <summary>
@@ -167,11 +162,24 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnImportLinkClicked(object sender, EventArgs args)
         {
-            if (!(sender is ImportLink link))
+            if (sender is not ImportLink link)
                 throw new Exception("Import requested from unknown control type.");
 
-            importer.ImportCompleted += (s, e) => link.Stage = Stage.Imported;
-            importer.ImportFailed += (s, e) => link.Stage = Stage.Missing;
+            // Update session based on completed import
+            importer.ImportCompleted += async (s, e) =>
+            {
+                link.HasData = true;
+                session.HasInformation = infoLink.HasData;
+                session.HasExperiments = expsLink.HasData;
+                session.HasData = dataLink.HasData;
+
+                RemoveTab.Invoke(importer, EventArgs.Empty);
+
+                MessageBox.Show("Import successful!", "");
+
+                DisplayImport();
+                await DisplayExperiments();
+            };
 
             importer.Name = "Import " + link.Label;
             AttachTab.Invoke(importer, EventArgs.Empty);
@@ -179,16 +187,6 @@ namespace WindowsClient.Controls
             importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
 
             await importer.OpenFile(link.Label);
-        }
-
-        private async void OnImportCompleted(object sender, EventArgs args)
-        {
-            MessageBox.Show("Import successful!", "");
-
-            RemoveTab.Invoke(importer, EventArgs.Empty);
-
-            await DisplayImport();
-            await DisplayExperiments();
         }
 
         /// <summary>
@@ -260,7 +258,7 @@ namespace WindowsClient.Controls
             if (sessions.FirstOrDefault(s => s.DB == open.FileName) is Session existing)
             {
                 session = existing;
-                await RefreshSession();
+                await RefreshSession().TryRun();
             }
             else
                 await CreateSession(open.FileName);
@@ -288,30 +286,25 @@ namespace WindowsClient.Controls
             if (save.ShowDialog() != DialogResult.OK) return;
 
             Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
-
-            try
+            
+            using var exporter = new ApsimXporter
             {
-                using var exporter = new ApsimXporter
-                {
-                    Experiments = exportList.CheckedItems.Cast<string>(),
-                    FileName = save.FileName,
-                    Manager = FileManager.Instance
-                };
+                Experiments = exportList.CheckedItems.Cast<string>(),
+                FileName = save.FileName,
+                Manager = FileManager.Instance
+            };
 
-                exportTracker.AttachRunner(exporter);
+            exportTracker.AttachRunner(exporter);
 
-                exporter.Query += QueryManager.Request;
-                exporter.TaskFinished += (s, e) => MessageBox.Show("Export complete!");
+            var task = exporter.Run();
+            await task.TryRun();
 
-                await exporter.Run();
+            if (task.IsCompletedSuccessfully)
+                MessageBox.Show("Export complete!");
+            else
+                MessageBox.Show("Export failed.\n" + task.Exception.InnerException.Message);
 
-                exportTracker.Reset();
-            }
-            catch (Exception error)
-            {
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                exportTracker.Reset();
-            }
+            exportTracker.Reset();
         }
 
         /// <summary>
@@ -331,7 +324,7 @@ namespace WindowsClient.Controls
                 return;
 
             session = existing;
-            await RefreshSession();
+            await RefreshSession().TryRun();
 
             recentList.SelectedIndex = -1;
         }

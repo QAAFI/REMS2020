@@ -7,8 +7,9 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace Rems.Infrastructure.Excel
+namespace WindowsClient.Models
 {
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
@@ -29,37 +30,22 @@ namespace Rems.Infrastructure.Excel
         /// Sequentially insert each table into the database
         /// </summary>
         public async override Task Run()
-        {
-            try
-            {
-                if (! await InvokeQuery(new ConnectionExists()))
-                    throw new Exception("No existing database connection");
+        {            
+            if (!await QueryManager.Request(new ConnectionExists()))
+                throw new Exception("No existing database connection");
 
-                foreach (DataTable table in Data)
-                    await InsertTable(table);
-
-                Thread.Sleep(500);
-
-                OnTaskFinished();
-            }
-            catch (InvalidOperationException)
-            {
-                OnTaskFailed(new Exception("Import failed. Data contains duplicate measurements."));
-            }
-            catch (Exception e)
-            {
-                OnTaskFailed(e);
-            }      
+            foreach (DataTable table in Data)
+                await InsertTable(table);       
         }
 
         /// <summary>
         /// Adds the given data table to the context
         /// </summary>
-        private async Task<Unit> InsertTable(DataTable table)
+        private async Task InsertTable(DataTable table)
         {
             // Skip any table that the importer is ignoring
             if (table.ExtendedProperties["Ignore"] is true)
-                return Unit.Value;
+                return;
 
             OnNextItem(table.TableName);
 
@@ -71,7 +57,7 @@ namespace Rems.Infrastructure.Excel
             switch (table.TableName)
             {
                 case "Design":
-                    await InvokeQuery(new InsertDesignsCommand { Table = table });
+                    await QueryManager.Request(new InsertDesignsCommand { Table = table });
                     command = new InsertPlotsCommand
                     { 
                         Table = table,
@@ -167,8 +153,7 @@ namespace Rems.Infrastructure.Excel
                     };                    
                     break;
             }
-            return await InvokeQuery(command);
+            await QueryManager.Request(command);
         }
-
     }
 }

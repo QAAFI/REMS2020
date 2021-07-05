@@ -111,5 +111,28 @@ namespace WindowsClient.Models
                 foreach (DataGridViewRow row in grid.Rows)                
                     row.Cells[selectedColumn].Selected = true;                
         }
+
+        /// <summary>
+        /// Await a task with exception handling
+        /// </summary>
+        public static async Task TryRun(this Task task)
+        {
+            Application.UseWaitCursor = true;
+            try
+            {
+                await task;
+            }
+            catch (Exception error)
+            {
+                while (error.InnerException != null) 
+                    error = error.InnerException;
+
+                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Application.UseWaitCursor = false;
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ using System;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Experiments", true, "Sowing", "Planting")]
+    [ExcelFormat("Experiments", 1, true, "Sowing", "Planting")]
     public class Sowing : IEntity
     {
         public int SowingId { get; set; }

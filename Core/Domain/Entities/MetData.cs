@@ -4,7 +4,7 @@ using System;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Data", false, "MetData", "Met")]
+    [ExcelFormat("Data", 1, false, "MetData", "Met")]
     public class MetData : IEntity, IValue
     {
         public int MetStationId { get; set; }

@@ -1,10 +1,8 @@
 ﻿using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
-using Rems.Infrastructure.Excel;
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -13,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using WindowsClient.Models;
+using WindowsClient.Utilities;
 
 namespace WindowsClient.Controls
 {
@@ -29,17 +28,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the import is cancelled
         /// </summary>
-        public event EventHandler ImportCancelled;
-
-        /// <summary>
-        /// If the import does not complete successfully
-        /// </summary>
-        public event EventHandler ImportFailed;
-
-        /// <summary>
-        /// Occurs when the current import stage has changed
-        /// </summary>
-        public event EventHandler<Args<Stage>> StageChanged;        
+        public event EventHandler ImportCancelled;    
 
         /// <summary>
         /// The excel data
@@ -192,10 +181,13 @@ namespace WindowsClient.Controls
                     table.Columns.Remove(col);
                 else
                     col.ReplaceName();
-        }                
+        }
 
+        private string storeformat;
         public async Task OpenFile(string format)
         {
+            storeformat = format;
+
             using var open = new OpenFileDialog();
             open.InitialDirectory = Folder;
             open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
@@ -228,8 +220,6 @@ namespace WindowsClient.Controls
 
                 dataTree.SelectedNode = dataTree.TopNode;
 
-                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Validation });
-
                 return true;
             }
             catch (DuplicateNameException e)
@@ -249,48 +239,45 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void RunImporter(object sender, EventArgs args)
         {
-            try
+            bool connected = await QueryManager.Request(new ConnectionExists());
+            if (!connected)
             {
-                bool connected = await QueryManager.Request(new ConnectionExists());
-                if (!connected)
-                {
-                    MessageBox.Show("A database must be opened or created before importing");
-                    return;
-                }
+                MessageBox.Show("A database must be opened or created before importing");
+                return;
+            }
 
-                if (Data is null)
-                {
-                    MessageBox.Show("There is no loaded data to import. Please load and validate data.");
-                    return;
-                }
+            if (Data is null)
+            {
+                MessageBox.Show("There is no loaded data to import. Please load and validate data.");
+                return;
+            }
 
-                var invalid = dataTree.Nodes.OfType<TableNode>()                    
-                    .Where(t => t.Valid is false)
-                    .Any();
+            var invalid = dataTree.Nodes.OfType<TableNode>()                    
+                .Where(t => t.Valid is false)
+                .Any();
 
-                if (invalid)
-                {
-                    MessageBox.Show("All nodes must be valid or ignored before attempting to import");
-                    return;
-                }
+            if (invalid)
+            {
+                MessageBox.Show("All nodes must be valid or ignored before attempting to import");
+                return;
+            }
 
-                // Create and run an importer for the data
-                var data = dataTree.Nodes
-                    .OfType<TableNode>()
-                    .Where(n => !n.Excel.Ignore)
-                    .Select(n => n.Excel.Data)
-                    .OrderBy(t => t.DataSet.Tables.IndexOf(t));
+            // Create and run an importer for the data
+            var data = dataTree.Nodes
+                .OfType<TableNode>()
+                .Where(n => !n.Excel.Ignore)
+                .Select(n => n.Excel.Data)
+                .OrderBy(t => t.DataSet.Tables.IndexOf(t));
 
-                var excel = new ExcelImporter { Data = data };
+            var excel = new ExcelImporter { Data = data };
 
-                tracker.AttachRunner(excel);
+            tracker.AttachRunner(excel);
 
-                excel.TaskFinished += ImportCompleted;
-                excel.Query += QueryManager.Request;
-                await excel.Run();
+            var task = excel.Run();
+            await task.TryRun();
 
-                // Clean up
-                tracker.Reset();
+            if (task.IsCompletedSuccessfully)
+            {
                 excel.Dispose();
                 Data.Dispose();
 
@@ -301,16 +288,10 @@ namespace WindowsClient.Controls
                 });
                 dataTree.Nodes.Clear();
 
-                StageChanged?.Invoke(this, new Args<Stage> { Item = Stage.Imported });
+                ImportCompleted.Invoke(this, EventArgs.Empty);
             }
-            catch (Exception error)
-            {
-                while (error.InnerException != null) error = error.InnerException;
-                MessageBox.Show(error.Message);
-                Application.UseWaitCursor = false;
 
-                ImportFailed?.Invoke(this, EventArgs.Empty);
-            }
+            tracker.Reset();            
         }
 
         #endregion Methods
@@ -322,7 +303,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) 
         {
-            //await OpenFile();
+            await OpenFile(storeformat);
         }
 
         /// <summary>

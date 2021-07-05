@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Rems.Application.Common.Models;
+﻿using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -16,19 +15,9 @@ namespace Rems.Application.Common.Interfaces
         event EventHandler<Args<string>> NextItem;
 
         /// <summary>
-        /// Occurs when the tracker completes its task
-        /// </summary>
-        event EventHandler TaskFinished;
-
-        /// <summary>
         /// Occurs if the tracker fails to complete its task
         /// </summary>
         event EventHandler<Args<Exception>> TaskFailed;
-
-        /// <summary>
-        /// Occurs when the tracker requests data
-        /// </summary>
-        event EventHandler<RequestArgs<object, Task<object>>> Query;
 
         /// <summary>
         /// Used to report the progress of the task

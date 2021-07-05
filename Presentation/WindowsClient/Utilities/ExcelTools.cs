@@ -6,7 +6,7 @@ using System;
 using System.Data;
 using System.IO;
 
-namespace Rems.Infrastructure.Excel
+namespace WindowsClient.Utilities
 {
     public static class ExcelTools
     {

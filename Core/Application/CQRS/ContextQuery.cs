@@ -32,18 +32,15 @@ namespace Rems.Application.CQRS
             }
 
             public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
+                => Task.Run(() => TryRun(request, cancellationToken));
+
+            private TResponse TryRun(TRequest request, CancellationToken cancellationToken)
             {
                 request.token = cancellationToken;
-
-                return Task.Run(() =>
-                {
-                    using var context = _factory.Create();
-                    request._context = context;
-                    return request.Run();
-                });
+                using var context = _factory.Create();
+                request._context = context;
+                return request.Run();
             }
         }
-    }
-
-    
+    }    
 }
