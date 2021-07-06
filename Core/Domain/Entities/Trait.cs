@@ -21,7 +21,7 @@ namespace Rems.Domain.Entities
 
         public int? UnitId { get; set; }
 
-        [Expected("Name", "Trait Name", "Traits", "TraitNames", "Names")]
+        [Expected("Name", "Trait", "Trait Name", "Traits", "TraitNames", "Names")]
         public string Name { get; set; }
 
         [Expected("Type", "Types", "Trait Type", "TraitType")]
