@@ -132,57 +132,6 @@ namespace WindowsClient.Controls
             return node;
         }
 
-        /// <summary>
-        /// Attempts to sanitise raw excel data so it can be read into the database
-        /// </summary>        
-        private async Task CleanData(DataSet data)
-        {
-            dataTree.Nodes.Clear();
-
-            data.FindExperiments();
-
-            foreach (var table in data.Tables.Cast<DataTable>().ToArray())
-            {
-                // Don't import notes or empty tables
-                if (table.TableName == "Notes"
-                    || table.Rows.Count == 0
-                    || (table.TableName == "Experiments" && table.Columns.Count < 3)
-                )
-                {
-                    data.Tables.Remove(table);
-                    continue;
-                }
-
-                await CleanTable(table);
-
-                table.ConvertExperiments();
-            }
-        }
-
-        /// <summary>
-        /// Sanitise a single excel table for import
-        /// </summary>
-        public async Task CleanTable(DataTable table)
-        {
-            // TODO: This is a quick workaround, find better way to handle unknown tables
-            if (table.TableName == "Factors") table.TableName = "Levels";
-            if (table.TableName == "Planting") table.TableName = "Sowing";
-
-            table.RemoveDuplicateRows();
-
-            // Find the type of data stored in the table
-            var entityType = await QueryManager.Request(new EntityTypeQuery() { Name = table.TableName });
-            table.ExtendedProperties["Type"] = entityType ?? throw new Exception("Cannot import unrecognised table: " + table.TableName);
-
-            // Clean columns
-            var cols = table.Columns.Cast<DataColumn>().ToArray();
-            foreach (var col in cols)
-                if (col.ColumnName.Contains("Column"))
-                    table.Columns.Remove(col);
-                else
-                    col.ReplaceName();
-        }
-
         private string storeformat;
         public async Task OpenFile(string format)
         {
@@ -213,7 +162,6 @@ namespace WindowsClient.Controls
             try
             {
                 Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
-                await CleanData(Data);
                 await GenerateNodes(Data, format);
 
                 fileBox.Text = Path.GetFileName(file);

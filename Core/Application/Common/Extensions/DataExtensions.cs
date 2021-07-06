@@ -47,6 +47,13 @@ namespace Rems.Application.Common.Extensions
             foreach (var row in rows) table.Rows.Add(row);
         }
 
+        public static void RemoveEmptyColumns(this DataTable table)
+        {
+            foreach (DataColumn col in table.Columns)
+                if (col.ColumnName.Contains("Column"))
+                    table.Columns.Remove(col);
+        }
+
         /// <summary>
         /// Replace an ExperimentId column with an Experiment column,
         /// referencing the experiments which belong to the DataSet the table is in.
@@ -209,38 +216,6 @@ namespace Rems.Application.Common.Extensions
             // If no property was found
             col.ExtendedProperties["Valid"] = false;
             return null;
-        }
-
-        /// <summary>
-        /// Default name replacements
-        /// </summary>
-        private static readonly Dictionary<string, string> map = new Dictionary<string, string>()
-        {
-            {"ExpID", "ExperimentId" },
-            {"ExpId", "ExperimentId" },
-            {"N%", "Nitrogen" },
-            {"P%", "Phosphorus" },
-            {"K%", "Potassium" },
-            {"Ca%", "Calcium" },
-            {"S%", "Sulfur" },
-            {"Other%", "OtherPercent" },
-            {"amp", "Amplitude" },
-            {"tav", "TemperatureAverage" },
-            {"PlotID", "Plot" },
-            {"Number of Reps", "Repetitions"},
-            {"Reps", "Repetitions" },
-            {"Rep", "Repetition" },
-            {"RepNo", "Repetition" },
-            {"RowSpan", "RowSpace" }
-        };
-
-        /// <summary>
-        /// Replaces column names using the map of default options
-        /// </summary>
-        public static void ReplaceName(this DataColumn col)
-        {
-            if (map.ContainsKey(col.ColumnName))
-                col.ColumnName = map[col.ColumnName];
         }
 
         public static T GetValue<T>(this DataRow row, string column)
