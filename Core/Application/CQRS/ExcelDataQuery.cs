@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Attributes;
 
@@ -34,6 +35,11 @@ namespace Rems.Application.CQRS
                 .Where(a => a.Format?.Format == Format)
                 .OrderBy(a => a.Format.Dependency);
 
+            Data.Tables.Remove("Notes");            
+            Data.FindExperiments();
+            if (Format == "Data")
+                Data.Tables.Remove("Experiments");
+
             var data = Data.Tables.OfType<DataTable>();
             var tables = new Dictionary<ExcelTable, ExcelColumn[]>();
 
@@ -41,8 +47,13 @@ namespace Rems.Application.CQRS
             {
                 var table = data.FirstOrDefault(t => a.Format.Names.Contains(t.TableName));
 
-                var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
+                table.ExtendedProperties["Type"] = a.Type;
+                table.RemoveDuplicateRows();
+                table.ConvertExperiments();
+                table.RemoveEmptyColumns();                
 
+                var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
+                
                 tables.Add(excel, GetColumns(table, a.Type));
             }
 
