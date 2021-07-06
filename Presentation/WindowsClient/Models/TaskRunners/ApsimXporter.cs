@@ -17,7 +17,6 @@ using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Utilities;
-using System.Windows.Forms;
 
 namespace WindowsClient.Models
 {

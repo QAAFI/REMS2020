@@ -10,9 +10,9 @@ namespace WindowsClient.Models
 {
     public class TraitNode : DataNode<ExcelColumn, DataColumn>
     {
-        public override bool Valid => Excel.Ignore || traitExists;
+        public override bool Valid => true;
 
-        private bool traitExists;
+        public bool TraitExists;
 
         public Func<Task> Add;
 
@@ -20,10 +20,12 @@ namespace WindowsClient.Models
         {
             get
             {
-                string key = Valid ? "Valid" : "Invalid";
-                key += Excel.Ignore ? "Off" : "On";
-
-                return key;
+                if (Excel.Ignore)
+                    return "ValidOff";
+                else if (TraitExists)
+                    return "ValidOn";
+                else
+                    return "Add";
             }
         }
 
@@ -51,7 +53,7 @@ namespace WindowsClient.Models
 
             await QueryManager.Request(query);
 
-            traitExists = true;
+            TraitExists = true;
             Root.Refresh();
         }
 
@@ -63,7 +65,7 @@ namespace WindowsClient.Models
             var query = new AddFactorCommand { Name = Excel.Data.ColumnName };
             await QueryManager.Request(query);
 
-            traitExists = true;
+            TraitExists = true;
             Root.Refresh();
         }
 
@@ -84,14 +86,19 @@ namespace WindowsClient.Models
 
             if (Excel.Data is null)
             {
-                traitExists = false;
+                TraitExists = false;
                 return;
             }                
 
             // Test if the trait is in the database
             bool inDB = await QueryManager.Request(new TraitExistsQuery() { Name = Excel.Data.ColumnName });
 
-            traitExists = inDB || InExcel() || await IsFactor();
+            TraitExists = inDB || InExcel() || await IsFactor();
+
+            if (TraitExists)
+                ToolTipText = "REMS found a matching trait";
+            else
+                ToolTipText = "No matching trait found. One will be added upon import";            
         }
 
         private bool InExcel()
