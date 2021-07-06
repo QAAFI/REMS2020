@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -34,21 +34,10 @@ namespace WindowsClient
         /// </summary>
         private void LoadSettings()
         {
-            var local = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
-
-            if (File.Exists(path))
-            {
-                var stream = new FileStream(path, FileMode.Open);
-                var reader = new StreamReader(stream);
-
-                Width = Convert.ToInt32(reader.ReadLine());
-                Height = Convert.ToInt32(reader.ReadLine());
-                Left = Convert.ToInt32(reader.ReadLine());
-                Top  = Convert.ToInt32(reader.ReadLine());
-
-                reader.Close();
-            }
+            Width = Properties.Settings.Default.Width;
+            Height = Properties.Settings.Default.Height;
+            Left = Properties.Settings.Default.Left;
+            Top  = Properties.Settings.Default.Top;
         }
 
         /// <summary>
@@ -56,17 +45,11 @@ namespace WindowsClient
         /// </summary>
         private void SaveSettings()
         {
-            var local = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
-
-            var stream = new FileStream(path, FileMode.Create);
-            var writer = new StreamWriter(stream);
-
-            writer.WriteLine(Width);
-            writer.WriteLine(Height);
-            writer.WriteLine(Left);
-            writer.WriteLine(Top);
-            writer.Close();
+            Properties.Settings.Default.Width = Width;
+            Properties.Settings.Default.Height = Height;
+            Properties.Settings.Default.Left = Left;
+            Properties.Settings.Default.Top = Top;
+            Properties.Settings.Default.Save();
         }
 
         private void OnAttachTab(object sender, EventArgs e)
