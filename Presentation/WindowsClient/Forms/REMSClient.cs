@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common.Interfaces;
 using WindowsClient.Models;
+using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient
 {
@@ -19,10 +20,9 @@ namespace WindowsClient
             InitializeComponent();
 
             QueryManager.Provider = provider;
-            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
             
             LoadSettings();
-            
+
             FormClosed += REMSClientFormClosed;
 
             homeScreen.AttachTab += OnAttachTab;
@@ -34,10 +34,16 @@ namespace WindowsClient
         /// </summary>
         private void LoadSettings()
         {
-            Width = Properties.Settings.Default.Width;
-            Height = Properties.Settings.Default.Height;
-            Left = Properties.Settings.Default.Left;
-            Top  = Properties.Settings.Default.Top;
+            Width = Settings.Default.Width;
+            Height = Settings.Default.Height;
+            Left = Settings.Default.Left;
+            Top  = Settings.Default.Top;
+
+            if (Settings.Default.ImportPath == "")
+                Settings.Default.ImportPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            if (Settings.Default.ExportPath == "")
+                Settings.Default.ExportPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
 
         /// <summary>
@@ -45,11 +51,11 @@ namespace WindowsClient
         /// </summary>
         private void SaveSettings()
         {
-            Properties.Settings.Default.Width = Width;
-            Properties.Settings.Default.Height = Height;
-            Properties.Settings.Default.Left = Left;
-            Properties.Settings.Default.Top = Top;
-            Properties.Settings.Default.Save();
+            Settings.Default.Width = Width;
+            Settings.Default.Height = Height;
+            Settings.Default.Left = Left;
+            Settings.Default.Top = Top;
+            Settings.Default.Save();
         }
 
         private void OnAttachTab(object sender, EventArgs e)

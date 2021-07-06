@@ -6,10 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Models;
 using WindowsClient.Utilities;
+
+using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient.Controls
 {
@@ -20,8 +21,6 @@ namespace WindowsClient.Controls
     {
         public event EventHandler AttachTab;
         public event EventHandler RemoveTab;
-
-        public IFileManager Manager { get; set; }
 
         private Importer importer = new();
         private ExperimentDetailer detailer = new();
@@ -112,8 +111,7 @@ namespace WindowsClient.Controls
         private async Task RefreshSession()
         {
             // Open the DB from the new session
-            Manager.DbConnection = session.DB;            
-            Manager.ImportFolder = Path.GetDirectoryName(session.DB);
+            FileManager.Instance.DbConnection = session.DB;
 
             // Set the link icons based on existing session data
             infoLink.HasData = session.HasInformation;
@@ -235,7 +233,7 @@ namespace WindowsClient.Controls
         {
             using var save = new SaveFileDialog();
 
-            save.InitialDirectory = Manager.ImportFolder;
+            save.InitialDirectory = Settings.Default.ImportPath;
             save.AddExtension = true;
             save.Filter = "SQLite (*.db)|*.db";
             save.RestoreDirectory = true;
@@ -251,7 +249,7 @@ namespace WindowsClient.Controls
         private async void OnOpenClick(object sender, EventArgs e)
         {
             using var open = new OpenFileDialog();
-            open.InitialDirectory = Manager.ImportFolder;
+            open.InitialDirectory = Settings.Default.ImportPath;
             open.Filter = "SQLite (*.db)|*.db";
 
             if (open.ShowDialog() != DialogResult.OK) return;
@@ -264,7 +262,7 @@ namespace WindowsClient.Controls
             else
                 await CreateSession(open.FileName);
 
-            Manager.DbConnection = open.FileName;
+            FileManager.Instance.DbConnection = open.FileName;
         }
 
         /// <summary>
@@ -281,12 +279,12 @@ namespace WindowsClient.Controls
             }
 
             using var save = new SaveFileDialog();
-            save.InitialDirectory = Manager.ExportFolder;
+            save.InitialDirectory = Settings.Default.ExportPath;
             save.Filter = "ApsimNG (*.apsimx)|*.apsimx";
 
             if (save.ShowDialog() != DialogResult.OK) return;
 
-            Manager.ExportFolder = Path.GetDirectoryName(save.FileName);
+            FileManager.Instance.ExportPath = Settings.Default.ExportPath = Path.GetDirectoryName(save.FileName);
             
             using var exporter = new ApsimXporter
             {

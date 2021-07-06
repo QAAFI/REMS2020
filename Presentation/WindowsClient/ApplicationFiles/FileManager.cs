@@ -24,10 +24,10 @@ namespace WindowsClient
         public string DbConnection { get; set; }
 
         /// <inheritdoc/>
-        public string ExportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        public string ExportPath { get; set; }
 
         /// <inheritdoc/>
-        public string ImportFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        public string ImportPath { get; set; }
 
         private DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory() + "/ApplicationFiles");
 

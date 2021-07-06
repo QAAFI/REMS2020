@@ -1,5 +1,4 @@
 ﻿using Rems.Application.Common;
-using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
 using System;
@@ -12,6 +11,7 @@ using System.Windows.Forms;
 
 using WindowsClient.Models;
 using WindowsClient.Utilities;
+using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient.Controls
 {
@@ -35,17 +35,14 @@ namespace WindowsClient.Controls
         /// </summary>
         public DataSet Data { get; set; }
 
-        /// <summary>
-        /// The system folder most recently accessed by the user
-        /// </summary>
-        public string Folder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
         public Importer() : base()
         {
             InitializeComponent();
             Dock = DockStyle.Fill;            
 
             dataTree.ImageList = GetTreeImages();
+
+            Leave += (s, e) => dataTree.Nodes.Clear();
 
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
@@ -138,16 +135,16 @@ namespace WindowsClient.Controls
             storeformat = format;
 
             using var open = new OpenFileDialog();
-            open.InitialDirectory = Folder;
+            open.InitialDirectory = Settings.Default.ImportPath;
             open.Filter = "Excel Files (2007) (*.xlsx;*.xls)|*.xlsx;*.xls";
-
+            
             if (open.ShowDialog() != DialogResult.OK) 
             {
                 ImportCancelled?.Invoke(this, EventArgs.Empty); 
                 return;
             }
 
-            Folder = Path.GetDirectoryName(open.FileName);
+            Settings.Default.ImportPath = Path.GetDirectoryName(open.FileName);
 
             if (!await LoadData(open.FileName, format))
                 ImportCancelled?.Invoke(this, EventArgs.Empty);
@@ -228,13 +225,6 @@ namespace WindowsClient.Controls
             {
                 excel.Dispose();
                 Data.Dispose();
-
-                dataTree.Nodes.ForEach<TableNode>(t =>
-                {
-                    t.Nodes.ForEach<RequiredNode>(c => c.Dispose());
-                    t.Dispose();
-                });
-                dataTree.Nodes.Clear();
 
                 ImportCompleted.Invoke(this, EventArgs.Empty);
             }

@@ -70,5 +70,29 @@ namespace WindowsClient.Properties {
                 this["Top"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ExportPath {
+            get {
+                return ((string)(this["ExportPath"]));
+            }
+            set {
+                this["ExportPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ImportPath {
+            get {
+                return ((string)(this["ImportPath"]));
+            }
+            set {
+                this["ImportPath"] = value;
+            }
+        }
     }
 }
