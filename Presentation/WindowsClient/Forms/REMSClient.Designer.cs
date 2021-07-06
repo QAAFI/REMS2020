@@ -44,7 +44,7 @@
             this.notebook.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.notebook.Name = "notebook";
             this.notebook.SelectedIndex = 0;
-            this.notebook.Size = new System.Drawing.Size(1241, 786);
+            this.notebook.Size = new System.Drawing.Size(792, 460);
             this.notebook.TabIndex = 2;
             // 
             // homeTab
@@ -54,7 +54,7 @@
             this.homeTab.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.homeTab.Name = "homeTab";
             this.homeTab.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.homeTab.Size = new System.Drawing.Size(1233, 758);
+            this.homeTab.Size = new System.Drawing.Size(784, 432);
             this.homeTab.TabIndex = 7;
             this.homeTab.Text = "Home";
             this.homeTab.UseVisualStyleBackColor = true;
@@ -63,17 +63,16 @@
             // 
             this.homeScreen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.homeScreen.Location = new System.Drawing.Point(4, 3);
-            this.homeScreen.Manager = null;
             this.homeScreen.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
             this.homeScreen.Name = "homeScreen";
-            this.homeScreen.Size = new System.Drawing.Size(1225, 752);
+            this.homeScreen.Size = new System.Drawing.Size(776, 426);
             this.homeScreen.TabIndex = 0;
             // 
             // REMSClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1241, 786);
+            this.ClientSize = new System.Drawing.Size(792, 460);
             this.Controls.Add(this.notebook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);

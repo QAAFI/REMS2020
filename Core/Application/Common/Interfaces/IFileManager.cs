@@ -7,9 +7,9 @@ namespace Rems.Application.Common.Interfaces
     {
         string DbConnection { get; set; }
 
-        string ExportFolder { get; set; }
+        string ExportPath { get; set; }
 
-        string ImportFolder { get; set; }
+        string ImportPath { get; set; }
 
         string GetContent(string filename);
 

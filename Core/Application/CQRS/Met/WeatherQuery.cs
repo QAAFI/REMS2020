@@ -54,7 +54,7 @@ namespace Rems.Application.CQRS
 
                 // Create a .met file to output to
                 string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-                var info = Directory.CreateDirectory(_file.ExportFolder + "\\met");
+                var info = Directory.CreateDirectory(_file.ExportPath + "\\met");
 
                 using (var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create))
                 using (var writer = new StreamWriter(stream))

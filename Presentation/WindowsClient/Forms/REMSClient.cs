@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Rems.Application.Common.Interfaces;
 using WindowsClient.Models;
+using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient
 {
@@ -19,10 +20,9 @@ namespace WindowsClient
             InitializeComponent();
 
             QueryManager.Provider = provider;
-            homeScreen.Manager = provider.GetRequiredService<IFileManager>();
             
             LoadSettings();
-            
+
             FormClosed += REMSClientFormClosed;
 
             homeScreen.AttachTab += OnAttachTab;
@@ -34,21 +34,16 @@ namespace WindowsClient
         /// </summary>
         private void LoadSettings()
         {
-            var local = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
+            Width = Settings.Default.Width;
+            Height = Settings.Default.Height;
+            Left = Settings.Default.Left;
+            Top  = Settings.Default.Top;
 
-            if (File.Exists(path))
-            {
-                var stream = new FileStream(path, FileMode.Open);
-                var reader = new StreamReader(stream);
+            if (Settings.Default.ImportPath == "")
+                Settings.Default.ImportPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-                Width = Convert.ToInt32(reader.ReadLine());
-                Height = Convert.ToInt32(reader.ReadLine());
-                Left = Convert.ToInt32(reader.ReadLine());
-                Top  = Convert.ToInt32(reader.ReadLine());
-
-                reader.Close();
-            }
+            if (Settings.Default.ExportPath == "")
+                Settings.Default.ExportPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
 
         /// <summary>
@@ -56,17 +51,11 @@ namespace WindowsClient
         /// </summary>
         private void SaveSettings()
         {
-            var local = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(local) + "\\REMS2020\\settings";
-
-            var stream = new FileStream(path, FileMode.Create);
-            var writer = new StreamWriter(stream);
-
-            writer.WriteLine(Width);
-            writer.WriteLine(Height);
-            writer.WriteLine(Left);
-            writer.WriteLine(Top);
-            writer.Close();
+            Settings.Default.Width = Width;
+            Settings.Default.Height = Height;
+            Settings.Default.Left = Left;
+            Settings.Default.Top = Top;
+            Settings.Default.Save();
         }
 
         private void OnAttachTab(object sender, EventArgs e)
