@@ -240,7 +240,7 @@ namespace WindowsClient.Controls
 
             if (save.ShowDialog() != DialogResult.OK) return;
 
-            await CreateSession(save.FileName);
+            await CreateSession(save.FileName).TryRun();
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace WindowsClient.Controls
                 await RefreshSession().TryRun();
             }
             else
-                await CreateSession(open.FileName);
+                await CreateSession(open.FileName).TryRun();
 
             FileManager.Instance.DbConnection = open.FileName;
         }
