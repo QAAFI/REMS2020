@@ -13,7 +13,7 @@ namespace Rems.Domain.Entities
         public int? TreatmentId { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public string Experiment { get; set; }
 
         [NotMapped]
@@ -21,7 +21,7 @@ namespace Rems.Domain.Entities
         public int Repetition{ get; set; }
 
         [NotMapped]
-        [Expected("Plot")]
+        [Expected("Plot", "PlotID")]
         public string Plot { get; set; }
 
         [Expected("Treatment", "TreatmentName", "Treatment Name")]

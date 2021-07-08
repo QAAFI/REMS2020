@@ -36,7 +36,7 @@ namespace Rems.Domain.Entities
         public string Notes { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public Experiment Experiment { get; set; }
 
         [Expected("Fertilizer", "FertilizerName", "Fertilizer Name")]
