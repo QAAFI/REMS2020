@@ -41,6 +41,7 @@ namespace WindowsClient.Controls
         {
             InitializeComponent();
 
+            importer.ImportCompleted += OnImportCompleted;
             importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
 
             infoLink.Clicked += OnImportLinkClicked;
@@ -164,28 +165,31 @@ namespace WindowsClient.Controls
             if (sender is not ImportLink link)
                 throw new Exception("Import requested from unknown control type.");
 
-            // Update session based on completed import
-            importer.ImportCompleted += async (s, e) =>
-            {
-                link.HasData = true;
-                session.HasInformation = infoLink.HasData;
-                session.HasExperiments = expsLink.HasData;
-                session.HasData = dataLink.HasData;
-
-                RemoveTab.Invoke(importer, EventArgs.Empty);
-
-                MessageBox.Show("Import successful!", "");
-
-                DisplayImport();
-                await DisplayExperiments();
-            };
-
             importer.Name = "Import " + link.Label;
             AttachTab.Invoke(importer, EventArgs.Empty);
 
             importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
 
             await importer.OpenFile(link.Label);
+        }
+
+        private async void OnImportCompleted(object sender, EventArgs e)
+        {
+            if (infoLink.WasClicked)
+                infoLink.WasClicked = !(session.HasInformation = infoLink.HasData = true);
+
+            if (expsLink.WasClicked)
+                expsLink.WasClicked = !(session.HasExperiments = expsLink.HasData = true);
+
+            if (dataLink.WasClicked)
+                dataLink.WasClicked = !(session.HasData = dataLink.HasData = true);
+
+            RemoveTab.Invoke(importer, EventArgs.Empty);
+
+            MessageBox.Show("Import successful!", "");
+
+            DisplayImport();
+            await DisplayExperiments();
         }
 
         /// <summary>
