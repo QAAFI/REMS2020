@@ -59,10 +59,13 @@ namespace Rems.Application.Common.Extensions
         /// referencing the experiments which belong to the DataSet the table is in.
         /// </summary>
         /// <param name="table"></param>
-        public static void ConvertExperiments(this DataTable table)
+        public static void ConvertExperiments(this DataTable table, string[] names)
         {
+            var col = table.Columns.OfType<DataColumn>()
+                .FirstOrDefault(c => names.Contains(c.ColumnName));
+
             // There needs to be an IDs column to convert
-            if (!(table.Columns["ExperimentId"] is DataColumn ids))
+            if (col is not DataColumn ids)
                 return;
 
             // An experiments table is handled seperately
