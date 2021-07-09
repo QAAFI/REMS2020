@@ -14,7 +14,9 @@ namespace WindowsClient.Controls
         /// Occurs when the link is clicked
         /// </summary>
         public event EventHandler Clicked;
-        
+
+        public bool WasClicked { get; set; } = false;
+
         /// <summary>
         /// If the link can be clicked
         /// </summary>
@@ -65,8 +67,12 @@ namespace WindowsClient.Controls
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnClick(object sender, EventArgs e)
-        { 
-            if (active) Clicked?.Invoke(this, e);
+        {
+            if (active)
+            {
+                WasClicked = true;
+                Clicked?.Invoke(this, e);
+            }
         }        
 
         /// <summary>

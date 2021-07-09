@@ -125,6 +125,9 @@ namespace WindowsClient.Controls
                 await cn.Initialise();
             }
 
+            if (node.Traits.Nodes.Count == 0)
+                node.Nodes.Remove(node.Traits);
+
             node.Refresh();
             return node;
         }

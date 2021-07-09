@@ -12,7 +12,7 @@ namespace Rems.Domain.Entities
 
         public int ExperimentId { get; set; }
 
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public virtual Experiment Experiment { get; set; }
 
         [Expected("Researcher", "ResearcherName", "Researcher Name")]

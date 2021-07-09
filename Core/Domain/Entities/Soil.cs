@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
 
         public int SoilId { get; set; }
 
-        [Expected("SoilType", "Type")]
+        [Expected("SoilType", "Soil Type", "Type")]
         public string SoilType { get; set; }
 
         [Expected("Notes")]

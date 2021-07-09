@@ -18,10 +18,10 @@ namespace Rems.Domain.Entities
         [Expected("Cultivar")]
         public string Cultivar { get; set; }
 
-        [Expected("Depth", "PlantingDepth")]
+        [Expected("Depth", "PlantingDepth", "Planting Depth")]
         public double Depth { get; set; }
 
-        [Expected("RowSpace", "RowSpan")]
+        [Expected("RowSpace", "RowSpan", "Row Space")]
         public double RowSpace { get; set; }
 
         [Expected("Population")]
@@ -30,10 +30,10 @@ namespace Rems.Domain.Entities
         [Expected("Notes")]
         public string Notes { get; set; }
 
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public virtual Experiment Experiment { get; set; }
 
-        [Expected("Method", "PlantingMethod")]
+        [Expected("Method", "PlantingMethod", "Planting Method")]
         public virtual Method Method { get; set; }
     }
 }

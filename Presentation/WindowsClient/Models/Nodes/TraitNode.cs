@@ -92,8 +92,8 @@ namespace WindowsClient.Models
 
             // Test if the trait is in the database
             bool inDB = await QueryManager.Request(new TraitExistsQuery() { Name = Excel.Data.ColumnName });
-
-            TraitExists = inDB || InExcel() || await IsFactor();
+            bool isFactor = await IsFactor();
+            TraitExists = inDB || InExcel() || isFactor;
 
             if (TraitExists)
                 ToolTipText = "REMS found a matching trait";
@@ -118,6 +118,12 @@ namespace WindowsClient.Models
         }
 
         private async Task<bool> IsFactor()
-            => await QueryManager.Request(new IsFactorQuery { Name = Excel.Data.ColumnName });
+        {
+            if (Parent?.Text != "Design")
+                return false;
+
+            var query = new IsFactorQuery { Name = Excel.Data.ColumnName };
+            return await QueryManager.Request(query);
+        }
     }
 }
