@@ -1,10 +1,9 @@
 ﻿using Rems.Domain.Attributes;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Information", 1, true, "SoilLayers")]
+    [ExcelFormat("Information", 1, true, "SoilLayer", "SoilLayers")]
     public class SoilLayer : IEntity
     {
         public SoilLayer()
