@@ -16,7 +16,7 @@ namespace Rems.Domain.Entities
 
         public double Value { get; set; }
 
-        [Expected("MetStation")]
+        [Expected("MetStation", "MetStation Name")]
         public virtual MetStation MetStation { get; set; }
         public virtual Trait Trait { get; set; }        
     }

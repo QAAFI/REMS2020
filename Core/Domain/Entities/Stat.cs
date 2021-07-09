@@ -16,7 +16,7 @@ namespace Rems.Domain.Entities
         public int UnitId { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public string Experiment { get; set; }
 
         [Expected("Date")]
@@ -34,7 +34,7 @@ namespace Rems.Domain.Entities
         [Expected("Trait")]
         public virtual Trait Trait { get; set; }
 
-        [Expected("Treatment")]
+        [Expected("Treatment", "Treatment Name")]
         public virtual Treatment Treatment { get; set; }
 
         [Expected("Units", "Unit")]

@@ -15,7 +15,7 @@ namespace Rems.Domain.Entities
         public int TraitId { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public string Experiment { get; set; }
 
         [Expected("Date")]
