@@ -47,10 +47,13 @@ namespace Rems.Application.CQRS
             {
                 var table = data.FirstOrDefault(t => a.Format.Names.Contains(t.TableName));
 
-                table.ExtendedProperties["Type"] = a.Type;
-                table.RemoveDuplicateRows();
-                table.ConvertExperiments();
-                table.RemoveEmptyColumns();                
+                if (table is not null)
+                {
+                    table.ExtendedProperties["Type"] = a.Type;
+                    table.RemoveDuplicateRows();
+                    table.ConvertExperiments();
+                    table.RemoveEmptyColumns();
+                }
 
                 var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
                 
