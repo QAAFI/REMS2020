@@ -14,7 +14,7 @@ namespace Rems.Domain.Entities
         public int TraitId { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public string Experiment { get; set; }
 
         [Expected("Date")]
@@ -22,7 +22,7 @@ namespace Rems.Domain.Entities
 
         public double Value { get; set; }
 
-        [Expected("Plot")]
+        [Expected("Plot", "PlotID")]
         public virtual Plot Plot { get; set; }
 
         public virtual Trait Trait { get; set; }

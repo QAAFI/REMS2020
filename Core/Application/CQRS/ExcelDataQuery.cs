@@ -35,7 +35,9 @@ namespace Rems.Application.CQRS
                 .Where(a => a.Format?.Format == Format)
                 .OrderBy(a => a.Format.Dependency);
 
-            Data.Tables.Remove("Notes");            
+            if (Data.Tables.OfType<DataTable>().Any(t => t.TableName == "Notes"))
+                Data.Tables.Remove("Notes");
+            
             Data.FindExperiments();
             if (Format == "Data")
                 Data.Tables.Remove("Experiments");
@@ -50,13 +52,16 @@ namespace Rems.Application.CQRS
                 if (table is not null)
                 {
                     table.ExtendedProperties["Type"] = a.Type;
-                    table.RemoveDuplicateRows();
-                    table.ConvertExperiments();
+                    table.RemoveDuplicateRows();                    
                     table.RemoveEmptyColumns();
+
+                    if (a.Type.GetProperty("Experiment") is PropertyInfo info)
+                        table.ConvertExperiments(info.GetCustomAttribute<Expected>().Names);
                 }
 
+
+
                 var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
-                
                 tables.Add(excel, GetColumns(table, a.Type));
             }
 

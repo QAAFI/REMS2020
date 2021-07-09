@@ -15,21 +15,21 @@ namespace Rems.Domain.Entities
         public int TraitId { get; set; }
 
         [NotMapped]
-        [Expected("Experiment")]
+        [Expected("Experiment", "ExpID")]
         public string Experiment { get; set; }
 
         [Expected("Date")]
         public DateTime Date { get; set; }
 
-        [Expected("DepthFrom")]
+        [Expected("DepthFrom", "Depth From")]
         public int DepthFrom { get; set; }
 
-        [Expected("DepthTo")]
+        [Expected("DepthTo", "Depth To")]
         public int DepthTo { get; set; }
 
         public double Value { get; set; }
 
-        [Expected("Plot")]
+        [Expected("Plot", "PlotID")]
         public virtual Plot Plot { get; set; }
 
         public virtual Trait Trait { get; set; }
