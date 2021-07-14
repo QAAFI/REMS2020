@@ -27,16 +27,6 @@ namespace WindowsClient.Controls
 
         private Session session;
 
-        /// <summary>
-        /// All known sessions
-        /// </summary>
-        private List<Session> sessions { get; }
-
-        /// <summary>
-        /// The list of sessions reversed
-        /// </summary>
-        private List<Session> snoisses => sessions.Reverse<Session>().ToList();
-
         public HomeScreen()
         {
             InitializeComponent();
@@ -48,8 +38,8 @@ namespace WindowsClient.Controls
             expsLink.Clicked += OnImportLinkClicked;
             dataLink.Clicked += OnImportLinkClicked;
 
-            sessions = LoadSessions();
-            recentList.DataSource = snoisses;
+            recentList.Items.AddRange(LoadSessions().ToArray());
+            recentList.MouseDown += OnRecentListClick;
             recentList.DoubleClick += OnRecentListDoubleClick;
             recentList.MouseHover += OnRecentsHover;
 
@@ -82,7 +72,7 @@ namespace WindowsClient.Controls
             Directory.CreateDirectory(path + "\\REMS2020");
             string file = path + "\\REMS2020\\sessions.json";
 
-            JsonTools.SaveJson(file, sessions);
+            JsonTools.SaveJson(file, recentList.Items.OfType<Session>());
         }
 
         /// <summary>
@@ -93,11 +83,11 @@ namespace WindowsClient.Controls
         private async Task CreateSession(string file)
         {
             session = new Session { DB = file };
-
+            
             // If overwriting a .db, remove the old session
-            if (sessions.Find(s => s.DB == file) is Session s)
+            if (recentList.Items.OfType<Session>().FirstOrDefault(s => s.DB == file) is Session s)
             {
-                sessions.Remove(s);
+                recentList.Items.Remove(s);
                 File.Delete(file);
             }            
 
@@ -220,14 +210,12 @@ namespace WindowsClient.Controls
         public void UpdateRecents()
         {
             // Reorder the list
-            sessions.Remove(session);
-            sessions.Add(session);
+            recentList.Items.Remove(session);
+            recentList.Items.Insert(0, session);
 
             // Limit the number of sessions to 8
-            if (sessions.Count > 8)
-                sessions.RemoveAt(0);
-
-            recentList.DataSource = snoisses;
+            if (recentList.Items.Count > 8)
+                recentList.Items.RemoveAt(7);
         }
 
         /// <summary>
@@ -258,7 +246,7 @@ namespace WindowsClient.Controls
 
             if (open.ShowDialog() != DialogResult.OK) return;
 
-            if (sessions.FirstOrDefault(s => s.DB == open.FileName) is Session existing)
+            if (recentList.Items.OfType<Session>().FirstOrDefault(s => s.DB == open.FileName) is Session existing)
             {
                 session = existing;
                 await RefreshSession().TryRun();
@@ -316,6 +304,32 @@ namespace WindowsClient.Controls
         public void Close()
         {
             SaveSessions();
+        }
+
+        private void OnRecentListClick(object sender, MouseEventArgs e)
+        {
+            // On right click
+            if (e.Button == MouseButtons.Right)
+            {
+                var point = recentList.PointToClient(MousePosition);
+                int index = recentList.IndexFromPoint(point);
+
+                var menu = new ContextMenuStrip();
+                if (index != -1)
+                {
+                    recentList.SelectedIndex = index;
+                    EventHandler handler = (s, e) => { recentList.Items.RemoveAt(index); };
+                    var item = new ToolStripMenuItem("Clear", null, handler);
+                    menu.Items.Add(item);
+                }
+                else
+                {
+                    EventHandler handler = (s, e) => recentList.Items.Clear();
+                    var item = new ToolStripMenuItem("Clear all", null, handler);
+                    menu.Items.Add(item);
+                }
+                menu.Show(MousePosition);
+            }
         }
 
         /// <summary>
