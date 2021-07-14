@@ -86,11 +86,11 @@ namespace Rems.Application.CQRS
         private string GetErrorMessage(SqliteException sql, EntityEntry entry)
         {
             var exp = entry.Entity as Experiment;
+            var metas = entry.Properties.Select(p => p.Metadata);
             switch (sql.SqliteExtendedErrorCode)
             {
                 case 787:
-                    var keys = entry.Properties.Select(p => p.Metadata)
-                        .Where(m => m.IsForeignKey());
+                    var keys = metas.Where(m => m.IsForeignKey());
 
                     foreach (var prop in keys)
                     {
@@ -98,13 +98,28 @@ namespace Rems.Application.CQRS
 
                         if (Convert.ToInt32(value) == 0)
                             return $"No match found in the database for " +
-                                $"{prop.Name} in experiment {exp.Name}";
+                                $"{prop.Name} in experiment {exp.Name}. " +
+                                $"Please ensure the appropriate information is loaded before " +
+                                $"importing experiments.";
                     }
 
                     return $"Failed to import experiment {exp.Name}," +
                         $" please ensure all the properties refer to items in the database";
 
                 case 1299:
+                    var nulls = metas.Where(m => !m.IsNullable);
+
+                    foreach (var prop in nulls)
+                    {
+                        var value = prop.PropertyInfo.GetValue(entry.Entity);
+
+                        if (value is null)
+                            return $"No match found for required value " +
+                                $"{prop.Name} in experiment {exp.Name}. " +
+                                $"Please ensure the appropriate information is loaded before " +
+                                $"importing experiments.";
+                    }
+
                     return $"One of the expected values for {exp.Name} was null.";
 
                 default:

@@ -31,13 +31,11 @@ namespace Rems.Application.CQRS
 
             var columns = names.Select(n => new DataColumn(n, type)).ToArray();
 
-            table.Columns.Add(new DataColumn("Treatment"));
             table.Columns.AddRange(columns);
 
             foreach (var treatment in exp.Treatments)
             {
                 var row = table.NewRow();
-                row["Treatment"] = treatment.Name;
                 foreach (var design in treatment.Designs) 
                     row[design.Level.Factor.Name] = design.Level.Name;
 
