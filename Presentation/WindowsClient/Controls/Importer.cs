@@ -244,6 +244,8 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) 
         {
+            Data = null;
+            dataTree.Nodes.Clear();
             await OpenFile(storeformat);
         }
 
