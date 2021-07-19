@@ -80,7 +80,6 @@ namespace WindowsClient.Controls
         {
             container.Panel2.Controls.Clear();
             container.Panel2.Controls.Add(control);
-            control.Dock = DockStyle.Fill;            
         }
     }
 }

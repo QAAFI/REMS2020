@@ -24,8 +24,7 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override KeyValuePair<int, string>[] Run()
         {
-            return _context.Treatments
-                .Where(t => t.ExperimentId == ExperimentId)
+            return _context.Experiments.Find(ExperimentId).Treatments
                 .Select(t => new KeyValuePair<int, string>(t.TreatmentId, t.Name))
                 .ToArray();
         }

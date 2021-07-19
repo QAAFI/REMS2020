@@ -33,14 +33,13 @@ namespace WindowsClient.Controls
 
         public OperationsChart()
         {
-            InitializeComponent();
-            InitialiseChart();            
+            InitializeComponent();         
         }
 
         /// <summary>
         /// Sets the default style of the chart
         /// </summary>
-        private void InitialiseChart()
+        public async Task Initialise(int experiment)
         {
             // General options
             tChart.Text = "Operations";

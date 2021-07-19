@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,8 +25,22 @@ namespace WindowsClient.Controls
 
         public SoilChart()
         {
-            InitializeComponent();            
+            InitializeComponent();
 
+            var tip = new ToolTip();
+
+            plotsBox.SelectedIndex = 0;
+            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
+
+            traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
+            traitsBox.SelectedIndexChanged += OnTraitSelected;
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        public async Task Initialise(int experiment)
+        {
             // Set the titles
             tChart.Text = "Soil Traits";
             chart.Axes.Left.Title.Text = "Depth";
@@ -46,14 +60,6 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.AutomaticMinimum = false;
             chart.Axes.Bottom.Maximum = 1;
             chart.Axes.Bottom.AutomaticMaximum = false;
-
-            var tip = new ToolTip();
-
-            plotsBox.SelectedIndex = 0;
-            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
-
-            traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
-            traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
         private async void OnTraitSelected(object sender, EventArgs e) 

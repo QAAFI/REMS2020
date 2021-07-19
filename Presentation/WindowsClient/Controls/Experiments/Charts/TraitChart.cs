@@ -25,7 +25,6 @@ namespace WindowsClient.Controls
         public TraitChart()
         {
             InitializeComponent();
-            InitialiseChart();
 
             var tip = new ToolTip();
 
@@ -39,7 +38,7 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Sets the default style of the chart
         /// </summary>
-        private void InitialiseChart()
+        public async Task Initialise(int experiment)
         {
             // Set the titles
             tChart.Text = "Crop Traits";
@@ -48,6 +47,7 @@ namespace WindowsClient.Controls
 
             // Set the margins
             chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
+            chart.Panel.MarginLeft = 10;
             chart.Panel.MarginRight = 20;
             chart.Panel.MarginBottom = 30;
 
@@ -60,6 +60,11 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Labels.Angle = 60;
             chart.Axes.Bottom.Ticks.Visible = true;
             chart.Axes.Bottom.Title.AutoPosition = true;
+            
+            var begin = await QueryManager.Request(new BeginQuery { ID = experiment });
+            var end = await QueryManager.Request(new EndQuery { ID = experiment });
+            chart.Axes.Bottom.Minimum = begin.ToOADate();
+            chart.Axes.Bottom.Maximum = end.ToOADate();
         }
 
         private async void UpdateTitle()
