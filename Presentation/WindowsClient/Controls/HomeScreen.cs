@@ -189,6 +189,9 @@ namespace WindowsClient.Controls
         {
             exportList.Items.Clear();
 
+            groupExport.Visible = false;
+            RemoveTab.Invoke(detailer, EventArgs.Empty);
+
             if (session.HasExperiments)
             {
                 groupExport.Visible = true;
@@ -198,12 +201,8 @@ namespace WindowsClient.Controls
 
                 exportList.Items.AddRange(items);
 
+                await detailer.LoadTreeView();
                 AttachTab.Invoke(detailer, EventArgs.Empty);
-            }
-            else
-            {
-                groupExport.Visible = false;
-                RemoveTab.Invoke(detailer, EventArgs.Empty);
             }
         }
 

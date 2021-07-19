@@ -26,16 +26,22 @@ namespace Rems.Application.CQRS
 
             var table = new DataTable("Designs");
 
-            var names = _context.Factors.Select(f => f.Name).Distinct();
+            var names = exp.Treatments
+                .SelectMany(f => f.Designs)
+                .Select(d => d.Level.Factor.Name)
+                .Distinct();
+
             var type = "".GetType();
 
             var columns = names.Select(n => new DataColumn(n, type)).ToArray();
 
+            table.Columns.Add("Name");
             table.Columns.AddRange(columns);
 
             foreach (var treatment in exp.Treatments)
             {
                 var row = table.NewRow();
+                row["Name"] = treatment.Name;
                 foreach (var design in treatment.Designs) 
                     row[design.Level.Factor.Name] = design.Level.Name;
 
