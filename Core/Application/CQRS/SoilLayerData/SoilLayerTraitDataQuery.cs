@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all the data for a soil layer trait in a plot on the given date
     /// </summary>
-    public class SoilLayerTraitDataQuery : ContextQuery<SeriesData<double, int>>
+    public class SoilLayerTraitDataQuery : TraitDataQuery<double, int>
     {
         /// <summary>
         /// The date
@@ -19,11 +19,6 @@ namespace Rems.Application.CQRS
         /// The source plot
         /// </summary>
         public int PlotId { get; set; }
-
-        /// <summary>
-        /// The trait
-        /// </summary>
-        public string TraitName { get; set; }
 
         /// <inheritdoc/>
         public class Handler : BaseHandler<SoilLayerTraitDataQuery>

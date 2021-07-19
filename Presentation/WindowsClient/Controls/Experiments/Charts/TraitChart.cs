@@ -1,10 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
+using Steema.TeeChart.Styles;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -29,10 +31,10 @@ namespace WindowsClient.Controls
             var tip = new ToolTip();
 
             plotsBox.SelectedIndex = 0;
-            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
+            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
 
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
-            traitsBox.SelectedIndexChanged += OnTraitSelected;            
+            traitsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
         }
 
         /// <summary>
@@ -69,9 +71,6 @@ namespace WindowsClient.Controls
 
         private async void UpdateTitle()
             => chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
-
-        private async void OnTraitSelected(object sender, EventArgs e) 
-            => await LoadPlots();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -127,90 +126,47 @@ namespace WindowsClient.Controls
         }        
 
         public async Task LoadPlots()
-        {
-            chart.Series.Clear();
+        {            
+            string xtitle = "";
+            string ytitle = "";
+
+            List<SeriesData<DateTime, double>> datas = new();
+            Action<SeriesData<DateTime, double>> action = data =>
+            {
+                datas.Add(data);
+                xtitle = data.XName;
+                ytitle = data.YName;
+            };
 
             if (plotsBox.SelectedItem.ToString() == "All")
-                await UpdateAll();
+                foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
+                    await new PlotDataByTraitQuery
+                    {
+                        TraitName = "",
+                        PlotId = plot.Key
+                    }.IterateTraits(traits, action);
 
             else if (plotsBox.SelectedItem.ToString() == "Mean")
-                await UpdateMean();
+                await new MeanCropTraitDataQuery
+                {
+                    TraitName = "",
+                    TreatmentId = Treatment
+                }.IterateTraits(traits, action);
 
             else if (plotsBox.SelectedItem is PlotDTO plot)
-                await UpdateSingle(plot.ID);
-        }
-
-        /// <summary>
-        /// Updates the displayed data for a single plot
-        /// </summary>
-        /// <param name="id">The plot ID</param>
-        /// <param name="node">The selected node</param>
-        public async Task UpdateSingle(int id)
-        {
-            tChart.Text = "Trait values for a treatment plot";
-
-            foreach (string trait in traits)
-            {
-                var query = new PlotDataByTraitQuery
+                await new PlotDataByTraitQuery
                 {
-                    TraitName = trait,
-                    PlotId = id
-                };
+                    TraitName = "",
+                    PlotId = plot.ID
+                }.IterateTraits(traits, action);
 
-                var data = await QueryManager.Request(query);
-                data.AddToChart(chart);
-            }
+            chart.Series.Clear();
+            datas.ForEach(d => d.AddToSeries(chart.Series));
+
+            chart.Axes.Bottom.Title.Text = xtitle;
+            chart.Axes.Left.Title.Text = ytitle;
 
             UpdateTitle();
-        }
-
-        /// <summary>
-        /// Updates the displayed data for the average of all plots in a treatment
-        /// </summary>
-        /// <param name="id">The treatment ID</param>
-        /// <param name="node">The selected node</param>
-        public async Task UpdateMean()
-        {
-            tChart.Text = "Average trait values across all treatment plots";
-
-            foreach (string trait in traits)
-            {
-                var query = new MeanCropTraitDataQuery
-                {
-                    TraitName = trait,
-                    TreatmentId = Treatment
-                };
-
-                var data = await QueryManager.Request(query);
-                data.AddToChart(chart);
-            }
-
-            UpdateTitle();
-        }
-
-        /// <summary>
-        /// Updates the displayed data for all the plots in a treatment
-        /// </summary>
-        /// <param name="id">The treatment ID</param>
-        public async Task UpdateAll()
-        {
-            tChart.Text = "Comparison of trait values across all treatment plots";
-
-            foreach (string trait in traits)
-            {
-                var query = new AllCropTraitDataQuery
-                {
-                    TraitName = trait,
-                    TreatmentId = Treatment
-                };
-
-                var series = await QueryManager.Request(query);
-
-                foreach (var data in series)
-                    data.AddToChart(chart);
-            }
-
-            UpdateTitle();
-        }        
+        }    
     }
 }

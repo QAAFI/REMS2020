@@ -8,17 +8,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average value of a soil trait in a treatment for a given date
     /// </summary>
-    public class MeanSoilTraitDataQuery : ContextQuery<SeriesData<double, int>>
+    public class MeanSoilTraitDataQuery : TraitDataQuery<double, int>
     {
         /// <summary>
         /// The source treatment
         /// </summary>
         public int TreatmentId { get; set; }
-
-        /// <summary>
-        /// The trait
-        /// </summary>
-        public string TraitName { get; set; }
 
         /// <summary>
         /// The date
