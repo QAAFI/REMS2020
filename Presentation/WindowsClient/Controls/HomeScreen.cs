@@ -23,7 +23,7 @@ namespace WindowsClient.Controls
         public event EventHandler RemoveTab;
 
         private Importer importer = new();
-        private ExperimentDetailer detailer = new();
+        private ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
 
         private Session session;
 
