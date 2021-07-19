@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,6 +61,9 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Ticks.Visible = true;
             chart.Axes.Bottom.Title.AutoPosition = true;
         }
+
+        private async void UpdateTitle()
+            => chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
 
         private async void OnTraitSelected(object sender, EventArgs e) 
             => await LoadPlots();
@@ -152,6 +155,8 @@ namespace WindowsClient.Controls
                 var data = await QueryManager.Request(query);
                 data.AddToChart(chart);
             }
+
+            UpdateTitle();
         }
 
         /// <summary>
@@ -174,6 +179,8 @@ namespace WindowsClient.Controls
                 var data = await QueryManager.Request(query);
                 data.AddToChart(chart);
             }
+
+            UpdateTitle();
         }
 
         /// <summary>
@@ -197,6 +204,8 @@ namespace WindowsClient.Controls
                 foreach (var data in series)
                     data.AddToChart(chart);
             }
+
+            UpdateTitle();
         }        
     }
 }
