@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
-using Steema.TeeChart.Styles;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -192,6 +191,11 @@ namespace WindowsClient.Controls
 
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
+
+            chart.Legend.AutoSize = false;
+            chart.Legend.HorizMargin = -2;
+            chart.Legend.Alignment = LegendAlignments.Right;
+            chart.Legend.Width = 120;
         }     
     }
 }

@@ -50,7 +50,7 @@ namespace WindowsClient.Controls
             // Set the margins
             chart.Panel.MarginUnits = Steema.TeeChart.PanelMarginUnits.Pixels;
             chart.Panel.MarginLeft = 10;
-            chart.Panel.MarginRight = 20;
+            chart.Panel.MarginRight = 0;
             chart.Panel.MarginBottom = 30;
 
             // Force the Y-Axis to stop at 0
@@ -165,6 +165,11 @@ namespace WindowsClient.Controls
 
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
+
+            chart.Legend.AutoSize = false;
+            chart.Legend.HorizMargin = -2;
+            chart.Legend.Alignment = LegendAlignments.Right;
+            chart.Legend.Width = 120;
 
             UpdateTitle();
         }    
