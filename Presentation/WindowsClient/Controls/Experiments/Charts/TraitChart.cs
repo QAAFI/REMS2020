@@ -19,15 +19,7 @@ namespace WindowsClient.Controls
         /// <inheritdoc/>
         public int Treatment { get; set; }
 
-        private Chart chart => tChart.Chart;
-
-        private class ListPair
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-
-            public override string ToString() => $"{Name} ({Description})";
-        }
+        private Chart chart => tChart.Chart;        
 
         private string[] traits => traitsBox.SelectedItems.OfType<ListPair>().Select(p => p.Name).ToArray();
 
@@ -50,7 +42,6 @@ namespace WindowsClient.Controls
             // Set the legend
             chart.Legend.HorizMargin = -2;
             chart.Legend.Title.Visible = true;
-            chart.Legend.LegendStyle = LegendStyles.Series;
 
             // Set the titles
             tChart.Text = "Crop Traits";
@@ -84,9 +75,6 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Minimum = begin.ToOADate();
             chart.Axes.Bottom.Maximum = end.ToOADate();
         }
-
-        private async void UpdateTitle()
-            => chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -188,7 +176,7 @@ namespace WindowsClient.Controls
 
             chart.Legend.Width = 120;
 
-            UpdateTitle();
+            chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
         }    
     }
 }
