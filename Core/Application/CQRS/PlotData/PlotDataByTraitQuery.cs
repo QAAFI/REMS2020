@@ -9,18 +9,13 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds data for a trait in a plot
     /// </summary>
-    public class PlotDataByTraitQuery : ContextQuery<SeriesData<DateTime, double>>
+    public class PlotDataByTraitQuery : TraitDataQuery<DateTime, double>
     {
         /// <summary>
         /// The source plot
         /// </summary>
         public int PlotId { get; set; }
-
-        /// <summary>
-        /// The trait to search for
-        /// </summary>
-        public string TraitName { get; set; }
-
+                
         /// <inheritdoc/>
         public class Handler : BaseHandler<PlotDataByTraitQuery>
         {
@@ -58,13 +53,18 @@ namespace Rems.Application.CQRS
             var x = rep.Select(p => p.Repetition).First();
             string name = TraitName + " " + x;
 
+            string units = _context.Traits
+                .FirstOrDefault(t => t.Name == TraitName)
+                ?.Unit
+                ?.Name;
+
             var series = new SeriesData<DateTime, double>
             {
                 Name = name,
                 X = dates,
                 Y = values,
-                XName = "Value",
-                YName = "Date"
+                XName = "Date",
+                YName = $"Value ({units})"
             };
 
             return series;

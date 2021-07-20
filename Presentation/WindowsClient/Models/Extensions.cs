@@ -3,9 +3,11 @@ using Rems.Application.CQRS;
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,19 +15,29 @@ namespace WindowsClient.Models
 {
     public static class Extensions
     {
+        public static async Task IterateTraits<TX, TY>(this TraitDataQuery<TX, TY> query, IEnumerable<string> traits, Action<SeriesData<TX, TY>> action)
+        {
+            foreach (string trait in traits)
+            {
+                query.TraitName = trait;
+                var input = await QueryManager.Request(query);
+                action(input);
+            }
+        }
+
         /// <summary>
         /// Adds data to a chart
         /// </summary>
-        /// <param name="series">The data</param>
+        /// <param name="data">The data</param>
         /// <param name="chart">The chart</param>
         /// <param name="vertical">If the data is ordered vertically, not horizontally</param>
-        public static void AddToChart<TX, TY>(this SeriesData<TX, TY> series, Chart chart, bool vertical = false)
+        public static void AddToSeries<TX, TY>(this SeriesData<TX, TY> data, SeriesCollection series, bool vertical = false)
         {
-            if (series is null) return;
-            if (series.X.Length == 0) return;            
+            if (data is null) return;
+            if (data.X.Length == 0) return;            
 
             Points points = new();
-            points.Legend.Text = series.Name;
+            points.Legend.Text = data.Name;
 
             Line line = new();
             line.Legend.Visible = false;
@@ -44,10 +56,10 @@ namespace WindowsClient.Models
                 line.XValues.DateTime = true;
             }
 
-            for (int i = 0; i < series.X.Length; i++)
+            for (int i = 0; i < data.X.Length; i++)
             {
-                var x = series.X[i];
-                var y = series.Y[i];
+                var x = data.X[i];
+                var y = data.Y[i];
 
                 if (x is DateTime x1 && y is double y1)
                 {
@@ -63,12 +75,11 @@ namespace WindowsClient.Models
                     throw new Exception("Unrecognised series data type");
             }            
 
-            chart.Series.Add(line);
-            chart.Series.Add(points);
-
+            series.Add(line);
+            series.Add(points);
             line.Color = points.Color;
-        }
-        
+        }        
+
         /// <summary>
         /// Override the formatting of columns in a <see cref="DataGridView"/>
         /// </summary>
@@ -133,6 +144,35 @@ namespace WindowsClient.Models
             {
                 Application.UseWaitCursor = false;
             }
+        }
+
+        public static string WordWrap(this string text, int length)
+        {
+            var builder = new StringBuilder();
+            int line = 0;
+            foreach (string word in text.Split(' '))
+            {
+                line += word.Length + 1;
+
+                if (word.Length > length)
+                {
+                    builder.Append(word.Substring(0, length));
+
+                    var sub = word.Substring(length);
+                    builder.Append('\n' + sub + ' ');
+
+                    line = sub.Length + 1;
+                }
+                else if (line > length)
+                {
+                    line = word.Length + 1;
+                    builder.Append('\n' + word + ' ');
+                }
+                else
+                    builder.Append(word + ' ');
+            }
+
+            return builder.ToString();
         }
     }
 }

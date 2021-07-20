@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.plotsBox = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.traitsBox = new System.Windows.Forms.ListBox();
             this.tChart = new Steema.TeeChart.TChart();
-            this.label1 = new System.Windows.Forms.Label();
-            this.plotsBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -56,9 +56,31 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tChart);
             this.splitContainer1.Size = new System.Drawing.Size(821, 661);
-            this.splitContainer1.SplitterDistance = 199;
+            this.splitContainer1.SplitterDistance = 198;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 17;
+            // 
+            // plotsBox
+            // 
+            this.plotsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.plotsBox.FormattingEnabled = true;
+            this.plotsBox.Items.AddRange(new object[] {
+            "All",
+            "Mean"});
+            this.plotsBox.Location = new System.Drawing.Point(45, 3);
+            this.plotsBox.Name = "plotsBox";
+            this.plotsBox.Size = new System.Drawing.Size(150, 23);
+            this.plotsBox.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(36, 15);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Plots:";
             // 
             // traitsBox
             // 
@@ -72,7 +94,7 @@
             this.traitsBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.traitsBox.Name = "traitsBox";
             this.traitsBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.traitsBox.Size = new System.Drawing.Size(195, 629);
+            this.traitsBox.Size = new System.Drawing.Size(194, 629);
             this.traitsBox.TabIndex = 0;
             // 
             // tChart
@@ -1065,7 +1087,7 @@
             this.tChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Panel.Shadow.Brush.Solid = true;
             this.tChart.Panel.Shadow.Brush.Visible = true;
-            this.tChart.Size = new System.Drawing.Size(617, 661);
+            this.tChart.Size = new System.Drawing.Size(618, 661);
             // 
             // 
             // 
@@ -1285,28 +1307,6 @@
             this.tChart.Zoom.Brush.Color = System.Drawing.Color.LightBlue;
             this.tChart.Zoom.Brush.Solid = true;
             this.tChart.Zoom.Brush.Visible = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(36, 15);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Plots:";
-            // 
-            // plotsBox
-            // 
-            this.plotsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.plotsBox.FormattingEnabled = true;
-            this.plotsBox.Items.AddRange(new object[] {
-            "All",
-            "Mean"});
-            this.plotsBox.Location = new System.Drawing.Point(45, 3);
-            this.plotsBox.Name = "plotsBox";
-            this.plotsBox.Size = new System.Drawing.Size(151, 23);
-            this.plotsBox.TabIndex = 2;
             // 
             // TraitChart
             // 

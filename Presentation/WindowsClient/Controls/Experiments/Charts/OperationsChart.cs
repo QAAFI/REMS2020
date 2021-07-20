@@ -34,16 +34,13 @@ namespace WindowsClient.Controls
         public OperationsChart()
         {
             InitializeComponent();
-            InitialiseChart();            
+            Format();
         }
 
-        /// <summary>
-        /// Sets the default style of the chart
-        /// </summary>
-        private void InitialiseChart()
+        private void Format()
         {
             // General options
-            tChart.Text = "Operations";
+            chart.Header.Text = "Operations";
             chart.Panel.MarginUnits = PanelMarginUnits.Pixels;
             chart.Panel.MarginLeft = 70;
             chart.Panel.MarginRight = 15;
@@ -60,6 +57,15 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.MinorGrid.Visible = true;
             chart.Axes.Bottom.MinorGrid.Color = Color.LightGray;
             chart.Axes.Bottom.Grid.Visible = true;
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        public async Task Initialise(int experiment)
+        {
+            // No async initialisation required
+            await Task.Delay(0);
         }
 
         /// <summary>

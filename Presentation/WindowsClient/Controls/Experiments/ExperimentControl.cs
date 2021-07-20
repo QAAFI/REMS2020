@@ -16,14 +16,15 @@ namespace WindowsClient.Controls
         /// </summary>
         int Treatment { get; set; }
 
-        Task LoadTreatment(int id);
+        Task Initialise(int experiment);
+
+        Task LoadTreatment(int treatment);
     }
 
     public class ExperimentNode : TreeNode
     {
         public int ID { get; set; }
 
-        //private ControlNode<ExperimentSummariser> design = new("Design");
         private ControlNode<OperationsChart> operations = new("Operations");
         private ControlNode<TraitChart> crop = new("Crop");
         private ControlNode<SoilChart> soil = new("Soil");
@@ -57,7 +58,7 @@ namespace WindowsClient.Controls
 
         public async Task<TabControl> Create(int id)
         {
-            var tabs = new TabControl();
+            var tabs = new TabControl { Dock = DockStyle.Fill };
 
             var treatments = await QueryManager.Request(new TreatmentsQuery { ExperimentId = id });
 

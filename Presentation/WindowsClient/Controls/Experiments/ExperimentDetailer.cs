@@ -19,7 +19,6 @@ namespace WindowsClient.Controls
             InitializeComponent();          
             
             experimentsTree.AfterSelect += OnNodeSelected;
-            Load += async (s, e) => await LoadTreeView(); 
         }
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace WindowsClient.Controls
                 else if (node is ExperimentNode en)
                 {
                     var summary = new ExperimentSummariser { Dock = DockStyle.Fill };
-                    var design = new DataGridView { Dock = DockStyle.Fill };
+                    var design = new ExperimentDesign { Dock = DockStyle.Fill };
 
                     var pages = new TabControl { Dock = DockStyle.Fill };
                     
@@ -67,7 +66,7 @@ namespace WindowsClient.Controls
 
                     AttachControl(pages);
 
-                    design.DataSource = await QueryManager.Request(new DesignsTableQuery { ExperimentId = en.ID });
+                    await design.Populate(en.ID);
                     await summary.GetSummary(en.ID);
                 }
             }
@@ -81,7 +80,6 @@ namespace WindowsClient.Controls
         {
             container.Panel2.Controls.Clear();
             container.Panel2.Controls.Add(control);
-            control.Dock = DockStyle.Fill;            
         }
     }
 }
