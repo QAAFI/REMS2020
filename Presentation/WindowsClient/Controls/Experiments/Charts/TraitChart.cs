@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,8 +21,15 @@ namespace WindowsClient.Controls
 
         private Chart chart => tChart.Chart;
 
-        private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private string[] traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private class ListPair
+        {
+            public string Name { get; set; }
+            public string Description { get; set; }
+
+            public override string ToString() => $"{Name} ({Description})";
+        }
+
+        private string[] traits => traitsBox.SelectedItems.OfType<ListPair>().Select(p => p.Name).ToArray();
 
         public TraitChart()
         {
@@ -92,9 +99,8 @@ namespace WindowsClient.Controls
 
             if (index == -1) return;
 
-            var trait = traitsBox.Items[index].ToString();
-            var text = descriptions[trait];
-            tip.SetToolTip(traitsBox, text);
+            if (traitsBox.Items[index] is ListPair pair)
+                tip.SetToolTip(traitsBox, pair.Description);
         }
 
         public async Task LoadTreatment(int id)
@@ -120,16 +126,18 @@ namespace WindowsClient.Controls
         public async Task LoadTraitsBox()
         {
             // Load the trait type box
-            var traits = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
-            descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+            var names = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
+            var pairs = await QueryManager.Request(new TraitDescriptionsQuery { Traits = names });
 
             lock (traitsBox)
             {
                 traitsBox.Items.Clear();
 
-                if (traits.Length < 1) return;
+                if (names.Length < 1) return;
 
-                traitsBox.Items.AddRange(traits);
+                foreach (var pair in pairs)
+                    traitsBox.Items.Add(new ListPair { Name = pair.Key, Description = pair.Value });
+                
                 traitsBox.SelectedIndex = 0;
             }
         }        
@@ -174,6 +182,9 @@ namespace WindowsClient.Controls
 
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
+            chart.Legend.Title.Text = traitsBox.SelectedItems
+                .OfType<ListPair>()
+                .First()?.Description.WordWrap(18);
 
             chart.Legend.Width = 120;
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -143,6 +144,35 @@ namespace WindowsClient.Models
             {
                 Application.UseWaitCursor = false;
             }
+        }
+
+        public static string WordWrap(this string text, int length)
+        {
+            var builder = new StringBuilder();
+            int line = 0;
+            foreach (string word in text.Split(' '))
+            {
+                line += word.Length + 1;
+
+                if (word.Length > length)
+                {
+                    builder.Append(word.Substring(0, length));
+
+                    var sub = word.Substring(length);
+                    builder.Append('\n' + sub + ' ');
+
+                    line = sub.Length + 1;
+                }
+                else if (line > length)
+                {
+                    line = word.Length + 1;
+                    builder.Append('\n' + word + ' ');
+                }
+                else
+                    builder.Append(word + ' ');
+            }
+
+            return builder.ToString();
         }
     }
 }
