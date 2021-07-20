@@ -18,6 +18,8 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override DateTime Run() => _context.Experiments.Find(ID).EndDate;
+        protected override DateTime Run() 
+            => _context.Experiments.Find(ID)?.EndDate
+            ?? DateTime.Now;
     }
 }

@@ -18,6 +18,8 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override DateTime Run() => _context.Experiments.Find(ID).BeginDate;        
+        protected override DateTime Run() 
+            => _context.Experiments.Find(ID)?.BeginDate 
+            ?? new DateTime(DateTime.Now.Year - 1, 1, 1);        
     }
 }

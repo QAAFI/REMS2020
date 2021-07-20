@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +27,7 @@ namespace WindowsClient.Controls
         public TraitChart()
         {
             InitializeComponent();
+            Format();            
 
             var tip = new ToolTip();
 
@@ -37,11 +38,13 @@ namespace WindowsClient.Controls
             traitsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
         }
 
-        /// <summary>
-        /// Sets the default style of the chart
-        /// </summary>
-        public async Task Initialise(int experiment)
+        private void Format()
         {
+            // Set the legend
+            chart.Legend.HorizMargin = -2;
+            chart.Legend.Title.Visible = true;
+            chart.Legend.LegendStyle = LegendStyles.Series;
+
             // Set the titles
             tChart.Text = "Crop Traits";
             chart.Axes.Left.Title.Text = "Value";
@@ -62,7 +65,13 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Labels.Angle = 60;
             chart.Axes.Bottom.Ticks.Visible = true;
             chart.Axes.Bottom.Title.AutoPosition = true;
-            
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        public async Task Initialise(int experiment)
+        {
             var begin = await QueryManager.Request(new BeginQuery { ID = experiment });
             var end = await QueryManager.Request(new EndQuery { ID = experiment });
             chart.Axes.Bottom.Minimum = begin.ToOADate();
@@ -93,7 +102,7 @@ namespace WindowsClient.Controls
             Treatment = id;
 
             await AddPlots();
-            await LoadTraitsBox();            
+            await LoadTraitsBox();
         }  
 
         public async Task AddPlots()
@@ -166,9 +175,6 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
 
-            chart.Legend.AutoSize = false;
-            chart.Legend.HorizMargin = -2;
-            chart.Legend.Alignment = LegendAlignments.Right;
             chart.Legend.Width = 120;
 
             UpdateTitle();

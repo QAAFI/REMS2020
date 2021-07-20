@@ -27,6 +27,7 @@ namespace WindowsClient.Controls
         public SoilChart()
         {
             InitializeComponent();
+            Format();
 
             var tip = new ToolTip();
 
@@ -37,10 +38,7 @@ namespace WindowsClient.Controls
             traitsBox.SelectedIndexChanged += OnTraitSelected;
         }
 
-        /// <summary>
-        /// Sets the default style of the chart
-        /// </summary>
-        public async Task Initialise(int experiment)
+        private void Format()
         {
             // Set the titles
             tChart.Text = "Soil Traits";
@@ -61,6 +59,15 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.AutomaticMinimum = false;
             chart.Axes.Bottom.Maximum = 1;
             chart.Axes.Bottom.AutomaticMaximum = false;
+        }
+
+        /// <summary>
+        /// Sets the default style of the chart
+        /// </summary>
+        public async Task Initialise(int experiment)
+        {
+            // No async initialisatiion needed
+            await Task.Delay(0);
         }
 
         private async void OnTraitSelected(object sender, EventArgs e) 
