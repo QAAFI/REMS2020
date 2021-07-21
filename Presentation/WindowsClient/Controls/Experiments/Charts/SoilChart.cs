@@ -20,8 +20,7 @@ namespace WindowsClient.Controls
 
         private Chart chart => tChart.Chart;
 
-        private Dictionary<string, string> descriptions = new Dictionary<string, string>();
-        private string[] traits => traitsBox.SelectedItems.Cast<string>().ToArray();
+        private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
         private DateTime[] dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
 
         public SoilChart()
@@ -40,6 +39,10 @@ namespace WindowsClient.Controls
 
         private void Format()
         {
+            // Set the legend
+            chart.Legend.HorizMargin = -2;
+            chart.Legend.Title.Visible = true;
+
             // Set the titles
             tChart.Text = "Soil Traits";
             chart.Axes.Left.Title.Text = "Depth";
@@ -55,9 +58,7 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Inverted = true;
 
             // X-Axis options
-            chart.Axes.Bottom.Minimum = 0;
             chart.Axes.Bottom.AutomaticMinimum = false;
-            chart.Axes.Bottom.Maximum = 1;
             chart.Axes.Bottom.AutomaticMaximum = false;
         }
 
@@ -87,9 +88,8 @@ namespace WindowsClient.Controls
 
             if (index == -1) return;
 
-            var trait = traitsBox.Items[index].ToString();
-            var text = descriptions[trait];
-            tip.SetToolTip(traitsBox, text);
+            if (traitsBox.Items[index] is ListTrait pair)
+                tip.SetToolTip(traitsBox, pair.Description);
         }
 
         public async Task LoadTreatment(int id)
@@ -117,7 +117,7 @@ namespace WindowsClient.Controls
         {
             // Load the trait type box
             var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = Treatment });
-            descriptions = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
+            var pairs = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
             lock (traitsBox)
             {
@@ -125,7 +125,9 @@ namespace WindowsClient.Controls
 
                 if (traits.Length < 1) return;
 
-                traitsBox.Items.AddRange(traits);
+                foreach (var pair in pairs)
+                    traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
+
                 traitsBox.SelectedIndex = 0;
             }
         }
@@ -194,15 +196,26 @@ namespace WindowsClient.Controls
                     }.IterateTraits(traits, action);
 
             chart.Series.Clear();
-            datas.ForEach(d => d.AddToSeries(chart.Series));
+            datas.ForEach(d => d.AddToSeries(chart.Series, true));
+
+            // Set x-axis bounds
+            if (chart.Series.Any())
+            {
+                var min = chart.Series.Select(s => s.XValues.Minimum)?.Min() ?? 0.1;
+                var max = chart.Series.Select(s => s.XValues.Maximum)?.Max() ?? 0.9;
+                chart.Axes.Bottom.Minimum = min - ((max - min) * 0.1);
+                chart.Axes.Bottom.Maximum = max + ((max - min) * 0.1);
+            }
 
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
 
-            chart.Legend.AutoSize = false;
-            chart.Legend.HorizMargin = -2;
-            chart.Legend.Alignment = LegendAlignments.Right;
+            chart.Legend.Title.Text = traitsBox.SelectedItems
+                .OfType<ListTrait>()
+                .First()?.Description.WordWrap(18);
             chart.Legend.Width = 120;
+
+            chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
         }     
     }
 }

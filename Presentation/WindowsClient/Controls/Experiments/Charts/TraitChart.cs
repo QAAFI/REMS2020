@@ -19,17 +19,9 @@ namespace WindowsClient.Controls
         /// <inheritdoc/>
         public int Treatment { get; set; }
 
-        private Chart chart => tChart.Chart;
+        private Chart chart => tChart.Chart;        
 
-        private class ListPair
-        {
-            public string Name { get; set; }
-            public string Description { get; set; }
-
-            public override string ToString() => $"{Name} ({Description})";
-        }
-
-        private string[] traits => traitsBox.SelectedItems.OfType<ListPair>().Select(p => p.Name).ToArray();
+        private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
 
         public TraitChart()
         {
@@ -50,7 +42,6 @@ namespace WindowsClient.Controls
             // Set the legend
             chart.Legend.HorizMargin = -2;
             chart.Legend.Title.Visible = true;
-            chart.Legend.LegendStyle = LegendStyles.Series;
 
             // Set the titles
             tChart.Text = "Crop Traits";
@@ -85,9 +76,6 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Maximum = end.ToOADate();
         }
 
-        private async void UpdateTitle()
-            => chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
-
         /// <summary>
         /// Sets the tool tip on mouse hover
         /// </summary>
@@ -99,7 +87,7 @@ namespace WindowsClient.Controls
 
             if (index == -1) return;
 
-            if (traitsBox.Items[index] is ListPair pair)
+            if (traitsBox.Items[index] is ListTrait pair)
                 tip.SetToolTip(traitsBox, pair.Description);
         }
 
@@ -136,7 +124,7 @@ namespace WindowsClient.Controls
                 if (names.Length < 1) return;
 
                 foreach (var pair in pairs)
-                    traitsBox.Items.Add(new ListPair { Name = pair.Key, Description = pair.Value });
+                    traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
                 
                 traitsBox.SelectedIndex = 0;
             }
@@ -183,12 +171,12 @@ namespace WindowsClient.Controls
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
             chart.Legend.Title.Text = traitsBox.SelectedItems
-                .OfType<ListPair>()
+                .OfType<ListTrait>()
                 .First()?.Description.WordWrap(18);
 
             chart.Legend.Width = 120;
 
-            UpdateTitle();
+            chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
         }    
     }
 }
