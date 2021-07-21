@@ -45,7 +45,7 @@ namespace WindowsClient.Models
 
         private readonly int numModelsToExport = 29;
 
-        private Markdown summary = new Markdown();
+        public Markdown Summary { get; } = new();
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
@@ -53,8 +53,8 @@ namespace WindowsClient.Models
         public async override Task Run()
         {
             // Reset the markdown report
-            summary.Clear();
-            summary.AddSubHeading("REMS export summary", 1);
+            Summary.Clear();
+            Summary.AddSubHeading("REMS export summary", 1);
 
             var simulations = JsonTools.LoadJson<Simulations>(Manager.GetFileInfo("Simulation"));
 
@@ -80,10 +80,10 @@ namespace WindowsClient.Models
 
             simulations.Children.Add(folder);
 
-            var memo = new Memo { Name = "ExportSummary", Text = summary.Text };
+            var memo = new Memo { Name = "ExportSummary", Text = Summary.Text };
             simulations.Children.Add(memo);
 
-            simulations.ParentAllDescendants();
+            //simulations.ParentAllDescendants();
             SanitiseNames(simulations);
 
             // Save the file
@@ -150,24 +150,24 @@ namespace WindowsClient.Models
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
             
-            summary.AddSubHeading(name + ':', 2);
+            Summary.AddSubHeading(name + ':', 2);
 
             var experiment =
             Create<Experiment>(name, new IModel[]
             {
-                await Request(new FactorsQuery{ ExperimentId = id, Report = summary }),
+                await Request(new FactorsQuery{ ExperimentId = id, Report = Summary }),
                 Create<Simulation>(name, new IModel[]
                 {
-                    await Request(new ClockQuery{ ExperimentId = id, Report = summary }),
+                    await Request(new ClockQuery{ ExperimentId = id, Report = Summary }),
                     Create<Summary>(),
-                    await Request(new WeatherQuery{ ExperimentId = id, Report = summary }),
+                    await Request(new WeatherQuery{ ExperimentId = id, Report = Summary }),
                     Create<SoilArbitrator>(),
-                    await Request(new ZoneQuery{ ExperimentId = id, Report = summary }, new IModel[]
+                    await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport"),
                         await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
-                        await Request(new PlantQuery{ ExperimentId = id, Report = summary }),
+                        await Request(new PlantQuery{ ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
                         CreateOrganicMatter(),
                         Create<Operations>("Irrigations"),
@@ -188,21 +188,21 @@ namespace WindowsClient.Models
                     })
                 })
             });
-            summary.AddLine("\n");
+            Summary.AddLine("\n");
             return experiment;
         }   
 
         private async Task<IModel> CreateSoilModel(int id)
         {
             var soil = 
-                await Request(new SoilQuery { ExperimentId = id, Report = summary }, new IModel[] 
+                await Request(new SoilQuery { ExperimentId = id, Report = Summary }, new IModel[] 
                 {
                     new InitialWater { PercentMethod = 0, FractionFull = 0.6 },
-                    await Request(new PhysicalQuery{ ExperimentId = id, Report = summary }, new IModel[] 
+                    await Request(new PhysicalQuery{ ExperimentId = id, Report = Summary }, new IModel[] 
                     {
-                        await Request(new SoilCropQuery{ ExperimentId = id, Report = summary })
+                        await Request(new SoilCropQuery{ ExperimentId = id, Report = Summary })
                     }),
-                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = summary }),
+                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = Summary }),
                     Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
                     {
                         Create<SoilNitrogenNH4>("NH4"),
@@ -211,10 +211,10 @@ namespace WindowsClient.Models
                         Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
                         Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
                     }),
-                    await Request(new OrganicQuery{ ExperimentId = id, Report = summary }),
-                    await Request(new ChemicalQuery{ ExperimentId = id, Report = summary }),
+                    await Request(new OrganicQuery{ ExperimentId = id, Report = Summary }),
+                    await Request(new ChemicalQuery{ ExperimentId = id, Report = Summary }),
                     Create<CERESSoilTemperature>("Temperature"),
-                    await Request(new SampleQuery{ ExperimentId = id, Report = summary })
+                    await Request(new SampleQuery{ ExperimentId = id, Report = Summary })
                 });
 
             return soil;

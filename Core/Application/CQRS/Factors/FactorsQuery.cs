@@ -124,7 +124,7 @@ namespace Rems.Application.CQRS
 
                     default:
                         type = Fertiliser.Types.NO3N.ToString();
-                        Report.AddLine($"Matching APSIM fertiliser type for {type} not found in treatment {f.Treatment.Name}. Using default type instead (NO3N)");
+                        Report.AddLine($"Matching APSIM fertiliser type for {type} not found in treatment {f.Treatment.Name}. Using default type instead (NO3N).\n");
                         break;
                 }
 
