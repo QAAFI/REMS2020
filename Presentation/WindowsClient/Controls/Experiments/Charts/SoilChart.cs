@@ -20,7 +20,7 @@ namespace WindowsClient.Controls
 
         private Chart chart => tChart.Chart;
 
-        private string[] traits => traitsBox.SelectedItems.OfType<ListPair>().Select(p => p.Name).ToArray();
+        private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
         private DateTime[] dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
 
         public SoilChart()
@@ -88,7 +88,7 @@ namespace WindowsClient.Controls
 
             if (index == -1) return;
 
-            if (traitsBox.Items[index] is ListPair pair)
+            if (traitsBox.Items[index] is ListTrait pair)
                 tip.SetToolTip(traitsBox, pair.Description);
         }
 
@@ -126,7 +126,7 @@ namespace WindowsClient.Controls
                 if (traits.Length < 1) return;
 
                 foreach (var pair in pairs)
-                    traitsBox.Items.Add(new ListPair { Name = pair.Key, Description = pair.Value });
+                    traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
 
                 traitsBox.SelectedIndex = 0;
             }
@@ -211,7 +211,7 @@ namespace WindowsClient.Controls
             chart.Axes.Left.Title.Text = ytitle;
 
             chart.Legend.Title.Text = traitsBox.SelectedItems
-                .OfType<ListPair>()
+                .OfType<ListTrait>()
                 .First()?.Description.WordWrap(18);
             chart.Legend.Width = 120;
 
