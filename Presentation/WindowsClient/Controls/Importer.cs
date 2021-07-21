@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using WindowsClient.Forms;
 using WindowsClient.Models;
 using WindowsClient.Utilities;
 using Settings = WindowsClient.Properties.Settings;
@@ -172,11 +172,11 @@ namespace WindowsClient.Controls
             }
             catch (DuplicateNameException e)
             {
-                MessageBox.Show(e.Message + "\n" + "Remove duplicate columns in file and try again.");
+                AlertBox.Show(e.Message + "\n" + "Remove duplicate columns in file and try again.", AlertType.Error);
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                AlertBox.Show(e.Message, AlertType.Error);
             }
 
             return false;
@@ -190,13 +190,13 @@ namespace WindowsClient.Controls
             bool connected = await QueryManager.Request(new ConnectionExists());
             if (!connected)
             {
-                MessageBox.Show("A database must be opened or created before importing");
+                AlertBox.Show("A database must be opened or created before importing", AlertType.Error);
                 return;
             }
 
             if (Data is null)
             {
-                MessageBox.Show("There is no loaded data to import. Please load and validate data.");
+                AlertBox.Show("There is no loaded data to import. Please load and validate data.", AlertType.Error);
                 return;
             }
 
@@ -206,7 +206,7 @@ namespace WindowsClient.Controls
 
             if (invalid)
             {
-                MessageBox.Show("All nodes must be valid or ignored before attempting to import");
+                AlertBox.Show("All nodes must be valid or ignored before attempting to import", AlertType.Error);
                 return;
             }
 

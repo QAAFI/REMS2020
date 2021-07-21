@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Forms;
 
 namespace WindowsClient.Models
 {
@@ -138,7 +139,7 @@ namespace WindowsClient.Models
                 while (error.InnerException != null) 
                     error = error.InnerException;
 
-                MessageBox.Show(error.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AlertBox.Show(error.Message, AlertType.Error);
             }
             finally
             {
