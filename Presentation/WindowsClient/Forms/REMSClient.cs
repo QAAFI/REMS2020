@@ -72,7 +72,10 @@ namespace WindowsClient
             control.Dock = DockStyle.Fill;
 
             notebook.TabPages.Add(tab);
-            notebook.SelectedTab = tab;
+
+            // Assume that a 'true' tag means that the client should switch to the new tab
+            if (control.Tag is true)
+                notebook.SelectedTab = tab;
         }
 
         private void OnRemoveTab(object sender, EventArgs e)
