@@ -156,8 +156,8 @@ namespace WindowsClient.Controls
                 throw new Exception("Import requested from unknown control type.");
 
             importer.Name = "Import " + link.Label;
-            AttachTab.Invoke(importer, EventArgs.Empty);
-
+            importer.Tag = true;
+            AttachTab.Invoke(importer, EventArgs.Empty);            
             importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
 
             await importer.OpenFile(link.Label);
@@ -200,8 +200,9 @@ namespace WindowsClient.Controls
                 var items = exps.Select(e => e.Value).Distinct().ToArray();
 
                 exportList.Items.AddRange(items);
-
+                
                 await detailer.LoadTreeView();
+                detailer.Tag = session.HasData;
                 AttachTab.Invoke(detailer, EventArgs.Empty);
             }
         }
