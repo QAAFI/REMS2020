@@ -31,7 +31,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HomeScreen));
             this.groupFile = new System.Windows.Forms.GroupBox();
             this.recentList = new System.Windows.Forms.ListBox();
             this.openLabel = new System.Windows.Forms.Label();
@@ -45,6 +44,7 @@
             this.dataLink = new WindowsClient.Controls.ImportLink();
             this.expsLink = new WindowsClient.Controls.ImportLink();
             this.infoLink = new WindowsClient.Controls.ImportLink();
+            this.summaryBox = new System.Windows.Forms.GroupBox();
             this.groupFile.SuspendLayout();
             this.groupExport.SuspendLayout();
             this.groupImport.SuspendLayout();
@@ -191,45 +191,65 @@
             // 
             this.dataLink.Active = false;
             this.dataLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.dataLink.HasData = false;
             this.dataLink.Label = "Data";
             this.dataLink.Location = new System.Drawing.Point(7, 96);
             this.dataLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.dataLink.Name = "dataLink";
             this.dataLink.Size = new System.Drawing.Size(190, 29);
             this.dataLink.TabIndex = 2;
+            this.dataLink.WasClicked = false;
             // 
             // expsLink
             // 
             this.expsLink.Active = false;
             this.expsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.expsLink.HasData = false;
             this.expsLink.Label = "Experiments";
             this.expsLink.Location = new System.Drawing.Point(7, 60);
             this.expsLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.expsLink.Name = "expsLink";
             this.expsLink.Size = new System.Drawing.Size(190, 29);
             this.expsLink.TabIndex = 1;
+            this.expsLink.WasClicked = false;
             // 
             // infoLink
             // 
             this.infoLink.Active = false;
             this.infoLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.infoLink.HasData = false;
             this.infoLink.Label = "Information";
             this.infoLink.Location = new System.Drawing.Point(7, 24);
             this.infoLink.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.infoLink.Name = "infoLink";
             this.infoLink.Size = new System.Drawing.Size(190, 29);
             this.infoLink.TabIndex = 0;
+            this.infoLink.WasClicked = false;
+            // 
+            // summaryBox
+            // 
+            this.summaryBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.summaryBox.Location = new System.Drawing.Point(638, 3);
+            this.summaryBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.summaryBox.Name = "summaryBox";
+            this.summaryBox.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.summaryBox.Size = new System.Drawing.Size(306, 415);
+            this.summaryBox.TabIndex = 5;
+            this.summaryBox.TabStop = false;
+            this.summaryBox.Text = "Export summary";
+            this.summaryBox.Visible = false;
             // 
             // HomeScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.summaryBox);
             this.Controls.Add(this.groupImport);
             this.Controls.Add(this.groupExport);
             this.Controls.Add(this.groupFile);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "HomeScreen";
-            this.Size = new System.Drawing.Size(810, 600);
+            this.Size = new System.Drawing.Size(951, 600);
             this.groupFile.ResumeLayout(false);
             this.groupFile.PerformLayout();
             this.groupExport.ResumeLayout(false);
@@ -252,5 +272,6 @@
         private ImportLink infoLink;
         private System.Windows.Forms.RichTextBox importText;
         private TrackerBar exportTracker;
+        private System.Windows.Forms.GroupBox summaryBox;
     }
 }

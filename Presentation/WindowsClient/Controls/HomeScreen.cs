@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using Rems.Application.CQRS;
 using WindowsClient.Forms;
 using WindowsClient.Models;
@@ -16,8 +15,6 @@ using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient.Controls
 {
-    
-
     /// <summary>
     /// Manages database selection and file import/export
     /// </summary>
@@ -30,10 +27,26 @@ namespace WindowsClient.Controls
         private ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
 
         private Session session;
+        private WebBrowser browser = new();
+
+        /// <summary>
+        /// Describes how the browser will render text
+        /// </summary>
+        string style = 
+            "<style>\n" +
+            "html *\n" +
+            "{\n" +
+            "   font-size: 12px !important;\n" +
+            "   color: #000 !important;" +
+            "   font-family: Arial !important; " +
+            "}\n" +
+            "</style>\n";
 
         public HomeScreen()
         {
             InitializeComponent();
+            browser.Dock = DockStyle.Fill;            
+            summaryBox.Controls.Add(browser);            
 
             importer.ImportCompleted += OnImportCompleted;
             importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
@@ -160,8 +173,8 @@ namespace WindowsClient.Controls
                 throw new Exception("Import requested from unknown control type.");
 
             importer.Name = "Import " + link.Label;
-            AttachTab.Invoke(importer, EventArgs.Empty);
-
+            importer.Tag = true;
+            AttachTab.Invoke(importer, EventArgs.Empty);            
             importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
 
             await importer.OpenFile(link.Label);
@@ -204,8 +217,9 @@ namespace WindowsClient.Controls
                 var items = exps.Select(e => e.Value).Distinct().ToArray();
 
                 exportList.Items.AddRange(items);
-
+                
                 await detailer.LoadTreeView();
+                detailer.Tag = session.HasData;
                 AttachTab.Invoke(detailer, EventArgs.Empty);
             }
         }
@@ -292,11 +306,19 @@ namespace WindowsClient.Controls
 
             var task = exporter.Run();
             await task.TryRun();
-
+            
             if (task.IsCompletedSuccessfully)
+            {
                 AlertBox.Show("Export complete!", AlertType.Success);
+                browser.DocumentText = style + Markdig.Markdown.ToHtml(exporter.Summary.Text);
+                summaryBox.Visible = true;
+            }
             else
+            {
                 AlertBox.Show("Export failed.\n" + task.Exception.InnerException.Message, AlertType.Error);
+                browser.DocumentText = "";
+                summaryBox.Visible = false;
+            }
 
             exportTracker.Reset();
         }
