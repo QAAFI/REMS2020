@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Models;
+using WindowsClient.Forms;
 
 namespace WindowsClient.Controls
 {
@@ -95,7 +96,7 @@ namespace WindowsClient.Controls
         {
             var error = args.Item;
             while (error.InnerException != null) error = error.InnerException;
-            MessageBox.Show(error.Message, "Import failed!");
+            AlertBox.Show(error.Message, AlertType.Error, "Import failed!");
             Reset();
         }
 

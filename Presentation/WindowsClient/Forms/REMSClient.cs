@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Extensions.DependencyInjection;
-using Rems.Application.Common.Interfaces;
 using WindowsClient.Models;
 using Settings = WindowsClient.Properties.Settings;
 

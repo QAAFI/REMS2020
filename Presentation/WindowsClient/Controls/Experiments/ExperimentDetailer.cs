@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Forms;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -72,7 +73,7 @@ namespace WindowsClient.Controls
             }
             catch (Exception error)
             {
-                MessageBox.Show(error.Message);
+                AlertBox.Show(error.Message, AlertType.Error);
             }
         }
 

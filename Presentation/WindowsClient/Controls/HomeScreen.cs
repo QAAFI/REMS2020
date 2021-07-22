@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.CQRS;
+using WindowsClient.Forms;
 using WindowsClient.Models;
 using WindowsClient.Utilities;
 
@@ -191,7 +193,7 @@ namespace WindowsClient.Controls
 
             RemoveTab.Invoke(importer, EventArgs.Empty);
 
-            MessageBox.Show("Import successful!", "");
+            AlertBox.Show("Import successful!", AlertType.Success);
 
             DisplayImport();
             await DisplayExperiments();
@@ -281,7 +283,7 @@ namespace WindowsClient.Controls
             bool connected = await QueryManager.Request(new ConnectionExists());
             if (!connected)
             {
-                MessageBox.Show("A database must be opened before exporting.");
+                AlertBox.Show("A database must be opened before exporting.", AlertType.Error);
                 return;
             }
 
@@ -307,13 +309,13 @@ namespace WindowsClient.Controls
             
             if (task.IsCompletedSuccessfully)
             {
-                MessageBox.Show("Export complete!");
+                AlertBox.Show("Export complete!", AlertType.Success);
                 browser.DocumentText = style + Markdig.Markdown.ToHtml(exporter.Summary.Text);
                 summaryBox.Visible = true;
             }
             else
             {
-                MessageBox.Show("Export failed.\n" + task.Exception.InnerException.Message);
+                AlertBox.Show("Export failed.\n" + task.Exception.InnerException.Message, AlertType.Error);
                 browser.DocumentText = "";
                 summaryBox.Visible = false;
             }

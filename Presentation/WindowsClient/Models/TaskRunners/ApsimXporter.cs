@@ -82,8 +82,6 @@ namespace WindowsClient.Models
 
             var memo = new Memo { Name = "ExportSummary", Text = Summary.Text };
             simulations.Children.Add(memo);
-
-            //simulations.ParentAllDescendants();
             SanitiseNames(simulations);
 
             // Save the file
