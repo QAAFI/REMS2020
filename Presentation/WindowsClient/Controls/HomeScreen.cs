@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using Rems.Application.CQRS;
 using WindowsClient.Models;
 using WindowsClient.Utilities;
@@ -26,10 +25,26 @@ namespace WindowsClient.Controls
         private ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
 
         private Session session;
+        private WebBrowser browser = new();
+
+        /// <summary>
+        /// Describes how the browser will render text
+        /// </summary>
+        string style = 
+            "<style>\n" +
+            "html *\n" +
+            "{\n" +
+            "   font-size: 12px !important;\n" +
+            "   color: #000 !important;" +
+            "   font-family: Arial !important; " +
+            "}\n" +
+            "</style>\n";
 
         public HomeScreen()
         {
             InitializeComponent();
+            browser.Dock = DockStyle.Fill;            
+            summaryBox.Controls.Add(browser);            
 
             importer.ImportCompleted += OnImportCompleted;
             importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
@@ -288,11 +303,19 @@ namespace WindowsClient.Controls
 
             var task = exporter.Run();
             await task.TryRun();
-
+            
             if (task.IsCompletedSuccessfully)
+            {
                 MessageBox.Show("Export complete!");
+                browser.DocumentText = style + Markdig.Markdown.ToHtml(exporter.Summary.Text);
+                summaryBox.Visible = true;
+            }
             else
+            {
                 MessageBox.Show("Export failed.\n" + task.Exception.InnerException.Message);
+                browser.DocumentText = "";
+                summaryBox.Visible = false;
+            }
 
             exportTracker.Reset();
         }

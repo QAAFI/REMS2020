@@ -66,35 +66,4 @@
   <metadata name="groupImport.Locked" type="System.Boolean, System.Private.CoreLib, Version=5.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
     <value>True</value>
   </metadata>
-  <assembly alias="System.Drawing.Common" name="System.Drawing.Common, Version=5.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
-  <data name="dataLink.Image" type="System.Drawing.Bitmap, System.Drawing.Common" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADbSURBVDhPjVHBDYQwDOtOLMIUTHGPW4MV++PHL2e7pRdS
-        ImHJIjVxmqQl4jgOs303WxazUhoZQ+O/njbDCBovU0bmAN3WIGXb5uSMzAW6HcqbmyPhkVkz+x+YV9q6
-        /jXEtdb7XkDtJN5+nic+PAAsQgKPl7GLWNU+32FQAIw47gnechMuuiKEDsmSnwu4tgkd/E4c5xGcWQGQ
-        FtEIYYnc9jCwbTeOXsLlaonpM/qZUURa6FbPqNtCF6/I2y+ox2TLj2Qu0O0NUt50whyg22ZoVib5eRlD
-        GzMPlPIDkooalYHBZx8AAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="expsLink.Image" type="System.Drawing.Bitmap, System.Drawing.Common" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADbSURBVDhPjVHBDYQwDOtOLMIUTHGPW4MV++PHL2e7pRdS
-        ImHJIjVxmqQl4jgOs303WxazUhoZQ+O/njbDCBovU0bmAN3WIGXb5uSMzAW6HcqbmyPhkVkz+x+YV9q6
-        /jXEtdb7XkDtJN5+nic+PAAsQgKPl7GLWNU+32FQAIw47gnechMuuiKEDsmSnwu4tgkd/E4c5xGcWQGQ
-        FtEIYYnc9jCwbTeOXsLlaonpM/qZUURa6FbPqNtCF6/I2y+ox2TLj2Qu0O0NUt50whyg22ZoVib5eRlD
-        GzMPlPIDkooalYHBZx8AAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="infoLink.Image" type="System.Drawing.Bitmap, System.Drawing.Common" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADbSURBVDhPjVHBDYQwDOtOLMIUTHGPW4MV++PHL2e7pRdS
-        ImHJIjVxmqQl4jgOs303WxazUhoZQ+O/njbDCBovU0bmAN3WIGXb5uSMzAW6HcqbmyPhkVkz+x+YV9q6
-        /jXEtdb7XkDtJN5+nic+PAAsQgKPl7GLWNU+32FQAIw47gnechMuuiKEDsmSnwu4tgkd/E4c5xGcWQGQ
-        FtEIYYnc9jCwbTeOXsLlaonpM/qZUURa6FbPqNtCF6/I2y+ox2TLj2Qu0O0NUt50whyg22ZoVib5eRlD
-        GzMPlPIDkooalYHBZx8AAAAASUVORK5CYII=
-</value>
-  </data>
 </root>
