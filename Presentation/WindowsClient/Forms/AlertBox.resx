@@ -57,7 +57,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="message.Text" xml:space="preserve">
-    <value>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum, ligula nec ultrices ultrices, velit ligula congue orci, vel blandit ante justo at erat. Sed nec metus dolor. Aenean velit nisl, placerat a tristique a, viverra tincidunt est.</value>
-  </data>
 </root>

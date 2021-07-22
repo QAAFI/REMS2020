@@ -29,7 +29,6 @@ namespace WindowsClient.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AlertBox));
             this.message = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.btnOk = new System.Windows.Forms.Button();
@@ -43,9 +42,10 @@ namespace WindowsClient.Forms
             this.message.Dock = System.Windows.Forms.DockStyle.Fill;
             this.message.Location = new System.Drawing.Point(53, 12);
             this.message.Name = "message";
-            this.message.Size = new System.Drawing.Size(353, 100);
+            this.message.Size = new System.Drawing.Size(243, 71);
             this.message.TabIndex = 0;
-            this.message.Text = resources.GetString("message.Text");
+            this.message.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum, ligula nec u" +
+    "ltrices ultrices, velit ligula congue orci, vel blandit ante justo at erat. ";
             this.message.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tableLayoutPanel1
@@ -64,14 +64,14 @@ namespace WindowsClient.Forms
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 12F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(421, 142);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(311, 113);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // btnOk
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOk.Location = new System.Drawing.Point(331, 115);
+            this.btnOk.Location = new System.Drawing.Point(221, 86);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 24);
             this.btnOk.TabIndex = 1;
@@ -82,7 +82,7 @@ namespace WindowsClient.Forms
             // 
             this.icon.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.icon.Location = new System.Drawing.Point(15, 46);
+            this.icon.Location = new System.Drawing.Point(15, 31);
             this.icon.MaximumSize = new System.Drawing.Size(32, 32);
             this.icon.MinimumSize = new System.Drawing.Size(32, 32);
             this.icon.Name = "icon";
@@ -94,7 +94,7 @@ namespace WindowsClient.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(421, 142);
+            this.ClientSize = new System.Drawing.Size(311, 113);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "AlertBox";
             this.Text = "AlertBox";
