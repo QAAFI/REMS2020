@@ -17,6 +17,10 @@ using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using WindowsClient.Utilities;
+using Models.Storage;
+using Models.WaterModel;
+using Models.Soils.Nutrients;
+using System.Reflection;
 
 namespace WindowsClient.Models
 {
@@ -56,13 +60,10 @@ namespace WindowsClient.Models
             Summary.Clear();
             Summary.AddSubHeading("REMS export summary", 1);
 
-            var simulations = JsonTools.LoadJson<Simulations>(Manager.GetFileInfo("Simulation"));
+            var simulations = new Simulations();
+            var store = new DataStore();
 
-            var sorghum = JsonTools.LoadJson<Folder>(Manager.GetFileInfo("Sorghum"));
-
-            foreach (IModel model in sorghum.Children)
-                simulations.Children.Add(model);
-
+            simulations.Children.Add(store);
             // Find the experiments
             var folder = new Folder { Name = "Experiments" };
             var experiments = await QueryManager.Request(new ExperimentsQuery());
@@ -94,7 +95,7 @@ namespace WindowsClient.Models
         /// <typeparam name="R">A request that can be parameterised with specific values</typeparam>
         /// <param name="id">The experiment data is requested from</param>
         /// <param name="children">Any child models to include</param>
-        private async Task<T> Request<T>(IRequest<T> query, IEnumerable<IModel> children = null) where T : IModel
+        private async Task<T> Request<T>(IRequest<T> query, params IModel[] children) where T : IModel
         {
             var model = await QueryManager.Request(query);
 
@@ -114,7 +115,7 @@ namespace WindowsClient.Models
         /// <param name="name">The model name</param>
         /// <param name="children">Any child models to include</param>
         /// <returns></returns>
-        private IModel Create<M>(string name = null, IEnumerable<IModel> children = null)
+        private IModel Create<M>(string name = null, params IModel[] children)
             where M : IModel, new()
         {
             var model = new M();
@@ -167,7 +168,13 @@ namespace WindowsClient.Models
                         await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery{ ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
-                        CreateOrganicMatter(),
+                        new SurfaceOrganicMatter()
+                        {
+                            ResourceName = "SurfaceOrganicMatter",
+                            InitialResidueName = "wheat_stubble",
+                            InitialResidueType = "wheat",
+                            InitialCNR = 80.0
+                        },
                         Create<Operations>("Irrigations"),
                         Create<Operations>("Fertilisations"),
                         Create<Irrigation>("Irrigation"),
@@ -192,43 +199,121 @@ namespace WindowsClient.Models
 
         private async Task<IModel> CreateSoilModel(int id)
         {
-            var soil = 
-                await Request(new SoilQuery { ExperimentId = id, Report = Summary }, new IModel[] 
-                {
-                    new InitialWater { PercentMethod = 0, FractionFull = 0.6 },
-                    await Request(new PhysicalQuery{ ExperimentId = id, Report = Summary }, new IModel[] 
-                    {
-                        await Request(new SoilCropQuery{ ExperimentId = id, Report = Summary })
-                    }),
-                    await Request(new WaterBalanceQuery{ ExperimentId = id, Report = Summary }),
-                    Create<SoilNitrogen>("SoilNitrogen", new IModel[] 
-                    {
-                        Create<SoilNitrogenNH4>("NH4"),
-                        Create<SoilNitrogenNO3>("NO3"),
-                        Create<SoilNitrogenUrea>("Urea"),
-                        Create<SoilNitrogenPlantAvailableNH4>("PlantAvailableNH4"),
-                        Create<SoilNitrogenPlantAvailableNO3>("PlantAvailableNO3")
-                    }),
-                    await Request(new OrganicQuery{ ExperimentId = id, Report = Summary }),
-                    await Request(new ChemicalQuery{ ExperimentId = id, Report = Summary }),
-                    Create<CERESSoilTemperature>("Temperature"),
-                    await Request(new SampleQuery{ ExperimentId = id, Report = Summary })
-                });
+            var template = JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"));
 
-            return soil;
-        }
-
-        private IModel CreateOrganicMatter()
-        {
-            var organic = new SurfaceOrganicMatter()
+            var query = new SoilModelTraitsQuery { ExperimentId = id };
+            var traits = await QueryManager.Request(query);
+                        
+            bool heading = false;
+            double[] getValues<T>(string name)
             {
-                ResourceName = "SurfaceOrganicMatter",
-                InitialResidueName = "wheat_stubble",
-                InitialResidueType = "wheat",
-                InitialCNR = 80.0
+                // If we found the trait in the query
+                if (traits.TryGetValue(name, out double[] result) && result is not null)
+                    return result;
+
+                if (!heading)
+                {
+                    Summary.AddSubHeading("Soil model", 2);
+                    Summary.AddLine("");
+                    heading = true;
+                }
+
+                // Look for a template value
+                var type = typeof(T);
+                if (template.FindDescendant<T>() is T model)
+                    if (type.GetProperty(name) is PropertyInfo info)
+                        if (info.GetValue(model) is double[] values)
+                        {
+                            Summary.AddLine($"* Values not found for {name}, using template value");
+                            return values;
+                        }
+                
+                // If no template value, use default value
+                Summary.AddLine($"* No data on trait {type.Name}.{name} was found, using default value");
+                return default;                
+            }
+
+            var physical = new Physical
+            {
+                Thickness = getValues<Physical>("Thickness"),
+                BD = getValues<Physical>(nameof(Physical.BD)),
+                AirDry = getValues<Physical>(nameof(Physical.AirDry)),
+                LL15 = getValues<Physical>(nameof(Physical.LL15)),
+                DUL = getValues<Physical>(nameof(Physical.DUL)),
+                SAT = getValues<Physical>(nameof(Physical.SAT)),
+                KS = getValues<Physical>(nameof(Physical.KS))
+            };
+            var soilcrop = new SoilCrop
+            {
+                LL = getValues<SoilCrop>(nameof(SoilCrop.LL)),
+                KL = getValues<SoilCrop>(nameof(SoilCrop.KL)),
+                XF = getValues<SoilCrop>(nameof(SoilCrop.XF))
+            };
+            physical.Children.Add(soilcrop);
+            var balance = new WaterBalance
+            {
+                Name = "SoilWater",
+                Thickness = getValues<WaterBalance>(nameof(WaterBalance.Thickness)),
+                SWCON = getValues<WaterBalance>(nameof(WaterBalance.SWCON)),
+                KLAT = getValues<WaterBalance>(nameof(WaterBalance.KLAT)),
+                SummerDate = "1-Nov",
+                SummerU = 1.5,
+                SummerCona = 6.5,
+                WinterDate = "1-Apr",
+                WinterU = 1.5,
+                WinterCona = 6.5,
+                DiffusConst = 40,
+                DiffusSlope = 16,
+                Salb = 0.2,
+                CN2Bare = 85,
+                DischargeWidth = double.NaN,
+                CatchmentArea = double.NaN,
+                ResourceName = "WaterBalance"
+            };
+            var organic = new Organic
+            {
+                Name = nameof(Organic),
+                Depth = query.Depth,
+                Thickness = getValues<Organic>("Thickness"),
+                Carbon = getValues<Organic>(nameof(Organic.Carbon)),
+                SoilCNRatio = getValues<Organic>(nameof(Organic.SoilCNRatio)),
+                FBiom = getValues<Organic>(nameof(Organic.FBiom)),
+                FInert = getValues<Organic>(nameof(Organic.FInert)),
+                FOM = getValues<Organic>(nameof(Organic.FOM))
+            };
+            var chemical = new Chemical
+            {
+                Depth = query.Depth,
+                Thickness = getValues<Chemical>("Thickness"),
+                NO3N = getValues<Chemical>(nameof(Chemical.NO3N)),
+                NH4N = getValues<Chemical>(nameof(Chemical.NH4N)),
+                PH = getValues<Chemical>(nameof(Chemical.PH))
+            };
+            var water = new InitialWater
+            {
+                PercentMethod = 0,
+                FractionFull = 0.6
+            };
+            var sample = new Sample
+            {
+                Name = "Initial conditions",
+                Depth = new[] { "0-180" },
+                Thickness = new[] { 1800.0 },
+                NH4 = new[] { 1.0 }
+            };                        
+            var temperature = new CERESSoilTemperature 
+            {
+                Name = "Temperature"
+            };
+            var nutrient = new Nutrient 
+            {
+
             };
 
-            return organic;
+            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, nutrient };
+            var soil = await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
+
+            return soil;
         }
     }
 }

@@ -59,30 +59,7 @@ namespace Rems.Application.Common.Extensions
                 .ToArray();
 
             return layers;
-        }
-
-        /// <summary>
-        /// Gets the requested trait data for the given soil layers
-        /// </summary>
-        internal static double[] GetSoilLayerTraitData(this IRemsDbContext context, SoilLayer[] layers, string name)
-        {
-            var trait = context.GetTraitByName(name);
-
-            var traits = layers.Select(l => l.SoilLayerTraits.FirstOrDefault(t => t.TraitId == trait.TraitId))
-                .Where(t => t != null)
-                .Select(v => v.Value.GetValueOrDefault());
-
-            var data = context.SoilLayerDatas.Where(d => d.TraitId == trait.TraitId).ToArray();
-
-            var datas = layers.Select(l => data.Where(d => d.DepthFrom * 10 == l.FromDepth)
-                    .OrderBy(d => d.Date)
-                    .FirstOrDefault()?.Value ?? 0
-            );
-
-            var values = traits ?? datas;
-
-            return values.Any() ? values.ToArray() : null;
-        }
+        }        
 
         /// <summary>
         /// Adds a trait to the database
