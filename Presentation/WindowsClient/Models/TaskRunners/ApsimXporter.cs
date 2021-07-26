@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -47,7 +47,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override int Steps => Items * numModelsToExport;
 
-        private readonly int numModelsToExport = 29;
+        private readonly int numModelsToExport = 16;
 
         public Markdown Summary { get; } = new();
 
@@ -64,22 +64,27 @@ namespace WindowsClient.Models
             var store = new DataStore();
 
             simulations.Children.Add(store);
-            // Find the experiments
-            var folder = new Folder { Name = "Experiments" };
-            var experiments = await QueryManager.Request(new ExperimentsQuery());
 
-            // Convert each experiment into an APSIM model
-            foreach (var experiment in experiments)
+            // Find the experiments            
+            var exps = (await QueryManager.Request(new ExperimentsQuery()))
+                .Where(e => Experiments.Contains(e.Name));
+
+            // Check if replacements is necessary
+            if (exps.Any(e => e.Crop == "Sorghum"))
             {
-                if (!Experiments.Contains(experiment.Value)) continue;
-
-                OnNextItem(experiment.Value);
-
-                var model = await CreateExperiment(experiment.Value, experiment.Key);
-                folder.Children.Add(model);
+                var info = Manager.GetFileInfo("SorghumReplacements");
+                var model = JsonTools.LoadJson<Replacements>(info);
+                simulations.Children.Add(model);
             }
 
-            simulations.Children.Add(folder);
+            // Convert each experiment into an APSIM model
+            foreach (var (ID, Name, Crop) in exps)
+            {
+                OnNextItem(Name);
+
+                var model = await CreateExperiment(Name, ID);
+                simulations.Children.Add(model);
+            }
 
             var memo = new Memo { Name = "ExportSummary", Text = Summary.Text };
             simulations.Children.Add(memo);
