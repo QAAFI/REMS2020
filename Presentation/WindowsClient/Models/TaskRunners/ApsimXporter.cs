@@ -171,7 +171,7 @@ namespace WindowsClient.Models
                         Create<Report>("DailyReport"),
                         Create<Report>("HarvestReport"),
                         await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
-                        await Request(new PlantQuery{ ExperimentId = id, Report = Summary }),
+                        await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
                         new SurfaceOrganicMatter()
                         {
@@ -209,35 +209,32 @@ namespace WindowsClient.Models
             var query = new SoilModelTraitsQuery { ExperimentId = id };
             var traits = await QueryManager.Request(query);
                         
-            bool heading = false;
             double[] getValues<T>(string name)
             {
                 // If we found the trait in the query
                 if (traits.TryGetValue(name, out double[] result) && result is not null)
                     return result;
 
-                if (!heading)
-                {
-                    Summary.AddSubHeading("Soil model", 2);
-                    Summary.AddLine("");
-                    heading = true;
-                }
-
                 // Look for a template value
                 var type = typeof(T);
                 if (template.FindDescendant<T>() is T model)
                     if (type.GetProperty(name) is PropertyInfo info)
                         if (info.GetValue(model) is double[] values)
-                        {
-                            Summary.AddLine($"* Values not found for {name}, using template value");
                             return values;
-                        }
-                
-                // If no template value, use default value
-                Summary.AddLine($"* No data on trait {type.Name}.{name} was found, using default value");
+
+                // If no template exists, return the default
                 return default;                
             }
 
+            var missing = traits.Where(t => t.Value is null);
+            if (missing.Any())
+            {
+                Summary.AddSubHeading("Soil model:", 2);
+                Summary.AddLine("No values found for the following soil traits:");
+                Summary.AddList(missing.Select(t => t.Key));
+                Summary.AddLine("\nWhere possible, these values have been provided a default value from a template.");
+            }
+            
             var physical = new Physical
             {
                 Thickness = getValues<Physical>("Thickness"),
@@ -305,20 +302,23 @@ namespace WindowsClient.Models
                 Depth = new[] { "0-180" },
                 Thickness = new[] { 1800.0 },
                 NH4 = new[] { 1.0 }
-            };                        
-            var temperature = new CERESSoilTemperature 
+            };
+            var temperature = new CERESSoilTemperature
             {
                 Name = "Temperature"
             };
-            var nutrient = new Nutrient 
+            var nitrogen = Create<SoilNitrogen>("SoilNitrogen", new IModel[]
             {
+                new SoilNitrogenNO3 { Name = "NO3" },
+                new SoilNitrogenNH4 { Name = "NH4" },                    
+                new SoilNitrogenUrea { Name = "Urea" },
+                new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
+                new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
+            });
 
-            };
-
-            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, nutrient };
-            var soil = await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
-
-            return soil;
+            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, nitrogen };
+            return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
+            
         }
     }
 }
