@@ -16,8 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ApplicationFiles\Templates\DefaultSoil.apsimx" />
+    <None Remove="ApplicationFiles\Templates\ExpandedDataStore.apsimx" />
     <None Remove="ApplicationFiles\Templates\Simulation.apsimx" />
-    <None Remove="ApplicationFiles\Templates\Sorghum.apsimx" />
+    <None Remove="ApplicationFiles\Templates\SorghumReplacements.apsimx" />
+    <None Remove="ApplicationFiles\Templates\Validation.apsimx" />
     <None Remove="Resources\TeeChart.licenses" />
   </ItemGroup>
 
@@ -40,10 +43,19 @@
     <Content Include="ApplicationFiles\Scripts\Panels\PredictedObserved.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ApplicationFiles\Templates\DefaultSoil.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ApplicationFiles\Templates\Simulation.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ApplicationFiles\Templates\Sorghum.apsimx">
+    <Content Include="ApplicationFiles\Templates\ExpandedDataStore.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Templates\SorghumReplacements.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ApplicationFiles\Templates\Validation.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

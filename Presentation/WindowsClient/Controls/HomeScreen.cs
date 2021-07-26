@@ -213,10 +213,10 @@ namespace WindowsClient.Controls
             {
                 groupExport.Visible = true;
 
-                var exps = (await QueryManager.Request(new ExperimentsQuery())) as IEnumerable<KeyValuePair<int, string>>;
-                var items = exps.Select(e => e.Value).Distinct().ToArray();
-
-                exportList.Items.AddRange(items);
+                var exps = await QueryManager.Request(new ExperimentsQuery());
+                
+                foreach (var exp in exps)
+                    exportList.Items.Add(exp.Name);
                 
                 await detailer.LoadTreeView();
                 detailer.Tag = session.HasData;

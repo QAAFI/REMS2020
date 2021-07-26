@@ -12,7 +12,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Return a collection of all experiments paired by ID and Name
     /// </summary>
-    public class ExperimentsQuery : ContextQuery<KeyValuePair<int, string>[]>
+    public class ExperimentsQuery : ContextQuery<(int ID, string Name, string Crop)[]>
     {
         /// <inheritdoc/>
         public class Handler : BaseHandler<ExperimentsQuery>
@@ -21,9 +21,9 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override KeyValuePair<int, string>[] Run() =>
+        protected override (int, string, string)[] Run() =>
             _context.Experiments
-                .Select(e => new KeyValuePair<int, string>(e.ExperimentId, e.Name))
+                .Select(e => new Tuple<int, string, string>(e.ExperimentId, e.Name, e.Crop.Name).ToValueTuple())
                 .ToArray();
     }
 }

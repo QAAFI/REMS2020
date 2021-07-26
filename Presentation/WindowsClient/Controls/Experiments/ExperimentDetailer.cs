@@ -32,7 +32,7 @@ namespace WindowsClient.Controls
             var exps = await QueryManager.Request(new ExperimentsQuery());
 
             foreach (var exp in exps)
-                experimentsTree.Nodes.Add(new ExperimentNode(exp.Value) { ID = exp.Key });
+                experimentsTree.Nodes.Add(new ExperimentNode(exp.Name) { ID = exp.ID });
 
             experimentsTree.SelectedNode = experimentsTree.TopNode;
             experimentsTree.Refresh();
