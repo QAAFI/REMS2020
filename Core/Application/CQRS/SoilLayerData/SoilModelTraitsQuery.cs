@@ -32,8 +32,11 @@ namespace Rems.Application.CQRS
         protected override Dictionary<string, double[]> Run()
         {
             var layers = _context.GetSoilLayers(ExperimentId);
+            if (!layers.Any())
+                return new();
+
             Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth}").ToArray();
-            
+
             var traits = new Dictionary<string, double[]>
             {
                 { "Thickness", layers.Select(l => (double)(l.ToDepth - l.FromDepth)).ToArray() },
