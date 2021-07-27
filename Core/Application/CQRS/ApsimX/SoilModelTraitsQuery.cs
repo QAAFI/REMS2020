@@ -22,6 +22,8 @@ namespace Rems.Application.CQRS
 
         public string[] Depth { get; set; }
 
+        public string Crop { get; set; }
+
         /// <inheritdoc/>
         public class Handler : BaseHandler<SoilModelTraitsQuery>
         {
@@ -31,6 +33,7 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Dictionary<string, double[]> Run()
         {
+            var exp = _context.Experiments.Find(ExperimentId);
             var layers = _context.GetSoilLayers(ExperimentId);
 
             double[] thickness = null;
@@ -39,6 +42,8 @@ namespace Rems.Application.CQRS
                 Depth = layers.Select(l => $"{l.FromDepth ?? 0}-{l.ToDepth}").ToArray();
                 thickness = layers.Select(l => (double)(l.ToDepth - l.FromDepth)).ToArray();
             }
+
+            Crop = exp.Crop.Name;
 
             var traits = new Dictionary<string, double[]>
             {
