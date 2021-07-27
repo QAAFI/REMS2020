@@ -47,7 +47,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override int Steps => Items * numModelsToExport;
 
-        private readonly int numModelsToExport = 16;
+        private readonly int numModelsToExport = 17;
 
         public Markdown Summary { get; } = new();
 
@@ -183,7 +183,7 @@ namespace WindowsClient.Models
                         Create<Operations>("Irrigations"),
                         Create<Operations>("Fertilisations"),
                         Create<Irrigation>("Irrigation"),
-                        Create<Fertiliser>("Fertiliser"),
+                        await Request(new FertiliserQuery { ExperimentId = id }),
                         new MicroClimate
                         {
                             a_interception = 0,
