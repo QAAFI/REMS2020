@@ -247,6 +247,7 @@ namespace WindowsClient.Models
             };
             var soilcrop = new SoilCrop
             {
+                Name = query.Crop + "Soil",
                 LL = getValues<SoilCrop>(nameof(SoilCrop.LL)),
                 KL = getValues<SoilCrop>(nameof(SoilCrop.KL)),
                 XF = getValues<SoilCrop>(nameof(SoilCrop.XF))
