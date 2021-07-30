@@ -46,32 +46,28 @@ namespace Rems.Application.CQRS
         private Weather Handler(WeatherQuery request, CancellationToken token)
         {
             using var _context = _factory.Create();
-            // Find the MetStation used by the experiment
-            var met = _context.Experiments.Find(request.ExperimentId)
-                .MetStation;
 
-            if (!met.MetData.Any()) 
+            // Check if there is any data
+            var experiment = _context.Experiments.Find(request.ExperimentId);
+            if (!experiment.MetStation.MetData.Any()) 
                 request.Report.AddLine("No valid met data found. " +
                     "Either import met data or provide a valid file within APSIM NG before " +
                     "running the simulation.");
 
-            // Create a .met file to output to
-            string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-            WriteFile(request.ExperimentId, name, request.Report);
+            // Output the data to a .met file
+            string file = WriteFile(experiment, request.Report);
 
-            return new Weather { FileName = "met\\" + name };
+            return new Weather { FileName = "met\\" + file };
         }
 
-        private void WriteFile(int id, string name, Markdown report)
-        {            
+        private string WriteFile(Experiment experiment, Markdown report)
+        {
+            var station = experiment.MetStation;
+            var name = experiment.Name.Replace('/', '-').Replace(' ', '_') + ".met";
             var info = Directory.CreateDirectory(_file.ExportPath + "\\met");
 
             using var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create);
-            using var writer = new StreamWriter(stream);
-            using var _context = _factory.Create();
-
-            var experiment = _context.Experiments.Find(id);
-            var station = experiment.MetStation;
+            using var writer = new StreamWriter(stream);            
 
             // Attach header lines to the file
             var builder = new StringBuilder();
@@ -88,13 +84,14 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"{"()",-5}{"()",3}{"()",5}{"()",5}{"()",5}{"()",6}");
 
             // Find the weather traits
+            using var _context = _factory.Create();
             Trait maxT = _context.GetTraitByName("MaxT");
             Trait minT = _context.GetTraitByName("MinT");
             Trait radn = _context.GetTraitByName("Radn");
             Trait rain = _context.GetTraitByName("Rain");
 
-            var datas = station.MetData
-                .ToArray()
+            var datas = station.MetData                
+                .Where(d => experiment.BeginDate <= d.Date && d.Date <= experiment.EndDate)
                 .GroupBy(d => d.Date)
                 .OrderBy(d => d.Key);
 
@@ -106,10 +103,8 @@ namespace Rems.Application.CQRS
             if (days.Count() < span.TotalDays)
             {
                 report.AddLine("The provided met data does not extend for the duration of " +
-                    "the experiment. Either import additional data or provide APSIM NG a" +
+                    "the experiment. Either import additional data or provide APSIM NG a " +
                     "valid .met file before running the simulation.");
-
-                return;
             }
 
             // Format and add the data
@@ -139,6 +134,7 @@ namespace Rems.Application.CQRS
 
             writer.Write(builder.ToString());
             writer.Close();
+            return name;
         }
     }
 }
