@@ -40,98 +40,105 @@ namespace Rems.Application.CQRS
             _file = file;
         }
 
-        public Task<Weather> Handle(WeatherQuery request, CancellationToken token) => Task.Run(() => Handler(request, token));
+        public Task<Weather> Handle(WeatherQuery request, CancellationToken token) 
+            => Task.Run(() => Handler(request, token));
 
         private Weather Handler(WeatherQuery request, CancellationToken token)
         {
-            using (var _context = _factory.Create())
-            {
-                // Find the MetStation used by the experiment
-                var met = _context.Experiments.Find(request.ExperimentId)
-                    .MetStation;
+            using var _context = _factory.Create();
+            // Find the MetStation used by the experiment
+            var met = _context.Experiments.Find(request.ExperimentId)
+                .MetStation;
 
-                if (!met.MetData.Any()) request.Report.ValidateItem("", "Weather Data");
+            if (!met.MetData.Any()) 
+                request.Report.AddLine("No valid met data found. " +
+                    "Either import met data or provide a valid file within APSIM NG before " +
+                    "running the simulation.");
 
-                // Create a .met file to output to
-                string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-                var info = Directory.CreateDirectory(_file.ExportPath + "\\met");
+            // Create a .met file to output to
+            string name = met.Name.Replace('/', '-').Replace(' ', '_') + ".met";
+            WriteFile(request.ExperimentId, name, request.Report);
 
-                using (var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create))
-                using (var writer = new StreamWriter(stream))
-                {
-                    var contents = BuildContents(request.ExperimentId, request.Report);
-                    writer.Write(contents);
-                    writer.Close();
-                }
-
-                return new Weather { FileName = "met\\" + name };
-            }
+            return new Weather { FileName = "met\\" + name };
         }
 
-        private string BuildContents(int id, Markdown report)
-        {
-            using (var _context = _factory.Create())
+        private void WriteFile(int id, string name, Markdown report)
+        {            
+            var info = Directory.CreateDirectory(_file.ExportPath + "\\met");
+
+            using var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create);
+            using var writer = new StreamWriter(stream);
+            using var _context = _factory.Create();
+
+            var experiment = _context.Experiments.Find(id);
+            var station = experiment.MetStation;
+
+            // Attach header lines to the file
+            var builder = new StringBuilder();
+            builder.AppendLine("[weather.met.weather]");
+            builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
+            builder.AppendLine($"!experiment = {experiment.Name}");
+            builder.AppendLine($"!station name = {station.Name}");
+            builder.AppendLine($"latitude = {station.Latitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"longitude = {station.Longitude ?? 0.0} (DECIMAL DEGREES)");
+            builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
+            builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
+            builder.AppendLine();
+            builder.AppendLine($"{"Year",-5}{"Day",3}{"maxt",5}{"mint",5}{"radn",5}{"rain",6}");
+            builder.AppendLine($"{"()",-5}{"()",3}{"()",5}{"()",5}{"()",5}{"()",6}");
+
+            // Find the weather traits
+            Trait maxT = _context.GetTraitByName("MaxT");
+            Trait minT = _context.GetTraitByName("MinT");
+            Trait radn = _context.GetTraitByName("Radn");
+            Trait rain = _context.GetTraitByName("Rain");
+
+            var datas = station.MetData
+                .ToArray()
+                .GroupBy(d => d.Date)
+                .OrderBy(d => d.Key);
+
+            // Check the met data covers the experiment
+            var span = experiment.EndDate - experiment.BeginDate;
+            var days = datas.Select(d => d.Key)
+                .Where(d => experiment.BeginDate <= d && d <= experiment.EndDate);
+
+            if (days.Count() < span.TotalDays)
             {
-                var experiment = _context.Experiments.Find(id);
-                var station = experiment.MetStation;
+                report.AddLine("The provided met data does not extend for the duration of " +
+                    "the experiment. Either import additional data or provide APSIM NG a" +
+                    "valid .met file before running the simulation.");
 
-                // Attach header lines to the file
-                var builder = new StringBuilder();
-                builder.AppendLine("[weather.met.weather]");
-                builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
-                builder.AppendLine($"!experiment = {experiment.Name}");
-                builder.AppendLine($"!station name = {station.Name}");
-                builder.AppendLine($"latitude = {station.Latitude ?? 0.0} (DECIMAL DEGREES)");
-                builder.AppendLine($"longitude = {station.Longitude ?? 0.0} (DECIMAL DEGREES)");
-                builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
-                builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
-                builder.AppendLine();
-                builder.AppendLine($"{"Year",-7}{"Day",3}{"maxt",8}{"mint",8}{"radn",8}{"rain",8}");
-                builder.AppendLine($"{"()",-7}{"()",3}{"()",8}{"()",8}{"()",8}{"()",8}");
-
-                // Find the weather traits
-                Trait maxT = _context.GetTraitByName("MaxT");
-                Trait minT = _context.GetTraitByName("MinT");
-                Trait radn = _context.GetTraitByName("Radn");
-                Trait rain = _context.GetTraitByName("Rain");
-
-                var datas = station.MetData
-                    .ToArray()
-                    .GroupBy(d => d.Date)
-                    .OrderBy(d => d.Key);
-
-                if (!datas.Any())
-                    report.AddLine("* Met data not found for experiment");
-                else if (datas.Count() < 10)
-                    report.AddLine("* Low met data count for experiment");
-
-                // Format and add the data
-                foreach (var data in datas)
-                {
-                    var date = data.Key;
-                    var mets = data.AsEnumerable();
-
-                    builder.Append($"{date.Year,-7}");
-                    builder.Append($"{date.DayOfYear,3}");
-                    builder.Append($"{GetTraitValue(mets, maxT),8}");
-                    builder.Append($"{GetTraitValue(mets, minT),8}");
-                    builder.Append($"{GetTraitValue(mets, radn),8}");
-                    builder.AppendLine($"{GetTraitValue(mets, rain),8}");
-                }
-
-                // Find the value of a trait for a given MetData entity
-                string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
-                {
-                    var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
-
-                    if (data?.Value is double value)
-                        return Math.Round(value, 2).ToString();
-
-                    return "0";
-                }
-
-                return builder.ToString();
+                return;
             }
+
+            // Format and add the data
+            foreach (var data in datas)
+            {
+                var date = data.Key;
+                var mets = data.AsEnumerable();
+
+                builder.Append($"{date.Year,-5}");
+                builder.Append($"{date.DayOfYear,3}");
+                builder.Append($"{GetTraitValue(mets, maxT),5:F1}");
+                builder.Append($"{GetTraitValue(mets, minT),5:F1}");
+                builder.Append($"{GetTraitValue(mets, radn),5:F1}");
+                builder.AppendLine($"{GetTraitValue(mets, rain),6:F1}");
+            }
+
+            // Find the value of a trait for a given MetData entity
+            string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
+            {
+                var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
+
+                if (data?.Value is double value)
+                    return Math.Round(value, 2).ToString();
+
+                return "0";
+            }
+
+            writer.Write(builder.ToString());
+            writer.Close();
         }
     }
 }
