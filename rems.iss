@@ -2,18 +2,16 @@
 
 #include  "ISPPBuiltins.iss"
 
-#define Version "0.1.0.0"
-
 [Setup]
 AppName=REMS2020
-AppVerName=REMS2020 v{#Version}
+AppVerName=REMS2020 v{#VERSION}
 ArchitecturesInstallIn64BitMode=x64
 OutputBaseFilename=REMS2020Setup
-VersionInfoVersion={#Version}
+VersionInfoVersion={#VERSION}
 PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
-AppVersion={#Version}
-AppID=REMS2020{#Version}
+AppVersion={#VERSION}
+AppID=REMS2020{#VERSION}
 DefaultDirName={autopf}\REMS2020
 DefaultGroupName=REMS2020
 UninstallDisplayIcon={app}\bin\WindowsClient.exe
@@ -22,7 +20,7 @@ ChangesAssociations=true
 VersionInfoCompany=QAAFI
 VersionInfoDescription=REMS Installer
 VersionInfoProductName=REMS2020
-VersionInfoProductVersion={#Version}
+VersionInfoProductVersion={#VERSION}
 UsedUserAreasWarning=no
 
 [Code]
