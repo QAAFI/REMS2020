@@ -20,6 +20,6 @@ namespace WindowsClient.Models
         /// <remarks>
         /// This is intended to aid display in a ListBox
         /// </remarks>
-        public override string ToString() => $"{Name} ({Description})";
+        public override string ToString() => Description is null ? Name : $"{Name} ({Description})";
     }
 }

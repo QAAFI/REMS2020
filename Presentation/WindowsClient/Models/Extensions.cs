@@ -149,6 +149,9 @@ namespace WindowsClient.Models
 
         public static string WordWrap(this string text, int length)
         {
+            if (text is null)
+                return "";
+
             var builder = new StringBuilder();
             int line = 0;
             foreach (string word in text.Split(' '))
