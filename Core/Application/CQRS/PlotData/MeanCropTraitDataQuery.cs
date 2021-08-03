@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
+using Rems.Domain.Entities;
 
 namespace Rems.Application.CQRS
 {
@@ -24,13 +26,24 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override SeriesData<DateTime, double> Run()
         {
-            var data = _context.PlotData
-                .Where(p => p.Plot.TreatmentId == TreatmentId)
-                .Where(p => p.Trait.Name == TraitName)
-                .ToArray() // Have to cast to an array to support the following GroupBy
-                .GroupBy(p => p.Date)
-                .OrderBy(g => g.Key)
-                .ToArray();
+            if (_context.Traits.FirstOrDefault(t => t.Name == TraitName) is not Trait trait)
+                return null;
+
+            // Have to cast to an array to support the following GroupBy
+            IEnumerable<(DateTime Date, double Value)> arr = trait.Type == "Soil"
+                ? _context.SoilDatas
+                    .Where(p => p.Plot.TreatmentId == TreatmentId)
+                    .Where(p => p.Trait.Name == TraitName)
+                    .ToArray()
+                    .Select(p => (p.Date, p.Value))
+                : _context.PlotData
+                    .Where(p => p.Plot.TreatmentId == TreatmentId)
+                    .Where(p => p.Trait.Name == TraitName)
+                    .ToArray()
+                    .Select(p => (p.Date, p.Value));
+
+            var data = arr.GroupBy(p => p.Date)
+                .OrderBy(g => g.Key);
 
             string units = _context.Traits
                 .FirstOrDefault(t => t.Name == TraitName)

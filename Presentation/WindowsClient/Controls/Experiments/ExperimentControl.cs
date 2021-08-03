@@ -1,8 +1,5 @@
 ﻿using Rems.Application.CQRS;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsClient.Models;
@@ -26,14 +23,16 @@ namespace WindowsClient.Controls
         public int ID { get; set; }
 
         private ControlNode<OperationsChart> operations = new("Operations");
-        private ControlNode<TraitChart> crop = new("Crop");
+        private ControlNode<CropChart> crop = new("Crop");
         private ControlNode<SoilChart> soil = new("Soil");
+        private ControlNode<SoilLayerChart> layers = new("Soil layers");
 
         public ExperimentNode(string text) : base(text)
         {
             Nodes.Add(operations);
             Nodes.Add(crop);
             Nodes.Add(soil);
+            Nodes.Add(layers);
         }
 
         public Task<TabControl> GetSelectedControl()
@@ -46,6 +45,9 @@ namespace WindowsClient.Controls
 
             if (soil.IsSelected)
                 return soil.Create(ID);
+
+            if (layers.IsSelected)
+                return layers.Create(ID);
 
             return null;
         }
@@ -66,7 +68,7 @@ namespace WindowsClient.Controls
             {
                 var control = new TControl();
 
-                await control.LoadTreatment(treat.Key);
+                await control.LoadTreatment(treat.Key).TryRun();
                 control.Dock = DockStyle.Fill;
 
                 var page = new TabPage(treat.Value);
