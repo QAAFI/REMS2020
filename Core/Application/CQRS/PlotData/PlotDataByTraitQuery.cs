@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
@@ -31,38 +32,18 @@ namespace Rems.Application.CQRS
             if (_context.Plots.Find(PlotId) is not Plot plot)
                 return null;
 
-            DateTime[] dates;
-            double[] values;
-            
-            if (trait.Type == "Soil")
-            {
-                var ordered = plot.SoilData.Where(d => d.Trait == trait).OrderBy(d => d.Date);
+            IEnumerable<(DateTime Date, double Value)> data = trait.Type == "Soil"
+                ? plot.SoilData.Where(d => d.Trait == trait).OrderBy(d => d.Date).Select(d => (d.Date, d.Value))
+                : plot.PlotData.Where(d => d.Trait == trait).OrderBy(d => d.Date).Select(d => (d.Date, d.Value));
 
-                dates = ordered.Select(d => d.Date).ToArray();
-                values = ordered.Select(d => d.Value).ToArray();
-            }
-            else
-            {
-                var ordered = plot.PlotData.Where(d => d.Trait == trait).OrderBy(d => d.Date);
-
-                dates = ordered.Select(d => d.Date).ToArray();
-                values = ordered.Select(d => d.Value).ToArray();
-            }       
-
-            var rep = _context.Plots.Where(p => p.PlotId == PlotId);
-            var x = rep.Select(p => p.Repetition).First();
-            string name = TraitName + " " + x;
-
-            string units = _context.Traits
-                .FirstOrDefault(t => t.Name == TraitName)
-                ?.Unit
-                ?.Name;
+            string name = TraitName + " " + plot.Repetition;
+            string units = trait?.Unit?.Name;
 
             var series = new SeriesData<DateTime, double>
             {
                 Name = name,
-                X = dates,
-                Y = values,
+                X = data.Select(d => d.Date).ToArray(),
+                Y = data.Select(d => d.Value).ToArray(),
                 XName = "Date",
                 YName = $"Value ({units})"
             };
