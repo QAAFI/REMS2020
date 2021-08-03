@@ -208,7 +208,16 @@ namespace WindowsClient.Models
 
             var query = new SoilModelTraitsQuery { ExperimentId = id };
             var traits = await QueryManager.Request(query);
-                        
+                 
+            if (traits["Thickness"] is not double[] thickness)
+            {
+                Summary.AddSubHeading("Soil model", 2);
+                Summary.AddLine("No soil layer data found. A template soil model has been used. " +
+                    "Check the sensibility before running the simulation.");
+
+                return template;
+            }
+
             double[] getValues<T>(string name)
             {
                 // If we found the trait in the query
@@ -220,7 +229,8 @@ namespace WindowsClient.Models
                 if (template.FindDescendant<T>() is T model)
                     if (type.GetProperty(name) is PropertyInfo info)
                         if (info.GetValue(model) is double[] values)
-                            return values;
+                            if (values.Length <= thickness.Length)
+                                return values.Take(thickness.Length).ToArray();
 
                 // If no template exists, return the default
                 return default;                
@@ -230,14 +240,16 @@ namespace WindowsClient.Models
             if (missing.Any())
             {
                 Summary.AddSubHeading("Soil model:", 2);
-                Summary.AddLine("No values found for the following soil traits:");
+                Summary.AddLine("No data was found for the following soil layer traits:");
                 Summary.AddList(missing.Select(t => t.Key));
-                Summary.AddLine("\nWhere possible, these values have been provided a default value from a template.");
+                Summary.AddLine("\nThese values have been provided a default value." +
+                    "It is recommended to check the sensibility of these values before " +
+                    "running the simulation.");
             }
             
             var physical = new Physical
             {
-                Thickness = getValues<Physical>("Thickness"),
+                Thickness = thickness,
                 BD = getValues<Physical>(nameof(Physical.BD)),
                 AirDry = getValues<Physical>(nameof(Physical.AirDry)),
                 LL15 = getValues<Physical>(nameof(Physical.LL15)),
@@ -256,7 +268,7 @@ namespace WindowsClient.Models
             var balance = new WaterBalance
             {
                 Name = "SoilWater",
-                Thickness = getValues<WaterBalance>(nameof(WaterBalance.Thickness)),
+                Thickness = thickness,
                 SWCON = getValues<WaterBalance>(nameof(WaterBalance.SWCON)),
                 KLAT = getValues<WaterBalance>(nameof(WaterBalance.KLAT)),
                 SummerDate = "1-Nov",
@@ -277,7 +289,7 @@ namespace WindowsClient.Models
             {
                 Name = nameof(Organic),
                 Depth = query.Depth,
-                Thickness = getValues<Organic>("Thickness"),
+                Thickness = thickness,
                 Carbon = getValues<Organic>(nameof(Organic.Carbon)),
                 SoilCNRatio = getValues<Organic>(nameof(Organic.SoilCNRatio)),
                 FBiom = getValues<Organic>(nameof(Organic.FBiom)),
@@ -287,7 +299,7 @@ namespace WindowsClient.Models
             var chemical = new Chemical
             {
                 Depth = query.Depth,
-                Thickness = getValues<Chemical>("Thickness"),
+                Thickness = thickness,
                 NO3N = getValues<Chemical>(nameof(Chemical.NO3N)),
                 NH4N = getValues<Chemical>(nameof(Chemical.NH4N)),
                 PH = getValues<Chemical>(nameof(Chemical.PH))
