@@ -31,7 +31,7 @@ namespace WindowsClient.Controls
             var tip = new ToolTip();
 
             plotsBox.SelectedIndex = 0;
-            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots();
+            plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
 
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
             traitsBox.SelectedIndexChanged += OnTraitSelected;
@@ -72,10 +72,10 @@ namespace WindowsClient.Controls
         }
 
         private async void OnTraitSelected(object sender, EventArgs e) 
-            => await LoadPlots();
+            => await LoadPlots().TryRun();
 
         private async void OnDateSelected(object sender, EventArgs e) 
-            => await LoadPlots();
+            => await LoadPlots().TryRun();
 
         /// <summary>
         /// Sets the tool tip on mouse hover
@@ -115,8 +115,13 @@ namespace WindowsClient.Controls
         /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox()
         {
+            var query = new PlotTraitsByTypeQuery
+            {
+                TreatmentId = Treatment,
+                TraitType = "SoilLayer"
+            };
             // Load the trait type box
-            var traits = await QueryManager.Request(new SoilTraitsQuery() { TreatmentId = Treatment });
+            var traits = await QueryManager.Request(query);
             var pairs = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
             lock (traitsBox)

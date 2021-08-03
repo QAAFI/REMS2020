@@ -19,9 +19,19 @@ namespace WindowsClient.Controls
         /// <inheritdoc/>
         public int Treatment { get; set; }
 
-        private Chart chart => tChart.Chart;        
+        public string TraitType { get; set; }
 
-        private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
+        protected Chart chart 
+            => tChart.Chart;
+
+        protected object selected 
+            => plotsBox.SelectedItem;
+
+        protected string[] traits 
+            => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
+
+        protected string[] descriptions 
+            => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Description).ToArray();
 
         public TraitChart()
         {
@@ -113,8 +123,14 @@ namespace WindowsClient.Controls
         /// <param name="id">The treatment ID</param>
         public async Task LoadTraitsBox()
         {
+            var query = new PlotTraitsByTypeQuery
+            {
+                TreatmentId = Treatment,
+                TraitType = TraitType
+            };
+
             // Load the trait type box
-            var names = await QueryManager.Request(new CropTraitsQuery() { TreatmentId = Treatment });
+            var names = await QueryManager.Request(query);
             var pairs = await QueryManager.Request(new TraitDescriptionsQuery { Traits = names });
 
             lock (traitsBox)
@@ -130,53 +146,9 @@ namespace WindowsClient.Controls
             }
         }        
 
-        public async Task LoadPlots()
-        {            
-            string xtitle = "";
-            string ytitle = "";
-
-            List<SeriesData<DateTime, double>> datas = new();
-            Action<SeriesData<DateTime, double>> action = data =>
-            {
-                datas.Add(data);
-                xtitle = data.XName;
-                ytitle = data.YName;
-            };
-
-            if (plotsBox.SelectedItem.ToString() == "All")
-                foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
-                    await new PlotDataByTraitQuery
-                    {
-                        TraitName = "",
-                        PlotId = plot.Key
-                    }.IterateTraits(traits, action);
-
-            else if (plotsBox.SelectedItem.ToString() == "Mean")
-                await new MeanCropTraitDataQuery
-                {
-                    TraitName = "",
-                    TreatmentId = Treatment
-                }.IterateTraits(traits, action);
-
-            else if (plotsBox.SelectedItem is PlotDTO plot)
-                await new PlotDataByTraitQuery
-                {
-                    TraitName = "",
-                    PlotId = plot.ID
-                }.IterateTraits(traits, action);
-
-            chart.Series.Clear();
-            datas.ForEach(d => d.AddToSeries(chart.Series));
-
-            chart.Axes.Bottom.Title.Text = xtitle;
-            chart.Axes.Left.Title.Text = ytitle;
-            chart.Legend.Title.Text = traitsBox.SelectedItems
-                .OfType<ListTrait>()
-                .First()?.Description.WordWrap(18);
-
-            chart.Legend.Width = 120;
-
-            chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
+        public virtual async Task LoadPlots()
+        {
+            await Task.Delay(50).TryRun();
         }    
     }
 }
