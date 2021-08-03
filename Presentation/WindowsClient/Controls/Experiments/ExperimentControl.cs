@@ -27,13 +27,13 @@ namespace WindowsClient.Controls
 
         private ControlNode<OperationsChart> operations = new("Operations");
         private ControlNode<TraitChart> crop = new("Crop");
-        private ControlNode<SoilChart> soil = new("Soil");
+        private ControlNode<SoilLayerChart> layers = new("Soil layers");
 
         public ExperimentNode(string text) : base(text)
         {
             Nodes.Add(operations);
             Nodes.Add(crop);
-            Nodes.Add(soil);
+            Nodes.Add(layers);
         }
 
         public Task<TabControl> GetSelectedControl()
@@ -44,8 +44,8 @@ namespace WindowsClient.Controls
             if (crop.IsSelected)
                 return crop.Create(ID);
 
-            if (soil.IsSelected)
-                return soil.Create(ID);
+            if (layers.IsSelected)
+                return layers.Create(ID);
 
             return null;
         }

@@ -13,7 +13,7 @@ namespace WindowsClient.Controls
     /// <summary>
     /// Manages the presentation of soil data for a treatment
     /// </summary>
-    public partial class SoilChart : UserControl, ITreatmentControl
+    public partial class SoilLayerChart : UserControl, ITreatmentControl
     {
         /// <inheritdoc/>
         public int Treatment { get; set; }
@@ -23,7 +23,7 @@ namespace WindowsClient.Controls
         private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
         private DateTime[] dates => datesBox.SelectedItems.Cast<DateTime>().ToArray();
 
-        public SoilChart()
+        public SoilLayerChart()
         {
             InitializeComponent();
             Format();

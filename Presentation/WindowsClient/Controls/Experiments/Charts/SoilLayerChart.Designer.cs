@@ -1,6 +1,6 @@
 ﻿namespace WindowsClient.Controls
 {
-    partial class SoilChart
+    partial class SoilLayerChart
     {
         /// <summary> 
         /// Required designer variable.
