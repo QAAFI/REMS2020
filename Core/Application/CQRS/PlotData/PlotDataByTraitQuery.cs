@@ -32,9 +32,37 @@ namespace Rems.Application.CQRS
             if (_context.Plots.Find(PlotId) is not Plot plot)
                 return null;
 
-            IEnumerable<(DateTime Date, double Value)> data = trait.Type == "Soil"
-                ? plot.SoilData.Where(d => d.Trait == trait).OrderBy(d => d.Date).Select(d => (d.Date, d.Value))
-                : plot.PlotData.Where(d => d.Trait == trait).OrderBy(d => d.Date).Select(d => (d.Date, d.Value));
+            IEnumerable<(DateTime Date, double Value)> data;
+
+            switch (trait.Type)
+            {
+                case "Climate":
+                    var exp = plot.Treatment.Experiment;
+                    data = exp.MetStation.MetData
+                        .Where(m => m.Trait.Name == TraitName)
+                        .OrderBy(m => m.Date)
+                        .GroupBy(m => (m.Date.Day, m.Date.Month))
+                        .Select(g => (
+                            new DateTime(2020, g.Key.Month, g.Key.Day),
+                            g.Select(m => m.Value).Average()
+                        ));
+                    break;
+
+                case "Soil":
+                    data = plot.SoilData
+                        .Where(d => d.Trait == trait)
+                        .OrderBy(d => d.Date)
+                        .Select(d => (d.Date, d.Value));
+                    break;
+
+                case "Crop":
+                default:
+                    data = plot.PlotData
+                        .Where(d => d.Trait == trait)
+                        .OrderBy(d => d.Date)
+                        .Select(d => (d.Date, d.Value));
+                    break;
+            }
 
             string name = TraitName + " " + plot.Repetition;
             string units = trait?.Unit?.Name;

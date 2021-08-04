@@ -22,6 +22,7 @@ namespace WindowsClient.Controls
     {
         public int ID { get; set; }
 
+        private ControlNode<MetChart> met = new("Met");
         private ControlNode<OperationsChart> operations = new("Operations");
         private ControlNode<CropChart> crop = new("Crop");
         private ControlNode<SoilChart> soil = new("Soil");
@@ -29,6 +30,7 @@ namespace WindowsClient.Controls
 
         public ExperimentNode(string text) : base(text)
         {
+            Nodes.Add(met);
             Nodes.Add(operations);
             Nodes.Add(crop);
             Nodes.Add(soil);
@@ -37,6 +39,9 @@ namespace WindowsClient.Controls
 
         public Task<TabControl> GetSelectedControl()
         {
+            if (met.IsSelected)
+                return met.Create(ID);
+
             if (operations.IsSelected)
                 return operations.Create(ID);
 
