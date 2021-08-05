@@ -40,6 +40,9 @@ namespace WindowsClient.Controls
 
             var tip = new ToolTip();
 
+            chartBox.SelectedIndex = 0;
+            chartBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
+
             plotsBox.SelectedIndex = 0;
             plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
 
@@ -141,9 +144,9 @@ namespace WindowsClient.Controls
 
                 foreach (var pair in pairs)
                     traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
-                
-                traitsBox.SelectedIndex = 0;
             }
+
+            traitsBox.SelectedIndex = 0;
         }        
 
         public virtual async Task LoadPlots()
@@ -152,7 +155,7 @@ namespace WindowsClient.Controls
             string ytitle = "";
 
             List<SeriesData<DateTime, double>> datas = new();
-            Action<SeriesData<DateTime, double>> action = data =>
+            Action<SeriesData<DateTime, double>> iterator = data =>
             {
                 datas.Add(data);
                 xtitle = data.XName;
@@ -165,25 +168,58 @@ namespace WindowsClient.Controls
                     {
                         TraitName = "",
                         PlotId = plot.Key
-                    }.IterateTraits(traits, action);
+                    }.IterateTraits(traits, iterator);
 
             else if (selected.ToString() == "Mean")
                 await new MeanCropTraitDataQuery
                 {
                     TraitName = "",
                     TreatmentId = Treatment
-                }.IterateTraits(traits, action);
+                }.IterateTraits(traits, iterator);
 
             else if (selected is PlotDTO plot)
                 await new PlotDataByTraitQuery
                 {
                     TraitName = "",
                     PlotId = plot.ID
-                }.IterateTraits(traits, action);
+                }.IterateTraits(traits, iterator);
 
             chart.Series.Clear();
-            datas.ForEach(d => d.AddToSeries(chart.Series));
+            Action<SeriesData<DateTime, double>> action = chartBox.SelectedItem switch
+            {
+                "Scatter" => d =>
+                {
+                    var series = d.CreateSeries<Points, DateTime, double>();
+                    series.Pointer.Style = (PointerStyles)(d.Series % 16);
+                    chart.Series.Add(series);
+                },
 
+                "Bar" => d =>
+                {
+                    var series = d.CreateSeries<Bar, DateTime, double>();
+                    series.Marks.Visible = false;
+                    series.CustomBarWidth = 3;
+                    chart.Series.Add(series);
+                },
+
+                "Line" => d =>
+                {
+                    var series = d.CreateSeries<Line, DateTime, double>();
+                    series.Pointer.Style = PointerStyles.Nothing;
+                    chart.Series.Add(series);
+                },
+
+                _ => d =>
+                {
+                    var points = d.CreateSeries<Points, DateTime, double>();
+                    points.Pointer.Style = (PointerStyles)(d.Series % 16);
+                    var line = d.CreateSeries<Line, DateTime, double>();
+                    line.Legend.Visible = false;
+                    chart.Series.Add(points);
+                    chart.Series.Add(line);
+                }
+            };
+            datas.ForEach(action);
             chart.Axes.Bottom.Title.Text = xtitle;
             chart.Axes.Left.Title.Text = ytitle;
             chart.Legend.Title.Text = descriptions[0]?.WordWrap(18) ?? "";

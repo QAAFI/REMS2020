@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
+using Steema.TeeChart.Styles;
 using WindowsClient.Models;
 
 namespace WindowsClient.Controls
@@ -201,7 +202,17 @@ namespace WindowsClient.Controls
                     }.IterateTraits(traits, action);
 
             chart.Series.Clear();
-            datas.ForEach(d => d.AddToSeries(chart.Series, true));
+            datas.ForEach(d => 
+            { 
+                var points = d.CreateSeries<Points, double, int>(true);
+                points.Pointer.Style = (PointerStyles)(d.Series % 16);
+
+                var line = d.CreateSeries<Line, double, int>(true);
+                line.Legend.Visible = false;
+
+                chart.Series.Add(points);
+                chart.Series.Add(line);
+            });
 
             // Set x-axis bounds
             if (chart.Series.Any())

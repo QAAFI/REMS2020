@@ -37,12 +37,11 @@ namespace Rems.Application.CQRS
                 .ToArray();
 
             var plot = _context.Plots.Find(PlotId);
-            var x = plot.Repetition.ToString();
-            string name = x + " " + TraitName + ", " + Date.ToString("dd/MM/yy");
 
             var series = new SeriesData<double, int>
             {
-                Name = name,
+                Name = TraitName,
+                Series = plot.Repetition,
                 X = data.Select(d => d.Value).ToArray(),
                 Y = data.Select(d => d.DepthTo).ToArray(),
                 XName = "Value",

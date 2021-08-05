@@ -10,7 +10,7 @@ namespace Rems.Application.Common
         public TY[] Y { get; set; }
 
         public string Name { get; set; }
-        public int Series { get; set; } = 1;
+        public int Series { get; set; }
         public string XName { get; set; }
         public string XUnits { get; set; }
         public string YName { get; set; }
