@@ -40,7 +40,7 @@ namespace Rems.Application.CQRS
 
             var series = new SeriesData<double, int>
             {
-                Name = TraitName,                
+                Name = TraitName + " " + Date.ToString("dd-MMM-yy"),                
                 X = data.Select(g => g.Average(p => p.Value)).ToArray(),
                 Y = data.Select(g => g.Key).ToArray(),
                 XName = "Value",

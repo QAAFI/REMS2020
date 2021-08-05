@@ -40,7 +40,7 @@ namespace Rems.Application.CQRS
 
             var series = new SeriesData<double, int>
             {
-                Name = TraitName,
+                Name = TraitName + " " + Date.ToString("dd-MMM-yy"),
                 Series = plot.Repetition,
                 X = data.Select(d => d.Value).ToArray(),
                 Y = data.Select(d => d.DepthTo).ToArray(),

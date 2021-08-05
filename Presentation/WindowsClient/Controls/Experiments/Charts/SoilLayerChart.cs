@@ -162,6 +162,8 @@ namespace WindowsClient.Controls
 
         public async Task LoadPlots()
         {
+            chart.Series.Clear();
+
             string xtitle = "";
             string ytitle = "";
 
@@ -173,9 +175,10 @@ namespace WindowsClient.Controls
                 ytitle = data.YName;
             };
 
-            if (plotsBox.SelectedItem.ToString() == "All")
-                foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
-                    foreach (var date in dates)
+            foreach (var date in dates)
+            {
+                if (plotsBox.SelectedItem.ToString() == "All")
+                    foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
                         await new SoilLayerTraitDataQuery
                         {
                             TraitName = "",
@@ -183,8 +186,7 @@ namespace WindowsClient.Controls
                             Date = date
                         }.IterateTraits(traits, action);
 
-            else if (plotsBox.SelectedItem.ToString() == "Mean")
-                foreach (var date in dates)
+                else if (plotsBox.SelectedItem.ToString() == "Mean")
                     await new MeanSoilTraitDataQuery
                     {
                         TraitName = "",
@@ -192,27 +194,27 @@ namespace WindowsClient.Controls
                         Date = date
                     }.IterateTraits(traits, action);
 
-            else if (plotsBox.SelectedItem is PlotDTO plot)
-                foreach (var date in dates)
-                    await new SoilLayerTraitDataQuery
-                    {
-                        TraitName = "",
-                        PlotId = plot.ID,
-                        Date = date
-                    }.IterateTraits(traits, action);
+                else if (plotsBox.SelectedItem is PlotDTO plot)
+                        await new SoilLayerTraitDataQuery
+                        {
+                            TraitName = "",
+                            PlotId = plot.ID,
+                            Date = date
+                        }.IterateTraits(traits, action);
 
-            chart.Series.Clear();
-            datas.ForEach(d => 
-            { 
-                var points = d.CreateSeries<Points, double, int>(true);
-                points.Pointer.Style = (PointerStyles)(d.Series % 16);
+                datas.ForEach(d =>
+                {
+                    var points = d.CreateSeries<Points, double, int>(true);
+                    points.Pointer.Style = (PointerStyles)(d.Series % 16);
+                    points.Legend.Text += ", " + d.Series;
 
-                var line = d.CreateSeries<Line, double, int>(true);
-                line.Legend.Visible = false;
+                    var line = d.CreateSeries<Line, double, int>(true);
+                    line.Legend.Visible = false;
 
-                chart.Series.Add(points);
-                chart.Series.Add(line);
-            });
+                    chart.Series.Add(points);
+                    chart.Series.Add(line);
+                });
+            }
 
             // Set x-axis bounds
             if (chart.Series.Any())
