@@ -167,7 +167,7 @@ namespace WindowsClient.Controls
             string xtitle = "";
             string ytitle = "";
 
-            List<SeriesData<double, int>> datas = new();
+            List<SeriesData<double, int>> datas = null;
             Action<SeriesData<double, int>> action = data =>
             {
                 datas.Add(data);
@@ -177,6 +177,7 @@ namespace WindowsClient.Controls
 
             foreach (var date in dates)
             {
+                datas = new();
                 if (plotsBox.SelectedItem.ToString() == "All")
                     foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
                         await new SoilLayerTraitDataQuery
@@ -206,7 +207,9 @@ namespace WindowsClient.Controls
                 {
                     var points = d.CreateSeries<Points, double, int>(true);
                     points.Pointer.Style = (PointerStyles)(d.Series % 16);
-                    points.Legend.Text += ", " + d.Series;
+                    
+                    if (d.Series != 0)
+                        points.Legend.Text += ", " + d.Series;
 
                     var line = d.CreateSeries<Line, double, int>(true);
                     line.Legend.Visible = false;
