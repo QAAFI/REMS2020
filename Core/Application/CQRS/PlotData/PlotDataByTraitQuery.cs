@@ -65,15 +65,16 @@ namespace Rems.Application.CQRS
             }
 
             string name = TraitName + " " + plot.Repetition;
-            string units = trait?.Unit?.Name;
 
             var series = new SeriesData<DateTime, double>
             {
-                Name = name,
+                Name = TraitName,
+                Series = plot.Repetition,
                 X = data.Select(d => d.Date).ToArray(),
                 Y = data.Select(d => d.Value).ToArray(),
                 XName = "Date",
-                YName = $"Value ({units})"
+                YName = $"Value",
+                YUnits = trait?.Unit?.Name
             };
 
             return series;

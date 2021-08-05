@@ -30,11 +30,11 @@ namespace Rems.Application.CQRS
 
             var data = new SeriesData<DateTime, double>
             {
+                Name = "Tillages",
                 X = tillages.Select(t => t.Date).ToArray(),
                 Y = tillages.Select(t => t.Depth).ToArray(),
                 XName = "Date",
-                YName = "Depth",
-                Name = "Tillages"
+                YName = "Depth"                
             };
 
             return data;

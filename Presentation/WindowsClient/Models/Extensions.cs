@@ -16,6 +16,8 @@ namespace WindowsClient.Models
 {
     public static class Extensions
     {
+        private static ColourLookup Colours = new();
+
         public static async Task IterateTraits<TX, TY>(this TraitDataQuery<TX, TY> query, IEnumerable<string> traits, Action<SeriesData<TX, TY>> action)
         {
             foreach (string trait in traits)
@@ -39,6 +41,8 @@ namespace WindowsClient.Models
 
             Points points = new();
             points.Legend.Text = data.Name;
+            points.Color = Colours.Lookup(data.Name).colour;
+            points.Pointer.Style = (PointerStyles) (data.Series % 16) - 1;
 
             Line line = new();
             line.Legend.Visible = false;
