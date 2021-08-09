@@ -21,9 +21,7 @@ namespace Models
         [EventSubscribe("Sowing")]
         private void OnSowing(object sender, EventArgs e)
         {
-            Model crop = sender as Model;
-            if (Crop != null && crop.Name.ToLower() == (Crop as IModel).Name.ToLower())
-                Fertiliser.Apply(Amount: Amount, Type: FertiliserType);
+            Fertiliser.Apply(Amount: Amount, Type: FertiliserType);
         }
         
     }
