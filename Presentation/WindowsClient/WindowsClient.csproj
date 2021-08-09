@@ -9,7 +9,7 @@
   <ItemGroup>
     <Compile Remove="ApplicationFiles\Scripts\Managers\Fertilisation.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Managers\Harvest.cs" />
-    <Compile Remove="ApplicationFiles\Scripts\Managers\SkipRow.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Irrigation.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Managers\Sowing.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Panels\NewOld.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Panels\PredictedObserved.cs" />
@@ -25,13 +25,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ApplicationFiles\Scripts\Managers\Irrigation.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ApplicationFiles\Scripts\Managers\Fertilisation.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ApplicationFiles\Scripts\Managers\Harvest.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ApplicationFiles\Scripts\Managers\SkipRow.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ApplicationFiles\Scripts\Managers\Sowing.cs">

@@ -9,7 +9,6 @@ namespace Models
     {
         [Link] Clock Clock;
         [Link] Fertiliser Fertiliser;
-        [Link] Summary Summary; 
 
         public double CumulativeSowFert { get; set; } 
 
@@ -22,9 +21,9 @@ namespace Models
         [EventSubscribe("Sowing")]
         private void OnSowing(object sender, EventArgs e)
         {
+            Model crop = sender as Model;
+            if (Crop != null && crop.Name.ToLower() == (Crop as IModel).Name.ToLower())
                 Fertiliser.Apply(Amount: Amount, Type: FertiliserType);
-                CumulativeSowFert += Amount;
-                Summary.WriteMessage(this, "Fertilising!! applying " + Amount.ToString()); 
         }
         
     }

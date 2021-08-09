@@ -13,7 +13,7 @@ namespace Models
         [Link]
         private IPlant crop;
 
-        [EventSubscribe("DoManagement")]
+        [EventSubscribe("EndOfDay")]
         private void OnDoCalculations(object sender, EventArgs e)
         {
             if (crop.IsReadyForHarvesting)

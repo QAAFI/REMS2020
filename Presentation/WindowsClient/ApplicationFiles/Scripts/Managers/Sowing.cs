@@ -8,6 +8,15 @@ namespace Models
     [Serializable]
     public class Script : Model
     {
+        [Link]
+        private Zone paddock;
+
+        [Link]
+        private Clock clock;
+
+        [Link]
+        private IPlant crop;
+
         [Description("Enter sowing date (dd/mm/yyyy) : ")]
         public DateTime Date { get; set; }
 
@@ -32,22 +41,13 @@ namespace Models
 
         public enum RowConfigurationType 
         {
-            solid, single, _double /*replaces double*/
+            solid, single, twin /*replaces double*/
         }
-
-        [Link]
-        private Zone paddock;
-
-        [Link]
-        private Clock clock;
-
-        [Link]
-        private IPlant crop;
 
         [EventSubscribe("DoManagement")]
         private void OnDoManagement(object sender, EventArgs e)
         {
-            if (clock.Today == Date /* && isFallow */)
+            if (clock.Today == Date)
             {
                 double population = Density * paddock.Area;
                 crop.Sow(Cultivar, population, Depth, RowSpacing, budNumber: Ftn, rowConfig: (double)RowConfiguration + 1);
