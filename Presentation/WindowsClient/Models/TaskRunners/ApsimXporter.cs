@@ -203,18 +203,21 @@ namespace WindowsClient.Models
         }   
 
         private async Task<IModel> CreateSoilModel(int id)
-        {
-            var template = JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"));
-
+        {   
             var query = new SoilModelTraitsQuery { ExperimentId = id };
             var traits = await QueryManager.Request(query);
-                 
+
+            var template = query.Crop.ToUpper() == "SORGHUM"
+                ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"))
+                : JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"));
+
             if (traits["Thickness"] is not double[] thickness)
             {
                 Summary.AddSubHeading("Soil model", 2);
                 Summary.AddLine("No soil layer data found. A template soil model has been used. " +
                     "Check the sensibility before running the simulation.");
 
+                template.FindDescendant<SoilCrop>().Name = query.Crop + "Soil";
                 return template;
             }
 
