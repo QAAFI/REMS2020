@@ -1,10 +1,11 @@
-﻿using MediatR;
-using Models;
+﻿using Models;
 using Models.Core;
 using Rems.Application.Common.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
-
+using Experiment = Rems.Domain.Entities.Experiment;
+using System.Text.RegularExpressions;
 
 namespace Rems.Application.CQRS
 {
@@ -24,21 +25,27 @@ namespace Rems.Application.CQRS
 
         protected override Folder Run()
         {
-            var harvest = new Manager { Name = "Harvesting", Code = _manager.GetContent("Harvest") };            
-
-            var folder = new Folder 
-            { 
-                Name = "Managers",
-                Children = new List<IModel> { GetSowing(), harvest }
-            };
-
-            return folder;
-        }
-
-        private Manager GetSowing()
-        {
             var exp = _context.Experiments.Find(ExperimentId);
 
+            var managers = new List<IModel>
+            {
+                GetSowing(exp),
+                new Manager { Name = "Harvesting", Code = _manager.GetContent("Harvest") }
+            };
+
+            // Setup designs regex to check for specific factors
+            var options = RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace;
+            var factors = exp.Treatments.SelectMany(t => t.Designs.Select(d => d.Level.Factor.Name)).Distinct();         
+            
+            // Check if fertilisation is a factor
+            if (factors.Any(factor => Regex.IsMatch(factor, @"n\s*rates", options)))
+                managers.Add(new Manager { Name = "Fertilisation", Code = _manager.GetContent("Fertilisation") });
+            
+            return new Folder { Name = "Managers", Children = managers };
+        }
+
+        private Manager GetSowing(Experiment exp)
+        {
             var sowing = new Manager { Name = "Sowing", Code = _manager.GetContent("Sowing") };
 
             sowing.Parameters = new List<KeyValuePair<string, string>>

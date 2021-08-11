@@ -29,8 +29,7 @@ namespace Rems.Application.CQRS
             var field = _context.Experiments.Find(ExperimentId).Field;
             var slope = field.Slope.GetValueOrDefault();
 
-            var valid = Report.ValidateItem(field.Name, nameof(Zone.Name))
-                & Report.ValidateItem(slope, nameof(Zone.Slope));
+            var valid = Report.ValidateItem(field.Name, nameof(Zone.Name));
 
             Report.CommitValidation(nameof(Zone), !valid);
 

@@ -1,10 +1,19 @@
-﻿using Models;
-using Models.Factorial;
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+
+using Fertiliser = Models.Fertiliser;
+using Operation = Models.Operation;
+using Operations = Models.Operations;
+using Factor = Models.Factorial.Factor;
+using Factors = Models.Factorial.Factors;
+using CompositeFactor = Models.Factorial.CompositeFactor;
+using Level = Rems.Domain.Entities.Level;
+using Irrigation = Rems.Domain.Entities.Irrigation;
+using Fertilization = Rems.Domain.Entities.Fertilization;
 
 namespace Rems.Application.CQRS
 {
@@ -41,13 +50,23 @@ namespace Rems.Application.CQRS
                     .SelectMany(l => GetSpecification(l))
                     .ToList();
 
-                Func<Domain.Entities.Irrigation, Operation> f1 = i 
-                    => new Operation { Date = i.Date.ToString(), Action = $"[Irrigation].Apply({i.Amount})" };
-                AddOperations(factor, "Irrigations", treatment.Irrigations, f1);
+                var irrigs = treatment.Irrigations
+                    .Select(i => new Operation { Date = i.Date.ToString(), Action = $"[Irrigation].Apply({i.Amount})" });
 
-                Func<Domain.Entities.Fertilization, Operation> f2 = f 
-                    => new Operation { Date = f.Date.ToString(), Action = FertAction(f) };
-                AddOperations(factor, "Fertilisations", treatment.Fertilizations, f2);
+                AddOperations(factor, irrigs, "Irrigations");
+
+                var ferts = treatment.Fertilizations
+                    .Select(f => new Operation { Date = f.Date.ToString(), Action = FertAction(f) });
+
+                AddOperations(factor, ferts, "Fertilisations");
+
+                var unknowns = treatment.Fertilizations.Where(f => !Enum.IsDefined(typeof(Fertiliser.Types), f.Fertilizer.Name));
+                foreach (var fert in unknowns.Select(f => f.Fertilizer.Name).Distinct())                
+                {
+                    Report.AddLine($"Matching APSIM fertiliser type for {fert}" +
+                        $" not found in treatment {treatment.Name}. " +
+                        $"Using default type instead (NO3N).\n");
+                }
 
                 treatments.Children.Add(factor);
             }
@@ -58,7 +77,7 @@ namespace Rems.Application.CQRS
             return model;
         }
 
-        private string[] GetSpecification(Domain.Entities.Level level)
+        private string[] GetSpecification(Level level)
         {
             // Check for user-defined defined specifications
             if (level.Specification != null)
@@ -71,7 +90,11 @@ namespace Rems.Application.CQRS
             {
                 case "nitrogen":
                 case "nrates":
-                    return new[] { "[Fertilisation].Script.Amount = " + name };
+                    return new[] { "[Fertilisation].Script.Amount = " 
+                        + Regex.Match(name, @"[0-9]*\.*[0-9]*").Value };
+
+                case "irrigation":
+                    return new[] { "" }; // Irrigation is handled through component
 
                 case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };
@@ -95,39 +118,33 @@ namespace Rems.Application.CQRS
 
                 case "treatment":                
                 case "daylength":
-                case "irrigation":
                 default:
                     Report.AddLine("* No specification found for factor " + level.Factor.Name);
                     return new[] { "" };
             }
         }
 
-        private Operations AddOperations<T>(CompositeFactor factor, string name, IEnumerable<T> items, Func<T, Operation> func)
+        private void AddOperations(CompositeFactor factor, IEnumerable<Operation> items, string name)
         {
+            if (!items.Any())
+                return;
+
             factor.Specifications.Add($"[{name}]");
             var ops = new Operations{ Name = name };
-            ops.Operation = items.Select(func).ToList();
+            ops.Operation = items.ToList();
             factor.Children.Add(ops);
-            return ops;
         }
 
-        private string FertAction(Domain.Entities.Fertilization f)
+        private string FertAction(Fertilization f)
         {
             var type = f.Fertilizer.Name;
 
             if (!Enum.IsDefined(typeof(Fertiliser.Types), type))
-                switch (type)
+                type = type switch
                 {
-                    case "Aqua ammonia":
-                        type = Fertiliser.Types.NH4N.ToString();
-                        break;
-
-                    default:
-                        type = Fertiliser.Types.NO3N.ToString();
-                        Report.AddLine($"Matching APSIM fertiliser type for {type} not found in treatment {f.Treatment.Name}. Using default type instead (NO3N).\n");
-                        break;
-                }
-
+                    "Aqua ammonia" => Fertiliser.Types.NH4N.ToString(),
+                    _ => Fertiliser.Types.NO3N.ToString(),
+                };
             return $"[Fertiliser].Apply({f.Depth}, Fertiliser.Types.{type}, {f.Amount})";
         }
     }
