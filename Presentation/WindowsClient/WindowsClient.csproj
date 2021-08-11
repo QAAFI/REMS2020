@@ -75,6 +75,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\Experiments\Charts\TraitCharts\MetChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Controls\Experiments\Charts\TraitCharts\SoilChart.cs">
       <SubType>UserControl</SubType>
     </Compile>

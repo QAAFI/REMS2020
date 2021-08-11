@@ -1,12 +1,8 @@
 ﻿using Rems.Application.Common;
 using Rems.Application.CQRS;
-using Steema.TeeChart;
 using Steema.TeeChart.Styles;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,6 +12,8 @@ namespace WindowsClient.Models
 {
     public static class Extensions
     {
+        private static ColourLookup Colours = new();
+
         public static async Task IterateTraits<TX, TY>(this TraitDataQuery<TX, TY> query, IEnumerable<string> traits, Action<SeriesData<TX, TY>> action)
         {
             foreach (string trait in traits)
@@ -32,53 +30,39 @@ namespace WindowsClient.Models
         /// <param name="data">The data</param>
         /// <param name="chart">The chart</param>
         /// <param name="vertical">If the data is ordered vertically, not horizontally</param>
-        public static void AddToSeries<TX, TY>(this SeriesData<TX, TY> data, SeriesCollection series, bool vertical = false)
+        public static C CreateSeries<C, TX, TY>(this SeriesData<TX, TY> data, bool vertical = false)
+            where C : Series, new()
         {
-            if (data is null) return;
-            if (data.X.Length == 0) return;            
+            if (data.X.Length == 0) 
+                return new();
 
-            Points points = new();
-            points.Legend.Text = data.Name;
-
-            Line line = new();
-            line.Legend.Visible = false;
-
+            var series = new C();
+            series.Legend.Text = data.Series == 0 ? data.Name : data.Name + " " + data.Series;
+            series.Color = Colours.Lookup(data.Name).colour;            
+            
             if (vertical)
             {
-                points.XValues.Order = ValueListOrder.None;
-                points.YValues.Order = ValueListOrder.Ascending;
-                line.XValues.Order = ValueListOrder.None;
-                line.YValues.Order = ValueListOrder.Ascending;
+                series.XValues.Order = ValueListOrder.None;
+                series.YValues.Order = ValueListOrder.Ascending;
             }
 
             if (typeof(TX) == typeof(DateTime))
-            {
-                points.XValues.DateTime = true;
-                line.XValues.DateTime = true;
-            }
+                series.XValues.DateTime = true;
 
             for (int i = 0; i < data.X.Length; i++)
             {
                 var x = data.X[i];
                 var y = data.Y[i];
 
-                if (x is DateTime x1 && y is double y1)
-                {
-                    line.Add(x1, y1);
-                    points.Add(x1, y1);
-                }
+                if (x is DateTime x1 && y is double y1)                
+                    series.Add(x1, y1);
                 else if (x is double x2 && y is int y2)
-                {
-                    line.Add(x2, y2);
-                    points.Add(x2, y2);
-                }
+                    series.Add(x2, y2);
                 else
                     throw new Exception("Unrecognised series data type");
-            }            
+            }
 
-            series.Add(line);
-            series.Add(points);
-            line.Color = points.Color;
+            return series;
         }        
 
         /// <summary>

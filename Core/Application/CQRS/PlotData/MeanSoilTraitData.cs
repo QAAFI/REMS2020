@@ -38,11 +38,9 @@ namespace Rems.Application.CQRS
                 .OrderBy(g => g.Key)
                 .ToArray();
 
-            string name = TraitName + ", " + Date.ToString("dd/MM/yy");
-
             var series = new SeriesData<double, int>
             {
-                Name = name,
+                Name = TraitName + " " + Date.ToString("dd-MMM-yy"),                
                 X = data.Select(g => g.Average(p => p.Value)).ToArray(),
                 Y = data.Select(g => g.Key).ToArray(),
                 XName = "Value",

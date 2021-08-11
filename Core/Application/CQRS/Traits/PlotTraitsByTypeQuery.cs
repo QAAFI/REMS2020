@@ -35,7 +35,8 @@ namespace Rems.Application.CQRS
                 switch (TraitType)
                 {
                     case "Climate":
-                        return _context.Traits.Where(t => t.Type == "Climate").Select(t => t.Name);
+                        return _context.Treatments.Find(TreatmentId)
+                            .Experiment.MetStation.MetData.Select(m => m.Trait.Name).Distinct();
 
                     case "Soil":
                         return plot.SoilData.Select(d => d.Trait.Name);

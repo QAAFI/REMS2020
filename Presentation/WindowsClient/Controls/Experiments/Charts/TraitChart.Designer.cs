@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label2 = new System.Windows.Forms.Label();
+            this.chartBox = new System.Windows.Forms.ComboBox();
             this.plotsBox = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.traitsBox = new System.Windows.Forms.ListBox();
@@ -48,6 +50,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.label2);
+            this.splitContainer1.Panel1.Controls.Add(this.chartBox);
             this.splitContainer1.Panel1.Controls.Add(this.plotsBox);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
             this.splitContainer1.Panel1.Controls.Add(this.traitsBox);
@@ -59,6 +63,30 @@
             this.splitContainer1.SplitterDistance = 198;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 17;
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(3, 32);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(40, 20);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Chart:";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // chartBox
+            // 
+            this.chartBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.chartBox.FormattingEnabled = true;
+            this.chartBox.Items.AddRange(new object[] {
+            "Series",
+            "Line",
+            "Bar",
+            "Scatter"});
+            this.chartBox.Location = new System.Drawing.Point(45, 32);
+            this.chartBox.Name = "chartBox";
+            this.chartBox.Size = new System.Drawing.Size(149, 23);
+            this.chartBox.TabIndex = 3;
             // 
             // plotsBox
             // 
@@ -75,12 +103,12 @@
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 6);
+            this.label1.Location = new System.Drawing.Point(7, 6);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(36, 15);
             this.label1.TabIndex = 1;
             this.label1.Text = "Plots:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // traitsBox
             // 
@@ -90,11 +118,11 @@
             this.traitsBox.FormattingEnabled = true;
             this.traitsBox.IntegralHeight = false;
             this.traitsBox.ItemHeight = 15;
-            this.traitsBox.Location = new System.Drawing.Point(0, 32);
+            this.traitsBox.Location = new System.Drawing.Point(0, 61);
             this.traitsBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.traitsBox.Name = "traitsBox";
             this.traitsBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.traitsBox.Size = new System.Drawing.Size(194, 629);
+            this.traitsBox.Size = new System.Drawing.Size(194, 600);
             this.traitsBox.TabIndex = 0;
             // 
             // tChart
@@ -1317,7 +1345,6 @@
             this.Name = "TraitChart";
             this.Size = new System.Drawing.Size(821, 661);
             this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -1331,5 +1358,7 @@
         private System.Windows.Forms.ListBox traitsBox;
         private System.Windows.Forms.ComboBox plotsBox;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox chartBox;
     }
 }

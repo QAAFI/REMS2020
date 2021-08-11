@@ -30,25 +30,41 @@ namespace Rems.Application.CQRS
                 return null;
 
             // Have to cast to an array to support the following GroupBy
-            IEnumerable<(DateTime Date, double Value)> arr = trait.Type == "Soil"
-                ? _context.SoilDatas
-                    .Where(p => p.Plot.TreatmentId == TreatmentId)
-                    .Where(p => p.Trait.Name == TraitName)
-                    .ToArray()
-                    .Select(p => (p.Date, p.Value))
-                : _context.PlotData
-                    .Where(p => p.Plot.TreatmentId == TreatmentId)
-                    .Where(p => p.Trait.Name == TraitName)
-                    .ToArray()
-                    .Select(p => (p.Date, p.Value));
+            IEnumerable<(DateTime Date, double Value)> arr;
 
-            var data = arr.GroupBy(p => p.Date)
-                .OrderBy(g => g.Key);
+            switch (trait.Type)
+            {
+                case "Climate":
+                    var exp = _context.Treatments.Find(TreatmentId).Experiment;
+                    arr = exp.MetStation.MetData
+                        .Where(p => p.Trait.Name == TraitName)
+                        .GroupBy(m => (m.Date.Day, m.Date.Month))
+                        .Select(g => (
+                            new DateTime(2020, g.Key.Month, g.Key.Day),
+                            g.Select(m => m.Value).Average()
+                        ));
+                    break;
 
-            string units = _context.Traits
-                .FirstOrDefault(t => t.Name == TraitName)
-                ?.Unit
-                ?.Name;
+                case "Soil":
+                    arr = _context.SoilDatas
+                        .Where(p => p.Plot.TreatmentId == TreatmentId)
+                        .Where(p => p.Trait.Name == TraitName)
+                        .ToArray()
+                        .Select(p => (p.Date, p.Value));
+                    break;
+
+                case "Crop":
+                default:
+                    arr = _context.PlotData
+                        .Where(p => p.Plot.TreatmentId == TreatmentId)
+                        .Where(p => p.Trait.Name == TraitName)
+                        .ToArray()
+                        .Select(p => (p.Date, p.Value));
+                    break;
+            }
+
+            var data = arr.GroupBy(p => p.Date).OrderBy(g => g.Key);
+            string units = trait.Unit?.Name;
 
             var series = new SeriesData<DateTime, double>
             {
