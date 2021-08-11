@@ -1,4 +1,4 @@
-using Rems.Application.Common;
+﻿using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -94,8 +94,7 @@ namespace Rems.Application.CQRS
                         + Regex.Match(name, @"[0-9]*\.*[0-9]*").Value };
 
                 case "irrigation":
-                    return new[] { "[Irrigation].Script.Amount = "
-                        + Regex.Match(name, @"[0-9]*\.*[0-9]*").Value };
+                    return new[] { "" }; // Irrigation is handled through component
 
                 case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };

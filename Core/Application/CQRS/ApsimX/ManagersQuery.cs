@@ -41,9 +41,6 @@ namespace Rems.Application.CQRS
             if (factors.Any(factor => Regex.IsMatch(factor, @"n\s*rates", options)))
                 managers.Add(new Manager { Name = "Fertilisation", Code = _manager.GetContent("Fertilisation") });
             
-            if (factors.Any(factor => Regex.IsMatch(factor, @"irrig", options)))
-                managers.Add(new Manager { Name = "Irrigation", Code = _manager.GetContent("Irrigation") });
-
             return new Folder { Name = "Managers", Children = managers };
         }
 
