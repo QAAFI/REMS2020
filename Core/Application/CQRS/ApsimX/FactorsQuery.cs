@@ -5,6 +5,7 @@ using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Rems.Application.CQRS
 {
@@ -71,7 +72,12 @@ namespace Rems.Application.CQRS
             {
                 case "nitrogen":
                 case "nrates":
-                    return new[] { "[Fertilisation].Script.Amount = " + name };
+                    return new[] { "[Fertilisation].Script.Amount = " 
+                        + Regex.Match(name, @"[0-9]*\.*[0-9]*").Value };
+
+                case "irrigation":
+                    return new[] { "[Irrigation].Script.Amount = "
+                        + Regex.Match(name, @"[0-9]*\.*[0-9]*").Value };
 
                 case "cultivar":
                     return new[] { "[Sowing].Script.Cultivar = " + name };
@@ -95,7 +101,6 @@ namespace Rems.Application.CQRS
 
                 case "treatment":                
                 case "daylength":
-                case "irrigation":
                 default:
                     Report.AddLine("* No specification found for factor " + level.Factor.Name);
                     return new[] { "" };
