@@ -245,7 +245,7 @@ namespace WindowsClient.Models
                 Summary.AddSubHeading("Soil model:", 2);
                 Summary.AddLine("No data was found for the following soil layer traits:");
                 Summary.AddList(missing.Select(t => t.Key));
-                Summary.AddLine("\nThese values have been provided a default value." +
+                Summary.AddLine("\nThese values have been provided a default value. " +
                     "It is recommended to check the sensibility of these values before " +
                     "running the simulation.");
             }
