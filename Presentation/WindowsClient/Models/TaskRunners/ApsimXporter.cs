@@ -208,8 +208,8 @@ namespace WindowsClient.Models
             var traits = await QueryManager.Request(query);
 
             var template = query.Crop.ToUpper() == "SORGHUM"
-                ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"))
-                : JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"));
+                ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"))
+                : JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"));
 
             if (traits["Thickness"] is not double[] thickness)
             {

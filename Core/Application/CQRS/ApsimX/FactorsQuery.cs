@@ -1,4 +1,4 @@
-﻿using Rems.Application.Common;
+using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using Fertiliser = Models.Fertiliser;
 using Operation = Models.Operation;
 using Operations = Models.Operations;
 using Factor = Models.Factorial.Factor;
-using Factors = Models.Factorial.Factor;
+using Factors = Models.Factorial.Factors;
 using CompositeFactor = Models.Factorial.CompositeFactor;
 using Level = Rems.Domain.Entities.Level;
 using Irrigation = Rems.Domain.Entities.Irrigation;
