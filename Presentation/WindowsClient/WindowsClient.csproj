@@ -4,12 +4,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="ApplicationFiles\Scripts\Managers\Fertilisation.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Managers\Harvest.cs" />
-    <Compile Remove="ApplicationFiles\Scripts\Managers\Irrigation.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Managers\Sowing.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Panels\NewOld.cs" />
     <Compile Remove="ApplicationFiles\Scripts\Panels\PredictedObserved.cs" />
@@ -26,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ApplicationFiles\Scripts\Managers\Irrigation.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="ApplicationFiles\Scripts\Managers\Fertilisation.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

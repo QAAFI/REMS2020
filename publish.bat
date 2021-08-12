@@ -1,5 +1,9 @@
 @echo off
 
+if %1.==. GOTO WARNING1
+
+set VERSION=%1
+
 rem Define variables
 set "REMS=%USERPROFILE%\Documents\Releases\REMS2020"
 set "CERT=user.pfx"
@@ -19,7 +23,7 @@ SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\Pers
 
 rem Create the installer.
 set "INSTALLER=REMS2020Setup"
-iscc -Q -O%REMS% -F%INSTALLER% -DVERSION="0.1.0.1" -DOUTPUT=%REMS% rems.iss
+iscc -Q -O%REMS% -F%INSTALLER% -DVERSION=%VERSION% -DOUTPUT=%REMS% rems.iss
 if errorlevel 1 exit /b 1
 
 rem Sign the installer
@@ -27,3 +31,14 @@ SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\%INS
 if errorlevel 1 exit /b 1
 SignTool verify -pa -v -d %REMS%\%INSTALLER%.exe
 if errorlevel 1 exit /b 1
+
+:SUCCESS
+    echo Publish completed
+GOTO END
+
+:WARNING1
+    echo Missing version argument
+GOTO END
+
+:END
+    exit
