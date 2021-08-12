@@ -32,6 +32,10 @@ if errorlevel 1 exit /b 1
 SignTool verify -pa -v -d %REMS%\%INSTALLER%.exe
 if errorlevel 1 exit /b 1
 
+:SUCCESS
+    echo Publish completed
+GOTO END
+
 :WARNING1
     echo Missing version argument
 GOTO END
