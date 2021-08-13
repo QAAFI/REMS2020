@@ -18,123 +18,48 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Generates an APSIM Weather model for an experiment
     /// </summary>
-    public class WeatherQuery : IRequest<Weather>
+    public class WeatherQuery : ContextQuery<Weather>
     {
         /// <summary>
         /// The source experiment
         /// </summary>
         public int ExperimentId { get; set; }
 
+        public (string Station, string File, DateTime Start, DateTime End)[] Mets { get; set; }
+
         public Markdown Report { get; set; }
-    }
 
-    public class WeatherQueryHandler : IRequestHandler<WeatherQuery, Weather>
-    {
-        private readonly IRemsDbContextFactory _factory;
-
-        private readonly IFileManager _file;
-
-        public WeatherQueryHandler(IRemsDbContextFactory context, IFileManager file)
+        /// <inheritdoc/>
+        public class Handler : BaseHandler<WeatherQuery>
         {
-            _factory = context;
-            _file = file;
+            public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
 
-        public Task<Weather> Handle(WeatherQuery request, CancellationToken token) 
-            => Task.Run(() => Handler(request, token));
-
-        private Weather Handler(WeatherQuery request, CancellationToken token)
+        /// <inheritdoc/>
+        protected override Weather Run()
         {
-            using var _context = _factory.Create();
+            var exp = _context.Experiments.Find(ExperimentId);
 
-            // Check if there is any data
-            var experiment = _context.Experiments.Find(request.ExperimentId);
-            if (!experiment.MetStation.MetData.Any()) 
-                request.Report.AddLine("No valid met data found. " +
-                    "Either import met data or provide a valid file within APSIM NG before " +
-                    "running the simulation.");
-
-            // Output the data to a .met file
-            string file = WriteFile(experiment, request.Report);
-
-            return new Weather { FileName = "met\\" + file };
-        }
-
-        private string WriteFile(Experiment experiment, Markdown report)
-        {
-            var station = experiment.MetStation;
-            var name = experiment.Name.Replace('/', '-').Replace(' ', '_') + ".met";
-            var info = Directory.CreateDirectory(_file.ExportPath + "\\met");
-
-            using var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create);
-            using var writer = new StreamWriter(stream);            
-
-            // Attach header lines to the file
-            var builder = new StringBuilder();
-            builder.AppendLine("[weather.met.weather]");
-            builder.AppendLine($"!experiment number = {experiment.ExperimentId}");
-            builder.AppendLine($"!experiment = {experiment.Name}");
-            builder.AppendLine($"!station name = {station.Name}");
-            builder.AppendLine($"latitude = {station.Latitude ?? 0.0} (DECIMAL DEGREES)");
-            builder.AppendLine($"longitude = {station.Longitude ?? 0.0} (DECIMAL DEGREES)");
-            builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
-            builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
-            builder.AppendLine();
-            builder.AppendLine($"{"Year",-5}{"Day",3}{"maxt",5}{"mint",5}{"radn",5}{"rain",6}");
-            builder.AppendLine($"{"()",-5}{"()",3}{"()",5}{"()",5}{"()",5}{"()",6}");
-
-            // Find the weather traits
-            using var _context = _factory.Create();
-            Trait maxT = _context.GetTraitByName("MaxT");
-            Trait minT = _context.GetTraitByName("MinT");
-            Trait radn = _context.GetTraitByName("Radn");
-            Trait rain = _context.GetTraitByName("Rain");
-
-            var datas = station.MetData                
-                .Where(d => experiment.BeginDate <= d.Date && d.Date <= experiment.EndDate)
-                .GroupBy(d => d.Date)
-                .OrderBy(d => d.Key);
-
-            // Check the met data covers the experiment
-            var span = experiment.EndDate - experiment.BeginDate;
-            var days = datas.Select(d => d.Key)
-                .Where(d => experiment.BeginDate <= d && d <= experiment.EndDate);
-
-            if (days.Count() < span.TotalDays)
+            if (!exp.MetStation.MetData.Any())
             {
-                report.AddLine("The provided met data does not extend for the duration of " +
+                Report.AddLine("No existing met data found. " +
+                    "Either import met data and export again, " +
+                    "or provide a valid file within APSIM NG before running the simulation.");
+
+                return new();
+            }
+
+            var met = Mets.SingleOrDefault(m => m.Start <= exp.BeginDate && exp.EndDate <= m.End);
+
+            if (met.Equals(default))
+                Report.AddLine("The existing met data does not cover the duration of " +
                     "the experiment. Either import additional data or provide APSIM NG a " +
                     "valid .met file before running the simulation.");
-            }
 
-            // Format and add the data
-            foreach (var data in datas)
-            {
-                var date = data.Key;
-                var mets = data.AsEnumerable();
-
-                builder.Append($"{date.Year,-5}");
-                builder.Append($"{date.DayOfYear,3}");
-                builder.Append($"{GetTraitValue(mets, maxT),5:F1}");
-                builder.Append($"{GetTraitValue(mets, minT),5:F1}");
-                builder.Append($"{GetTraitValue(mets, radn),5:F1}");
-                builder.AppendLine($"{GetTraitValue(mets, rain),6:F1}");
-            }
-
-            // Find the value of a trait for a given MetData entity
-            string GetTraitValue(IEnumerable<MetData> mets, Trait trait)
-            {
-                var data = mets.FirstOrDefault(d => d.TraitId == trait.TraitId);
-
-                if (data?.Value is double value)
-                    return Math.Round(value, 2).ToString();
-
-                return "0";
-            }
-
-            writer.Write(builder.ToString());
-            writer.Close();
-            return name;
+            return new Weather { FileName = met.File };
         }
     }
+
+
+    
 }
