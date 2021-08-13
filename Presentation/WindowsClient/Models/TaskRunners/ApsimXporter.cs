@@ -21,6 +21,7 @@ using Models.Storage;
 using Models.WaterModel;
 using Models.Soils.Nutrients;
 using System.Reflection;
+using Models.Climate;
 
 namespace WindowsClient.Models
 {
@@ -69,6 +70,9 @@ namespace WindowsClient.Models
             var exps = (await QueryManager.Request(new ExperimentsQuery()))
                 .Where(e => Experiments.Contains(e.Name));
 
+            var query = new WriteMetCommand { ExperimentIds = exps.Select(e => e.ID).ToArray() };
+            var mets = await QueryManager.Request(query);
+
             // Check if replacements is necessary
             if (exps.Any(e => e.Crop == "Sorghum"))
             {
@@ -81,8 +85,10 @@ namespace WindowsClient.Models
             foreach (var (ID, Name, Crop) in exps)
             {
                 OnNextItem(Name);
-
-                var model = await CreateExperiment(Name, ID);
+                Summary.AddSubHeading(Name + ':', 2);
+                var request = new WeatherQuery { ExperimentId = ID, Mets = mets, Report = Summary };
+                var weather = await QueryManager.Request(request);
+                var model = await CreateExperiment(Name, ID, weather);
                 simulations.Children.Add(model);
             }
 
@@ -148,13 +154,11 @@ namespace WindowsClient.Models
         /// </summary>
         /// <param name="name">The name of the experiment</param>
         /// <param name="id">The database ExperimentId</param>
-        private async Task<IModel> CreateExperiment(string name, int id)
+        private async Task<IModel> CreateExperiment(string name, int id, Weather weather)
         {
             // Creates a model tree
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
             // represent siblings in the tree
-            
-            Summary.AddSubHeading(name + ':', 2);
 
             var experiment =
             Create<Experiment>(name, new IModel[]
@@ -164,7 +168,7 @@ namespace WindowsClient.Models
                 {
                     await Request(new ClockQuery{ ExperimentId = id, Report = Summary }),
                     Create<Summary>(),
-                    await Request(new WeatherQuery{ ExperimentId = id, Report = Summary }),
+                    weather,
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
