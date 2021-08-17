@@ -328,7 +328,7 @@ namespace WindowsClient.Models
             };
 
             IModel N = query.Crop.ToUpper() != "SORGHUM"
-                ? new Nutrient()
+                ? new Nutrient { ResourceName = "Nutrient" }
                 : Create<SoilNitrogen>("SoilNitrogen", new IModel[]
                 {
                     new SoilNitrogenNO3 { Name = "NO3" },
