@@ -102,7 +102,7 @@ namespace Rems.Application.CQRS
                 case "date":
                 case "sowdate":
                 case "plantingdate":
-                    return new[] { "[Sowing].Script.SowDate = " + name };
+                    return new[] { "[Sowing].Script.Date = " + name };
 
                 case "rowpsace":
                 case "rowspacing":
