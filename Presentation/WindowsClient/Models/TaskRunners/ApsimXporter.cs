@@ -172,8 +172,7 @@ namespace WindowsClient.Models
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
-                        Create<Report>("DailyReport"),
-                        Create<Report>("HarvestReport"),
+                        await QueryManager.Request(new ReportQuery { ExperimentId = id }),
                         await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
