@@ -327,16 +327,19 @@ namespace WindowsClient.Models
             {
                 Name = "Temperature"
             };
-            var nitrogen = Create<SoilNitrogen>("SoilNitrogen", new IModel[]
-            {
-                new SoilNitrogenNO3 { Name = "NO3" },
-                new SoilNitrogenNH4 { Name = "NH4" },                    
-                new SoilNitrogenUrea { Name = "Urea" },
-                new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
-                new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
-            });
 
-            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, nitrogen };
+            IModel N = query.Crop.ToUpper() != "SORGHUM"
+                ? new Nutrient()
+                : Create<SoilNitrogen>("SoilNitrogen", new IModel[]
+                {
+                    new SoilNitrogenNO3 { Name = "NO3" },
+                    new SoilNitrogenNH4 { Name = "NH4" },                    
+                    new SoilNitrogenUrea { Name = "Urea" },
+                    new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
+                    new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
+                });
+
+            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
             return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
             
         }
