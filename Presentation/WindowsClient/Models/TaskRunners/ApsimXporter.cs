@@ -236,11 +236,11 @@ namespace WindowsClient.Models
                 if (template.FindDescendant<T>() is T model)
                     if (type.GetProperty(name) is PropertyInfo info)
                         if (info.GetValue(model) is double[] values)
-                            if (values.Length <= thickness.Length)
+                            if (values.Length >= thickness.Length)
                                 return values.Take(thickness.Length).ToArray();
 
                 // If no template exists, return the default
-                return default;                
+                return new double[thickness.Length];                
             }
 
             var missing = traits.Where(t => t.Value is null);

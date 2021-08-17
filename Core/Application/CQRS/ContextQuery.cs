@@ -39,7 +39,8 @@ namespace Rems.Application.CQRS
                 request.token = cancellationToken;
                 using var context = _factory.Create();
                 request._context = context;
-                return request.Run();
+                var result = request.Run();
+                return result;
             }
         }
     }    
