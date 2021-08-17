@@ -172,8 +172,7 @@ namespace WindowsClient.Models
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
-                        Create<Report>("DailyReport"),
-                        Create<Report>("HarvestReport"),
+                        await QueryManager.Request(new ReportQuery { ExperimentId = id }),
                         await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
@@ -236,11 +235,11 @@ namespace WindowsClient.Models
                 if (template.FindDescendant<T>() is T model)
                     if (type.GetProperty(name) is PropertyInfo info)
                         if (info.GetValue(model) is double[] values)
-                            if (values.Length <= thickness.Length)
+                            if (values.Length >= thickness.Length)
                                 return values.Take(thickness.Length).ToArray();
 
                 // If no template exists, return the default
-                return default;                
+                return new double[thickness.Length];                
             }
 
             var missing = traits.Where(t => t.Value is null);
@@ -327,16 +326,19 @@ namespace WindowsClient.Models
             {
                 Name = "Temperature"
             };
-            var nitrogen = Create<SoilNitrogen>("SoilNitrogen", new IModel[]
-            {
-                new SoilNitrogenNO3 { Name = "NO3" },
-                new SoilNitrogenNH4 { Name = "NH4" },                    
-                new SoilNitrogenUrea { Name = "Urea" },
-                new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
-                new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
-            });
 
-            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, nitrogen };
+            IModel N = query.Crop.ToUpper() != "SORGHUM"
+                ? new Nutrient { ResourceName = "Nutrient" }
+                : Create<SoilNitrogen>("SoilNitrogen", new IModel[]
+                {
+                    new SoilNitrogenNO3 { Name = "NO3" },
+                    new SoilNitrogenNH4 { Name = "NH4" },                    
+                    new SoilNitrogenUrea { Name = "Urea" },
+                    new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
+                    new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
+                });
+
+            var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
             return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
             
         }

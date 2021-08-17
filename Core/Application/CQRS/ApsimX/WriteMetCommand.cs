@@ -81,8 +81,8 @@ namespace Rems.Application.CQRS
             builder.AppendLine($"tav = {station.TemperatureAverage} (oC) \t ! annual average ambient temperature");
             builder.AppendLine($"amp = {station.Amplitude} (oC) \t ! annual amplitude in mean monthly temperature");
             builder.AppendLine();
-            builder.AppendLine($"{"Year",-5}{"Day",3}{"maxt",5}{"mint",5}{"radn",5}{"rain",6}");
-            builder.AppendLine($"{"()",-5}{"()",3}{"()",5}{"()",5}{"()",5}{"()",6}");
+            builder.AppendLine($"{"Year",-5}{"Day",3}{"maxt",7}{"mint",7}{"radn",6}{"rain",7}");
+            builder.AppendLine($"{"()",-5}{"()",3}{"()",7}{"()",7}{"()",6}{"()",7}");
 
             // Find the weather traits
             using var _context = _factory.Create();
@@ -98,10 +98,10 @@ namespace Rems.Application.CQRS
 
                 builder.Append($"{date.Year,-5}");
                 builder.Append($"{date.DayOfYear,3}");
-                builder.Append($"{GetTraitValue(data, maxT),5:F1}");
-                builder.Append($"{GetTraitValue(data, minT),5:F1}");
-                builder.Append($"{GetTraitValue(data, radn),5:F1}");
-                builder.AppendLine($"{GetTraitValue(data, rain),6:F1}");
+                builder.Append($"{GetTraitValue(data, maxT),7:F1}");
+                builder.Append($"{GetTraitValue(data, minT),7:F1}");
+                builder.Append($"{GetTraitValue(data, radn),6:F1}");
+                builder.AppendLine($"{GetTraitValue(data, rain),7:F1}");
             }
 
             // Find the value of a trait for a given MetData entity
