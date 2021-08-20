@@ -249,6 +249,7 @@ namespace WindowsClient.Controls
 
             if (save.ShowDialog() != DialogResult.OK) return;
 
+            File.Delete(save.FileName);
             await CreateSession(save.FileName).TryRun();
         }
 
