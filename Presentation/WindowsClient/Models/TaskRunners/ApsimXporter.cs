@@ -22,6 +22,7 @@ using Models.WaterModel;
 using Models.Soils.Nutrients;
 using System.Reflection;
 using Models.Climate;
+using Models.PostSimulationTools;
 
 namespace WindowsClient.Models
 {
@@ -61,10 +62,7 @@ namespace WindowsClient.Models
             Summary.Clear();
             Summary.AddSubHeading("REMS export summary", 1);
 
-            var simulations = new Simulations();
-            var store = new DataStore();
-
-            simulations.Children.Add(store);
+            var simulations = new Simulations();            
 
             // Find the experiments            
             var exps = (await QueryManager.Request(new ExperimentsQuery()))
@@ -75,6 +73,13 @@ namespace WindowsClient.Models
             // Add the data store
             var store = new DataStore();
             var inputs = exps.Select(e => new Input 
+            { 
+                Name = e.Name + "_Observed", 
+                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{e.Name}_Observed.csv"}
+            });
+
+            store.Children.AddRange(inputs);
+            simulations.Children.Add(store);
 
             // Output the met data
             var query = new WriteMetCommand { ExperimentIds = ids };
