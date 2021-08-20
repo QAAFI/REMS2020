@@ -72,9 +72,9 @@ namespace WindowsClient.Models
 
             var ids = exps.Select(e => e.ID).ToArray();
 
-            // Output the observed data
-            string name = Path.GetFileNameWithoutExtension(FileName);
-            await QueryManager.Request(new WriteObservedCommand { FileName = name, IDs = ids});
+            // Add the data store
+            var store = new DataStore();
+            var inputs = exps.Select(e => new Input 
 
             // Output the met data
             var query = new WriteMetCommand { ExperimentIds = ids };
@@ -209,6 +209,10 @@ namespace WindowsClient.Models
                 })
             });
             Summary.AddLine("\n");
+
+            // Output the observed data
+            await QueryManager.Request(new WriteObservedCommand { FileName = name, ID = id });
+
             return experiment;
         }   
 

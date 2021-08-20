@@ -18,7 +18,7 @@ namespace Rems.Application.CQRS
     {
         public string FileName { get; set; }
 
-        public int[] IDs { get; set; }
+        public int ID { get; set; }
     }
 
     public class WriteObservedCommandHandler : IRequestHandler<WriteObservedCommand>
@@ -42,33 +42,33 @@ namespace Rems.Application.CQRS
 
             var info = Directory.CreateDirectory(_file.ExportPath + "\\obs");
 
-            using var stream = new FileStream(info.FullName + $"\\{request.FileName}HarvestData.csv", FileMode.Create);
+            var exp = _context.Experiments.Find(request.ID);
+
+            var data = _context.PlotData.Where(p => p.Plot.Treatment.ExperimentId == exp.ExperimentId);
+            var traits = data.Select(p => p.Trait).Distinct().ToArray();
+
+            using var stream = new FileStream(info.FullName + $"\\{exp.Name}_Observed.csv", FileMode.Create);
             using var writer = new StreamWriter(stream);
 
             var builder = new StringBuilder();
-
-            var traits = _context.PlotData.Select(p => p.Trait).Distinct().ToArray();
-
             builder.AppendLine($"Date, SimulationName, {string.Join(", ", traits.Select(t => t.Name))}");
 
-            foreach (var date in _context.PlotData.AsEnumerable().GroupBy(p => p.Date))
+            foreach (var day in data.AsEnumerable().GroupBy(d => d.Date))
             {
-                var treatments = date.GroupBy(d => d.Plot.Treatment)
-                    .Where(g => request.IDs.Contains(g.Key.ExperimentId));
+                foreach (var treat in exp.Treatments)
+                {
+                    var values = traits.Select(t => day.Where(d => d.Trait == t).Select(d => d.Value));
+                    var averages = values.Select(e => e.Any() ? e.Average().ToString("F2") : "");
 
-                foreach (var treat in treatments)
-                {   
-                    var values = traits.Select(t => treat.Where(p => p.Trait == t))
-                        .Select(e => e.Any() ? e.Select(e => e.Value).Average().ToString("F2") : "");
-
-                    string day = date.Key.ToShortDateString();
-                    string name = treat.Key.Experiment.Name + treat.Key.Name;
-                    builder.AppendLine($"{day}, {name}, {string.Join(", ", values)}");
+                    string date = day.Key.ToShortDateString();
+                    string name = exp.Name + treat.Name;
+                    builder.AppendLine($"{date}, {name}, {string.Join(", ", averages)}");
                 }
             }
 
             writer.Write(builder.ToString());
-            writer.Close();
+            writer.Close();            
+
             return MediatR.Unit.Value;
         }
     }
