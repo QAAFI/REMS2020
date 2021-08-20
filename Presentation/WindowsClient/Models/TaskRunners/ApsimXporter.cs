@@ -70,7 +70,14 @@ namespace WindowsClient.Models
             var exps = (await QueryManager.Request(new ExperimentsQuery()))
                 .Where(e => Experiments.Contains(e.Name));
 
-            var query = new WriteMetCommand { ExperimentIds = exps.Select(e => e.ID).ToArray() };
+            var ids = exps.Select(e => e.ID).ToArray();
+
+            // Output the observed data
+            string name = Path.GetFileNameWithoutExtension(FileName);
+            await QueryManager.Request(new WriteObservedCommand { FileName = name, IDs = ids});
+
+            // Output the met data
+            var query = new WriteMetCommand { ExperimentIds = ids };
             var mets = await QueryManager.Request(query);
 
             // Check if replacements is necessary

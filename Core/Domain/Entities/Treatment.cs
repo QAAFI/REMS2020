@@ -18,7 +18,7 @@ namespace Rems.Domain.Entities
 
         public int TreatmentId { get; set; }
 
-        public int? ExperimentId { get; set; }
+        public int ExperimentId { get; set; }
 
         public string Name { get; set; }
 
