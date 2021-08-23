@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -32,14 +32,20 @@ namespace Rems.Application.CQRS
             var rows = Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
-            var eGroup = rows.GroupBy(row => row[0].ToString());
+            var eGroup = rows.GroupBy(row => row["Experiment"].ToString());
 
             var plots = new List<Plot>();
 
-            foreach (var e in eGroup)
+            foreach (var exp in eGroup)
             {
                 // Sub-group the experiment rows by treatment
-                var tGroup = e.GroupBy(row => row[1].ToString());
+                var tGroup = exp.GroupBy(row => row["Treatment"].ToString());
+
+                var experiment = _context.Experiments.Single(e => e.Name == exp.Key);
+
+                // Clear any existing treatments
+                _context.RemoveRange(experiment.Treatments);
+                _context.SaveChanges();
 
                 foreach (var t in tGroup)
                 {
@@ -48,15 +54,15 @@ namespace Rems.Application.CQRS
                         .Select(o => o.ToString().Replace(" ", "").ToUpper())
                         .ToArray();
 
-                    var treatment = CreateTreatment(e.Key, t.Key, levels);
+                    var treatment = CreateTreatment(experiment.Name, t.Key, levels);
 
                     foreach (var row in t)
                     {
                         var plot = new Plot()
                         {
                             Treatment = treatment,
-                            Repetition = Convert.ToInt32(row[2]),
-                            Column = Convert.ToInt32(row[3])
+                            Repetition = Convert.ToInt32(row["Repetition"]),
+                            Column = Convert.ToInt32(row["Plot"])
                         };
                         plots.Add(plot);
 
@@ -87,7 +93,8 @@ namespace Rems.Application.CQRS
 
             foreach (var level in levels)
             {
-                var entity = _context.Levels.FirstOrDefault(l => l.Name.Replace(" ", "").ToUpper() == level);
+                var entity = _context.Levels
+                    .FirstOrDefault(l => l.Name.Replace(" ", "").ToUpper() == level);
 
                 if (entity is null) continue;
 

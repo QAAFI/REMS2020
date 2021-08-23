@@ -35,8 +35,6 @@ namespace Rems.Application.CQRS
             var cols = Table.Columns.Cast<DataColumn>().Skip(4);
             var rows = Table.Rows.Cast<DataRow>();
 
-            //var regex = new Regex(@"\s+");
-
             foreach (var col in cols)
             {
                 // For the factor column, convert each row into a level
@@ -47,7 +45,6 @@ namespace Rems.Application.CQRS
                     .Distinct()
                     .ToArray();
 
-                //var colname = regex.Replace(col.ColumnName, "").ToUpper();
                 var colname = col.ColumnName.Replace(" ", "").ToUpper();
 
                 // Find or create a factor for the column
@@ -59,12 +56,11 @@ namespace Rems.Application.CQRS
                 foreach (string name in levels)
                 {
                     var level = _context.Levels.Where(l => l.Name == name)
-                        .Where(l => l.Factor == factor)
-                        .FirstOrDefault();
+                        .FirstOrDefault(l => l.Factor == factor);
 
                     if (level is null)
                     {
-                        level = new Level() { Name = name, Factor = factor };
+                        level = new Level { Name = name, Factor = factor };
                         _context.Attach(level);
                     }
                 }

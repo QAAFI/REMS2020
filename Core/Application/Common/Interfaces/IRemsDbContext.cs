@@ -30,6 +30,8 @@ namespace Rems.Application.Common.Interfaces
 
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
+        void RemoveRange(IEnumerable<object> entities);
+
         #endregion
 
         #region Sets
