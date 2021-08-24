@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -82,5 +83,16 @@ namespace Rems.Application.Common.Extensions
 
             return source;
         }        
+
+        /// <summary>
+        /// Tests two sequences for equivalence (each element has a 1:1 mapping)
+        /// </summary>
+        /// <typeparam name="TElement"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static bool SequenceEquivalent<TElement>(this IEnumerable<TElement> source, IEnumerable<TElement> other)
+            where TElement : IComparable<TElement>, IEquatable<TElement>
+            => source.OrderBy(e => e).SequenceEqual(other.OrderBy(e => e));
     }
 }

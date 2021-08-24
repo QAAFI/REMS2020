@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
+using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
 using Rems.Domain.Entities;
 
@@ -20,6 +20,8 @@ namespace Rems.Application.CQRS
         /// </summary>
         public DataTable Table { get; set; }
 
+        public IConfirmer Confirmer { get; set; }
+
         /// <inheritdoc/>
         public class Handler : BaseHandler<InsertPlotsCommand>
         {
@@ -34,8 +36,6 @@ namespace Rems.Application.CQRS
             // Group the experiment rows together
             var eGroup = rows.GroupBy(row => row["Experiment"].ToString());
 
-            var plots = new List<Plot>();
-
             foreach (var exp in eGroup)
             {
                 // Sub-group the experiment rows by treatment
@@ -43,72 +43,69 @@ namespace Rems.Application.CQRS
 
                 var experiment = _context.Experiments.Single(e => e.Name == exp.Key);
 
-                // Clear any existing treatments
-                _context.RemoveRange(experiment.Treatments);
-                _context.SaveChanges();
-
-                foreach (var t in tGroup)
+                var ts = tGroup.Select(t =>
                 {
-                    var levels = t.First().ItemArray
-                        .Skip(4)
-                        .Select(o => o.ToString().Replace(" ", "").ToUpper())
-                        .ToArray();
-
-                    var treatment = CreateTreatment(experiment.Name, t.Key, levels);
-
-                    foreach (var row in t)
+                    var treatment = new Treatment()
                     {
-                        var plot = new Plot()
-                        {
-                            Treatment = treatment,
-                            Repetition = Convert.ToInt32(row["Repetition"]),
-                            Column = Convert.ToInt32(row["Plot"])
-                        };
-                        plots.Add(plot);
+                        Experiment = _context.Experiments.Single(e => e.Name == experiment.Name),
+                        Name = t.Key
+                    };
 
-                        Progress.Increment(1);
-                    }
+                    // Find the treatment designs
+                    treatment.Designs = t.First().ItemArray.Skip(4)
+                        .Select(o => o.ToString().Replace(" ", "").ToUpper())
+                        .Select(s => _context.Levels.FirstOrDefault(l => s == l.Name.Replace(" ", "").ToUpper()))
+                        .Where(l => l is not null)
+                        .Select(l => new Design { Level = l, Treatment = treatment })
+                        .ToList();
+
+                    // Find the treatment plots
+                    treatment.Plots = t.Select(row => new Plot
+                    {
+                        Treatment = treatment,
+                        Repetition = Convert.ToInt32(row["Repetition"]),
+                        Column = Convert.ToInt32(row["Plot"])
+                    }).ToList();
+
+                    Progress.Increment(t.Count());
+                    
+                    return treatment;
+                }).ToList();
+
+                // Check for conflicts with existing treatments
+                if (experiment.Treatments.Any())
+                {
+                    var comparer = new TreatmentComparer();
+                    var tests = experiment.Treatments
+                        .Select(x => ts.Any(y => comparer.Equals(x, y)));
+
+                    string msg = $"Changes detected for treatments in {experiment.Name}. " +
+                            $"Do you wish to replace the existing treatments? " +
+                            $"Experiment data will need to be imported again.";
+
+                    if (tests.All(t => t) || !Confirmer.Confirm(msg))
+                        continue;
+
+                    _context.RemoveRange(experiment.Treatments);              
                 }
-            }
+                
+                foreach (var t in ts)
+                    _context.Add(t);
 
-            _context.AttachRange(plots.ToArray());
-            _context.SaveChanges();
+                _context.SaveChanges();
+            }
 
             return Unit.Value;            
         }
 
-        /// <summary>
-        /// Creates a treatment entity and adds it to the database, along with its related levels
-        /// and design
-        /// </summary>
-        private Treatment CreateTreatment(string exp, string name, string[] levels)
+        private class TreatmentComparer : IEqualityComparer<Treatment>
         {
-            var treatment = new Treatment()
-            {
-                Experiment = _context.Experiments.Single(e => e.Name == exp),
-                Name = name
-            };
-            _context.Add(treatment);
-            _context.SaveChanges();
+            public bool Equals(Treatment x, Treatment y)
+                => x.Name == y.Name
+                && x.Designs.SequenceEquivalent(y.Designs)
+                && x.Plots.SequenceEquivalent(y.Plots);
 
-            foreach (var level in levels)
-            {
-                var entity = _context.Levels
-                    .FirstOrDefault(l => l.Name.Replace(" ", "").ToUpper() == level);
-
-                if (entity is null) continue;
-
-                var design = new Design()
-                {
-                    Level = entity,
-                    TreatmentId = treatment.TreatmentId
-                };
-                _context.Add(design);
-                _context.SaveChanges();
-            }
-
-            return treatment;            
+            public int GetHashCode(Treatment obj) => obj.TreatmentId;
         }
-
     }
 }
