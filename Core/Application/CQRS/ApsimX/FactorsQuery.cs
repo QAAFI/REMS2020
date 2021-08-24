@@ -40,11 +40,11 @@ namespace Rems.Application.CQRS
         {
             var experiment = _context.Experiments.Find(ExperimentId);
 
-            var treatments = new Factor { Name = "Treatment" };
+            var model = new Factors { Name = "Factors" };
 
             foreach (var treatment in experiment.Treatments)
             {
-                var factor = new CompositeFactor { Name = treatment.Name};
+                var factor = new CompositeFactor { Name = "T_" + treatment.Name};
                 
                 factor.Specifications = treatment.Designs.Select(d => d.Level)
                     .SelectMany(l => GetSpecification(l))
@@ -68,11 +68,8 @@ namespace Rems.Application.CQRS
                         $"Using default type instead (NO3N).\n");
                 }
 
-                treatments.Children.Add(factor);
+                model.Children.Add(factor);
             }
-            
-            var model = new Factors { Name = "Factors" };
-            model.Children.Add(treatments);
 
             return model;
         }
