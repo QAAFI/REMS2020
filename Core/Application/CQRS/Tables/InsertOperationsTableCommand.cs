@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,8 @@ namespace Rems.Application.CQRS
 
         public Type Type { get; set; }
 
-        /// <inheritdoc/>
+        public IConfirmer Confirmer { get; set; }
+
         public class Handler : BaseHandler<InsertOperationsTableCommand>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
@@ -32,48 +33,60 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Unit Run()
         {
-            // Find the properties of each columnm assuming the first two columns do not contain property data
+            // Find the properties of each columnm assuming the first
+            // two columns do not contain property data
             var infos = Table.Columns.Cast<DataColumn>()
                     .Skip(2)
                     .Select(c => c.FindProperty())
                     .Where(i => i != null)
                     .ToList();
 
-            var info = Type.GetProperty("TreatmentId");
+            var id = Type.GetProperty("TreatmentId");
+            var op = typeof(Treatment).GetProperty(Table.TableName + 's');
 
-            // Insert a treatment to the database
-            void insertTreatment(DataRow row, Treatment treatment)
+            object convertRow(DataRow row, Treatment treatment)
             {
-                var result = row.ToEntity(_context, Type, infos.ToArray());
-                info.SetValue(result, treatment.TreatmentId);
-                _context.Attach(result);
+                object entity = row.ToEntity(_context, Type, infos.ToArray());
+                id.SetValue(entity, treatment.TreatmentId);
+                
+                return entity;
             }
 
-            var entities = new List<IEntity>();
+            // Group rows by experiment
+            var es = Table.Rows.OfType<DataRow>().GroupBy(r => r["Experiment"].ToString());
 
-            foreach (DataRow row in Table.Rows)
+            foreach (var e in es)
             {
-                // Assume that the second column is the treatment name
-                var name = row[1].ToString();
+                var exp = _context.Experiments.First(x => x.Name == e.Key);
 
-                var treatments = _context.Treatments.Where(t => t.Experiment.Name == row[0].ToString()).AsNoTracking();
-
-                if (name.ToLower() == "all")
+                // Group rows by treatment
+                var ts = e.GroupBy(row => row["Treatment"].ToString()).SelectMany(group =>
                 {
-                    foreach (var treatment in treatments)
-                        insertTreatment(row, treatment);
-                }
-                else
+                    // Find the treatment/s the row references
+                    var treats = group.Key.ToUpper() == "ALL"
+                        ? exp.Treatments
+                        : exp.Treatments.Where(treatment => treatment.Name == group.Key);
+
+                    Progress.Increment(group.Count());
+
+                    return treats.Select(treatment => 
+                    (
+                        ops: group.Select(row => convertRow(row, treatment)),
+                        old: (op.GetValue(treatment) as IEnumerable).Cast<object>())
+                    );
+                }).ToList();
+
+                if (ts.Any(t => t.old.Any() && t.old.SequenceEquivalent(t.ops)))
+                    if (!Confirmer.Confirm(""))
+                        throw new Exception("Import cancelled");
+                    
+                foreach (var (ops, old) in ts)
                 {
-                    var treatment = treatments.Where(t => t.Name == name).FirstOrDefault();
+                    _context.RemoveRange(old);
 
-                    // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
-                    if (treatment is null) continue;
-
-                    insertTreatment(row, treatment);
+                    foreach (var obj in ops)
+                        _context.Add(obj);
                 }
-
-                Progress.Increment(1);
             }
 
             _context.SaveChanges();

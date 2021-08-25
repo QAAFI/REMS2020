@@ -16,10 +16,20 @@ namespace Rems.Persistence.Configurations
                 .HasDatabaseName("FertilizationId")
                 .IsUnique();
 
-            builder.Property(e => e.Amount).HasDefaultValueSql("0");
-            builder.Property(e => e.Depth).HasDefaultValueSql("0");
-            builder.Property(e => e.TreatmentId).HasDefaultValueSql("0");
-            builder.Property(e => e.Notes).HasMaxLength(100);
+            builder.Property(e => e.FertilizationId)
+                .ValueGeneratedOnAdd();
+
+            builder.Property(e => e.Amount)
+                .HasDefaultValueSql("0");
+            
+            builder.Property(e => e.Depth)
+                .HasDefaultValueSql("0");
+            
+            builder.Property(e => e.TreatmentId)
+                .HasDefaultValueSql("0");
+            
+            builder.Property(e => e.Notes)
+                .HasMaxLength(100);
 
             // Define foreign key constraints
             builder.HasOne(d => d.Fertilizer)

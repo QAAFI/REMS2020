@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Rems.Application.Common;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsClient.Forms;
 
 namespace WindowsClient.Models
 {
@@ -38,6 +40,12 @@ namespace WindowsClient.Models
                 await InsertTable(table);       
         }
 
+        private class Confirmer : IConfirmer
+        {
+            public bool Confirm(string message) 
+                => AlertBox.Show(message, AlertType.Ok) == DialogResult.OK;
+        }
+
         /// <summary>
         /// Adds the given data table to the context
         /// </summary>
@@ -59,9 +67,10 @@ namespace WindowsClient.Models
                 case "Design":
                     await QueryManager.Request(new InsertDesignsCommand { Table = table });
                     command = new InsertPlotsCommand
-                    { 
+                    {
                         Table = table,
-                        Progress = Reporter
+                        Progress = Reporter,
+                        Confirmer = new Confirmer()
                     };
                     break;
 
@@ -108,8 +117,9 @@ namespace WindowsClient.Models
                 case "Fertilization":
                 case "Tillage":
                     command = new InsertOperationsTableCommand
-                    { 
-                        Table = table, 
+                    {
+                        Confirmer = new Confirmer(),
+                        Table = table,
                         Type = type,
                         Progress = Reporter
                     };
@@ -153,6 +163,7 @@ namespace WindowsClient.Models
                     };                    
                     break;
             }
+            
             await QueryManager.Request(command);
         }
     }

@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rems.Domain.Entities
 {
-    [ExcelFormat("Experiments", 1, false, "Fertilization")]
-    public class Fertilization : ITreatment
+    [ExcelFormat("Experiments", 1, false, "Fertilization", "Fertilizations")]
+    public class Fertilization : ITreatment, IComparable<Fertilization>, IEquatable<Fertilization>
     {
         public Fertilization()
         {
@@ -52,5 +52,46 @@ namespace Rems.Domain.Entities
         public virtual Unit Unit { get; set; }
 
         public virtual ICollection<FertilizationInfo> FertilizationInfo { get; set; }
+
+        public int CompareTo(Fertilization other)
+            => Date.CompareTo(other.Date) is int i && i != 0
+                ? i : Amount.CompareTo(other.Amount) is int j && j != 0
+                ? j : Depth.CompareTo(other.Depth);
+
+        public bool Equals(Fertilization other)
+            => Date == other.Date
+            && Amount == other.Amount
+            && Depth == other.Depth;
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;            
+
+            if (obj is null)            
+                return false;            
+
+            return Equals(obj as Fertilization);
+        }
+
+        public override int GetHashCode() => FertilizationId;
+
+        public static bool operator ==(Fertilization left, Fertilization right)
+            => left is null ? right is null : left.Equals(right);
+
+        public static bool operator !=(Fertilization left, Fertilization right)
+            => !(left == right);
+
+        public static bool operator <(Fertilization left, Fertilization right)
+            => left is null ? right is not null : left.CompareTo(right) < 0;
+
+        public static bool operator <=(Fertilization left, Fertilization right)
+            => left is null || left.CompareTo(right) <= 0;
+
+        public static bool operator >(Fertilization left, Fertilization right)
+            => left is not null && left.CompareTo(right) > 0;
+
+        public static bool operator >=(Fertilization left, Fertilization right)
+            => left is null ? right is null : left.CompareTo(right) >= 0;
     }
 }

@@ -92,7 +92,6 @@ namespace Rems.Application.Common.Extensions
         /// <param name="other"></param>
         /// <returns></returns>
         public static bool SequenceEquivalent<TElement>(this IEnumerable<TElement> source, IEnumerable<TElement> other)
-            where TElement : IComparable<TElement>, IEquatable<TElement>
             => source.OrderBy(e => e).SequenceEqual(other.OrderBy(e => e));
     }
 }

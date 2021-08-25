@@ -16,6 +16,9 @@ namespace Rems.Persistence.Configurations
                 .HasDatabaseName("IrrigationId")
                 .IsUnique();
 
+            builder.Property(e => e.IrrigationId)
+                .ValueGeneratedOnAdd();
+
             builder.Property(e => e.Amount)
                 .HasColumnName("Amount")
                 .HasDefaultValueSql("0");
