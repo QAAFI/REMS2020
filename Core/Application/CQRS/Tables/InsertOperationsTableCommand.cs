@@ -46,7 +46,7 @@ namespace Rems.Application.CQRS
 
             object convertRow(DataRow row, Treatment treatment)
             {
-                object entity = row.ToEntity(_context, Type, infos.ToArray());
+                object entity = row.ToEntity(_context, Type, infos.ToArray()) as IComparable;
                 id.SetValue(entity, treatment.TreatmentId);
                 
                 return entity;
@@ -54,6 +54,8 @@ namespace Rems.Application.CQRS
 
             // Group rows by experiment
             var es = Table.Rows.OfType<DataRow>().GroupBy(r => r["Experiment"].ToString());
+
+            _context.ChangeTracker.LazyLoadingEnabled = false;
 
             foreach (var e in es)
             {
@@ -76,8 +78,12 @@ namespace Rems.Application.CQRS
                     );
                 }).ToList();
 
+                string msg = $"Changes detected for operations in {e.Key}. " +
+                            $"Continuing the import will override existing data.\n" +
+                            $"Do you wish to proceed?";
+
                 if (ts.Any(t => t.old.Any() && t.old.SequenceEquivalent(t.ops)))
-                    if (!Confirmer.Confirm(""))
+                    if (!Confirmer.Confirm(msg))
                         throw new Exception("Import cancelled");
                     
                 foreach (var (ops, old) in ts)

@@ -14,6 +14,8 @@ namespace Rems.Application.Common.Interfaces
     {
         #region DbContext base
 
+        ChangeTracker ChangeTracker { get; }
+
         IModel Model { get; }
 
         int SaveChanges();
