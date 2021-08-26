@@ -31,6 +31,9 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Unit Run()
         {
+            // Disable lazy loading for duplicate checking
+            //_context.ChangeTracker.LazyLoadingEnabled = false;            
+
             var rows = Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
@@ -73,24 +76,23 @@ namespace Rems.Application.CQRS
                 }).ToList();
 
                 // Check for conflicts with existing treatments
-                if (experiment.Treatments.Any())
-                {
-                    var comparer = new TreatmentComparer();
-                    var tests = experiment.Treatments
-                        .Select(x => ts.Any(y => comparer.Equals(x, y)));
-
-                    string msg = $"Changes detected for treatments in {experiment.Name}. " +
-                            $"Do you wish to replace the existing treatments? " +
-                            $"Experiment data will need to be imported again.";
-
-                    if (tests.All(t => t) || !Confirmer.Confirm(msg))
-                        continue;
-
-                    _context.RemoveRange(experiment.Treatments);              
-                }
+                var comparer = new TreatmentComparer();
                 
-                foreach (var t in ts)
+                var extras = experiment.Treatments.Where(t => !ts.Contains(t, comparer));
+
+                string msg = $"Changes detected for treatments in {experiment.Name}. " +
+                        $"Do you wish to replace the existing treatments? " +
+                        $"Experiment data will need to be imported again.";
+
+                if (extras.Any() && Confirmer.Confirm(msg))
+                    _context.RemoveRange(extras);
+
+                var news = ts.Where(t => !experiment.Treatments.Contains(t, comparer));
+                foreach (var t in news)
+                {
+                    experiment.Treatments.Add(t);
                     _context.Add(t);
+                }
 
                 _context.SaveChanges();
             }
