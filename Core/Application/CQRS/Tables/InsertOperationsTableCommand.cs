@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -44,58 +45,69 @@ namespace Rems.Application.CQRS
             var id = Type.GetProperty("TreatmentId");
             var op = typeof(Treatment).GetProperty(Table.TableName + 's');
 
-            object convertRow(DataRow row, Treatment treatment)
-            {
-                object entity = row.ToEntity(_context, Type, infos.ToArray()) as IComparable;
-                id.SetValue(entity, treatment.TreatmentId);
-                
-                return entity;
-            }
-
             // Group rows by experiment
             var es = Table.Rows.OfType<DataRow>().GroupBy(r => r["Experiment"].ToString());
-
-            _context.ChangeTracker.LazyLoadingEnabled = false;
 
             foreach (var e in es)
             {
                 var exp = _context.Experiments.First(x => x.Name == e.Key);
 
-                // Group rows by treatment
-                var ts = e.GroupBy(row => row["Treatment"].ToString()).SelectMany(group =>
+                var ops = new Dictionary<string, IList<object>>();
+                var all = new List<DataRow>();
+
+                void addOp(string key, DataRow row)
                 {
-                    // Find the treatment/s the row references
-                    var treats = group.Key.ToUpper() == "ALL"
-                        ? exp.Treatments
-                        : exp.Treatments.Where(treatment => treatment.Name == group.Key);
+                    if (!ops.ContainsKey(key))
+                        ops.Add(key, new List<object>());
 
-                    Progress.Increment(group.Count());
+                    ops[key].Add(row.ToEntity(_context, Type, infos.ToArray()));
+                }
 
-                    return treats.Select(treatment => 
-                    (
-                        ops: group.Select(row => convertRow(row, treatment)),
-                        old: (op.GetValue(treatment) as IEnumerable).Cast<object>())
-                    );
-                }).ToList();
+                foreach (var row in e)
+                {
+                    var key = row["Treatment"].ToString();
 
-                string msg = $"Changes detected for operations in {e.Key}. " +
+                    if (key.ToUpper() == "ALL")
+                        all.Add(row);
+                    else
+                        addOp(key, row);                  
+
+                    Progress.Increment(1);
+                }
+
+                // If any treatment has an invalid name
+                if (ops.Keys.FirstOrDefault(k => !exp.Treatments.Any(t => t.Name == k)) is string s)
+                    throw new Exception($"No treatment {s} exists in experiment {exp.Name}," +
+                        $" {Table.TableName}s could not be imported");
+
+                var entities = exp.Treatments.Select(t =>
+                {
+                    foreach (var row in all)
+                        addOp(t.Name, row);
+
+                    var old = (op.GetValue(t) as IEnumerable).Cast<object>();
+                    
+                    var extras = old.Where(o => !ops[t.Name].Contains(o));
+                    var news = ops[t.Name].Where(o => !old.Contains(o));
+                    news.ForEach(o => id.SetValue(o, t.TreatmentId));
+
+                    return (extras, news);
+                });
+
+                string msg = $"Changes detected to {Table.TableName}s in {e.Key}. " +
                             $"Continuing the import will override existing data.\n" +
                             $"Do you wish to proceed?";
 
-                if (ts.Any(t => t.old.Any() && t.old.SequenceEquivalent(t.ops)))
-                    if (!Confirmer.Confirm(msg))
-                        throw new Exception("Import cancelled");
-                    
-                foreach (var (ops, old) in ts)
-                {
-                    _context.RemoveRange(old);
+                var list = entities.Where(e => e.extras.Any());
+                if (list.Any() && Confirmer.Confirm(msg))
+                    list.ForEach(l => _context.RemoveRange(l.extras));
 
-                    foreach (var obj in ops)
-                        _context.Add(obj);
-                }
+                foreach (var (extras, news) in entities)
+                    foreach (var o in news)
+                        _context.Add(o);
+
+                _context.SaveChanges();
             }
-
-            _context.SaveChanges();
 
             return Unit.Value;            
         }
