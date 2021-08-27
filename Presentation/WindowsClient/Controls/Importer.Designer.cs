@@ -73,7 +73,7 @@
             this.gridLabel.Location = new System.Drawing.Point(4, 8);
             this.gridLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.gridLabel.Name = "gridLabel";
-            this.gridLabel.Size = new System.Drawing.Size(844, 20);
+            this.gridLabel.Size = new System.Drawing.Size(843, 20);
             this.gridLabel.TabIndex = 10;
             this.gridLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -97,7 +97,7 @@
             this.importData.Location = new System.Drawing.Point(4, 31);
             this.importData.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.importData.Name = "importData";
-            this.importData.Size = new System.Drawing.Size(845, 774);
+            this.importData.Size = new System.Drawing.Size(844, 774);
             this.importData.TabIndex = 0;
             // 
             // fileBox
@@ -232,7 +232,7 @@
             this.warning.Name = "warning";
             this.warning.RowCount = 1;
             this.warning.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.warning.Size = new System.Drawing.Size(845, 200);
+            this.warning.Size = new System.Drawing.Size(844, 200);
             this.warning.TabIndex = 12;
             this.warning.Visible = false;
             // 
