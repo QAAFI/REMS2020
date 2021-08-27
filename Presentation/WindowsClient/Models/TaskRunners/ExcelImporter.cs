@@ -43,7 +43,7 @@ namespace WindowsClient.Models
         private class Confirmer : IConfirmer
         {
             public bool Confirm(string message) 
-                => AlertBox.Show(message, AlertType.Ok) == DialogResult.OK;
+                => AlertBox.Show(message, AlertType.Ok, cancel:true) == DialogResult.OK;
         }
 
         /// <summary>

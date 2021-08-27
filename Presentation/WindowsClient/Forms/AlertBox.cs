@@ -30,40 +30,39 @@ namespace WindowsClient.Forms
             InitializeComponent();
 
             btnOk.Click += OnOkClick;
-        }        
+            btnCancel.Click += OnCancelClick;
+        }
 
-        public static DialogResult Show(string message, AlertType alert, string title = "REMS2020")
+        public static DialogResult Show(string message, AlertType alert, string title = "REMS2020", bool cancel = false)
         {
-            Image image;
-            switch (alert)
+            Image image = alert switch
             {
-                case AlertType.Success:
-                    image = Properties.Resources.ValidOn;
-                    break;
-
-                case AlertType.Error:
-                    image = Properties.Resources.InvalidOn;
-                    break;
-
-                case AlertType.Ok:
-                default:
-                    image = Properties.Resources.Question;
-                    break;
-            }
+                AlertType.Success => Properties.Resources.ValidOn,
+                AlertType.Error => Properties.Resources.InvalidOn,
+                _ => Properties.Resources.Question,
+            };
 
             var box = new AlertBox
             {
                 Text = title,
                 Message = message,
                 Image = image,
-                StartPosition = FormStartPosition.CenterParent
+                StartPosition = FormStartPosition.CenterParent                
             };
+            box.btnCancel.Visible = cancel;
+
             return box.ShowDialog();
         }
 
         private void OnOkClick(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void OnCancelClick(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
             Close();
         }
     }

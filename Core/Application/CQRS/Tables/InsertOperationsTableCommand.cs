@@ -99,9 +99,12 @@ namespace Rems.Application.CQRS
                             $"Do you wish to proceed?";
 
                 var list = entities.Where(e => e.extras.Any());
-                if (list.Any() && Confirmer.Confirm(msg))
-                    list.ForEach(l => _context.RemoveRange(l.extras));
-
+                if (list.Any())
+                    if (Confirmer.Confirm(msg))
+                        list.ForEach(l => _context.RemoveRange(l.extras));
+                    else
+                        throw new OperationCanceledException("Import cancelled.");
+                
                 foreach (var (extras, news) in entities)
                     foreach (var o in news)
                         _context.Add(o);

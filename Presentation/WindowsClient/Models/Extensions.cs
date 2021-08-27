@@ -118,6 +118,10 @@ namespace WindowsClient.Models
             {
                 await task;
             }
+            catch (OperationCanceledException)
+            {
+                // Don't want an error message box for cancelled operations
+            }
             catch (Exception error)
             {
                 while (error.InnerException != null) 

@@ -84,8 +84,11 @@ namespace Rems.Application.CQRS
                         $"Do you wish to replace the existing treatments? " +
                         $"Experiment data will need to be imported again.";
 
-                if (extras.Any() && Confirmer.Confirm(msg))
-                    _context.RemoveRange(extras);
+                if (extras.Any())
+                    if (Confirmer.Confirm(msg))
+                        _context.RemoveRange(extras);
+                    else
+                        throw new OperationCanceledException("Import cancelled.");
 
                 var news = ts.Where(t => !experiment.Treatments.Contains(t, comparer));
                 foreach (var t in news)
