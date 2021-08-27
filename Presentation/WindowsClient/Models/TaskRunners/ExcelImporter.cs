@@ -55,7 +55,7 @@ namespace WindowsClient.Models
             if (table.ExtendedProperties["Ignore"] is true)
                 return;
 
-            OnNextItem(table.TableName);
+            OnNextItem("Importing table");
 
             var type = table.ExtendedProperties["Type"] as Type;
 

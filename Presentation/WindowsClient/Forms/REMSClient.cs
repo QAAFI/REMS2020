@@ -15,6 +15,7 @@ namespace WindowsClient
         public REMSClient(IServiceProvider provider)
         {
             InitializeComponent();
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 
             QueryManager.Provider = provider;
             

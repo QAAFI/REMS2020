@@ -30,7 +30,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pctLabel = new System.Windows.Forms.Label();
             this.label = new System.Windows.Forms.Label();
             this.runBtn = new System.Windows.Forms.Button();
             this.bar = new System.Windows.Forms.ProgressBar();
@@ -38,35 +37,22 @@
             this.panel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pctLabel
-            // 
-            this.pctLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pctLabel.BackColor = System.Drawing.Color.Transparent;
-            this.pctLabel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.pctLabel.Location = new System.Drawing.Point(198, 2);
-            this.pctLabel.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
-            this.pctLabel.Name = "pctLabel";
-            this.pctLabel.Padding = new System.Windows.Forms.Padding(3);
-            this.pctLabel.Size = new System.Drawing.Size(47, 26);
-            this.pctLabel.TabIndex = 7;
-            this.pctLabel.Text = "0%";
-            this.pctLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // label
             // 
-            this.label.AutoSize = true;
-            this.label.Location = new System.Drawing.Point(94, 8);
-            this.label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label.AutoEllipsis = true;
+            this.label.Location = new System.Drawing.Point(118, 2);
+            this.label.Margin = new System.Windows.Forms.Padding(0);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(34, 15);
+            this.label.Size = new System.Drawing.Size(129, 29);
             this.label.TabIndex = 6;
-            this.label.Text = "         ";
-            this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // runBtn
             // 
             this.runBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.runBtn.Location = new System.Drawing.Point(0, 1);
+            this.runBtn.Location = new System.Drawing.Point(0, 2);
             this.runBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.runBtn.Name = "runBtn";
             this.runBtn.Size = new System.Drawing.Size(86, 29);
@@ -79,17 +65,16 @@
             // 
             this.bar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.bar.Location = new System.Drawing.Point(0, 34);
+            this.bar.Location = new System.Drawing.Point(0, 33);
             this.bar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.bar.Name = "bar";
-            this.bar.Size = new System.Drawing.Size(245, 25);
+            this.bar.Size = new System.Drawing.Size(247, 27);
             this.bar.TabIndex = 10;
             // 
             // panel
             // 
             this.panel.Controls.Add(this.bar);
             this.panel.Controls.Add(this.runBtn);
-            this.panel.Controls.Add(this.pctLabel);
             this.panel.Controls.Add(this.label);
             this.panel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -108,14 +93,11 @@
             this.Name = "TrackerBar";
             this.Size = new System.Drawing.Size(247, 61);
             this.panel.ResumeLayout(false);
-            this.panel.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Label pctLabel;
         private System.Windows.Forms.Label label;
         private System.Windows.Forms.Button runBtn;
         private System.Windows.Forms.ProgressBar bar;

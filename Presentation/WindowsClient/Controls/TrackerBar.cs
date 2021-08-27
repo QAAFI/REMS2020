@@ -63,7 +63,6 @@ namespace WindowsClient.Controls
             {
                 bar.Value = 0;
                 label.Text = "";
-                pctLabel.Text = "0%";
                 task = 0;
             }
         }
@@ -77,12 +76,7 @@ namespace WindowsClient.Controls
             runner.NextItem += OnNextTask;
             runner.TaskFailed += OnTaskFailed;
 
-            runner.Reporter = new ProgressReporter(amount => 
-            {
-                bar.Value = amount;
-                int pct = 100 * bar.Value / bar.Maximum;
-                pctLabel.Text = $"{pct}%";
-            });
+            runner.Reporter = new ProgressReporter(amount => bar.Value = amount);
 
             tasks = runner.Items;
             bar.Value = 0;
@@ -109,11 +103,7 @@ namespace WindowsClient.Controls
                 Invoke(new Action<int>(SetProgress), amount);
             else
             {
-                bar.Value = amount;
-                
-                int pct = bar.Value / bar.Maximum;
-                pctLabel.Text = $"{pct}%";
-
+                bar.Value = amount;                
                 Refresh();
             }
         }
@@ -123,14 +113,12 @@ namespace WindowsClient.Controls
         /// </summary>
         public void OnNextTask(object sender, Args<string> args)
         {
-            string text = args.Item;
-
             if (InvokeRequired)
                 Invoke(new EventHandler<Args<string>>(OnNextTask), sender, args);
             else
             {
                 task++;
-                label.Text = $"{task} of {tasks}: {text}";
+                label.Text = $"{args.Item} {task}/{tasks}";
 
                 Refresh();
             }
