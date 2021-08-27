@@ -232,6 +232,11 @@ namespace WindowsClient.Controls
                 ImportCompleted.Invoke(this, EventArgs.Empty);
             }
 
+            if (task.IsCanceled)
+            {
+                AlertBox.Show("Import cancelled.", AlertType.Success);
+            }
+
             tracker.Reset();            
         }
 

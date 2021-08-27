@@ -14,6 +14,8 @@ namespace Rems.Application.Common.Interfaces
     {
         #region DbContext base
 
+        ChangeTracker ChangeTracker { get; }
+
         IModel Model { get; }
 
         int SaveChanges();
@@ -29,6 +31,8 @@ namespace Rems.Application.Common.Interfaces
         EntityEntry Entry(object entity);
 
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
+
+        void RemoveRange(IEnumerable<object> entities);
 
         #endregion
 

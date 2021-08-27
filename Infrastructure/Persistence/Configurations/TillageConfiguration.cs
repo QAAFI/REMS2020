@@ -16,6 +16,9 @@ namespace Rems.Persistence.Configurations
                 .HasDatabaseName("TillageId")
                 .IsUnique();
 
+            builder.Property(e => e.TillageId)
+                .ValueGeneratedOnAdd();
+
             builder.Property(e => e.Notes)
                 .HasMaxLength(50);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -23,7 +24,8 @@ namespace Rems.Application.CQRS
 
         public Type Type { get; set; }
 
-        /// <inheritdoc/>
+        public IConfirmer Confirmer { get; set; }
+
         public class Handler : BaseHandler<InsertOperationsTableCommand>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
@@ -32,51 +34,83 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Unit Run()
         {
-            // Find the properties of each columnm assuming the first two columns do not contain property data
+            // Find the properties of each columnm assuming the first
+            // two columns do not contain property data
             var infos = Table.Columns.Cast<DataColumn>()
                     .Skip(2)
                     .Select(c => c.FindProperty())
                     .Where(i => i != null)
                     .ToList();
 
-            var info = Type.GetProperty("TreatmentId");
+            var id = Type.GetProperty("TreatmentId");
+            var op = typeof(Treatment).GetProperty(Table.TableName + 's');
 
-            // Insert a treatment to the database
-            void insertTreatment(DataRow row, Treatment treatment)
+            // Group rows by experiment
+            var es = Table.Rows.OfType<DataRow>().GroupBy(r => r["Experiment"].ToString());
+
+            foreach (var e in es)
             {
-                var result = row.ToEntity(_context, Type, infos.ToArray());
-                info.SetValue(result, treatment.TreatmentId);
-                _context.Attach(result);
-            }
+                var exp = _context.Experiments.First(x => x.Name == e.Key);
 
-            var entities = new List<IEntity>();
+                var ops = new Dictionary<string, IList<object>>();
+                var all = new List<DataRow>();
 
-            foreach (DataRow row in Table.Rows)
-            {
-                // Assume that the second column is the treatment name
-                var name = row[1].ToString();
-
-                var treatments = _context.Treatments.Where(t => t.Experiment.Name == row[0].ToString()).AsNoTracking();
-
-                if (name.ToLower() == "all")
+                void addOp(string key, DataRow row)
                 {
-                    foreach (var treatment in treatments)
-                        insertTreatment(row, treatment);
-                }
-                else
-                {
-                    var treatment = treatments.Where(t => t.Name == name).FirstOrDefault();
+                    if (!ops.ContainsKey(key))
+                        ops.Add(key, new List<object>());
 
-                    // TODO: This is a lazy approach that simply skips bad data, try to find a better solution
-                    if (treatment is null) continue;
-
-                    insertTreatment(row, treatment);
+                    ops[key].Add(row.ToEntity(_context, Type, infos.ToArray()));
                 }
 
-                Progress.Increment(1);
-            }
+                foreach (var row in e)
+                {
+                    var key = row["Treatment"].ToString();
 
-            _context.SaveChanges();
+                    if (key.ToUpper() == "ALL")
+                        all.Add(row);
+                    else
+                        addOp(key, row);                  
+
+                    Progress.Increment(1);
+                }
+
+                // If any treatment has an invalid name
+                if (ops.Keys.FirstOrDefault(k => !exp.Treatments.Any(t => t.Name == k)) is string s)
+                    throw new Exception($"No treatment {s} exists in experiment {exp.Name}," +
+                        $" {Table.TableName}s could not be imported");
+
+                var entities = exp.Treatments.Select(t =>
+                {
+                    foreach (var row in all)
+                        addOp(t.Name, row);
+
+                    var old = (op.GetValue(t) as IEnumerable).Cast<object>();
+                    
+                    var extras = old.Where(o => !ops[t.Name].Contains(o));
+                    var news = ops[t.Name].Where(o => !old.Contains(o));
+                    news.ForEach(o => id.SetValue(o, t.TreatmentId));
+
+                    return (extras, news);
+                });
+
+                string msg = $"Changes detected to {Table.TableName}s in {e.Key}. " +
+                            $"Continuing the import will override existing data.\n" +
+                            $"Do you wish to proceed?";
+
+                var list = entities.Where(e => e.extras.Any());
+                if (list.Any())
+                    if (Confirmer.Confirm(msg))
+                        list.ForEach(l => _context.RemoveRange(l.extras));
+                    else
+                        throw new OperationCanceledException("Import cancelled.");
+                
+                foreach (var (extras, news) in entities)
+                    foreach (var o in news)
+                        _context.Add(o);
+
+                _context.SaveChanges();
+            }
 
             return Unit.Value;            
         }
