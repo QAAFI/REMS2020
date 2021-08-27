@@ -49,7 +49,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override int Steps => Items * numModelsToExport;
 
-        private readonly int numModelsToExport = 17;
+        private readonly int numModelsToExport = 16;
 
         public Markdown Summary { get; } = new();
 
@@ -96,7 +96,7 @@ namespace WindowsClient.Models
             // Convert each experiment into an APSIM model
             foreach (var (ID, Name, Crop) in exps)
             {
-                OnNextItem(Name);
+                OnNextItem("Simulation");
                 Summary.AddSubHeading(Name + ':', 2);
                 var request = new WeatherQuery { ExperimentId = ID, Mets = mets, Report = Summary };
                 var weather = await QueryManager.Request(request);
