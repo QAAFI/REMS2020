@@ -49,7 +49,7 @@ namespace WindowsClient.Models
         /// <inheritdoc/>
         public override int Steps => Items * numModelsToExport;
 
-        private readonly int numModelsToExport = 16;
+        private readonly int numModelsToExport = 13;
 
         public Markdown Summary { get; } = new();
 
@@ -237,6 +237,8 @@ namespace WindowsClient.Models
                     "Check the sensibility before running the simulation.");
 
                 template.FindDescendant<SoilCrop>().Name = query.Crop + "Soil";
+
+                Reporter.Increment(1);
                 return template;
             }
 
@@ -345,18 +347,21 @@ namespace WindowsClient.Models
 
             IModel N = query.Crop.ToUpper() != "SORGHUM"
                 ? new Nutrient { ResourceName = "Nutrient" }
-                : Create<SoilNitrogen>("SoilNitrogen", new IModel[]
+                : new SoilNitrogen
                 {
-                    new SoilNitrogenNO3 { Name = "NO3" },
-                    new SoilNitrogenNH4 { Name = "NH4" },                    
-                    new SoilNitrogenUrea { Name = "Urea" },
-                    new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
-                    new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
-                });
+                    Name = "SoilNitrogen",
+                    Children = new List<IModel>
+                    {
+                        new SoilNitrogenNO3 { Name = "NO3" },
+                        new SoilNitrogenNH4 { Name = "NH4" },
+                        new SoilNitrogenUrea { Name = "Urea" },
+                        new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
+                        new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
+                    }
+                };
 
             var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
-            return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);
-            
+            return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);            
         }
     }
 }
