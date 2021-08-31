@@ -1,9 +1,10 @@
-﻿using Rems.Application.Common.Interfaces;
+﻿using Rems.Application.Common;
+using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace Rems.Application.Common
+namespace Rems.Infrastructure
 {
     public abstract class TaskRunner : ITaskRunner, IDisposable
     {
@@ -14,6 +15,8 @@ namespace Rems.Application.Common
 
         /// <inheritdoc/>
         public event EventHandler<Args<Exception>> TaskFailed;
+
+        public IQueryHandler Handler { get; set; }
 
         /// <inheritdoc/>
         public ProgressReporter Reporter { get; set; }

@@ -8,10 +8,8 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using WindowsClient.Forms;
 
-namespace WindowsClient.Models
+namespace Rems.Infrastructure
 {
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
@@ -33,17 +31,11 @@ namespace WindowsClient.Models
         /// </summary>
         public async override Task Run()
         {            
-            if (!await QueryManager.Request(new ConnectionExists()))
+            if (!await Handler.Query(new ConnectionExists()))
                 throw new Exception("No existing database connection");
 
             foreach (DataTable table in Data)
                 await InsertTable(table);       
-        }
-
-        private class Confirmer : IConfirmer
-        {
-            public bool Confirm(string message) 
-                => AlertBox.Show(message, AlertType.Ok, cancel:true) == DialogResult.OK;
         }
 
         /// <summary>
@@ -65,12 +57,12 @@ namespace WindowsClient.Models
             switch (table.TableName)
             {
                 case "Design":
-                    await QueryManager.Request(new InsertDesignsCommand { Table = table });
+                    await Handler.Query(new InsertDesignsCommand { Table = table });
                     command = new InsertPlotsCommand
                     {
                         Table = table,
                         Progress = Reporter,
-                        Confirmer = new Confirmer()
+                        Confirmer = Handler
                     };
                     break;
 
@@ -118,7 +110,7 @@ namespace WindowsClient.Models
                 case "Tillage":
                     command = new InsertOperationsTableCommand
                     {
-                        Confirmer = new Confirmer(),
+                        Confirmer = Handler,
                         Table = table,
                         Type = type,
                         Progress = Reporter
@@ -164,7 +156,7 @@ namespace WindowsClient.Models
                     break;
             }
             
-            await QueryManager.Request(command);
+            await Handler.Query(command);
         }
     }
 }

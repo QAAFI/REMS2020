@@ -2,29 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using MediatR;
 using Models;
 using Models.Core;
 using Models.Core.ApsimFile;
+using Models.Climate;
 using Models.Factorial;
+using Models.PostSimulationTools;
 using Models.Soils;
 using Models.Soils.Arbitrator;
+using Models.Soils.Nutrients;
 using Models.Surface;
+using Models.Storage;
+using Models.WaterModel;
 
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
-using WindowsClient.Utilities;
-using Models.Storage;
-using Models.WaterModel;
-using Models.Soils.Nutrients;
-using System.Reflection;
-using Models.Climate;
-using Models.PostSimulationTools;
+using Rems.Infrastructure.Utilities;
 
-namespace WindowsClient.Models
+namespace Rems.Infrastructure
 {
     /// <summary>
     /// Manages the construction and output of an .apsimx file
@@ -65,7 +65,7 @@ namespace WindowsClient.Models
             var simulations = new Simulations();            
 
             // Find the experiments            
-            var exps = (await QueryManager.Request(new ExperimentsQuery()))
+            var exps = (await Handler.Query(new ExperimentsQuery()))
                 .Where(e => Experiments.Contains(e.Name));
 
             var ids = exps.Select(e => e.ID).ToArray();
@@ -83,7 +83,7 @@ namespace WindowsClient.Models
 
             // Output the met data
             var query = new WriteMetCommand { ExperimentIds = ids };
-            var mets = await QueryManager.Request(query);
+            var mets = await Handler.Query(query);
 
             // Check if replacements is necessary
             if (exps.Any(e => e.Crop == "Sorghum"))
@@ -99,7 +99,7 @@ namespace WindowsClient.Models
                 OnNextItem("Simulation");
                 Summary.AddSubHeading(Name + ':', 2);
                 var request = new WeatherQuery { ExperimentId = ID, Mets = mets, Report = Summary };
-                var weather = await QueryManager.Request(request);
+                var weather = await Handler.Query(request);
                 var model = await CreateExperiment(Name, ID, weather);
                 simulations.Children.Add(model);
             }
@@ -120,7 +120,7 @@ namespace WindowsClient.Models
         /// <param name="children">Any child models to include</param>
         private async Task<T> Request<T>(IRequest<T> query, params IModel[] children) where T : IModel
         {
-            var model = await QueryManager.Request(query);
+            var model = await Handler.Query(query);
 
             // Attach child models
             if (children != null) foreach (var child in children)
@@ -184,8 +184,8 @@ namespace WindowsClient.Models
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
-                        await QueryManager.Request(new ReportQuery { ExperimentId = id }),
-                        await QueryManager.Request(new ManagersQuery {ExperimentId = id }),
+                        await Handler.Query(new ReportQuery { ExperimentId = id }),
+                        await Handler.Query(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
                         await CreateSoilModel(id),
                         new SurfaceOrganicMatter()
@@ -216,7 +216,7 @@ namespace WindowsClient.Models
             Summary.AddLine("\n");
 
             // Output the observed data
-            await QueryManager.Request(new WriteObservedCommand { FileName = name, ID = id });
+            await Handler.Query(new WriteObservedCommand { FileName = name, ID = id });
 
             return experiment;
         }   
@@ -224,7 +224,7 @@ namespace WindowsClient.Models
         private async Task<IModel> CreateSoilModel(int id)
         {   
             var query = new SoilModelTraitsQuery { ExperimentId = id };
-            var traits = await QueryManager.Request(query);
+            var traits = await Handler.Query(query);
 
             var template = query.Crop.ToUpper() == "SORGHUM"
                 ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"))

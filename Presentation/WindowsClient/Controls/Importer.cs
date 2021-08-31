@@ -1,6 +1,7 @@
 ﻿using Rems.Application.Common;
 using Rems.Application.CQRS;
-
+using Rems.Infrastructure;
+using Rems.Infrastructure.Utilities;
 using System;
 using System.Data;
 using System.Drawing;
@@ -10,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsClient.Forms;
 using WindowsClient.Models;
-using WindowsClient.Utilities;
 using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient.Controls
@@ -217,7 +217,11 @@ namespace WindowsClient.Controls
                 .Select(n => n.Excel.Data)
                 .OrderBy(t => t.DataSet.Tables.IndexOf(t));
 
-            var excel = new ExcelImporter { Data = data };
+            var excel = new ExcelImporter 
+            { 
+                Data = data,
+                Handler = QueryManager.Instance
+            };
 
             tracker.AttachRunner(excel);
 
