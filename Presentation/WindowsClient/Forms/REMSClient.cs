@@ -17,7 +17,7 @@ namespace WindowsClient
             InitializeComponent();
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 
-            QueryManager.Provider = provider;
+            QueryManager.Instance.Provider = provider;
             
             LoadSettings();
 
