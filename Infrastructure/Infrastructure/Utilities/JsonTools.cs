@@ -1,8 +1,7 @@
 ﻿using System.IO;
-
 using Newtonsoft.Json;
 
-namespace WindowsClient.Utilities
+namespace Rems.Infrastructure.Utilities
 {
     public static class JsonTools
     {
