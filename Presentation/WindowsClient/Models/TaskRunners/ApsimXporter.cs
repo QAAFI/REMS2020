@@ -227,11 +227,10 @@ namespace WindowsClient.Models
             var query = new SoilModelTraitsQuery { ExperimentId = id };
             var traits = await QueryManager.Request(query);
 
-            var template = query.Crop.ToUpper() == "SORGHUM"
-                ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"))
-                : JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"));
+            var info = Manager.GetFileInfo($"{query.Crop}Soil") ?? Manager.GetFileInfo("DefaultSoil");
+            var template = JsonTools.LoadJson<Soil>(info);
 
-            if (!(traits["Thickness"] is double[] thickness))
+            if (traits["Thickness"] is not double[] thickness)
             {
                 Summary.AddSubHeading("Soil model", 2);
                 Summary.AddLine("No soil layer data found. A template soil model has been used. " +
