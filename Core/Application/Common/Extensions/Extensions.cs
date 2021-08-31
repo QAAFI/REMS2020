@@ -94,5 +94,15 @@ namespace Rems.Application.Common.Extensions
         /// <returns></returns>
         public static bool SequenceEquivalent<TElement>(this IEnumerable<TElement> source, IEnumerable<TElement> other)
             => source.OrderBy(e => e).SequenceEqual(other.OrderBy(e => e));
+
+        public static double[] Cumulative(this double[] values)
+        {
+            var result = new double[values.Length];
+            result[0] = values[0];
+            for (int i = 1; i < values.Length; i++)
+                result[i] = values[i] + result[i - 1];
+
+            return result;
+        }
     }
 }
