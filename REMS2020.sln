@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "..\ApsimX\Models\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Infrastructure\Persistence\Persistence.csproj", "{AA401977-7C96-4788-AB64-2A6F83F72806}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure\Infrastructure\Infrastructure.csproj", "{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{AA401977-7C96-4788-AB64-2A6F83F72806}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA401977-7C96-4788-AB64-2A6F83F72806}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA401977-7C96-4788-AB64-2A6F83F72806}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +70,7 @@ Global
 		{0AD69DDB-FF04-4E3B-B9E0-A705DC04860B} = {29963A25-A52E-4CAA-8B00-27305ADCA4FA}
 		{42425265-63BD-4AC3-B989-D339C6AFE42F} = {29963A25-A52E-4CAA-8B00-27305ADCA4FA}
 		{AA401977-7C96-4788-AB64-2A6F83F72806} = {06650919-0ED9-489D-ABC9-DCE15D344D16}
+		{5E171E48-8486-4E45-8A16-4EBC7DBDF8C6} = {06650919-0ED9-489D-ABC9-DCE15D344D16}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BB0C2496-24BB-4FC6-A9D1-955A3D65EA0A}
