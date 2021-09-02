@@ -7,22 +7,6 @@ using System.Windows.Forms;
 namespace WindowsClient.Models
 {
     /// <summary>
-    /// Stores text and color
-    /// </summary>
-    public struct RichText
-    {
-        /// <summary>
-        /// The text content
-        /// </summary>
-        public string Text { get; set; }
-
-        /// <summary>
-        /// The text color
-        /// </summary>
-        public Color Color { get; set; }
-    }
-
-    /// <summary>
     /// Manages a collection of colored text
     /// </summary>
     public class Advice
@@ -32,7 +16,7 @@ namespace WindowsClient.Models
         /// </summary>
         public bool Empty => !Message.Any();
 
-        private List<RichText> Message = new List<RichText>();
+        private readonly List<(string, Color)> Message = new();
 
         public Advice()
         { }
@@ -48,7 +32,7 @@ namespace WindowsClient.Models
         /// <param name="text">The content of the message</param>
         /// <param name="color">The display color of the message</param>
         public void Include(string text, Color? color = null)
-            => Message.Add(new RichText { Text = text, Color = color.GetValueOrDefault(Color.Black) });
+            => Message.Add((text, color.GetValueOrDefault(Color.Black)));
 
         /// <summary>
         /// Displays the advice in the given <see cref="RichTextBox"/>
@@ -58,13 +42,13 @@ namespace WindowsClient.Models
         {
             box.Clear();
 
-            foreach (var item in Message)
+            foreach (var (text, color) in Message)
             {
                 box.SelectionStart = box.TextLength;
                 box.SelectionLength = 0;
 
-                box.SelectionColor = item.Color;
-                box.AppendText(item.Text);
+                box.SelectionColor = color;
+                box.AppendText(text);
                 box.SelectionColor = box.ForeColor;
             }
         }
