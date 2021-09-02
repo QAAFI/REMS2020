@@ -2,7 +2,7 @@
 
 using Rems.Application;
 using Rems.Application.Common.Interfaces;
-using Rems.Persistence;
+using Rems.Infrastructure;
 
 using System;
 using System.Windows.Forms;
