@@ -16,7 +16,7 @@ namespace WindowsClient.Models
     public class QueryManager : IQueryHandler
     {
         #region Singleton implementation
-        private static readonly QueryManager instance = new QueryManager();
+        private static readonly QueryManager instance = new();
 
         public static QueryManager Instance => instance;
 

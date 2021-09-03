@@ -9,7 +9,7 @@ namespace WindowsClient
     public sealed class FileManager : IFileManager
     {
         #region Singleton implementation
-        private static readonly FileManager instance = new FileManager();
+        private static readonly FileManager instance = new();
 
         public static FileManager Instance => instance;
 
@@ -29,7 +29,7 @@ namespace WindowsClient
         /// <inheritdoc/>
         public string ImportPath { get; set; }
 
-        private DirectoryInfo directory = new DirectoryInfo(Directory.GetCurrentDirectory() + "/ApplicationFiles");
+        private DirectoryInfo directory = new(Directory.GetCurrentDirectory() + "/ExportFiles");
 
         public string GetContent(string filename)
         {

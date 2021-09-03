@@ -66,7 +66,7 @@ namespace WindowsClient.Controls
             images.Images.Add("Excel", Properties.Resources.Excel);
             images.Images.Add("ExcelOff", Properties.Resources.ExcelOff);
             images.Images.Add("Properties", Properties.Resources.Properties);
-            images.Images.Add("Ignore", Properties.Resources.Ignore);
+            //images.Images.Add("Ignore", Properties.Resources.Ignore);
 
             images.Images.Add("Warning", SystemIcons.Warning);
             images.Images.Add("WarningOn", Properties.Resources.WarningOn);
