@@ -31,7 +31,7 @@ namespace Rems.Infrastructure
         /// </summary>
         public async override Task Run()
         {            
-            if (!await Handler.Query(new ConnectionExists()))
+            if (!FileManager.Connected)
                 throw new Exception("No existing database connection");
 
             foreach (DataTable table in Data)

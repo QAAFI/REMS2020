@@ -281,9 +281,8 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnExportClick(object sender, EventArgs args)
         {
-            // Check that a valid database exists
-            bool connected = await QueryManager.Request(new ConnectionExists());
-            if (!connected)
+            // Check that a valid database exists            
+            if (!FileManager.Connected)
             {
                 AlertBox.Show("A database must be opened before exporting.", AlertType.Error);
                 return;

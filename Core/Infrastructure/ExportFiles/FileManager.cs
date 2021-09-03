@@ -4,7 +4,7 @@ using System.Linq;
 
 using Rems.Application.Common.Interfaces;
 
-namespace WindowsClient
+namespace Rems.Infrastructure
 {
     public sealed class FileManager : IFileManager
     {
@@ -30,6 +30,8 @@ namespace WindowsClient
         public string ImportPath { get; set; }
 
         private DirectoryInfo directory = new(Directory.GetCurrentDirectory() + "/ExportFiles");
+
+        public static bool Connected => File.Exists(instance.DbConnection);
 
         public string GetContent(string filename)
         {

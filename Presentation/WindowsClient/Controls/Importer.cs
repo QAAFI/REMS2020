@@ -187,8 +187,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void RunImporter(object sender, EventArgs args)
         {
-            bool connected = await QueryManager.Request(new ConnectionExists());
-            if (!connected)
+            if (!FileManager.Connected)
             {
                 AlertBox.Show("A database must be opened or created before importing", AlertType.Error);
                 return;
