@@ -7,12 +7,12 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Count the number of experiments in the database
     /// </summary>
-    public class BeginQuery : ContextQuery<DateTime>
+    public class ExperimentBeginQuery : ContextQuery<DateTime>
     {
         public int ID { get; set; }
 
         /// <inheritdoc/>
-        public class Handler : BaseHandler<BeginQuery>
+        public class Handler : BaseHandler<ExperimentBeginQuery>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }

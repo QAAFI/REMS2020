@@ -83,8 +83,8 @@ namespace WindowsClient.Controls
         /// </summary>
         public async Task Initialise(int experiment)
         {
-            var begin = await QueryManager.Request(new BeginQuery { ID = experiment });
-            var end = await QueryManager.Request(new EndQuery { ID = experiment });
+            var begin = await QueryManager.Request(new ExperimentBeginQuery { ID = experiment });
+            var end = await QueryManager.Request(new ExperimentEndQuery { ID = experiment });
             chart.Axes.Bottom.Minimum = begin.ToOADate();
             chart.Axes.Bottom.Maximum = end.ToOADate();
         }
