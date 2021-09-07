@@ -47,10 +47,10 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in Table.Rows)
             {
-                var soil = _context.Soils.First(s => s.SoilType == row.GetText("SoilType"));
+                var soil = _context.Soils.First(s => s.SoilType == row.GetText("Soil"));
                 
-                int from = row.GetInt32("DepthFrom");
-                int to = row.GetInt32("DepthTo");
+                int from = row.GetInt32("FromDepth");
+                int to = row.GetInt32("ToDepth");
 
                 var match = _context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to);
                 var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
