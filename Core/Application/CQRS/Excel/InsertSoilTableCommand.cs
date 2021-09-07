@@ -53,12 +53,11 @@ namespace Rems.Application.CQRS
 
                 traits.ForEach(trait =>
                 {
-                    var value = row[trait.Name];
-                    if (value is DBNull) return;
+                    if (row[trait.Name] is DBNull) return;
 
                     var existing = _context.SoilTraits.SingleOrDefault(s => s.Trait == trait && s.Soil == soil);
                     var soiltrait = existing ?? new SoilTrait { Trait = trait, Soil = soil };
-                    soiltrait.Value = Convert.ToDouble(value);
+                    soiltrait.Value = row.GetDouble(trait.Name);
                     entities.Add(soiltrait);
                 });
 
