@@ -44,8 +44,8 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in Table.Rows)
             {
-                var soiltype = row[0].ToString();
-                var notes = row[1].ToString();
+                var soiltype = row.GetText("SoilType");
+                var notes = row.GetText("Notes");
 
                 var match = _context.Soils.SingleOrDefault(s => s.SoilType == soiltype && s.Notes == notes);
                 var soil = match ?? new Soil { SoilType = soiltype, Notes = notes };
