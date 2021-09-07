@@ -226,9 +226,8 @@ namespace Rems.Infrastructure
             var query = new SoilModelTraitsQuery { ExperimentId = id };
             var traits = await Handler.Query(query);
 
-            var template = query.Crop.ToUpper() == "SORGHUM"
-                ? JsonTools.LoadJson<Soil>(Manager.GetFileInfo("SorghumSoil"))
-                : JsonTools.LoadJson<Soil>(Manager.GetFileInfo("DefaultSoil"));
+            var info = Manager.GetFileInfo($"{query.Crop}Soil") ?? Manager.GetFileInfo("DefaultSoil");
+            var template = JsonTools.LoadJson<Soil>(info);
 
             if (traits["Thickness"] is not double[] thickness)
             {
@@ -242,6 +241,15 @@ namespace Rems.Infrastructure
                 return template;
             }
 
+            var depths = template.FindDescendant<Physical>().Thickness.Cumulative();
+            for (int i = depths.Length - 1; i >= 0; i--)
+                depths[i] -= depths[0];
+
+            var ds = thickness.Cumulative();
+            for (int i = ds.Length - 1; i > 0; i--)
+                ds[i] -= (ds[i] - ds[i - 1]) / 2;
+            ds[0] /= 2;
+
             double[] getValues<T>(string name)
             {
                 // If we found the trait in the query
@@ -253,8 +261,10 @@ namespace Rems.Infrastructure
                 if (template.FindDescendant<T>() is T model)
                     if (type.GetProperty(name) is PropertyInfo info)
                         if (info.GetValue(model) is double[] values)
-                            if (values.Length >= thickness.Length)
-                                return values.Take(thickness.Length).ToArray();
+                        {
+                            var table = new LookupTable(depths, values);
+                            return ds.Select(d => table.LookUp(d)).ToArray();
+                        }
 
                 // If no template exists, return the default
                 return new double[thickness.Length];                
@@ -283,7 +293,7 @@ namespace Rems.Infrastructure
             };
             var soilcrop = new SoilCrop
             {
-                Name = query.Crop + "Soil",
+                Name = query.Crop + "Soil",                
                 LL = getValues<SoilCrop>(nameof(SoilCrop.LL)),
                 KL = getValues<SoilCrop>(nameof(SoilCrop.KL)),
                 XF = getValues<SoilCrop>(nameof(SoilCrop.XF))

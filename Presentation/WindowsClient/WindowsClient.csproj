@@ -8,6 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Fertilisation.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Harvest.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Managers\Sowing.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Panels\NewOld.cs" />
+    <Compile Remove="ApplicationFiles\Scripts\Panels\PredictedObserved.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ApplicationFiles\Templates\DefaultSoil.apsimx" />
+    <None Remove="ApplicationFiles\Templates\ExpandedDataStore.apsimx" />
+    <None Remove="ApplicationFiles\Templates\Simulation.apsimx" />
+    <None Remove="ApplicationFiles\Templates\Soils\SoybeanSoil.apsimx" />
+    <None Remove="ApplicationFiles\Templates\SorghumReplacements.apsimx" />
+    <None Remove="ApplicationFiles\Templates\SorghumSoil.apsimx" />
+    <None Remove="ApplicationFiles\Templates\Validation.apsimx" />
     <None Remove="Resources\TeeChart.licenses" />
   </ItemGroup>
 
