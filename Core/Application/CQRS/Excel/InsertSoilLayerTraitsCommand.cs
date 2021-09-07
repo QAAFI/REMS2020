@@ -47,13 +47,10 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in Table.Rows)
             {
-                var soil = _context.Soils.FirstOrDefault(s => s.SoilType == row[0].ToString());
+                var soil = _context.Soils.First(s => s.SoilType == row.GetText("SoilType"));
                 
-                if (!int.TryParse(row[1].ToString(), out int from))
-                    throw new InvalidCastException("The SoilLayers table expects integer values for depth");
-
-                if (!int.TryParse(row[2].ToString(), out int to))
-                    throw new InvalidCastException("The SoilLayers table expects integer values for depth");
+                int from = row.GetInt32("DepthFrom");
+                int to = row.GetInt32("DepthTo");
 
                 var match = _context.SoilLayers.SingleOrDefault(s => s.Soil == soil && s.FromDepth == from && s.ToDepth == to);
                 var layer = match ?? new SoilLayer { Soil = soil, FromDepth = from, ToDepth = to };
@@ -66,7 +63,7 @@ namespace Rems.Application.CQRS
 
                     var existing = _context.SoilLayerTraits.SingleOrDefault(s => s.Trait == trait && s.SoilLayer == layer);
                     var slt = existing ?? new SoilLayerTrait { Trait = trait, SoilLayer = layer };
-                    slt.Value = Convert.ToDouble(value);
+                    slt.Value = row.GetDouble(trait.Name);
                     entities.Add(slt);
                 });
 
