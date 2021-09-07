@@ -6,7 +6,7 @@ namespace Rems.Application.Common
     {
         public DataTypeException(string column, string table, string type)
             : base($"Column {column} in {table} contains invalid data." +
-                  $"\nData must be of type {type}")
+                  $"\nData must be of type: {type}")
         { }
     }
 }
