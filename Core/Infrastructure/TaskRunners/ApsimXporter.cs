@@ -23,6 +23,7 @@ using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using Rems.Infrastructure.Utilities;
+using Rems.Application.Common.Extensions;
 
 namespace Rems.Infrastructure
 {
