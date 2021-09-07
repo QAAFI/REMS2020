@@ -47,23 +47,22 @@ namespace Rems.Application.CQRS
             // Converts all the trait values in a row to their own PlotData entities
             IEnumerable<PlotData> convertRow(DataRow row)
             {                
-                var date = Convert.ToDateTime(row[2]);
-                var sample = row[3].ToString();
-
-                var exp = row[0].ToString();
-                var text = row[1].ToString().ToLower();
-                var plots = (text == "all" || text == "avg") 
-                    ? exps[exp] 
-                    : exps[exp].Where(p => text.Split(',').Select(i => Convert.ToInt32(i)).Contains(p.Column.Value));
+                var date = row.GetDate("Date");
+                var sample = row.GetText("Sample");
+                var exp = row.GetText("Experiment");                
+                var text = row.GetText("Plot").ToLower();
+                var plots = (text == "all" || text == "avg") ? exps[exp] 
+                    : exps[exp].Where(p => text.Split(',')
+                        .Select(i => Convert.ToInt32(i))
+                        .Contains(p.Column.Value));
 
                 foreach (var plot in plots)
                 {
-                    for (int i = Skip; i < row.ItemArray.Length; i++)
+                    foreach (var trait in traits)
                     {
-                        if (row[i] is DBNull || row[i] is "") continue;
-
-                        var trait = traits[i - Skip];
-                        var value = Convert.ToDouble(row[i]);
+                        if (row[trait.Name] is DBNull || row[trait.Name] is "") continue;
+                        
+                        var value = row.GetDouble(trait.Name);
 
                         yield return new PlotData
                         {
@@ -92,8 +91,7 @@ namespace Rems.Application.CQRS
             _context.SaveChanges();
 
             return Unit.Value;
-        }
-        
+        }        
     }
 
     internal class PlotDataComparer : IEqualityComparer<PlotData>
