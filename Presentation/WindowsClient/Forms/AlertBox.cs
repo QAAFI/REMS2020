@@ -49,7 +49,7 @@ namespace WindowsClient.Forms
                 Text = title,
                 Message = message,
                 Image = image,
-                StartPosition = FormStartPosition.CenterParent                
+                StartPosition = FormStartPosition.CenterParent
             };
             box.btnCancel.Visible = cancel;
 

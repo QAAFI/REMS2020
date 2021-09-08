@@ -127,12 +127,11 @@ namespace WindowsClient.Models
                 while (error.InnerException != null) 
                     error = error.InnerException;
 
+                Application.UseWaitCursor = false;
                 AlertBox.Show(error.Message, AlertType.Error);
             }
-            finally
-            {
-                Application.UseWaitCursor = false;
-            }
+
+            Application.UseWaitCursor = false;
         }
 
         public static string WordWrap(this string text, int length)
