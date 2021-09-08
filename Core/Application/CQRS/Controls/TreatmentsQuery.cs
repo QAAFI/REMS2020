@@ -8,7 +8,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Find all treatments in an experiment, paired by ID and Name
     /// </summary>
-    public class TreatmentsQuery : ContextQuery<KeyValuePair<int, string>[]>
+    public class TreatmentsQuery : ContextQuery<(int ID, string Name)[]>
     {
         /// <summary>
         /// The source experiment
@@ -22,10 +22,10 @@ namespace Rems.Application.CQRS
         }
 
         /// <inheritdoc/>
-        protected override KeyValuePair<int, string>[] Run()
+        protected override (int, string)[] Run()
         {
             return _context.Experiments.Find(ExperimentId).Treatments
-                .Select(t => new KeyValuePair<int, string>(t.TreatmentId, t.Name))
+                .Select(t => (t.TreatmentId, t.Name))
                 .ToArray();
         }
     }

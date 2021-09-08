@@ -23,6 +23,8 @@
     <None Remove="ApplicationFiles\Templates\SorghumReplacements.apsimx" />
     <None Remove="ApplicationFiles\Templates\SorghumSoil.apsimx" />
     <None Remove="ApplicationFiles\Templates\Validation.apsimx" />
+    <None Remove="Resources\CascadiaCode.ttf" />
+    <None Remove="Resources\CascadiaMono.ttf" />
     <None Remove="Resources\TeeChart.licenses" />
   </ItemGroup>
 
@@ -69,6 +71,12 @@
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Resources\Fonts\CascadiaCode.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Fonts\CascadiaMono.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

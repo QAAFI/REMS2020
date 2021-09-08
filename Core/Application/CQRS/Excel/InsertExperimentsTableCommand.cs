@@ -35,26 +35,26 @@ namespace Rems.Application.CQRS
         {
             Experiment convertRow(DataRow row)
             {
-                var crop = _context.Crops.FirstOrDefault(c => c.Name == row.GetValue<string>("Crop"));
+                var crop = _context.Crops.First(c => c.Name == row.GetText("Crop"));
 
-                var site = _context.Sites.FirstOrDefault(s => s.Name == row.GetValue<string>("SiteName"));
-                var field = site.Fields.FirstOrDefault(f => f.Name == row.GetValue<string>("Field"));
+                var site = _context.Sites.FirstOrDefault(s => s.Name == row.GetText("SiteName"));
+                var field = site.Fields.FirstOrDefault(f => f.Name == row.GetText("Field"));
 
-                var met = _context.MetStations.FirstOrDefault(s => s.Name == row.GetValue<string>("MetStation"));
+                var met = _context.MetStations.First(s => s.Name == row.GetText("MetStation"));
                 
                 var result = new Experiment
                 {
-                    Name = row.GetValue<string>("Name"),
-                    Description = row.GetValue<string>("Description"),
+                    Name = row.GetText("Name"),
+                    Description = row.GetText("Description"),
                     Crop = crop,
                     Field = field,
-                    BeginDate = row.GetValue<DateTime>("BeginDate"),
-                    EndDate = row.GetValue<DateTime>("EndDate"),
+                    BeginDate = row.GetDate("BeginDate"),
+                    EndDate = row.GetDate("EndDate"),
                     MetStation = met,
-                    Design = row.GetValue<string>("Design"),
-                    Repetitions = row.GetValue<int>("Repetitions"),
-                    Rating = row.GetValue<int>("Rating"),
-                    Notes = row.GetValue<string>("Notes")
+                    Design = row.GetText("Design"),
+                    Repetitions = row.GetInt32("Repetitions"),
+                    Rating = row.GetInt32("Rating", false),
+                    Notes = row.GetText("Notes")
                 };
 
                 Progress.Increment(1);
@@ -77,7 +77,7 @@ namespace Rems.Application.CQRS
             catch (DbUpdateException e)
             {
                 if (e.InnerException is SqliteException sql)
-                    throw new Exception(GetErrorMessage(sql, e.Entries.First()));                
+                    throw new Exception(GetErrorMessage(sql, e.Entries[0]));                
             }
 
             return Unit.Value;

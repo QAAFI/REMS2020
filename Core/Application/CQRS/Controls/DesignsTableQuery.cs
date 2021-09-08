@@ -31,7 +31,7 @@ namespace Rems.Application.CQRS
                 .Select(d => d.Level.Factor.Name)
                 .Distinct();
 
-            var type = "".GetType();
+            var type = typeof(string);
 
             var columns = names.Select(n => new DataColumn(n, type)).ToArray();
 

@@ -31,9 +31,6 @@ namespace Rems.Application.CQRS
         /// <inheritdoc/>
         protected override Unit Run()
         {
-            // Disable lazy loading for duplicate checking
-            //_context.ChangeTracker.LazyLoadingEnabled = false;            
-
             var rows = Table.Rows.Cast<DataRow>();
 
             // Group the experiment rows together
@@ -66,8 +63,8 @@ namespace Rems.Application.CQRS
                     treatment.Plots = t.Select(row => new Plot
                     {
                         Treatment = treatment,
-                        Repetition = Convert.ToInt32(row["Repetition"]),
-                        Column = Convert.ToInt32(row["Plot"])
+                        Repetition = row.GetInt32("Repetition"),
+                        Column = row.GetInt32("Plot")
                     }).ToList();
 
                     Progress.Increment(t.Count());

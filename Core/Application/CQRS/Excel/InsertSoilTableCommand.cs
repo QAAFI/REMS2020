@@ -44,8 +44,8 @@ namespace Rems.Application.CQRS
 
             foreach (DataRow row in Table.Rows)
             {
-                var soiltype = row[0].ToString();
-                var notes = row[1].ToString();
+                var soiltype = row.GetText("SoilType");
+                var notes = row.GetText("Notes");
 
                 var match = _context.Soils.SingleOrDefault(s => s.SoilType == soiltype && s.Notes == notes);
                 var soil = match ?? new Soil { SoilType = soiltype, Notes = notes };
@@ -53,12 +53,11 @@ namespace Rems.Application.CQRS
 
                 traits.ForEach(trait =>
                 {
-                    var value = row[trait.Name];
-                    if (value is DBNull) return;
+                    if (row[trait.Name] is DBNull) return;
 
                     var existing = _context.SoilTraits.SingleOrDefault(s => s.Trait == trait && s.Soil == soil);
                     var soiltrait = existing ?? new SoilTrait { Trait = trait, Soil = soil };
-                    soiltrait.Value = Convert.ToDouble(value);
+                    soiltrait.Value = row.GetDouble(trait.Name);
                     entities.Add(soiltrait);
                 });
 

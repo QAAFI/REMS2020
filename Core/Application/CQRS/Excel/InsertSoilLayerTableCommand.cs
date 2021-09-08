@@ -46,29 +46,30 @@ namespace Rems.Application.CQRS
 
             IEnumerable<SoilLayerData> convertRow(DataRow row)
             {
-                var exp = row[0].ToString();
-                var text = row[1].ToString().ToLower();
+                var exp = row.GetText("Experiment");
+                var text = row.GetText("Plot").ToLower();
                 var plots = (text == "all" || text == "avg")
                     ? exps[exp]
-                    : exps[exp].Where(p => text.Split(',').Select(i => Convert.ToInt32(i)).Contains(p.Column.Value));
+                    : exps[exp].Where(p => text.Split(',')
+                        .Select(i => Convert.ToInt32(i))
+                        .Contains(p.Column.Value));
 
                 foreach (var plot in plots)
                 {
                     // Convert all values from the 6th column onwards into SoilLayerData entities
-                    for (int i = Skip; i < row.ItemArray.Length; i++)
+                    foreach (var trait in traits)
                     {
-                        if (row[i] is DBNull || row[i] is "") continue;
-
-                        var value = Convert.ToDouble(row[i]);
-                        
+                        var value = row[trait.Name];
+                        if (value is DBNull || value is "") continue;
+                                                
                         yield return new SoilLayerData
                         {
                             PlotId = plot.PlotId,
-                            TraitId = traits[i - Skip].TraitId,
-                            Date = Convert.ToDateTime(row[2]),
-                            DepthFrom = Convert.ToInt32(row[3]),
-                            DepthTo = Convert.ToInt32(row[4]),
-                            Value = value
+                            TraitId = trait.TraitId,
+                            Date = row.GetDate("Date"),
+                            DepthFrom = row.GetInt32("DepthFrom"),
+                            DepthTo = row.GetInt32("DepthTo"),
+                            Value = row.GetDouble(trait.Name)
                         };
                     }
                 }

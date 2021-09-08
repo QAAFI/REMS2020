@@ -36,7 +36,7 @@ namespace Rems.Application.Common.Extensions
         /// </summary>        
         public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {            
-            comparer = comparer ?? new DataRowItemComparer();
+            comparer ??= new DataRowItemComparer();
 
             var rows = table.Rows.Cast<DataRow>()
                 .Distinct(comparer)
@@ -221,13 +221,40 @@ namespace Rems.Application.Common.Extensions
             return null;
         }
 
-        public static T GetValue<T>(this DataRow row, string column)
+        public static string GetText(this DataRow row, string column)
+            => row[column].ToString();
+
+        public static int GetInt32(this DataRow row, string column, bool required = true)
         {
-            var value = row[column];
-            if (value is DBNull)
+            if (int.TryParse(row[column].ToString(), out int x))
+                return x;
+
+            if (!required)
                 return default;
 
-            return (T)System.Convert.ChangeType(value, typeof(T));            
+            throw new DataTypeException(row, column, "Integer");
+        }
+
+        public static double GetDouble(this DataRow row, string column, bool required = true)
+        {
+            if (double.TryParse(row[column].ToString(), out double x))
+                return x;
+
+            if (!required)
+                return default;
+            
+            throw new DataTypeException(row, column, "Decimal");
+        }
+
+        public static DateTime GetDate(this DataRow row, string column, bool required = true)
+        {
+            if (DateTime.TryParse(row[column].ToString(), out DateTime x))
+                return x;
+
+            if (!required)
+                return default;
+
+            throw new DataTypeException(row, column, "Date");
         }
     }
 

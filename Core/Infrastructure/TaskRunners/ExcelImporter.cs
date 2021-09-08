@@ -35,7 +35,7 @@ namespace Rems.Infrastructure
                 throw new Exception("No existing database connection");
 
             foreach (DataTable table in Data)
-                await InsertTable(table);       
+                await InsertTable(table);
         }
 
         /// <summary>

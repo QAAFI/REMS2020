@@ -29,6 +29,8 @@ namespace WindowsClient.Forms
         {
             InitializeComponent();
 
+            message.Font = FontManager.GetFont("Cascadia Mono Light", Font.Size);
+
             btnOk.Click += OnOkClick;
             btnCancel.Click += OnCancelClick;
         }
@@ -47,7 +49,7 @@ namespace WindowsClient.Forms
                 Text = title,
                 Message = message,
                 Image = image,
-                StartPosition = FormStartPosition.CenterParent                
+                StartPosition = FormStartPosition.CenterParent
             };
             box.btnCancel.Visible = cancel;
 

@@ -39,14 +39,12 @@ namespace Rems.Application.CQRS
             using (var connection = new SqliteConnection("Data Source=" + _manager.DbConnection))
             {
                 connection.Open();
-                using (var command = new SqliteCommand(text, connection))
-                using (var reader = command.ExecuteReader())
-                {
-                    table = new DataTable(request.TableName);
-                    table.BeginLoadData();
-                    table.Load(reader);
-                    table.EndLoadData();
-                }
+                using var command = new SqliteCommand(text, connection);
+                using var reader = command.ExecuteReader();
+                table = new DataTable(request.TableName);
+                table.BeginLoadData();
+                table.Load(reader);
+                table.EndLoadData();
             };
 
             return table;

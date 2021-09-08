@@ -47,20 +47,19 @@ namespace Rems.Application.CQRS
 
             IEnumerable<MetData> convertRow(DataRow row)
             {
-                for (int i = 2; i < row.ItemArray.Length; i++)
+                foreach (var trait in traits)
                 {
-                    if (row[i] is DBNull || row[i] is "") continue;
+                    var value = row[trait.Name];
+                    if (value is DBNull || value is "") continue;
 
-                    var trait = traits[i - 2];
-                    var date = Convert.ToDateTime(row[1]);
-                    var value = Convert.ToDouble(row[i]);
+                    var date = row.GetDate("Date");
 
                     yield return new MetData
                     {
-                        MetStationId =  stations[row[0].ToString()],
+                        MetStationId =  stations[row.GetText("MetStation")],
                         TraitId = trait.TraitId,
                         Date = date,
-                        Value = value
+                        Value = row.GetDouble(trait.Name)
                     };
                 }
 
