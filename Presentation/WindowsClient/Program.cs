@@ -26,6 +26,8 @@ namespace WindowsClient
                 .AddApplication()                
                 .BuildServiceProvider();
 
+            FontManager.LoadFonts();
+
             Application.Run(new REMSClient(ServiceProvider));
         }
     }

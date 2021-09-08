@@ -29,6 +29,8 @@ namespace WindowsClient.Forms
         {
             InitializeComponent();
 
+            message.Font = FontManager.GetFont("Cascadia Mono Light", Font.Size);
+
             btnOk.Click += OnOkClick;
             btnCancel.Click += OnCancelClick;
         }
