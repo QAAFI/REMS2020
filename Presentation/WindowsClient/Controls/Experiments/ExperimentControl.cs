@@ -69,14 +69,14 @@ namespace WindowsClient.Controls
 
             var treatments = await QueryManager.Request(new TreatmentsQuery { ExperimentId = id });
 
-            foreach(var treat in treatments)
+            foreach(var (ID, Name) in treatments)
             {
                 var control = new TControl();
 
-                await control.LoadTreatment(treat.Key).TryRun();
+                await control.LoadTreatment(ID).TryRun();
                 control.Dock = DockStyle.Fill;
 
-                var page = new TabPage(treat.Value);
+                var page = new TabPage(Name);
                 page.Controls.Add(control);
                 tabs.TabPages.Add(page);
             }            

@@ -36,7 +36,7 @@ namespace Rems.Application.Common.Extensions
         /// </summary>        
         public static void RemoveDuplicateRows(this DataTable table, IEqualityComparer<DataRow> comparer = null)
         {            
-            comparer = comparer ?? new DataRowItemComparer();
+            comparer ??= new DataRowItemComparer();
 
             var rows = table.Rows.Cast<DataRow>()
                 .Distinct(comparer)
