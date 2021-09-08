@@ -7,9 +7,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.CQRS;
+using Rems.Infrastructure;
+using Rems.Infrastructure.Utilities;
 using WindowsClient.Forms;
 using WindowsClient.Models;
-using WindowsClient.Utilities;
 
 using Settings = WindowsClient.Properties.Settings;
 
@@ -280,9 +281,8 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnExportClick(object sender, EventArgs args)
         {
-            // Check that a valid database exists
-            bool connected = await QueryManager.Request(new ConnectionExists());
-            if (!connected)
+            // Check that a valid database exists            
+            if (!FileManager.Connected)
             {
                 AlertBox.Show("A database must be opened before exporting.", AlertType.Error);
                 return;
@@ -300,7 +300,8 @@ namespace WindowsClient.Controls
             {
                 Experiments = exportList.CheckedItems.Cast<string>(),
                 FileName = save.FileName,
-                Manager = FileManager.Instance
+                Manager = FileManager.Instance,
+                Handler = QueryManager.Instance
             };
 
             exportTracker.AttachRunner(exporter);

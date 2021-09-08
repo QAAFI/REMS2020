@@ -19,7 +19,7 @@ set TIMESTAMP="http://timestamp.comodoca.com/?td=sha256"
 rem Sign the .dll's
 SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\Rems.Domain.dll
 SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\Rems.Application.dll
-SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\Persistence.dll
+SignTool sign -q -as -fd sha256 -tr %TIMESTAMP% -td sha256 -f %CERT% %REMS%\Rems.Infrastructure.dll
 
 rem Create the installer.
 set "INSTALLER=REMS2020Setup"

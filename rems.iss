@@ -220,7 +220,7 @@ Name: {localappdata}\VirtualStore\REMS2020\*.*; Type: filesandordirs
 Name: {localappdata}\VirtualStore\REMS2020; Type: dirifempty
 
 [Files]
-Source: {#OUTPUT}\ApplicationFiles\*; DestDir: {app}\bin\ApplicationFiles; Flags: recursesubdirs
+Source: {#OUTPUT}\ExportFiles\*; DestDir: {app}\bin\ExportFiles; Flags: recursesubdirs
 Source: {#OUTPUT}\*; DestDir: {app}\bin; Flags: ignoreversion;
 
 [Tasks]

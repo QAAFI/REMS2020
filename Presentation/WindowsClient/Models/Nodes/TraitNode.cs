@@ -122,7 +122,7 @@ namespace WindowsClient.Models
             if (Parent?.Text != "Design")
                 return false;
 
-            var query = new IsFactorQuery { Name = Excel.Data.ColumnName };
+            var query = new FactorExistsQuery { Name = Excel.Data.ColumnName };
             return await QueryManager.Request(query);
         }
     }

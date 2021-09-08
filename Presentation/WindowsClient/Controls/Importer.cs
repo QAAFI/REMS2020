@@ -1,6 +1,7 @@
 ﻿using Rems.Application.Common;
 using Rems.Application.CQRS;
-
+using Rems.Infrastructure;
+using Rems.Infrastructure.Utilities;
 using System;
 using System.Data;
 using System.Drawing;
@@ -10,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsClient.Forms;
 using WindowsClient.Models;
-using WindowsClient.Utilities;
 using Settings = WindowsClient.Properties.Settings;
 
 namespace WindowsClient.Controls
@@ -66,7 +66,7 @@ namespace WindowsClient.Controls
             images.Images.Add("Excel", Properties.Resources.Excel);
             images.Images.Add("ExcelOff", Properties.Resources.ExcelOff);
             images.Images.Add("Properties", Properties.Resources.Properties);
-            images.Images.Add("Ignore", Properties.Resources.Ignore);
+            //images.Images.Add("Ignore", Properties.Resources.Ignore);
 
             images.Images.Add("Warning", SystemIcons.Warning);
             images.Images.Add("WarningOn", Properties.Resources.WarningOn);
@@ -187,8 +187,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void RunImporter(object sender, EventArgs args)
         {
-            bool connected = await QueryManager.Request(new ConnectionExists());
-            if (!connected)
+            if (!FileManager.Connected)
             {
                 AlertBox.Show("A database must be opened or created before importing", AlertType.Error);
                 return;
@@ -217,7 +216,11 @@ namespace WindowsClient.Controls
                 .Select(n => n.Excel.Data)
                 .OrderBy(t => t.DataSet.Tables.IndexOf(t));
 
-            var excel = new ExcelImporter { Data = data };
+            var excel = new ExcelImporter 
+            { 
+                Data = data,
+                Handler = QueryManager.Instance
+            };
 
             tracker.AttachRunner(excel);
 
