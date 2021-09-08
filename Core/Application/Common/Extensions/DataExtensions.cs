@@ -232,7 +232,7 @@ namespace Rems.Application.Common.Extensions
             if (!required)
                 return default;
 
-            throw new DataTypeException(column, row.Table.TableName, "Integer");
+            throw new DataTypeException(row, column, "Integer");
         }
 
         public static double GetDouble(this DataRow row, string column, bool required = true)
@@ -242,8 +242,8 @@ namespace Rems.Application.Common.Extensions
 
             if (!required)
                 return default;
-
-            throw new DataTypeException(column, row.Table.TableName, "Decimal");
+            
+            throw new DataTypeException(row, column, "Decimal");
         }
 
         public static DateTime GetDate(this DataRow row, string column, bool required = true)
@@ -254,7 +254,7 @@ namespace Rems.Application.Common.Extensions
             if (!required)
                 return default;
 
-            throw new DataTypeException(column, row.Table.TableName, "Date");
+            throw new DataTypeException(row, column, "Date");
         }
     }
 
