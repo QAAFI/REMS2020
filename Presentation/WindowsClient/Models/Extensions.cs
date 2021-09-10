@@ -1,4 +1,4 @@
-﻿using Rems.Application.Common;
+using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart.Styles;
 using System;
@@ -12,7 +12,7 @@ namespace WindowsClient.Models
 {
     public static class Extensions
     {
-        private static ColourLookup Colours = new();
+        public static ColourLookup Colours = new();
 
         public static async Task IterateTraits<TX, TY>(this TraitDataQuery<TX, TY> query, IEnumerable<string> traits, Action<SeriesData<TX, TY>> action)
         {

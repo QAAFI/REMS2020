@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Rems.Application.Common;
 using Rems.Application.CQRS;
 using Steema.TeeChart;
 using Steema.TeeChart.Styles;
@@ -31,7 +31,7 @@ namespace WindowsClient.Controls
 
             var tip = new ToolTip();
 
-            plotsBox.SelectedIndex = 0;
+            plotsBox.SetItemChecked(0, true);
             plotsBox.SelectedIndexChanged += async (s, e) => await LoadPlots().TryRun();
 
             traitsBox.MouseHover += (s, e) => OnTraitMouseHover(tip);
@@ -107,7 +107,7 @@ namespace WindowsClient.Controls
             var plots = await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment });
 
             foreach (var plot in plots)
-                plotsBox.Items.Add(new PlotDTO { ID = plot.Key, Name = plot.Value });
+                plotsBox.Items.Add(plot.Value);
         }
 
         /// <summary>
@@ -160,63 +160,55 @@ namespace WindowsClient.Controls
             }
         }
 
+        private DataSet charts = new DataSet("Charts");
+
         public async Task LoadPlots()
         {
             chart.Series.Clear();
 
-            string xtitle = "";
-            string ytitle = "";
-
-            List<SeriesData<double, int>> datas = null;
-            Action<SeriesData<double, int>> action = data =>
-            {
-                datas.Add(data);
-                xtitle = data.XName;
-                ytitle = data.YName;
-            };
-
             foreach (var date in dates)
             {
-                datas = new();
-                if (plotsBox.SelectedItem.ToString() == "All")
-                    foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
-                        await new SoilLayerTraitDataQuery
-                        {
-                            TraitName = "",
-                            PlotId = plot.Key,
-                            Date = date
-                        }.IterateTraits(traits, action);
-
-                else if (plotsBox.SelectedItem.ToString() == "Mean")
-                    await new MeanSoilTraitDataQuery
+                foreach (var trait in traits)
+                {   
+                    if (!charts.Tables.Contains($"{Treatment}_{trait}_{date}"))
                     {
-                        TraitName = "",
-                        TreatmentId = Treatment,
-                        Date = date
-                    }.IterateTraits(traits, action);
+                        var query = new SoilLayerDataQuery { TreatmentId = Treatment, TraitName = trait, Date = date };                        
+                        charts.Tables.Add(await QueryManager.Request(query));
+                    }
 
-                else if (plotsBox.SelectedItem is PlotDTO plot)
-                        await new SoilLayerTraitDataQuery
-                        {
-                            TraitName = "",
-                            PlotId = plot.ID,
-                            Date = date
-                        }.IterateTraits(traits, action);
+                    var table = charts.Tables[$"{Treatment}_{trait}_{date}"];
 
-                datas.ForEach(d =>
-                {
-                    var points = d.CreateSeries<Points, double, int>(true);
-                    points.Pointer.Style = (PointerStyles)(d.Series % 16);
-                    
-                    if (d.Series != 0)
-                        points.Legend.Text += ", " + d.Series;
+                    var rows = table.Rows.Cast<DataRow>();
 
-                    var line = d.CreateSeries<Line, double, int>(true);
-                    line.Legend.Visible = false;
+                    if (!rows.Any())
+                        continue;
 
-                    chart.Series.Add(points);
-                    chart.Series.Add(line);
-                });
+                    var depths = rows.Select(r => Convert.ToDouble(r["Depth"])).ToArray();
+
+                    foreach (var selected in plotsBox.CheckedItems)
+                    {
+                        var item = selected.ToString();
+                        var values = rows.Select(r => (double)r[item]).ToArray();
+
+                        var p = new Points(chart);
+                        var l = new Line(chart);
+
+                        p.Pointer.Style = (PointerStyles)(int.TryParse(item, out int i) ? i % 16 : 0 );
+                        p.Color = l.Color = Extensions.Colours.Lookup(trait).colour;
+
+                        p.XValues.Order = ValueListOrder.None;
+                        p.YValues.Order = ValueListOrder.Ascending;
+
+                        p.Add(values, depths);
+                        l.Add(values, depths);
+
+                        p.Legend.Text = trait + " " + item;
+                        l.Legend.Visible = false;
+
+                        chart.Series.Add(p);
+                        chart.Series.Add(l);
+                    }
+                }
             }
 
             // Set x-axis bounds
@@ -228,8 +220,8 @@ namespace WindowsClient.Controls
                 chart.Axes.Bottom.Maximum = max + ((max - min) * 0.1);
             }
 
-            chart.Axes.Bottom.Title.Text = xtitle;
-            chart.Axes.Left.Title.Text = ytitle;
+            chart.Axes.Bottom.Title.Text = "Value";
+            chart.Axes.Left.Title.Text = "Depth";
 
             chart.Legend.Title.Text = traitsBox.SelectedItems
                 .OfType<ListTrait>()
@@ -237,6 +229,7 @@ namespace WindowsClient.Controls
             chart.Legend.Width = 120;
 
             chart.Header.Text = await QueryManager.Request(new TreatmentDesignQuery { TreatmentId = Treatment });
-        }     
+        }
+        
     }
 }

@@ -30,13 +30,13 @@
         {
             this.tChart = new Steema.TeeChart.TChart();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.treatmentsBox = new System.Windows.Forms.CheckedListBox();
+            this.plotsBox = new System.Windows.Forms.CheckedListBox();
             this.listSplitter = new System.Windows.Forms.SplitContainer();
             this.traitsLabel = new System.Windows.Forms.Label();
             this.traitsBox = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.datesBox = new System.Windows.Forms.ListBox();
-            this.plotsBox = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -55,6 +55,10 @@
             // 
             // 
             // 
+            // 
+            // 
+            // 
+            this.tChart.Axes.Bottom.Grid.Visible = false;
             // 
             // 
             // 
@@ -417,6 +421,10 @@
             // 
             // 
             // 
+            this.tChart.Axes.Left.AxisPen.Visible = false;
+            // 
+            // 
+            // 
             this.tChart.Axes.Left.Labels.Axis = this.tChart.Axes.Left;
             // 
             // 
@@ -473,6 +481,7 @@
             // 
             // 
             this.tChart.Axes.Left.Ticks.Length = 4;
+            this.tChart.Axes.Left.Ticks.Visible = false;
             // 
             // 
             // 
@@ -1018,13 +1027,17 @@
             // 
             // 
             // 
+            this.tChart.Panel.Pen.Visible = false;
+            // 
+            // 
+            // 
             // 
             // 
             // 
             this.tChart.Panel.Shadow.Brush.Color = System.Drawing.Color.DarkGray;
             this.tChart.Panel.Shadow.Brush.Solid = true;
             this.tChart.Panel.Shadow.Brush.Visible = true;
-            this.tChart.Size = new System.Drawing.Size(616, 661);
+            this.tChart.Size = new System.Drawing.Size(618, 661);
             // 
             // 
             // 
@@ -1254,24 +1267,43 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.treatmentsBox);
             this.splitContainer1.Panel1.Controls.Add(this.plotsBox);
-            this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.listSplitter);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tChart);
             this.splitContainer1.Size = new System.Drawing.Size(821, 661);
-            this.splitContainer1.SplitterDistance = 200;
+            this.splitContainer1.SplitterDistance = 198;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 17;
+            // 
+            // treatmentsBox
+            // 
+            this.treatmentsBox.FormattingEnabled = true;
+            this.treatmentsBox.Location = new System.Drawing.Point(101, 4);
+            this.treatmentsBox.Name = "treatmentsBox";
+            this.treatmentsBox.Size = new System.Drawing.Size(92, 94);
+            this.treatmentsBox.TabIndex = 19;
+            // 
+            // plotsBox
+            // 
+            this.plotsBox.CheckOnClick = true;
+            this.plotsBox.FormattingEnabled = true;
+            this.plotsBox.Items.AddRange(new object[] {
+            "Mean"});
+            this.plotsBox.Location = new System.Drawing.Point(6, 4);
+            this.plotsBox.Name = "plotsBox";
+            this.plotsBox.Size = new System.Drawing.Size(92, 94);
+            this.plotsBox.TabIndex = 18;
             // 
             // listSplitter
             // 
             this.listSplitter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.listSplitter.Location = new System.Drawing.Point(0, 24);
+            this.listSplitter.Location = new System.Drawing.Point(0, 101);
             this.listSplitter.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.listSplitter.Name = "listSplitter";
             this.listSplitter.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -1285,8 +1317,8 @@
             // 
             this.listSplitter.Panel2.Controls.Add(this.label1);
             this.listSplitter.Panel2.Controls.Add(this.datesBox);
-            this.listSplitter.Size = new System.Drawing.Size(200, 637);
-            this.listSplitter.SplitterDistance = 317;
+            this.listSplitter.Size = new System.Drawing.Size(195, 560);
+            this.listSplitter.SplitterDistance = 280;
             this.listSplitter.SplitterWidth = 5;
             this.listSplitter.TabIndex = 17;
             // 
@@ -1298,10 +1330,10 @@
             this.traitsLabel.Location = new System.Drawing.Point(0, 0);
             this.traitsLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.traitsLabel.Name = "traitsLabel";
-            this.traitsLabel.Size = new System.Drawing.Size(200, 23);
+            this.traitsLabel.Size = new System.Drawing.Size(195, 23);
             this.traitsLabel.TabIndex = 1;
             this.traitsLabel.Text = "Traits";
-            this.traitsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.traitsLabel.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // traitsBox
             // 
@@ -1315,7 +1347,7 @@
             this.traitsBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.traitsBox.Name = "traitsBox";
             this.traitsBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.traitsBox.Size = new System.Drawing.Size(190, 287);
+            this.traitsBox.Size = new System.Drawing.Size(185, 250);
             this.traitsBox.TabIndex = 0;
             // 
             // label1
@@ -1326,10 +1358,10 @@
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(200, 18);
+            this.label1.Size = new System.Drawing.Size(195, 18);
             this.label1.TabIndex = 2;
             this.label1.Text = "Dates";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // datesBox
             // 
@@ -1339,46 +1371,23 @@
             this.datesBox.FormattingEnabled = true;
             this.datesBox.IntegralHeight = false;
             this.datesBox.ItemHeight = 15;
-            this.datesBox.Location = new System.Drawing.Point(6, 22);
+            this.datesBox.Location = new System.Drawing.Point(6, 21);
             this.datesBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.datesBox.Name = "datesBox";
             this.datesBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.datesBox.Size = new System.Drawing.Size(190, 290);
+            this.datesBox.Size = new System.Drawing.Size(185, 249);
             this.datesBox.TabIndex = 0;
             this.datesBox.SelectedIndexChanged += new System.EventHandler(this.OnDateSelected);
             // 
-            // plotsBox
-            // 
-            this.plotsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.plotsBox.FormattingEnabled = true;
-            this.plotsBox.Items.AddRange(new object[] {
-            "All",
-            "Mean"});
-            this.plotsBox.Location = new System.Drawing.Point(48, 3);
-            this.plotsBox.Name = "plotsBox";
-            this.plotsBox.Size = new System.Drawing.Size(149, 23);
-            this.plotsBox.TabIndex = 19;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 6);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(36, 15);
-            this.label2.TabIndex = 18;
-            this.label2.Text = "Plots:";
-            // 
-            // SoilChart
+            // SoilLayerChart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "SoilChart";
+            this.Name = "SoilLayerChart";
             this.Size = new System.Drawing.Size(821, 661);
             this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -1398,7 +1407,7 @@
         private System.Windows.Forms.ListBox traitsBox;
         private System.Windows.Forms.Label traitsLabel;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox plotsBox;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckedListBox treatmentsBox;
+        private System.Windows.Forms.CheckedListBox plotsBox;
     }
 }

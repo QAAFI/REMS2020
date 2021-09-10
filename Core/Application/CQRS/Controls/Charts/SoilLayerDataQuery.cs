@@ -62,6 +62,8 @@ namespace Rems.Application.CQRS
                     row[$"{data.Plot.Repetition}"] = data.Value;
                 
                 row["Mean"] = depth.Select(d => d.Value).Average();
+
+                table.Rows.Add(row);
             }            
 
             return table;
