@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,6 +21,8 @@ namespace WindowsClient.Controls
         public int Treatment { get; set; }
 
         public string TraitType { get; set; }
+
+        protected ColourLookup Colours = new();
 
         protected Chart chart 
             => tChart.Chart;
@@ -147,81 +150,55 @@ namespace WindowsClient.Controls
             }
 
             traitsBox.SelectedIndex = 0;
-        }        
+        }
+
+        protected DataSet charts = new("Charts");
 
         public virtual async Task LoadPlots()
         {
-            string xtitle = "";
-            string ytitle = "";
-
-            List<SeriesData<DateTime, double>> datas = new();
-            Action<SeriesData<DateTime, double>> iterator = data =>
-            {
-                datas.Add(data);
-                xtitle = data.XName;
-                ytitle = data.YName;
-            };
-
-            if (selected.ToString() == "All")
-                foreach (var plot in await QueryManager.Request(new PlotsQuery { TreatmentId = Treatment }))
-                    await new PlotDataByTraitQuery
-                    {
-                        TraitName = "",
-                        PlotId = plot.Key
-                    }.IterateTraits(traits, iterator);
-
-            else if (selected.ToString() == "Mean")
-                await new MeanCropTraitDataQuery
-                {
-                    TraitName = "",
-                    TreatmentId = Treatment
-                }.IterateTraits(traits, iterator);
-
-            else if (selected is PlotDTO plot)
-                await new PlotDataByTraitQuery
-                {
-                    TraitName = "",
-                    PlotId = plot.ID
-                }.IterateTraits(traits, iterator);
-
             chart.Series.Clear();
-            Action<SeriesData<DateTime, double>> action = chartBox.SelectedItem switch
+
+            foreach (var trait in traits)
             {
-                "Scatter" => d =>
+                if (!charts.Tables.Contains($"{Treatment}_{trait}"))
                 {
-                    var series = d.CreateSeries<Points, DateTime, double>();
-                    series.Pointer.Style = (PointerStyles)(d.Series % 16);
-                    chart.Series.Add(series);
-                },
-
-                "Bar" => d =>
-                {
-                    var series = d.CreateSeries<Bar, DateTime, double>();
-                    series.Marks.Visible = false;
-                    series.CustomBarWidth = 3;
-                    chart.Series.Add(series);
-                },
-
-                "Line" => d =>
-                {
-                    var series = d.CreateSeries<Line, DateTime, double>();
-                    series.Pointer.Style = PointerStyles.Nothing;
-                    chart.Series.Add(series);
-                },
-
-                _ => d =>
-                {
-                    var points = d.CreateSeries<Points, DateTime, double>();
-                    points.Pointer.Style = (PointerStyles)(d.Series % 16);
-                    var line = d.CreateSeries<Line, DateTime, double>();
-                    line.Legend.Visible = false;
-                    chart.Series.Add(points);
-                    chart.Series.Add(line);
+                    var query = new TraitDataQuery { TreatmentId = Treatment, TraitName = trait };
+                    charts.Tables.Add(await QueryManager.Request(query));
                 }
-            };
-            datas.ForEach(action);
-            chart.Axes.Bottom.Title.Text = xtitle;
-            chart.Axes.Left.Title.Text = ytitle;
+
+                var table = charts.Tables[$"{Treatment}_{trait}"];
+
+                var rows = table.Rows.Cast<DataRow>();
+
+                if (!rows.Any())
+                    continue;
+
+                var item = plotsBox.SelectedItem.ToString();
+
+                var pairs = rows.Select(r => (Convert.ToDateTime(r["Date"]), (double)r[item]));
+
+                var p = new Points(chart);
+                var l = new Line(chart);
+
+                p.Pointer.Style = (PointerStyles)(int.TryParse(item, out int i) ? i % 16 : 0);
+                p.XValues.DateTime = true;
+                p.Color = l.Color = Colours.Lookup(trait).colour;
+
+                foreach (var pair in pairs)
+                {
+                    p.Add(pair.Item1, pair.Item2);
+                    l.Add(pair.Item1, pair.Item2);
+                }
+
+                p.Legend.Text = trait + " " + item;
+                l.Legend.Visible = false;
+
+                chart.Series.Add(p);
+                chart.Series.Add(l);
+            }
+
+            chart.Axes.Bottom.Title.Text = "Date";
+            chart.Axes.Left.Title.Text = "Value";
             chart.Legend.Title.Text = descriptions[0]?.WordWrap(18) ?? "";
 
             chart.Legend.Width = 120;

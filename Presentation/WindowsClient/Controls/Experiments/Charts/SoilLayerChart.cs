@@ -19,6 +19,8 @@ namespace WindowsClient.Controls
         /// <inheritdoc/>
         public int Treatment { get; set; }
 
+        protected ColourLookup Colours = new();
+
         private Chart chart => tChart.Chart;
 
         private string[] traits => traitsBox.SelectedItems.OfType<ListTrait>().Select(p => p.Name).ToArray();
@@ -160,14 +162,13 @@ namespace WindowsClient.Controls
             }
         }
 
-        private DataSet charts = new DataSet("Charts");
+        private DataSet charts = new("Charts");
 
         public async Task LoadPlots()
         {
             chart.Series.Clear();
 
-            foreach (var date in dates)
-            {
+            foreach (var date in dates)            
                 foreach (var trait in traits)
                 {   
                     if (!charts.Tables.Contains($"{Treatment}_{trait}_{date}"))
@@ -194,7 +195,7 @@ namespace WindowsClient.Controls
                         var l = new Line(chart);
 
                         p.Pointer.Style = (PointerStyles)(int.TryParse(item, out int i) ? i % 16 : 0 );
-                        p.Color = l.Color = Extensions.Colours.Lookup(trait).colour;
+                        p.Color = l.Color = Colours.Lookup(trait).colour;
 
                         p.XValues.Order = ValueListOrder.None;
                         p.YValues.Order = ValueListOrder.Ascending;
@@ -209,17 +210,12 @@ namespace WindowsClient.Controls
                         chart.Series.Add(l);
                     }
                 }
-            }
 
-            // Set x-axis bounds
-            if (chart.Series.Any())
-            {
-                var min = chart.Series.Select(s => s.XValues.Minimum)?.Min() ?? 0.1;
-                var max = chart.Series.Select(s => s.XValues.Maximum)?.Max() ?? 0.9;
-                chart.Axes.Bottom.Minimum = min - ((max - min) * 0.1);
-                chart.Axes.Bottom.Maximum = max + ((max - min) * 0.1);
-            }
-
+            // Set x-axis bounds            
+            var min = chart.Series.Select(s => s.XValues.Minimum)?.Min() ?? 0.1;
+            var max = chart.Series.Select(s => s.XValues.Maximum)?.Max() ?? 0.9;
+            chart.Axes.Bottom.Minimum = min - ((max - min) * 0.1);
+            chart.Axes.Bottom.Maximum = max + ((max - min) * 0.1);
             chart.Axes.Bottom.Title.Text = "Value";
             chart.Axes.Left.Title.Text = "Depth";
 

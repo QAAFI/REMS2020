@@ -94,7 +94,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.plotsBox.FormattingEnabled = true;
             this.plotsBox.Items.AddRange(new object[] {
-            "All",
             "Mean"});
             this.plotsBox.Location = new System.Drawing.Point(45, 3);
             this.plotsBox.Name = "plotsBox";
