@@ -79,16 +79,13 @@ namespace WindowsClient.Controls
 
             TreatmentID = id;
 
-            var iData = await QueryManager.Request(new IrrigationDataQuery { TreatmentId = id });
-            var fData = await QueryManager.Request(new FertilizationDataQuery{ TreatmentId = id });
-            var tData = await QueryManager.Request(new TillagesDataQuery{ TreatmentId = id });
+            var set = await QueryManager.Request(new OperationsQuery { TreatmentId = id });
 
             chart.Series.Clear();
-            chart.Axes.Custom.Clear();            
+            chart.Axes.Custom.Clear();       
 
-            chart.Series.Add(CreateBarPlot(iData, 0));
-            chart.Series.Add(CreateBarPlot(fData, 1));
-            chart.Series.Add(CreateBarPlot(tData, 2));
+            for (int i = 0; i < set.Tables.Count; i++)
+                chart.Series.Add(CreateBarPlot(set.Tables[i], i));
 
             chart.Draw();
         }
@@ -98,7 +95,7 @@ namespace WindowsClient.Controls
         /// </summary>
         /// <param name="data">The data to plot</param>
         /// <param name="pos">The position of the plot</param>
-        private Bar CreateBarPlot(SeriesData<DateTime, double> data, int pos)
+        private Bar CreateBarPlot(DataTable data, int pos)
         {
             int margin = 5 * pos;
             int start = 30 * pos + margin;
@@ -106,13 +103,13 @@ namespace WindowsClient.Controls
 
             var title = new AxisTitle()
             {
-                Text = data.Name + "\n" + data.YName,
+                Text = data.TableName + "\n" + data.ExtendedProperties["Subname"].ToString(),
                 Angle = 90
             };
             title.Font.Size = 8;
 
             int increment = 1;
-            var ys = data.Y.Cast<double>();
+            var ys = data.Rows.Cast<DataRow>().Select(r => r.Field<double>("Value"));
 
             if (ys.Any())
                 increment = Convert.ToInt32(Math.Floor(ys.Max() / 30)) * 10;
@@ -148,16 +145,16 @@ namespace WindowsClient.Controls
             chart.Axes.Custom.Add(b);
 
             // Data
-            Bar bar = new Bar()
+            Bar bar = new()
             {
                 CustomBarWidth = 4,
                 CustomVertAxis = y,
-                Title = data.Name
+                Title = data.TableName
             };
             bar.Marks.Visible = false;
 
-            for (int i = 0; i < data.X.Length; i++)
-                bar.Add(data.X[i], data.Y[i]);
+            foreach (DataRow row in data.Rows)            
+                bar.Add(row.Field<DateTime>("Date"), row.Field<double>("Value"));
 
             // X-Axis
             bar.XValues.DateTime = true;
