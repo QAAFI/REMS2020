@@ -44,7 +44,7 @@ namespace WindowsClient.Controls
                 b.Marks.Visible = false;
                 b.CustomBarWidth = 3;
 
-                b.Color = l.Color = Extensions.Colours.Lookup(trait).colour;
+                b.Color = l.Color = Colours.Lookup(trait).colour;
 
                 foreach (var pair in pairs)
                 {
