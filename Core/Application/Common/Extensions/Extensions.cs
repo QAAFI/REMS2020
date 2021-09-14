@@ -1,8 +1,9 @@
-﻿using Rems.Application.Common.Interfaces;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Rems.Domain.Attributes;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -104,5 +105,14 @@ namespace Rems.Application.Common.Extensions
 
             return result;
         }
+
+        public static IEnumerable<PropertyInfo> ExpectedProperties(this Type type)
+            => type.GetProperties().Where(p => p.GetCustomAttribute<Expected>() is not null);
+
+        /// <summary>
+        /// Checks if the given name is one of the expected names for the property
+        /// </summary>
+        public static bool IsExpected(this PropertyInfo info, string name)
+            => info.GetCustomAttribute<Expected>().Names.Contains(name);
     }
 }

@@ -59,42 +59,13 @@ namespace Rems.Application.CQRS
                         table.ConvertExperiments(info.GetCustomAttribute<Expected>().Names);
                 }
 
-
-
                 var excel = new ExcelTable { Data = table, Type = a.Type, Required = a.Format.Required };
-                tables.Add(excel, GetColumns(table, a.Type));
+                tables.Add(excel, excel.GetColumns(a.Type));
             }
 
             return tables;
         }
 
-        private ExcelColumn[] GetColumns(DataTable table, Type type)
-        {   
-            var cols = table?.Columns.OfType<DataColumn>();
-
-            var expected = type.GetProperties()
-                .Where(p => p.GetCustomAttribute<Expected>() is not null);
-
-            var columns = new List<ExcelColumn>();
-
-            foreach (var prop in expected)
-            {
-                var att = prop.GetCustomAttribute<Expected>();
-
-                var col = cols?.FirstOrDefault(c => att.Names.Contains(c.ColumnName));
-                if (col is not null)
-                    col.ColumnName = prop.Name;
-
-                var xl = new ExcelColumn
-                {
-                    Info = prop,
-                    Data = col ?? new DataColumn(prop.Name + " not found"),
-                };
-
-                columns.Add(xl);
-            }
-
-            return columns.ToArray();
-        }
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -83,6 +84,30 @@ namespace Rems.Application.Common
         public Type Type { get; set; }
 
         public bool Required { get; init; }
+
+        public ExcelColumn[] GetColumns(Type type)
+        {
+            var cols = Data?.Columns.OfType<DataColumn>();
+
+            var columns = new List<ExcelColumn>();
+
+            foreach (var prop in type.ExpectedProperties())
+            {
+                var col = cols?.FirstOrDefault(c => prop.IsExpected(c.ColumnName));
+                if (col is not null)
+                    col.ColumnName = prop.Name;
+
+                var xl = new ExcelColumn
+                {
+                    Info = prop,
+                    Data = col ?? new DataColumn(prop.Name + " not found"),
+                };
+
+                columns.Add(xl);
+            }
+
+            return columns.ToArray();
+        }
     }
 
     public class ExcelColumn : BaseExcelData<DataColumn>
