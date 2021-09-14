@@ -216,7 +216,7 @@ namespace WindowsClient.Controls
                 .Select(n => n.Excel.Data)
                 .OrderBy(t => t.DataSet.Tables.IndexOf(t));
 
-            var excel = new ExcelImporter 
+            var excel = new TableInserter 
             { 
                 Data = data,
                 Handler = QueryManager.Instance

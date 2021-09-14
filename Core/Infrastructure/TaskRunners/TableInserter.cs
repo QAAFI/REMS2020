@@ -14,7 +14,7 @@ namespace Rems.Infrastructure
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
     /// </summary>
-    public class ExcelImporter : TaskRunner
+    public class TableInserter : TaskRunner
     {
         /// <summary>
         /// The set of data tables to import
