@@ -28,12 +28,9 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Occurs when the import is cancelled
         /// </summary>
-        public event EventHandler ImportCancelled;    
+        public event EventHandler ImportCancelled;
 
-        /// <summary>
-        /// The excel data
-        /// </summary>
-        public DataSet Data { get; set; }
+        private readonly ExcelReader excel = new();
 
         public Importer() : base()
         {
@@ -161,8 +158,8 @@ namespace WindowsClient.Controls
         {
             try
             {
-                Data = await Task.Run(() => ExcelTools.ReadAsDataSet(file));
-                await GenerateNodes(Data, format);
+                await excel.LoadFromFile(file);
+                await GenerateNodes(excel.Data, format);
 
                 fileBox.Text = Path.GetFileName(file);
 
@@ -193,7 +190,7 @@ namespace WindowsClient.Controls
                 return;
             }
 
-            if (Data is null)
+            if (excel.Data is null)
             {
                 AlertBox.Show("There is no loaded data to import. Please load and validate data.", AlertType.Error);
                 return;
@@ -216,21 +213,21 @@ namespace WindowsClient.Controls
                 .Select(n => n.Excel.Data)
                 .OrderBy(t => t.DataSet.Tables.IndexOf(t));
 
-            var excel = new TableInserter 
+            var inserter = new TableInserter 
             { 
                 Data = data,
                 Handler = QueryManager.Instance
             };
 
-            tracker.AttachRunner(excel);
+            tracker.AttachRunner(inserter);
 
-            var task = excel.Run();
+            var task = inserter.Run();
             await task.TryRun();
 
             if (task.IsCompletedSuccessfully)
             {
-                excel.Dispose();
-                Data.Dispose();
+                inserter.Dispose();
+                excel.Data.Dispose();
 
                 ImportCompleted.Invoke(this, EventArgs.Empty);
             }
@@ -252,7 +249,7 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void OnFileButtonClicked(object sender, EventArgs e) 
         {
-            Data = null;
+            excel.Data = null;
             dataTree.Nodes.Clear();
             await OpenFile(storeformat);
         }

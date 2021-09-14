@@ -5,12 +5,20 @@ using NPOI.XSSF.UserModel;
 using System;
 using System.Data;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.Utilities
 {
-    public static class ExcelTools
+    public class ExcelReader
     {
-        public static DataSet ReadAsDataSet(string file)
+        /// <summary>
+        /// The excel data
+        /// </summary>
+        public DataSet Data { get; set; }
+
+        public Task LoadFromFile(string file) => Task.Run(() => LoadData(file));
+
+        private void LoadData(string file)
         {
             var format = Path.GetExtension(file);
 
@@ -24,21 +32,20 @@ namespace Rems.Infrastructure.Utilities
             else
                 throw new Exception("Unknown file format: " + format);
 
-            var set = new DataSet(Path.GetFileNameWithoutExtension(file));
+            Data = new DataSet(Path.GetFileNameWithoutExtension(file));
 
             for (int i = 0; i < book.NumberOfSheets; i++)
             {
                 var sheet = book.GetSheetAt(i);
-                AddTable(sheet, set);
+                AddTable(sheet);
             }
-            return set;
         }
 
-        private static void AddTable(ISheet sheet, DataSet set)
+        private void AddTable(ISheet sheet)
         {
-            if (!(sheet.GetRow(0) is IRow header)) return;
+            if (sheet.GetRow(0) is not IRow header) return;
 
-            var table = CreateTable(header, sheet.GetRow(1), sheet.SheetName);
+            var table = CreateTable(header, sheet.SheetName);
             
             for (int i = 1; i <= sheet.LastRowNum; i++)
             {
@@ -48,10 +55,10 @@ namespace Rems.Infrastructure.Utilities
                     AddRow(row, table);
             }
 
-            set.Tables.Add(table);
+            Data.Tables.Add(table);
         }
 
-        private static DataTable CreateTable(IRow header, IRow first, string title)
+        private DataTable CreateTable(IRow header, string title)
         {
             var table = new DataTable(title);
 
@@ -64,7 +71,7 @@ namespace Rems.Infrastructure.Utilities
             return table;
         }
 
-        private static void AddRow(IRow row, DataTable table)
+        private void AddRow(IRow row, DataTable table)
         {
             var data = table.NewRow();
             bool any = false;
@@ -106,6 +113,5 @@ namespace Rems.Infrastructure.Utilities
 
             if (any) table.Rows.Add(data);
         }
-
     }
 }
