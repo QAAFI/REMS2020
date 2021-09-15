@@ -11,7 +11,7 @@ namespace Rems.Application.CQRS
     /// <summary>
     /// Finds the average values for a trait across a treatment
     /// </summary>
-    public class TraitDataQuery : ContextQuery<DataTable>
+    public class MetDataQuery : ContextQuery<DataTable>
     {
         /// <summary>
         /// The source treatment
@@ -24,7 +24,7 @@ namespace Rems.Application.CQRS
         public string TraitName { get; set; }
 
         /// <inheritdoc/>
-        public class Handler : BaseHandler<TraitDataQuery>
+        public class Handler : BaseHandler<MetDataQuery>
         {
             public Handler(IRemsDbContextFactory factory) : base(factory) { }
         }
@@ -39,37 +39,23 @@ namespace Rems.Application.CQRS
             // Find the data
             var tmt = _context.Treatments.Find(TreatmentId);
 
-            IEnumerable<(DateTime Date, double Value, int Rep)> arr = trait.Type switch
-            {
-                "Soil" => tmt.Plots.SelectMany(p => p.SoilData
-                        .Where(d => d.Trait.Name == TraitName)
-                        .Select(d => (d.Date, d.Value, p.Repetition))),
-
-                _ => tmt.Plots.SelectMany(p => p.PlotData
-                        .Where(d => d.Trait.Name == TraitName)
-                        .Select(d => (d.Date, d.Value, p.Repetition)))
-            };
+            var data = tmt.Experiment.MetStation.MetData
+                .Where(p => p.Trait.Name == TraitName)
+                .GroupBy(m => (m.Date.Day, m.Date.Month))
+                .Select(g => (new DateTime(2020, g.Key.Month, g.Key.Day), g.Select(m => m.Value).Average()));
 
             // Construct the table
-            var table = new DataTable($"{TreatmentId}_{TraitName}");
+            var table = new DataTable($"{TreatmentId}_{TraitName}");            
 
             table.Columns.Add("Date", typeof(DateTime));
-            foreach (var plot in tmt.Plots)
-                table.Columns.Add(plot.Repetition.ToString(), typeof(double));
             table.Columns.Add("Mean", typeof(double));
 
             // Populate the table
-            var dates = arr.GroupBy(p => p.Date).OrderBy(g => g.Key);
-            foreach (var date in dates)
+            foreach (var point in data)
             {
                 var row = table.NewRow();
-                row["Date"] = date.Key;
-
-                foreach (var (Date, Value, Rep) in date)                
-                    row[Rep.ToString()] = Value;
-
-                row["Mean"] = date.Select(d => d.Value).Average();
-
+                row["Date"] = point.Item1;
+                row["Mean"] = point.Item2;
                 table.Rows.Add(row);
             }
 
