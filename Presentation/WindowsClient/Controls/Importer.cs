@@ -1,6 +1,4 @@
-﻿using Rems.Application.Common;
-using Rems.Application.CQRS;
-using Rems.Infrastructure;
+﻿using Rems.Infrastructure;
 using Rems.Infrastructure.Utilities;
 using System;
 using System.Data;
@@ -76,10 +74,9 @@ namespace WindowsClient.Controls
 
         #region Methods
 
-        private async Task GenerateNodes(DataSet data, string format)
+        private async Task GenerateNodes(string format)
         {
-            var query = new ExcelDataQuery { Data = data, Format = format };
-            var tables = await QueryManager.Request(query);
+            var tables = await Task.Run(() => excel.ConvertData(format));
 
             foreach (var pair in tables)
             {
@@ -158,8 +155,8 @@ namespace WindowsClient.Controls
         {
             try
             {
-                await excel.LoadFromFile(file);
-                await GenerateNodes(excel.Data, format);
+                await Task.Run(() => excel.LoadFromFile(file));
+                await GenerateNodes(format);
 
                 fileBox.Text = Path.GetFileName(file);
 

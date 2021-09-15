@@ -7,33 +7,12 @@ using System.Threading.Tasks;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
-namespace Rems.Application.Common
+namespace Rems.Infrastructure
 {
     /// <summary>
     /// Manages data taken from an excel spreadsheet
     /// </summary>
-    public interface IExcelData<TData> : IDisposable
-        where TData : IDisposable
-    {
-        /// <summary>
-        /// The raw data
-        /// </summary>
-        TData Data { get; }
-
-        bool Ignore { get; set; }
-
-        /// <summary>
-        /// The name of the data
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// The table which the data is sourced from
-        /// </summary>
-        DataTable Source { get; }
-    }
-
-    public abstract class BaseExcelData<TData> : IExcelData<TData>
+    public abstract class ExcelData<TData>
         where TData : IDisposable
     {
         public TData Data { get; init; }
@@ -69,7 +48,7 @@ namespace Rems.Application.Common
         #endregion
     }
 
-    public class ExcelTable : BaseExcelData<DataTable>
+    public class ExcelTable : ExcelData<DataTable>
     {
         /// <inheritdoc/>
         public override string Name
@@ -110,7 +89,7 @@ namespace Rems.Application.Common
         }
     }
 
-    public class ExcelColumn : BaseExcelData<DataColumn>
+    public class ExcelColumn : ExcelData<DataColumn>
     {
         /// <inheritdoc/>
         public override string Name

@@ -1,4 +1,5 @@
 ﻿using Rems.Application.Common.Interfaces;
+using Rems.Domain.Attributes;
 using Rems.Domain.Entities;
 using System;
 using System.Collections;
@@ -59,8 +60,10 @@ namespace Rems.Application.Common.Extensions
         /// referencing the experiments which belong to the DataSet the table is in.
         /// </summary>
         /// <param name="table"></param>
-        public static void ConvertExperiments(this DataTable table, string[] names)
+        public static void ConvertExperiments(this DataTable table, PropertyInfo info)
         {
+            var names = info.GetCustomAttribute<Expected>().Names;
+
             var col = table.Columns.OfType<DataColumn>()
                 .FirstOrDefault(c => names.Contains(c.ColumnName));
 

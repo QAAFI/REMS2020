@@ -1,11 +1,17 @@
 ﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-
+using Rems.Application.Common;
+using Rems.Application.Common.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+
+using Utils = Rems.Application.Common.Utilities;
 
 namespace Rems.Infrastructure.Utilities
 {
@@ -16,9 +22,7 @@ namespace Rems.Infrastructure.Utilities
         /// </summary>
         public DataSet Data { get; set; }
 
-        public Task LoadFromFile(string file) => Task.Run(() => LoadData(file));
-
-        private void LoadData(string file)
+        public void LoadFromFile(string file)
         {
             var format = Path.GetExtension(file);
 
@@ -112,6 +116,41 @@ namespace Rems.Infrastructure.Utilities
             }
 
             if (any) table.Rows.Add(data);
+        }
+
+        public Dictionary<ExcelTable, ExcelColumn[]> ConvertData(string format)
+        {
+            var types = Utils.GetFormatTypes(format);
+
+            if (Data.Tables.OfType<DataTable>().Any(t => t.TableName == "Notes"))
+                Data.Tables.Remove("Notes");
+
+            Data.FindExperiments();
+            if (format == "Data")
+                Data.Tables.Remove("Experiments");
+
+            var data = Data.Tables.OfType<DataTable>();
+            var tables = new Dictionary<ExcelTable, ExcelColumn[]>();
+
+            foreach (var type in types)
+            {
+                var table = data.FirstOrDefault(t => type.IsExpected(t.TableName));
+
+                if (table is not null)
+                {
+                    table.ExtendedProperties["Type"] = type;
+                    table.RemoveDuplicateRows();
+                    table.RemoveEmptyColumns();
+
+                    if (type.GetProperty("Experiment") is PropertyInfo info)
+                        table.ConvertExperiments(info);
+                }
+
+                var excel = new ExcelTable { Data = table, Type = type, Required = type.IsRequired() };
+                tables.Add(excel, excel.GetColumns(type));
+            }
+
+            return tables;
         }
     }
 }

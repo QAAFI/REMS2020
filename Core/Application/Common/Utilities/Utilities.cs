@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Rems.Application.Common.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Rems.Application.Common
 {
@@ -19,5 +23,11 @@ namespace Rems.Application.Common
 
             return hash;
         }
+
+        public static IEnumerable<Type> GetFormatTypes(string format)
+            => Assembly.Load("Rems.Domain")
+                .GetTypes()
+                .Where(t => t.HasFormat(format))
+                .OrderBy(t => t.DependencyLevel());
     }
 }

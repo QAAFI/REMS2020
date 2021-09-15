@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Rems.Application.Common;
+using Rems.Infrastructure;
 
 namespace WindowsClient.Models
 {
@@ -9,7 +9,7 @@ namespace WindowsClient.Models
     /// Represents excel data in a <see cref="TreeView"/>
     /// </summary>
     public abstract class DataNode<TExcel, TData> : ImportNode
-        where TExcel : IExcelData<TData>
+        where TExcel : ExcelData<TData>
         where TData : IDisposable
     {
         /// <summary>
