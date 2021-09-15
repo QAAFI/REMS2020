@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rems.Infrastructure
+namespace Rems.Infrastructure.ApsimX
 {
     public class LookupTable
     {

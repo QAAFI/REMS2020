@@ -1,4 +1,4 @@
-﻿using Rems.Infrastructure;
+﻿using Rems.Infrastructure.Excel;
 using System;
 using System.Data;
 using System.Linq;
@@ -8,14 +8,14 @@ namespace WindowsClient.Models
 {
     public class TableNode : DataNode<ExcelTable, DataTable>
     {
-        public GroupNode Required = new GroupNode("Required")
+        public GroupNode Required = new("Required")
         {
             Advice = new("These nodes describe the columns that REMS expects to find in the spreadsheet" +
                 "and are required for the import."),
             Key = "Properties"
         };
 
-        public GroupNode Traits = new GroupNode("Traits")
+        public GroupNode Traits = new("Traits")
         {
             Advice = new("Any additional columns in the spreadsheet will be imported as trait data."),
             Key = "Traits"

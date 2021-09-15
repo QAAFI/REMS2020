@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Rems.Application.Common.Extensions;
 using Rems.Application.CQRS;
 
-namespace Rems.Infrastructure
+namespace Rems.Infrastructure.Excel
 {
     /// <summary>
     /// Manages data taken from an excel spreadsheet

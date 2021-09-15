@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 using Utils = Rems.Application.Common.Utilities;
 
-namespace Rems.Infrastructure.Utilities
+namespace Rems.Infrastructure.Excel
 {
     public class ExcelReader
     {

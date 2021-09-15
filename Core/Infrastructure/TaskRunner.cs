@@ -6,25 +6,38 @@ using System.Threading.Tasks;
 
 namespace Rems.Infrastructure
 {
-    public abstract class TaskRunner : ITaskRunner, IDisposable
+    /// <summary>
+    /// Enables a process to report its progress and request data
+    /// </summary>
+    public abstract class TaskRunner : IDisposable
     {
         private bool disposedValue;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Occurs when the tracker switches to the next item in its task
+        /// </summary>
         public event EventHandler<Args<string>> NextItem;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Occurs if the tracker fails to complete its task
+        /// </summary>
         public event EventHandler<Args<Exception>> TaskFailed;
 
         public IQueryHandler Handler { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Used to report the progress of the task
+        /// </summary>
         public ProgressReporter Reporter { get; set; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// The number of items the tracker is processing
+        /// </summary>
         public abstract int Items { get; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// The number of steps required to process all the items
+        /// </summary>
         public abstract int Steps { get; }
 
         /// <summary>
@@ -39,7 +52,9 @@ namespace Rems.Infrastructure
         protected void OnTaskFailed(Exception error) 
             => TaskFailed?.Invoke(this, new Args<Exception> { Item = error });
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Initiates the tracker task
+        /// </summary>
         public abstract Task Run();
 
         protected virtual void Dispose(bool disposing)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rems.Application.CQRS;
-using Rems.Infrastructure;
+using Rems.Infrastructure.Excel;
 
 namespace WindowsClient.Models
 {
