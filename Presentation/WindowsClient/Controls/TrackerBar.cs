@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
 using Rems.Application.Common.Models;
+using Rems.Infrastructure;
 using WindowsClient.Forms;
 
 namespace WindowsClient.Controls
@@ -71,7 +71,7 @@ namespace WindowsClient.Controls
         /// Initialise the step size from the tracker
         /// </summary>
         /// <param name="runner"></param>
-        public void AttachRunner(ITaskRunner runner)
+        public void AttachRunner(TaskRunner runner)
         {
             runner.NextItem += OnNextTask;
             runner.TaskFailed += OnTaskFailed;

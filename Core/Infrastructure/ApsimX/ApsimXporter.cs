@@ -22,10 +22,9 @@ using Models.WaterModel;
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
-using Rems.Infrastructure.Utilities;
 using Rems.Application.Common.Extensions;
 
-namespace Rems.Infrastructure
+namespace Rems.Infrastructure.ApsimX
 {
     /// <summary>
     /// Manages the construction and output of an .apsimx file

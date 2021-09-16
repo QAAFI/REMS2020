@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Windows.Forms;
-using Rems.Application.Common;
+using Rems.Infrastructure.Excel;
 
 namespace WindowsClient.Models
 {

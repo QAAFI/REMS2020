@@ -19,7 +19,7 @@
             dataTree.AfterLabelEdit -= AfterLabelEdit;
             tracker.TaskBegun -= RunImporter;
 
-            Data?.Dispose();
+            excel.Data?.Dispose();
 
             if (disposing && (components != null))
             {

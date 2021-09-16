@@ -1,20 +1,17 @@
 ﻿using MediatR;
-using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rems.Infrastructure
+namespace Rems.Infrastructure.Excel
 {
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
     /// </summary>
-    public class ExcelImporter : TaskRunner
+    public class TableInserter : TaskRunner
     {
         /// <summary>
         /// The set of data tables to import

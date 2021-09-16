@@ -1,6 +1,4 @@
-﻿using Rems.Application.Common;
-using System;
-using System.Data;
+﻿using System;
 
 namespace WindowsClient.Models
 {

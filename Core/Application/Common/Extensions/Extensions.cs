@@ -1,8 +1,9 @@
-﻿using Rems.Application.Common.Interfaces;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Rems.Domain.Attributes;
 
 namespace Rems.Application.Common.Extensions
 {
@@ -104,5 +105,39 @@ namespace Rems.Application.Common.Extensions
 
             return result;
         }
+
+        public static IEnumerable<PropertyInfo> ExpectedProperties(this Type type)
+            => type.GetProperties().Where(p => p.GetCustomAttribute<Expected>() is not null);
+               
+        /// <summary>
+        /// Checks if the given name is one of the expected names for the property
+        /// </summary>
+        public static bool IsExpected(this PropertyInfo info, string name)
+            => info.GetCustomAttribute<Expected>().Names.Contains(name);
+
+        /// <summary>
+        /// Checks if the given name is one of the expected names for the property
+        /// </summary>
+        public static bool IsExpected(this Type type, string name)
+            => type.GetCustomAttribute<ExcelFormat>().Names.Contains(name);
+        
+        /// <summary>
+        /// Checks if the given name is one of the expected names for the property
+        /// </summary>
+        public static bool HasFormat(this Type type, string format)
+            => type.GetCustomAttribute<ExcelFormat>()?.Format == format;
+
+        /// <summary>
+        /// Checks how many dependencies the excel type has
+        /// </summary>
+        public static int DependencyLevel(this Type type)
+            => type.GetCustomAttribute<ExcelFormat>().Dependency;
+
+        /// <summary>
+        /// Checks if the excel type is required
+        /// </summary>
+        public static bool IsRequired(this Type type)
+            => type.GetCustomAttribute<ExcelFormat>().Required;
+
     }
 }
