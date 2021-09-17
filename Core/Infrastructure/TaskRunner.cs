@@ -16,12 +16,12 @@ namespace Rems.Infrastructure
         /// <summary>
         /// Occurs when the tracker switches to the next item in its task
         /// </summary>
-        public event EventHandler<Args<string>> NextItem;
+        public event EventHandler<string> NextItem;
 
         /// <summary>
         /// Occurs if the tracker fails to complete its task
         /// </summary>
-        public event EventHandler<Args<Exception>> TaskFailed;
+        public event EventHandler<Exception> TaskFailed;
 
         public IQueryHandler Handler { get; set; }
 
@@ -44,13 +44,13 @@ namespace Rems.Infrastructure
         /// Invokes the NextItem event
         /// </summary>
         protected void OnNextItem(string item) 
-            => NextItem?.Invoke(this, new Args<string> { Item = item });
+            => NextItem?.Invoke(this, item);
 
         /// <summary>
         /// Invokes the TaskFailed event
         /// </summary>
         protected void OnTaskFailed(Exception error) 
-            => TaskFailed?.Invoke(this, new Args<Exception> { Item = error });
+            => TaskFailed?.Invoke(this, error);
 
         /// <summary>
         /// Initiates the tracker task

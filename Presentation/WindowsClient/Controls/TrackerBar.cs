@@ -86,10 +86,11 @@ namespace WindowsClient.Controls
         /// <summary>
         /// When the tracker fails its current task
         /// </summary>
-        public void OnTaskFailed(object sender, Args<Exception> args)
+        public void OnTaskFailed(object sender, Exception error)
         {
-            var error = args.Item;
-            while (error.InnerException != null) error = error.InnerException;
+            while (error.InnerException != null) 
+                error = error.InnerException;
+
             AlertBox.Show(error.Message, AlertType.Error, "Import failed!");
             Reset();
         }
@@ -111,14 +112,14 @@ namespace WindowsClient.Controls
         /// <summary>
         /// Move to the next task
         /// </summary>
-        public void OnNextTask(object sender, Args<string> args)
+        public void OnNextTask(object sender, string item)
         {
             if (InvokeRequired)
-                Invoke(new EventHandler<Args<string>>(OnNextTask), sender, args);
+                Invoke(new EventHandler<string>(OnNextTask), sender, item);
             else
             {
                 task++;
-                label.Text = $"{args.Item} {task}/{tasks}";
+                label.Text = $"{item} {task}/{tasks}";
 
                 Refresh();
             }
