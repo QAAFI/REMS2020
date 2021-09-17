@@ -61,7 +61,7 @@ namespace Rems.Application.CQRS
                 if (!set.Any(matches))
                     _context.Attach(entity);
 
-                Progress.Increment(1);
+                Progress.Report(1);
             }
             _context.SaveChanges();
 

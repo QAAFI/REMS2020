@@ -72,7 +72,7 @@ namespace Rems.Application.CQRS
                     else
                         addOp(key, row);                  
 
-                    Progress.Increment(1);
+                    Progress.Report(1);
                 }
 
                 // If any treatment has an invalid name

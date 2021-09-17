@@ -58,7 +58,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertPlotsCommand
                     {
                         Table = table,
-                        Progress = Reporter,
+                        Progress = Progress,
                         Confirmer = Handler
                     };
                     break;
@@ -67,7 +67,7 @@ namespace Rems.Infrastructure.Excel
                     command = new InsertExperimentsTableCommand
                     {
                         Table = table,
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -78,7 +78,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 4,
                         Type = "Crop",
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -88,7 +88,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 2,
                         Type = "Climate",
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -98,7 +98,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 5,
                         Type = "SoilLayer",
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -110,7 +110,7 @@ namespace Rems.Infrastructure.Excel
                         Confirmer = Handler,
                         Table = table,
                         Type = type,
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -120,7 +120,7 @@ namespace Rems.Infrastructure.Excel
                         Table = table,
                         Skip = 3,
                         Type = "Soil",
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -129,7 +129,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -139,7 +139,7 @@ namespace Rems.Infrastructure.Excel
                     {
                         Table = table,
                         Type = type,
-                        Progress = Reporter
+                        Progress = Progress
                     };
                     break;
 
@@ -148,7 +148,7 @@ namespace Rems.Infrastructure.Excel
                     { 
                         Table = table,
                         Type = type,
-                        Progress = Reporter
+                        Progress = Progress
                     };                    
                     break;
             }

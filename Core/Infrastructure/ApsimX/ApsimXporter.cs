@@ -126,7 +126,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            Reporter.Increment(1);
+            Progress.Report(1);
 
             return model;
         }
@@ -148,7 +148,7 @@ namespace Rems.Infrastructure.ApsimX
             if (children != null) foreach (var child in children)
                 model.Children.Add(child);
 
-            Reporter.Increment(1);
+            Progress.Report(1);
 
             return model;
         }
@@ -237,7 +237,7 @@ namespace Rems.Infrastructure.ApsimX
 
                 template.FindDescendant<SoilCrop>().Name = query.Crop + "Soil";
 
-                Reporter.Increment(1);
+                Progress.Report(1);
                 return template;
             }
 

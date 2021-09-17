@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Models;
 
 namespace Rems.Application.CQRS
 {
@@ -15,7 +14,7 @@ namespace Rems.Application.CQRS
 
         protected abstract TResponse Run();
 
-        public ProgressReporter Progress { get; set; }
+        public IProgress<int> Progress { get; set; }
 
         /// <summary>
         /// Manages a single unit of work

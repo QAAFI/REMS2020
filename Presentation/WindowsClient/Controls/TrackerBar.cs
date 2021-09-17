@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using Rems.Application.Common;
-using Rems.Application.Common.Models;
 using Rems.Infrastructure;
 using WindowsClient.Forms;
 
@@ -76,7 +75,7 @@ namespace WindowsClient.Controls
             runner.NextItem += OnNextTask;
             runner.TaskFailed += OnTaskFailed;
 
-            runner.Reporter = new ProgressReporter(amount => bar.Value = amount);
+            runner.Progress = new Progress<int>(amount => bar.Increment(amount));
 
             tasks = runner.Items;
             bar.Value = 0;
@@ -93,20 +92,6 @@ namespace WindowsClient.Controls
 
             AlertBox.Show(error.Message, AlertType.Error, "Import failed!");
             Reset();
-        }
-
-        /// <summary>
-        /// When the current task makes progress
-        /// </summary>
-        public void SetProgress(int amount)
-        {
-            if (InvokeRequired)
-                Invoke(new Action<int>(SetProgress), amount);
-            else
-            {
-                bar.Value = amount;                
-                Refresh();
-            }
         }
 
         /// <summary>

@@ -74,7 +74,7 @@ namespace Rems.Application.CQRS
                     }
                 }
 
-                Progress.Increment(1);
+                Progress.Report(1);
             }
 
             var datas = Table.Rows.Cast<DataRow>()

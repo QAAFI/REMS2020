@@ -1,6 +1,4 @@
 ﻿using Rems.Application.Common;
-using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -28,7 +26,7 @@ namespace Rems.Infrastructure
         /// <summary>
         /// Used to report the progress of the task
         /// </summary>
-        public ProgressReporter Reporter { get; set; }
+        public IProgress<int> Progress { get; set; }
 
         /// <summary>
         /// The number of items the tracker is processing

@@ -76,7 +76,7 @@ namespace Rems.Application.CQRS
                     }
                 }
 
-                Progress.Increment(1);
+                Progress.Report(1);
             }
 
             // Convert all the rows of the table
