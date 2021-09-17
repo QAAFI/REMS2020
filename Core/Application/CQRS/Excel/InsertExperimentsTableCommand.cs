@@ -57,7 +57,7 @@ namespace Rems.Application.CQRS
                     Notes = row.GetText("Notes")
                 };
 
-                Progress.Increment(1);
+                Progress.Report(1);
 
                 return result;
             }

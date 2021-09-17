@@ -67,7 +67,7 @@ namespace Rems.Application.CQRS
                         Column = row.GetInt32("Plot")
                     }).ToList();
 
-                    Progress.Increment(t.Count());
+                    Progress.Report(t.Count());
                     
                     return treatment;
                 }).ToList();

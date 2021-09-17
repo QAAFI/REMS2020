@@ -5,7 +5,6 @@ using System.Linq;
 using Rems.Application.Common;
 using Rems.Application.Common.Extensions;
 using Rems.Application.Common.Interfaces;
-using Rems.Application.Common.Models;
 using Rems.Domain.Entities;
 
 using Unit = MediatR.Unit;
@@ -63,7 +62,7 @@ namespace Rems.Application.CQRS
                     };
                 }
 
-                Progress.Increment(1);
+                Progress.Report(1);
             }
 
             var datas = Table.Rows.Cast<DataRow>()

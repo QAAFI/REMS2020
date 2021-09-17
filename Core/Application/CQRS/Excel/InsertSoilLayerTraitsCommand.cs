@@ -67,7 +67,7 @@ namespace Rems.Application.CQRS
                     entities.Add(slt);
                 });
 
-                Progress.Increment(1);
+                Progress.Report(1);
             }
             _context.SaveChanges();
 
