@@ -141,10 +141,14 @@ namespace WindowsClient.Controls
                 return;
             }
 
+            tracker.Enabled = false;
+            
             Settings.Default.ImportPath = Path.GetDirectoryName(open.FileName);
 
             if (!await LoadData(open.FileName, format))
                 ImportCancelled?.Invoke(this, EventArgs.Empty);
+
+            tracker.Enabled = true;
         }
 
         /// <summary>
