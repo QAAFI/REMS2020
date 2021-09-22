@@ -81,6 +81,11 @@ namespace Rems.Infrastructure.ApsimX
             store.Children.AddRange(inputs);
             simulations.Children.Add(store);
 
+            // Add the panel graphs
+            var file = Manager.GetFileInfo("PredictedObserved.apsimx");
+            var panel = JsonTools.LoadJson<GraphPanel>(file);
+            simulations.Children.Add(panel);
+
             // Output the met data
             var query = new WriteMetCommand { ExperimentIds = ids };
             var mets = await Handler.Query(query);
@@ -372,6 +377,34 @@ namespace Rems.Infrastructure.ApsimX
 
             var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
             return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);            
+        }
+
+        private IModel CreatePanel(IEnumerable<string> traits)
+        {
+            var panel = new GraphPanel();
+
+            var config = new Manager
+            {
+                Name = "Config",
+                Code = Manager.GetContent("Config.cs")
+            };
+
+            panel.Children.Add(config);
+
+            foreach (string trait in traits)
+                panel.Children.Add(CreateGraph(trait));
+
+            return panel;
+        }
+
+        private IModel CreateGraph(string trait)
+        {
+            var graph = new Graph
+            {
+                Name = trait
+            };
+
+            return graph;
         }
     }
 }
