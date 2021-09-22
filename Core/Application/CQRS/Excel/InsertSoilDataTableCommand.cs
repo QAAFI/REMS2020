@@ -48,7 +48,7 @@ namespace Rems.Application.CQRS
 
             IEnumerable<SoilData> convertRow(DataRow row)
             {
-                var exp = row.GetText("Experiments");
+                var exp = row.GetText("Experiment");
                 var text = row.GetText("Plot").ToLower();
                 var plots = (text == "all" || text == "avg")
                     ? exps[exp] : exps[exp].Where(p => text.Split(',')
