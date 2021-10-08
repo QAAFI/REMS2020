@@ -234,6 +234,12 @@ namespace Rems.Infrastructure.ApsimX
             var info = Manager.GetFileInfo($"{query.Crop}Soil") ?? Manager.GetFileInfo("DefaultSoil");
             var template = JsonTools.LoadJson<Soil>(info);
 
+            if (query.Crop == "Soybean")
+            {
+                template.Name = "SoybeanSoil";
+                return template;
+            }
+
             if (traits["Thickness"] is not double[] thickness)
             {
                 Summary.AddSubHeading("Soil model", 2);

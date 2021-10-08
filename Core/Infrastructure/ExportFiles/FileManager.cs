@@ -29,7 +29,7 @@ namespace Rems.Infrastructure
         /// <inheritdoc/>
         public string ImportPath { get; set; }
 
-        private DirectoryInfo directory = new(Directory.GetCurrentDirectory() + "/ExportFiles");
+        private DirectoryInfo directory = new(Directory.GetCurrentDirectory() + "\\ExportFiles");
 
         public static bool Connected => File.Exists(instance.DbConnection);
 
