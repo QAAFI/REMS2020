@@ -203,7 +203,6 @@ namespace Rems.Infrastructure.ApsimX
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
-                        //await Handler.Query(new DailyReportQuery { ExperimentId = id }),
                         await CreateReport(id),
                         await Handler.Query(new ReportQuery { ExperimentId = id }),
                         await Handler.Query(new ManagersQuery {ExperimentId = id }),
