@@ -34,7 +34,7 @@ namespace Rems.Infrastructure.ApsimX
         /// <summary>
         /// The name of the .apsimx to output to
         /// </summary>
-        public string FileName { get; set; }
+        public string FilePath { get; set; }
 
         /// <summary>
         /// The names of the experiments in the database to export
@@ -70,15 +70,29 @@ namespace Rems.Infrastructure.ApsimX
 
             var ids = exps.Select(e => e.ID).ToArray();
 
+            // Output the observed data
+            string name = Path.GetFileNameWithoutExtension(FilePath);
+            await Handler.Query(new WriteObservedCommand { FileName = name, IDs = ids });
+
             // Add the data store
             var store = new DataStore();
-            var inputs = exps.Select(e => new Input 
+            var input = new Input 
             { 
-                Name = e.Name + "_Observed", 
-                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{e.Name}_Observed.csv"}
-            });
+                Name = "Observed", 
+                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{name}_Observed.csv"}
+            };
+            store.Children.Add(input);
 
-            store.Children.AddRange(inputs);
+            var po = new PredictedObserved
+            {
+                ObservedTableName = "Observed",
+                PredictedTableName = "DailyReport",
+                FieldNameUsedForMatch = "Date",
+                AllColumns = true
+            };
+
+            store.Children.Add(po);
+
             simulations.Children.Add(store);
 
             // Add the panel graphs
@@ -114,7 +128,7 @@ namespace Rems.Infrastructure.ApsimX
             SanitiseNames(simulations);
 
             // Save the file
-            File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
+            File.WriteAllText(FilePath, FileFormat.WriteToString(simulations));
         }
 
         /// <summary>
