@@ -540,7 +540,7 @@
       "SWUnits": 0,
       "OCUnits": 0,
       "PHUnits": 0,
-      "Name": "Initial nitrogen",
+      "Name": "SoilNitrogen",
       "Children": [],
       "IncludeInDocumentation": true,
       "Enabled": true,
