@@ -39,7 +39,7 @@ namespace Rems.Application.CQRS
             foreach (var plot in plots)
             {
                 var row = table.NewRow();
-                row["Plot"] = plot.PlotId;
+                row["Plot"] = plot.Column;
                 row["Repetition"] = plot.Repetition;                
                 table.Rows.Add(row);
             }

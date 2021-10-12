@@ -34,7 +34,7 @@ namespace Rems.Infrastructure.ApsimX
         /// <summary>
         /// The name of the .apsimx to output to
         /// </summary>
-        public string FileName { get; set; }
+        public string FilePath { get; set; }
 
         /// <summary>
         /// The names of the experiments in the database to export
@@ -70,15 +70,29 @@ namespace Rems.Infrastructure.ApsimX
 
             var ids = exps.Select(e => e.ID).ToArray();
 
+            // Output the observed data
+            string name = Path.GetFileNameWithoutExtension(FilePath);
+            await Handler.Query(new WriteObservedCommand { FileName = name, IDs = ids });
+
             // Add the data store
             var store = new DataStore();
-            var inputs = exps.Select(e => new Input 
+            var input = new Input 
             { 
-                Name = e.Name + "_Observed", 
-                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{e.Name}_Observed.csv"}
-            });
+                Name = "Observed", 
+                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{name}_Observed.csv"}
+            };
+            store.Children.Add(input);
 
-            store.Children.AddRange(inputs);
+            var po = new PredictedObserved
+            {
+                ObservedTableName = "Observed",
+                PredictedTableName = "DailyReport",
+                FieldNameUsedForMatch = "Date",
+                AllColumns = true
+            };
+
+            store.Children.Add(po);
+
             simulations.Children.Add(store);
 
             // Add the panel graphs
@@ -114,7 +128,7 @@ namespace Rems.Infrastructure.ApsimX
             SanitiseNames(simulations);
 
             // Save the file
-            File.WriteAllText(FileName, FileFormat.WriteToString(simulations));
+            File.WriteAllText(FilePath, FileFormat.WriteToString(simulations));
         }
 
         /// <summary>
@@ -189,6 +203,7 @@ namespace Rems.Infrastructure.ApsimX
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
+                        await CreateReport(id),
                         await Handler.Query(new ReportQuery { ExperimentId = id }),
                         await Handler.Query(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
@@ -218,13 +233,18 @@ namespace Rems.Infrastructure.ApsimX
                     })
                 })
             });
-            Summary.AddLine("\n");
-
-            // Output the observed data
-            await Handler.Query(new WriteObservedCommand { FileName = name, ID = id });
+            Summary.AddLine("\n");            
 
             return experiment;
-        }   
+        }
+
+        private async Task<IModel> CreateReport(int id)
+        {
+            var crop = await Handler.Query(new CropQuery { ExperimentId = id });
+            var info = Manager.GetFileInfo($"{crop}Daily") ?? Manager.GetFileInfo("DefaultDaily");
+
+            return JsonTools.LoadJson<Report>(info);
+        }
 
         private async Task<IModel> CreateSoilModel(int id)
         {   
@@ -233,6 +253,12 @@ namespace Rems.Infrastructure.ApsimX
 
             var info = Manager.GetFileInfo($"{query.Crop}Soil") ?? Manager.GetFileInfo("DefaultSoil");
             var template = JsonTools.LoadJson<Soil>(info);
+
+            if (query.Crop == "Soybean")
+            {
+                template.Name = "SoybeanSoil";
+                return template;
+            }
 
             if (traits["Thickness"] is not double[] thickness)
             {
@@ -377,34 +403,6 @@ namespace Rems.Infrastructure.ApsimX
 
             var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
             return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);            
-        }
-
-        private IModel CreatePanel(IEnumerable<string> traits)
-        {
-            var panel = new GraphPanel();
-
-            var config = new Manager
-            {
-                Name = "Config",
-                Code = Manager.GetContent("Config.cs")
-            };
-
-            panel.Children.Add(config);
-
-            foreach (string trait in traits)
-                panel.Children.Add(CreateGraph(trait));
-
-            return panel;
-        }
-
-        private IModel CreateGraph(string trait)
-        {
-            var graph = new Graph
-            {
-                Name = trait
-            };
-
-            return graph;
         }
     }
 }

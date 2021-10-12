@@ -16,12 +16,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ExportFiles\Templates\DefaultSoil.apsimx" />
     <None Remove="ExportFiles\Templates\ExpandedDataStore.apsimx" />
     <None Remove="ExportFiles\Templates\PredictedObserved.apsimx" />
+    <None Remove="ExportFiles\Templates\Reports\DefaultDaily.apsimx" />
+    <None Remove="ExportFiles\Templates\Reports\SoybeanDaily.apsimx" />
     <None Remove="ExportFiles\Templates\Simulation.apsimx" />
+    <None Remove="ExportFiles\Templates\Soils\DefaultSoil.apsimx" />
+    <None Remove="ExportFiles\Templates\Soils\SorghumSoil.apsimx" />
+    <None Remove="ExportFiles\Templates\Soils\SoybeanSoil.apsimx" />
     <None Remove="ExportFiles\Templates\SorghumReplacements.apsimx" />
-    <None Remove="ExportFiles\Templates\SorghumSoil.apsimx" />
     <None Remove="ExportFiles\Templates\Validation.apsimx" />
   </ItemGroup>
 
@@ -41,19 +44,28 @@
     <Content Include="ExportFiles\Scripts\Panels\PredictedObserved.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExportFiles\Templates\DefaultSoil.apsimx">
+    <Content Include="ExportFiles\Templates\ExpandedDataStore.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExportFiles\Templates\ExpandedDataStore.apsimx">
+    <Content Include="ExportFiles\Templates\Reports\DefaultDaily.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExportFiles\Templates\Reports\SoybeanDaily.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExportFiles\Templates\Simulation.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExportFiles\Templates\SorghumReplacements.apsimx">
+    <Content Include="ExportFiles\Templates\Soils\DefaultSoil.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExportFiles\Templates\SorghumSoil.apsimx">
+    <Content Include="ExportFiles\Templates\Soils\SorghumSoil.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExportFiles\Templates\Soils\SoybeanSoil.apsimx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExportFiles\Templates\SorghumReplacements.apsimx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExportFiles\Templates\PredictedObserved.apsimx">

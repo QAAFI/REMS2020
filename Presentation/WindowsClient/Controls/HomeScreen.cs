@@ -298,7 +298,7 @@ namespace WindowsClient.Controls
             using var exporter = new ApsimXporter
             {
                 Experiments = exportList.CheckedItems.Cast<string>(),
-                FileName = save.FileName,
+                FilePath = save.FileName,
                 Manager = FileManager.Instance,
                 Handler = QueryManager.Instance
             };
