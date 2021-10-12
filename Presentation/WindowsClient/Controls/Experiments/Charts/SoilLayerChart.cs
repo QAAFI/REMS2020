@@ -127,17 +127,14 @@ namespace WindowsClient.Controls
             var traits = await QueryManager.Request(query);
             var pairs = await QueryManager.Request(new TraitDescriptionsQuery { Traits = traits });
 
-            lock (traitsBox)
-            {
-                traitsBox.Items.Clear();
+            traitsBox.Items.Clear();
 
-                if (traits.Length < 1) return;
+            if (traits.Length < 1) return;
 
-                foreach (var pair in pairs)
-                    traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
+            foreach (var pair in pairs)
+                traitsBox.Items.Add(new ListTrait { Name = pair.Key, Description = pair.Value });
 
-                traitsBox.SelectedIndex = 0;
-            }
+            traitsBox.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -210,6 +207,9 @@ namespace WindowsClient.Controls
                         chart.Series.Add(l);
                     }
                 }
+
+            if (!chart.Series.Any())
+                return;
 
             // Set x-axis bounds            
             var min = chart.Series.Select(s => s.XValues.Minimum)?.Min() ?? 0.1;
