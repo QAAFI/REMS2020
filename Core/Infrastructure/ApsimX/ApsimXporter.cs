@@ -203,6 +203,8 @@ namespace Rems.Infrastructure.ApsimX
                     Create<SoilArbitrator>(),
                     await Request(new ZoneQuery{ ExperimentId = id, Report = Summary }, new IModel[]
                     {
+                        //await Handler.Query(new DailyReportQuery { ExperimentId = id }),
+                        await CreateReport(id),
                         await Handler.Query(new ReportQuery { ExperimentId = id }),
                         await Handler.Query(new ManagersQuery {ExperimentId = id }),
                         await Request(new PlantQuery { ExperimentId = id, Report = Summary }),
@@ -232,13 +234,18 @@ namespace Rems.Infrastructure.ApsimX
                     })
                 })
             });
-            Summary.AddLine("\n");
-
-            // Output the observed data
-            await Handler.Query(new WriteObservedCommand { FileName = name, ID = id });
+            Summary.AddLine("\n");            
 
             return experiment;
-        }   
+        }
+
+        private async Task<IModel> CreateReport(int id)
+        {
+            var crop = await Handler.Query(new CropQuery { ExperimentId = id });
+            var info = Manager.GetFileInfo($"{crop}Daily") ?? Manager.GetFileInfo("DefaultDaily");
+
+            return JsonTools.LoadJson<Report>(info);
+        }
 
         private async Task<IModel> CreateSoilModel(int id)
         {   
@@ -397,34 +404,6 @@ namespace Rems.Infrastructure.ApsimX
 
             var models = new IModel[] { physical, balance, organic, chemical, water, sample, temperature, N };
             return await Request(new SoilQuery { ExperimentId = id, Report = Summary }, models);            
-        }
-
-        private IModel CreatePanel(IEnumerable<string> traits)
-        {
-            var panel = new GraphPanel();
-
-            var config = new Manager
-            {
-                Name = "Config",
-                Code = Manager.GetContent("Config.cs")
-            };
-
-            panel.Children.Add(config);
-
-            foreach (string trait in traits)
-                panel.Children.Add(CreateGraph(trait));
-
-            return panel;
-        }
-
-        private IModel CreateGraph(string trait)
-        {
-            var graph = new Graph
-            {
-                Name = trait
-            };
-
-            return graph;
         }
     }
 }
