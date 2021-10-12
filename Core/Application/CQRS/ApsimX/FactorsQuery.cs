@@ -44,7 +44,7 @@ namespace Rems.Application.CQRS
 
             foreach (var treatment in experiment.Treatments)
             {
-                var factor = new CompositeFactor { Name = "T_" + treatment.Name};
+                var factor = new CompositeFactor { Name = treatment.Name};
                 
                 factor.Specifications = treatment.Designs.Select(d => d.Level)
                     .SelectMany(l => GetSpecification(l))
