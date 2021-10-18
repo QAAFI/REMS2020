@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 using WindowsClient.Models;
@@ -12,8 +13,13 @@ namespace WindowsClient
     /// </summary>
     public partial class REMSClient : Form
     {
+        private Logger log;
+
         public REMSClient(IServiceProvider provider)
         {
+            log = LogManager.GetCurrentClassLogger();
+            log.Info("Launching client.");
+
             InitializeComponent();
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 
@@ -32,6 +38,8 @@ namespace WindowsClient
         /// </summary>
         private void LoadSettings()
         {
+            log.Info("Loading stored settings.");
+
             Width = Settings.Default.Width;
             Height = Settings.Default.Height;
             Left = Settings.Default.Left;

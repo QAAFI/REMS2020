@@ -40,8 +40,7 @@ namespace WindowsClient
                 // Prepare the client
                 log.Info("Loading fonts.");
                 FontManager.LoadFonts();
-
-                log.Info("Launching client.");
+                
                 Application.Run(new REMSClient(ServiceProvider));
             }
             catch (Exception error)
@@ -57,8 +56,8 @@ namespace WindowsClient
             var target = new FileTarget
             {
                 AutoFlush = true,
-                FileName = "ErrorLog.log",
-                DeleteOldFileOnStartup = true
+                FileName = "ErrorLog.txt",
+                DeleteOldFileOnStartup = true                
             };
 
             config.AddRuleForAllLevels(target);

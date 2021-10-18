@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using Rems.Application.CQRS;
 using Rems.Infrastructure;
 using Rems.Infrastructure.ApsimX;
@@ -22,6 +25,8 @@ namespace WindowsClient.Controls
     {
         public event EventHandler AttachTab;
         public event EventHandler RemoveTab;
+
+        private Logger log;
 
         private Importer importer = new();
         private ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
@@ -44,9 +49,13 @@ namespace WindowsClient.Controls
 
         public HomeScreen()
         {
+            log = LogManager.GetCurrentClassLogger();
+
+            log.Info("Loading home screen.");
+
             InitializeComponent();
             browser.Dock = DockStyle.Fill;            
-            summaryBox.Controls.Add(browser);            
+            summaryBox.Controls.Add(browser);
 
             importer.ImportCompleted += OnImportCompleted;
             importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
@@ -55,7 +64,9 @@ namespace WindowsClient.Controls
             expsLink.Clicked += OnImportLinkClicked;
             dataLink.Clicked += OnImportLinkClicked;
 
-            recentList.Items.AddRange(LoadSessions().ToArray());
+            log.Info("Loading recent sessions list.");
+            var sessions = LoadSessions().ToArray();
+            recentList.Items.AddRange(sessions);
             recentList.MouseDown += OnRecentListClick;
             recentList.DoubleClick += OnRecentListDoubleClick;
             recentList.MouseHover += OnRecentsHover;
@@ -76,7 +87,7 @@ namespace WindowsClient.Controls
 
             var info = new FileInfo(file);
 
-            return JsonTools.LoadJson<List<Session>>(info, JsonTools.JsonLoad.New);
+            return JsonTools.LoadJson<List<Session>>(info, JsonTools.JsonLoad.New) ?? new List<Session>();
         }
 
         /// <summary>
