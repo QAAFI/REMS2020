@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using Rems.Application;
 using Rems.Application.Common.Interfaces;
 using Rems.Infrastructure;
 
 using System;
 using System.Windows.Forms;
+using WindowsClient.Forms;
 
 namespace WindowsClient
 {
@@ -17,18 +20,50 @@ namespace WindowsClient
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            // Setup error logging
+            ConfigureLogging();
+            var log = LogManager.GetCurrentClassLogger();
 
-            IServiceProvider ServiceProvider = new ServiceCollection()
-                .AddSingleton<IFileManager, FileManager>(s => FileManager.Instance)
-                .AddPersistence()
-                .AddApplication()                
-                .BuildServiceProvider();
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-            FontManager.LoadFonts();
+                // Load services
+                log.Info("Loading services.");
+                IServiceProvider ServiceProvider = new ServiceCollection()
+                    .AddSingleton<IFileManager, FileManager>(s => FileManager.Instance)
+                    .AddPersistence()
+                    .AddApplication()
+                    .BuildServiceProvider();
 
-            Application.Run(new REMSClient(ServiceProvider));
+                // Prepare the client
+                log.Info("Loading fonts.");
+                FontManager.LoadFonts();
+
+                log.Info("Launching client.");
+                Application.Run(new REMSClient(ServiceProvider));
+            }
+            catch (Exception error)
+            {
+                log.Error(error);
+                AlertBox.Show("A fatal error has occurred. Check the error log for details", AlertType.Error);
+            }
+        }
+
+        static void ConfigureLogging()
+        {
+            var config = new LoggingConfiguration();
+            var target = new FileTarget
+            {
+                AutoFlush = true,
+                FileName = "ErrorLog.log",
+                DeleteOldFileOnStartup = true
+            };
+
+            config.AddRuleForAllLevels(target);
+
+            LogManager.Configuration = config;
         }
     }
 }
