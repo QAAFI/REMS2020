@@ -8,13 +8,13 @@ AppVerName=REMS2020 v{#VERSION}
 ArchitecturesInstallIn64BitMode=x64
 OutputBaseFilename=REMS2020Setup
 VersionInfoVersion={#VERSION}
-PrivilegesRequired=admin
+PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 AppVersion={#VERSION}
 AppID=REMS2020{#VERSION}
 DefaultDirName={autopf}\REMS2020
 DefaultGroupName=REMS2020
-UninstallDisplayIcon={app}\bin\WindowsClient.exe
+UninstallDisplayIcon={app}\WindowsClient.exe
 Compression=lzma/Max
 ChangesAssociations=true
 VersionInfoCompany=QAAFI
@@ -140,15 +140,16 @@ begin
     RegQueryStringValue(HKCU, regKey, 'UninstallString', uninstaller);
   Result := uninstaller;
 end;
+
 function UnInstallOldVersion(oldVersion : String): Integer;
 var
   uninstaller: String;
   uninstallResult: Integer;
 begin
-{ Return Values: }
-{ 1 - uninstall string is empty }
-{ 2 - error executing the UnInstallString }
-{ 3 - successfully executed the UnInstallString }
+  { Return Values: }
+  { 1 - uninstall string is empty }
+  { 2 - error executing the UnInstallString }
+  { 3 - successfully executed the UnInstallString }
   { default return value }
   Result := 0;
   { get the uninstall string of the old app }
@@ -220,12 +221,16 @@ Name: {localappdata}\VirtualStore\REMS2020\*.*; Type: filesandordirs
 Name: {localappdata}\VirtualStore\REMS2020; Type: dirifempty
 
 [Files]
-Source: {#OUTPUT}\Resources\*; DestDir: {app}\bin\Resources; Flags: recursesubdirs
-Source: {#OUTPUT}\ExportFiles\*; DestDir: {app}\bin\ExportFiles; Flags: recursesubdirs
-Source: {#OUTPUT}\*; DestDir: {app}\bin; Flags: ignoreversion;
+Source: {#OUTPUT}\Resources\*; DestDir: {app}\Resources; Flags: recursesubdirs
+Source: {#OUTPUT}\ExportFiles\*; DestDir: {app}\ExportFiles; Flags: recursesubdirs
+Source: {#OUTPUT}\*; DestDir: {app}; Flags: ignoreversion;
 
 [Tasks]
 Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additional icons:; Flags: unchecked
 
+[Icons]
+Name: "{userdesktop}\REMS2020"; Filename: "{app}\WindowsClient.exe"; \
+    Tasks: desktopicon
+
 [Run]
-Filename: {app}\bin\WindowsClient.exe; Description: Launch REMS2020; Flags: postinstall nowait skipifsilent
+Filename: {app}\WindowsClient.exe; Description: Launch REMS2020; Flags: postinstall nowait skipifsilent

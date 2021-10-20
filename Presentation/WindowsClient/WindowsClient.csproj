@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autoupdater.NET.Official" Version="1.7.0" />
     <PackageReference Include="Markdig" Version="0.25.0" />
     <PackageReference Include="NLog" Version="4.7.11" />
     <PackageReference Include="Steema.TeeChart.NET50.WinForms" Version="5.2021.5.6" />
