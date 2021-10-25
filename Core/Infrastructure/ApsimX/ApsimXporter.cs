@@ -395,9 +395,7 @@ namespace Rems.Infrastructure.ApsimX
                     {
                         new SoilNitrogenNO3 { Name = "NO3" },
                         new SoilNitrogenNH4 { Name = "NH4" },
-                        new SoilNitrogenUrea { Name = "Urea" },
-                        new SoilNitrogenPlantAvailableNO3 { Name = "PlantAvailableNO3" },
-                        new SoilNitrogenPlantAvailableNH4 { Name = "PlantAvailableNH4" }
+                        new SoilNitrogenUrea { Name = "Urea" }
                     }
                 };
 

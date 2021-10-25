@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+    <title>Update available!</title>
+    <version>0.1.2.0</version>
+    <url>https://github.com/MikeStower/REMS2020/releases/download/v0.1.2.0/REMS2020Setup.exe</url>
+    <changelog>https://mikestower.github.io/REMS2020/</changelog>
+    <mandatory>false</mandatory>
+    <args>/SP /SILENT /DIR=%path% /SUPPRESSMSGBOXES /CURRENTUSER /NOCANCEL /CLOSEAPPLICATION </args>
+</item>

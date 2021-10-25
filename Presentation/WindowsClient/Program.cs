@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoUpdaterDotNET;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -7,6 +8,7 @@ using Rems.Application.Common.Interfaces;
 using Rems.Infrastructure;
 
 using System;
+using System.Reflection;
 using System.Windows.Forms;
 using WindowsClient.Forms;
 
@@ -22,10 +24,16 @@ namespace WindowsClient
         {
             // Setup error logging
             ConfigureLogging();
-            var log = LogManager.GetCurrentClassLogger();
-
+            var log = LogManager.GetLogger("");
             try
             {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                log.Info("Checking for updates.");
+                log.Info($"Current version: {version}");
+                AutoUpdater.InstalledVersion = version;
+                AutoUpdater.Mandatory = true;
+                AutoUpdater.ReportErrors = true;
+                AutoUpdater.Start("https://raw.githubusercontent.com/QAAFI/REMS2020/master/version.xml");
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
