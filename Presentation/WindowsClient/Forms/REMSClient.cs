@@ -122,6 +122,8 @@ namespace WindowsClient
                 notebook.TabPages.Add(DetailPage);
                 notebook.SelectedTab = DetailPage;
             }
+
+            notebook.Enabled = true;
         }
 
         private void OnImportCancelled(object sender, EventArgs e)

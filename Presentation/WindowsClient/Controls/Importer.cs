@@ -59,7 +59,6 @@ namespace WindowsClient.Controls
             images.Images.Add("Excel", Properties.Resources.Excel);
             images.Images.Add("ExcelOff", Properties.Resources.ExcelOff);
             images.Images.Add("Properties", Properties.Resources.Properties);
-            //images.Images.Add("Ignore", Properties.Resources.Ignore);
 
             images.Images.Add("Warning", SystemIcons.Warning);
             images.Images.Add("WarningOn", Properties.Resources.WarningOn);
@@ -139,14 +138,14 @@ namespace WindowsClient.Controls
                 return;
             }
 
-            tracker.Enabled = false;
+            Parent.Parent.Enabled = false;
             
             Settings.Default.ImportPath = Path.GetDirectoryName(open.FileName);
 
             if (!await LoadData(open.FileName, format))
                 ImportCancelled?.Invoke(this, EventArgs.Empty);
 
-            tracker.Enabled = true;
+            Parent.Parent.Enabled = true;
         }
 
         /// <summary>
@@ -183,6 +182,8 @@ namespace WindowsClient.Controls
         /// </summary>
         private async void RunImporter(object sender, EventArgs args)
         {
+            Parent.Parent.Enabled = false;
+
             if (!FileManager.Connected)
             {
                 AlertBox.Show("A database must be opened or created before importing", AlertType.Error);
