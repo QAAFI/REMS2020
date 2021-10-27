@@ -1,7 +1,8 @@
 ﻿using NLog;
 using System;
-using System.Linq;
 using System.Windows.Forms;
+using WindowsClient.Controls;
+using WindowsClient.Forms;
 using WindowsClient.Models;
 using Settings = WindowsClient.Properties.Settings;
 
@@ -14,6 +15,12 @@ namespace WindowsClient
     public partial class REMSClient : Form
     {
         private Logger log;
+
+        public TabPage DetailPage { get; } = new TabPage("Experiments");
+
+        public TabPage ImportPage { get; } = new TabPage("Importer");
+
+        private Importer importer = new();
 
         public REMSClient(IServiceProvider provider)
         {
@@ -29,8 +36,27 @@ namespace WindowsClient
 
             FormClosed += REMSClientFormClosed;
 
-            homeScreen.AttachTab += OnAttachTab;
-            homeScreen.RemoveTab += OnRemoveTab;
+            homeScreen.LinkClicked += OnImportLinkClicked;
+            homeScreen.SessionChanged += OnSessionChanged;
+
+            importer.ImportCompleted += OnImportCompleted;
+            importer.ImportCancelled += OnImportCancelled;
+
+            ImportPage.Leave += OnImportCancelled;
+            ImportPage.Controls.Add(importer);
+
+            DetailPage.Controls.Add(homeScreen.detailer);
+        }
+
+        private void OnSessionChanged(object sender, EventArgs e)
+        {
+            if (sender is not Session session)
+                return;
+
+            if (session.HasExperiments && !notebook.TabPages.Contains(DetailPage))
+                notebook.TabPages.Add(DetailPage);
+            else if (notebook.TabPages.Contains(DetailPage))
+                notebook.TabPages.Remove(DetailPage);
         }
 
         /// <summary>
@@ -64,35 +90,44 @@ namespace WindowsClient
             Settings.Default.Save();
         }
 
-        private void OnAttachTab(object sender, EventArgs e)
+        /// <summary>
+        /// When an import link starts the import process
+        /// </summary>
+        private async void OnImportLinkClicked(object sender, EventArgs args)
         {
-            if (sender is not Control control)
-                throw new Exception("Source object was not a control");
+            if (sender is not ImportLink link)
+                throw new Exception("Import requested from unknown control type.");
 
-            var existing = notebook.TabPages.OfType<TabPage>().FirstOrDefault(t => t.Text == control.Name);
-            if (existing is not null)
-                return;
+            ImportPage.Text = "Import " + link.Label;
 
-            var tab = new TabPage(control.Name);
-            tab.Controls.Add(control);
-            control.Dock = DockStyle.Fill;
+            notebook.TabPages.Add(ImportPage);
+            notebook.SelectedTab = ImportPage;
 
-            notebook.TabPages.Add(tab);
-
-            // Assume that a 'true' tag means that the client should switch to the new tab
-            if (control.Tag is true)
-                notebook.SelectedTab = tab;
+            await importer.OpenFile(link.Label);
         }
 
-        private void OnRemoveTab(object sender, EventArgs e)
+        private async void OnImportCompleted(object sender, EventArgs e)
         {
-            if (sender is not Control control)
-                throw new Exception("Source object was not a control");
+            notebook.TabPages.Remove(ImportPage);
 
-            var tab = notebook.TabPages.OfType<TabPage>().FirstOrDefault(t => t.Text == control.Name);
+            AlertBox.Show("Import successful!", AlertType.Success);
 
-            if (tab is not null)
-                notebook.TabPages.Remove(tab);                
+            if (notebook.TabPages.Contains(DetailPage))
+                notebook.TabPages.Remove(DetailPage);
+            
+            homeScreen.DisplayImport();
+
+            if (await homeScreen.DisplayExperiments())
+            {
+                notebook.TabPages.Add(DetailPage);
+                notebook.SelectedTab = DetailPage;
+            }
+        }
+
+        private void OnImportCancelled(object sender, EventArgs e)
+        {
+            importer.Reset();
+            notebook.TabPages.Remove(ImportPage);
         }
 
         /// <summary>

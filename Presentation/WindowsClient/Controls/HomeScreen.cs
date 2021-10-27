@@ -6,8 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NLog;
-using NLog.Config;
-using NLog.Targets;
 using Rems.Application.CQRS;
 using Rems.Infrastructure;
 using Rems.Infrastructure.ApsimX;
@@ -23,13 +21,27 @@ namespace WindowsClient.Controls
     /// </summary>
     public partial class HomeScreen : UserControl
     {
-        public event EventHandler AttachTab;
-        public event EventHandler RemoveTab;
+        public event EventHandler LinkClicked
+        {
+            add 
+            {
+                infoLink.Clicked += value;
+                expsLink.Clicked += value;
+                dataLink.Clicked += value;
+            }
+            remove 
+            {
+                infoLink.Clicked -= value;
+                expsLink.Clicked -= value;
+                dataLink.Clicked -= value;
+            }
+        }
+
+        public event EventHandler SessionChanged;
 
         private Logger log;
-
-        private Importer importer = new();
-        private ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
+        
+        public ExperimentDetailer detailer = new ExperimentDetailer { Name = "Experiments"};
 
         private Session session;
         private WebBrowser browser = new();
@@ -56,13 +68,6 @@ namespace WindowsClient.Controls
             InitializeComponent();
             browser.Dock = DockStyle.Fill;            
             summaryBox.Controls.Add(browser);
-
-            importer.ImportCompleted += OnImportCompleted;
-            importer.ImportCancelled += (s, e) => RemoveTab.Invoke(s, e);
-
-            infoLink.Clicked += OnImportLinkClicked;
-            expsLink.Clicked += OnImportLinkClicked;
-            dataLink.Clicked += OnImportLinkClicked;
 
             log.Info("Loading recent sessions list.");
             var sessions = LoadSessions().ToArray();
@@ -146,14 +151,25 @@ namespace WindowsClient.Controls
             UpdateRecents();
 
             ParentForm.Text = "REMS2020 - " + Path.GetFileName(session.DB);
+
+            SessionChanged?.Invoke(session, EventArgs.Empty);
         }
         #endregion
 
         /// <summary>
         /// Activates the <see cref="ImportLink"/> controls if a database is connected
         /// </summary>
-        private void DisplayImport()
+        public void DisplayImport()
         {
+            if (infoLink.WasClicked)
+                infoLink.WasClicked = !(session.HasInformation = infoLink.HasData = true);
+
+            if (expsLink.WasClicked)
+                expsLink.WasClicked = !(session.HasExperiments = expsLink.HasData = true);
+
+            if (dataLink.WasClicked)
+                dataLink.WasClicked = !(session.HasData = dataLink.HasData = true);
+
             // Set visibility based on the session status
             if (!(groupImport.Visible = session is not null))
                 return;
@@ -176,49 +192,13 @@ namespace WindowsClient.Controls
         }
 
         /// <summary>
-        /// When an import link starts the import process
-        /// </summary>
-        private async void OnImportLinkClicked(object sender, EventArgs args)
-        {
-            if (sender is not ImportLink link)
-                throw new Exception("Import requested from unknown control type.");
-
-            importer.Name = "Import " + link.Label;
-            importer.Tag = true;
-            AttachTab.Invoke(importer, EventArgs.Empty);            
-            importer.Leave += (s, e) => RemoveTab.Invoke(importer, EventArgs.Empty);
-
-            await importer.OpenFile(link.Label);
-        }
-
-        private async void OnImportCompleted(object sender, EventArgs e)
-        {
-            if (infoLink.WasClicked)
-                infoLink.WasClicked = !(session.HasInformation = infoLink.HasData = true);
-
-            if (expsLink.WasClicked)
-                expsLink.WasClicked = !(session.HasExperiments = expsLink.HasData = true);
-
-            if (dataLink.WasClicked)
-                dataLink.WasClicked = !(session.HasData = dataLink.HasData = true);
-
-            RemoveTab.Invoke(importer, EventArgs.Empty);
-
-            AlertBox.Show("Import successful!", AlertType.Success);
-
-            DisplayImport();
-            await DisplayExperiments();
-        }
-
-        /// <summary>
         /// Adds the available experiments to the export box
         /// </summary>
-        public async Task DisplayExperiments()
+        public async Task<bool> DisplayExperiments()
         {
             exportList.Items.Clear();
 
             groupExport.Visible = false;
-            RemoveTab.Invoke(detailer, EventArgs.Empty);
 
             if (session.HasExperiments)
             {
@@ -230,9 +210,11 @@ namespace WindowsClient.Controls
                     exportList.Items.Add(exp.Name);
                 
                 await detailer.LoadTreeView();
-                detailer.Tag = session.HasData;
-                AttachTab.Invoke(detailer, EventArgs.Empty);
+
+                return true;
             }
+
+            return false;
         }
 
         public void UpdateRecents()
