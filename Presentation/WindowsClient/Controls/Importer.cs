@@ -37,8 +37,6 @@ namespace WindowsClient.Controls
 
             dataTree.ImageList = GetTreeImages();
 
-            Leave += (s, e) => dataTree.Nodes.Clear();
-
             // Force right click to select node
             dataTree.NodeMouseClick += (s, a) => dataTree.SelectedNode = dataTree.GetNodeAt(a.X, a.Y);
             dataTree.AfterLabelEdit += AfterLabelEdit;
@@ -238,7 +236,13 @@ namespace WindowsClient.Controls
                 AlertBox.Show("Import cancelled.", AlertType.Success);
             }
 
-            tracker.Reset();            
+            Reset();
+        }
+
+        public void Reset()
+        {
+            tracker.Reset();
+            dataTree.Nodes.Clear();
         }
 
         #endregion Methods
