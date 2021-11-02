@@ -16,7 +16,7 @@ using Rems.Application.Common.Extensions;
 
 namespace Rems.Infrastructure.ApsimX
 {
-    public class SoilTemplate : ITemplate<Soil>
+    public class SoilTemplate : ITemplate
     {
         readonly IFileManager Manager = FileManager.Instance;
 
@@ -36,9 +36,9 @@ namespace Rems.Infrastructure.ApsimX
             Summary = summary;
         }
 
-        public Soil Create() => AsyncCreate().Result;
+        public IModel Create() => AsyncCreate().Result;
 
-        public async Task<Soil> AsyncCreate()
+        public async Task<IModel> AsyncCreate()
         {
             var query = new SoilModelTraitsQuery { ExperimentId = ID };
             var traits = Handler.Query(query).Result;

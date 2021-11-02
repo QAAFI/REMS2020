@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using Models;
+using Models.Core;
 
 namespace Rems.Infrastructure.ApsimX
 {
-    public class ReportTemplate : ITemplate<Report>
+    public class ReportTemplate : ITemplate
     {
         readonly IQueryHandler Handler;
 
@@ -21,9 +22,9 @@ namespace Rems.Infrastructure.ApsimX
             Manager = manager;
         }
 
-        public Report Create() => AsyncCreate().Result;
+        public IModel Create() => AsyncCreate().Result;
 
-        public async Task<Report> AsyncCreate()
+        public async Task<IModel> AsyncCreate()
         {
             var crop = await Handler.Query(new CropQuery { ExperimentId = ID });
             var info = Manager.GetFileInfo($"{crop}Daily") ?? Manager.GetFileInfo("DefaultDaily");

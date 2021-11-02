@@ -13,7 +13,7 @@ using Models.Climate;
 
 namespace Rems.Infrastructure.ApsimX
 {
-    public class ExperimentTemplate : ITemplate<Experiment>
+    public class ExperimentTemplate : ITemplate
     {
         readonly IFileManager Manager = FileManager.Instance;
 
@@ -39,9 +39,9 @@ namespace Rems.Infrastructure.ApsimX
             Summary = summary;
         }
 
-        public Experiment Create() => AsyncCreate().Result;
+        public IModel Create() => AsyncCreate().Result;
 
-        public async Task<Experiment> AsyncCreate()
+        public async Task<IModel> AsyncCreate()
         {
             // Creates a model tree
             // The indentation below indicates depth in the tree, grouped models at the same indentation 
