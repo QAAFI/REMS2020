@@ -1,22 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-
-using Models.Core;
-using Models.Soils;
-using Models.Soils.Nutrients;
-using Models.WaterModel;
-
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
-using Rems.Application.Common.Extensions;
 using Models.Factorial;
 using MediatR;
-using Models.Soils.Arbitrator;
 using Models;
+using Models.Core;
+using Models.Soils.Arbitrator;
 using Models.Surface;
 using Models.Climate;
 
@@ -42,6 +33,7 @@ namespace Rems.Infrastructure.ApsimX
         {
             ID = id;
             Name = name;
+            Weather = weather;
             Handler = handler;
             Progress = progress;
             Summary = summary;
