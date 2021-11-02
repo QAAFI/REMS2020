@@ -210,8 +210,7 @@ namespace WindowsClient.Controls
             var data = dataTree.Nodes
                 .OfType<TableNode>()
                 .Where(n => !n.Excel.Ignore)
-                .Select(n => n.Excel.Data)
-                .OrderBy(t => t.DataSet.Tables.IndexOf(t));
+                .Select(n => n.Excel.Data);
 
             var inserter = new TableInserter 
             { 
