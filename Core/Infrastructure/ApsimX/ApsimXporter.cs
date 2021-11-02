@@ -64,35 +64,18 @@ namespace Rems.Infrastructure.ApsimX
             string name = Path.GetFileNameWithoutExtension(FilePath);
             await Handler.Query(new WriteObservedCommand { FileName = name, IDs = ids });
 
+            // Output the met data
+            var query = new WriteMetCommand { ExperimentIds = ids };
+            var mets = await Handler.Query(query);
+
             // Add the data store
-            var store = new DataStore();
-            var input = new Input 
-            { 
-                Name = "Observed", 
-                FileNames = new string[] { $"{Manager.ExportPath}\\obs\\{name}_Observed.csv"}
-            };
-            store.Children.Add(input);
-
-            var po = new PredictedObserved
-            {
-                ObservedTableName = "Observed",
-                PredictedTableName = "DailyReport",
-                FieldNameUsedForMatch = "Date",
-                AllColumns = true
-            };
-
-            store.Children.Add(po);
-
+            var store = new DataStoreTemplate(name).Create();
             simulations.Children.Add(store);
 
             // Add the panel graphs
             var file = Manager.GetFileInfo("PredictedObserved.apsimx");
             var panel = JsonTools.LoadJson<GraphPanel>(file);
             simulations.Children.Add(panel);
-
-            // Output the met data
-            var query = new WriteMetCommand { ExperimentIds = ids };
-            var mets = await Handler.Query(query);
 
             // Check if replacements is necessary
             if (exps.Any(e => e.Crop == "Sorghum"))
