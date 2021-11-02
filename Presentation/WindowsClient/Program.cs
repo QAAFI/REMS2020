@@ -32,7 +32,6 @@ namespace WindowsClient
                 log.Info($"Current version: {version}");
                 AutoUpdater.InstalledVersion = version;
                 AutoUpdater.Mandatory = true;
-                AutoUpdater.ReportErrors = true;
                 AutoUpdater.Start("https://raw.githubusercontent.com/QAAFI/REMS2020/master/version.xml");
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
