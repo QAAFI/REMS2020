@@ -59,11 +59,11 @@ namespace Rems.Infrastructure.ApsimX
             await FindExperiments();
             await ExportObserved();
             await ExportMet();
-            AddDataStore();
-            AddPanelGraphs();
+            AddTemplate(new DataStoreTemplate(name));
+            AddTemplate(new PanelGraphTemplate());
             AddReplacements();
             await AddExperiments();
-            AddSummary();
+            AddTemplate(new SummaryTemplate(Summary.Text));
             ExportSimulation();
         }
 
@@ -87,35 +87,19 @@ namespace Rems.Infrastructure.ApsimX
             mets = await Handler.Query(query);
         }
 
-        public void AddDataStore()
-        {
-            var store = new DataStoreTemplate(name).Create();
-            Simulations.Children.Add(store);
-        }
-
-        public void AddPanelGraphs()
-        {
-            var file = Manager.GetFileInfo("PredictedObserved.apsimx");
-            var panel = JsonTools.LoadJson<GraphPanel>(file);
-            Simulations.Children.Add(panel);
-        }
+        public void AddTemplate(ITemplate template) => Simulations.Children.Add(template.Create());        
 
         // Check if replacements is necessary
         public void AddReplacements()
         {
-            
             if (exps.Any(e => e.Crop == "Sorghum"))
-            {
-                var info = Manager.GetFileInfo("SorghumReplacements");
-                var model = JsonTools.LoadJson<Replacements>(info);
-                Simulations.Children.Add(model);
-            }
+                AddTemplate(new ReplacementsTemplate());
         }
 
         // Convert each experiment into an APSIM model
         public async Task AddExperiments()
-        {            
-            foreach (var (ID, Name, Crop) in exps)
+        {
+            foreach (var (ID, Name, _) in exps)
             {
                 OnNextItem("Simulation");
                 Summary.AddSubHeading(Name + ':', 2);
@@ -125,12 +109,6 @@ namespace Rems.Infrastructure.ApsimX
                 var model = await template.AsyncCreate();
                 Simulations.Children.Add(model);
             }
-        }
-
-        public void AddSummary()
-        {
-            var memo = new Memo { Name = "ExportSummary", Text = Summary.Text };
-            Simulations.Children.Add(memo);
         }
 
         public void ExportSimulation()
