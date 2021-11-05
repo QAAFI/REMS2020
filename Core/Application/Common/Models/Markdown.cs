@@ -13,6 +13,14 @@ namespace Rems.Application.Common
 
         private StringBuilder validater = new StringBuilder();
 
+        public Markdown()
+        { }
+
+        public Markdown(string heading)
+        {
+            AddHeading(heading);
+        }
+
         public void Clear() => builder.Clear();               
 
         /// <summary>

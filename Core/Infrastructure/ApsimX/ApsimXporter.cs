@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using Models;
 using Models.Core;
 using Models.Core.ApsimFile;
-using Models.PostSimulationTools;
-using Models.Storage;
 
 using Rems.Application.Common;
 using Rems.Application.Common.Interfaces;
@@ -41,51 +39,82 @@ namespace Rems.Infrastructure.ApsimX
 
         private readonly int numModelsToExport = 13;
 
-        public Markdown Summary { get; } = new();
+        public Markdown Summary { get; } = new("REMS export summary");
+
+        public Simulations Simulations { get; } = new Simulations();
+
+        private int[] ids = Array.Empty<int>();
+
+        private IEnumerable<(int ID, string Name, string Crop)> exps = new List<(int, string, string)>();
+
+        private (string Station, string File, DateTime Start, DateTime End)[] mets = Array.Empty<(string, string, DateTime, DateTime)>();
+
+        private string name;
 
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
         public async override Task Run()
         {
-            // Reset the markdown report
-            Summary.Clear();
-            Summary.AddSubHeading("REMS export summary", 1);
+            await FindExperiments();
+            await ExportObserved();
+            await ExportMet();
+            AddDataStore();
+            AddPanelGraphs();
+            AddReplacements();
+            await AddExperiments();
+            AddSummary();
+            ExportSimulation();
+        }
 
-            var simulations = new Simulations();            
-
-            // Find the experiments            
-            var exps = (await Handler.Query(new ExperimentsQuery()))
+        public async Task FindExperiments()
+        {
+            exps = (await Handler.Query(new ExperimentsQuery()))
                 .Where(e => Experiments.Contains(e.Name));
 
-            var ids = exps.Select(e => e.ID).ToArray();
+            ids = exps.Select(e => e.ID).ToArray();
+        }
 
-            // Output the observed data
-            string name = Path.GetFileNameWithoutExtension(FilePath);
+        public async Task ExportObserved()
+        {
+            name = Path.GetFileNameWithoutExtension(FilePath);
             await Handler.Query(new WriteObservedCommand { FileName = name, IDs = ids });
+        }
 
-            // Output the met data
+        public async Task ExportMet()
+        {
             var query = new WriteMetCommand { ExperimentIds = ids };
-            var mets = await Handler.Query(query);
+            mets = await Handler.Query(query);
+        }
 
-            // Add the data store
+        public void AddDataStore()
+        {
             var store = new DataStoreTemplate(name).Create();
-            simulations.Children.Add(store);
+            Simulations.Children.Add(store);
+        }
 
-            // Add the panel graphs
+        public void AddPanelGraphs()
+        {
             var file = Manager.GetFileInfo("PredictedObserved.apsimx");
             var panel = JsonTools.LoadJson<GraphPanel>(file);
-            simulations.Children.Add(panel);
+            Simulations.Children.Add(panel);
+        }
 
-            // Check if replacements is necessary
+        // Check if replacements is necessary
+        public void AddReplacements()
+        {
+            
             if (exps.Any(e => e.Crop == "Sorghum"))
             {
                 var info = Manager.GetFileInfo("SorghumReplacements");
                 var model = JsonTools.LoadJson<Replacements>(info);
-                simulations.Children.Add(model);
+                Simulations.Children.Add(model);
             }
+        }
 
-            // Convert each experiment into an APSIM model
+        // Convert each experiment into an APSIM model
+        public async Task AddExperiments()
+        {            
             foreach (var (ID, Name, Crop) in exps)
             {
                 OnNextItem("Simulation");
@@ -94,15 +123,20 @@ namespace Rems.Infrastructure.ApsimX
                 var weather = await Handler.Query(request);
                 var template = new ExperimentTemplate(ID, Name, weather, Handler, Progress, Summary);
                 var model = await template.AsyncCreate();
-                simulations.Children.Add(model);
+                Simulations.Children.Add(model);
             }
+        }
 
+        public void AddSummary()
+        {
             var memo = new Memo { Name = "ExportSummary", Text = Summary.Text };
-            simulations.Children.Add(memo);
-            SanitiseNames(simulations);
+            Simulations.Children.Add(memo);
+        }
 
-            // Save the file
-            File.WriteAllText(FilePath, FileFormat.WriteToString(simulations));
+        public void ExportSimulation()
+        {
+            SanitiseNames(Simulations);
+            File.WriteAllText(FilePath, FileFormat.WriteToString(Simulations));
         }
 
         private void SanitiseNames(IModel model)
