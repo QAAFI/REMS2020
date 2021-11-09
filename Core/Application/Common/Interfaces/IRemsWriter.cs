@@ -8,8 +8,6 @@ namespace Rems.Application.Common.Interfaces
 {
     public interface IRemsWriter
     {
-        public void Write(IRemsData data);
-
         public void Export();
     }
 }

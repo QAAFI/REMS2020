@@ -14,7 +14,7 @@ namespace Rems.Infrastructure.ApsimX
             var writer = new ApsimXWriter();
 
             foreach (var item in data)
-                writer.Write(item);
+                item.Write(writer);
 
             return writer;
         }
