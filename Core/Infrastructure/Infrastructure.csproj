@@ -88,4 +88,8 @@
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ApsimX\RemsData\" />
+  </ItemGroup>
+
 </Project>
