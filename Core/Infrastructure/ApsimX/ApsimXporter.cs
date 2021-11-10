@@ -29,8 +29,26 @@ namespace Rems.Infrastructure.ApsimX
     /// <summary>
     /// Manages the construction and output of an .apsimx file
     /// </summary>
-    public class ApsimXporter : TaskRunner
+    public class ApsimXporter : ITaskRunner
     {
+        /// <inheritdoc/>
+        public event EventHandler<string> NextItem;
+
+        /// <inheritdoc/>
+        public IQueryHandler Handler { get; set; }
+
+        /// <inheritdoc/>
+        public IProgress<int> Progress { get; set; }
+
+        /// <inheritdoc/>
+        public int Items => Experiments.Count();
+
+        /// <inheritdoc/>
+        public int Steps => Items * numModelsToExport;
+        private readonly int numModelsToExport = 13;
+
+        public IFileManager Manager { get; set; }
+
         /// <summary>
         /// The name of the .apsimx to output to
         /// </summary>
@@ -41,22 +59,12 @@ namespace Rems.Infrastructure.ApsimX
         /// </summary>
         public IEnumerable<string> Experiments { get; set; }
 
-        public IFileManager Manager { get; set; }
-
-        /// <inheritdoc/>
-        public override int Items => Experiments.Count();
-
-        /// <inheritdoc/>
-        public override int Steps => Items * numModelsToExport;
-
-        private readonly int numModelsToExport = 13;
-
         public Markdown Summary { get; } = new();
-
+        
         /// <summary>
         /// Creates an .apsimx file and populates it with experiment models
         /// </summary>
-        public async override Task Run()
+        public async Task Run()
         {
             // Reset the markdown report
             Summary.Clear();
@@ -115,7 +123,7 @@ namespace Rems.Infrastructure.ApsimX
             // Convert each experiment into an APSIM model
             foreach (var (ID, Name, Crop) in exps)
             {
-                OnNextItem("Simulation");
+                NextItem.Invoke(this, "Simulation");
                 Summary.AddSubHeading(Name + ':', 2);
                 var request = new WeatherQuery { ExperimentId = ID, Mets = mets, Report = Summary };
                 var weather = await Handler.Query(request);

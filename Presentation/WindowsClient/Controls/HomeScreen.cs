@@ -288,7 +288,7 @@ namespace WindowsClient.Controls
 
             FileManager.Instance.ExportPath = Settings.Default.ExportPath = Path.GetDirectoryName(save.FileName);
             
-            using var exporter = new ApsimXporter
+            var exporter = new ApsimXporter
             {
                 Experiments = exportList.CheckedItems.Cast<string>(),
                 FilePath = save.FileName,

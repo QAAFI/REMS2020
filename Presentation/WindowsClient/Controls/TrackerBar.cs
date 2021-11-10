@@ -70,28 +70,14 @@ namespace WindowsClient.Controls
         /// Initialise the step size from the tracker
         /// </summary>
         /// <param name="runner"></param>
-        public void AttachRunner(TaskRunner runner)
+        public void AttachRunner(ITaskRunner runner)
         {
             runner.NextItem += OnNextTask;
-            runner.TaskFailed += OnTaskFailed;
-
             runner.Progress = new Progress<int>(amount => bar.Increment(amount));
 
             tasks = runner.Items;
             bar.Value = 0;
             bar.Maximum = runner.Steps;
-        }
-
-        /// <summary>
-        /// When the tracker fails its current task
-        /// </summary>
-        public void OnTaskFailed(object sender, Exception error)
-        {
-            while (error.InnerException != null) 
-                error = error.InnerException;
-
-            AlertBox.Show(error.Message, AlertType.Error, "Import failed!");
-            Reset();
         }
 
         /// <summary>
