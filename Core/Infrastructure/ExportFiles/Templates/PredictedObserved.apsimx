@@ -25,7 +25,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -36,7 +36,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "BiomassWt (g/m2)",
           "Inverted": false,
@@ -180,7 +180,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -191,7 +191,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "BiomassWt (g/m2)",
           "Inverted": false,
@@ -393,7 +393,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -404,7 +404,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "GrainNo",
           "Inverted": false,
@@ -415,7 +415,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 2,
           "Title": null,
           "Inverted": false,
@@ -559,7 +559,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -570,7 +570,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "LAI",
           "Inverted": false,
@@ -685,7 +685,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -696,7 +696,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "LeafNo",
           "Inverted": false,
@@ -782,7 +782,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -793,7 +793,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "Stage",
           "Inverted": false,
@@ -879,7 +879,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -890,7 +890,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "BiomassN (g/m2)",
           "Inverted": false,
@@ -1034,7 +1034,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -1045,7 +1045,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "BiomassN (g/m2)",
           "Inverted": false,
@@ -1247,7 +1247,7 @@
       "Caption": null,
       "Axis": [
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 3,
           "Title": null,
           "Inverted": false,
@@ -1258,7 +1258,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 0,
           "Title": "NO3",
           "Inverted": false,
@@ -1269,7 +1269,7 @@
           "CrossesAtZero": false
         },
         {
-          "$type": "Models.Axis, Models",
+          "$type": "APSIM.Shared.Graphing.Axis, APSIM.Shared",
           "Type": 2,
           "Title": null,
           "Inverted": false,
