@@ -1,4 +1,5 @@
-﻿using Rems.Application.Common.Interfaces;
+﻿using Models.Core;
+using Rems.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +8,20 @@ using System.Threading.Tasks;
 
 namespace Rems.Infrastructure.ApsimX
 {
-    public class ApsimXBuilder : IExportBuilder
+    public class ApsimXBuilder : IRemsBuilder
     {
-        public IRemsWriter Build(params IRemsData[] data)
+        public IQueryHandler Handler { get; set; }
+
+        private readonly IModel simulations = new Simulations();
+
+        public void Add(IRemsTemplate template)
         {
-            var writer = new ApsimXWriter();
+            throw new NotImplementedException();
+        }
 
-            foreach (var item in data)
-                item.Write(writer);
-
-            return writer;
+        public void Export()
+        {
+            throw new NotImplementedException();
         }
     }
 }

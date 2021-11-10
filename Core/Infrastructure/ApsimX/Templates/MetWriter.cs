@@ -1,4 +1,5 @@
 ﻿using Rems.Application.Common.Interfaces;
+using Rems.Application.CQRS;
 using System;
 using System.Data;
 using System.IO;
@@ -7,19 +8,24 @@ using System.Text;
 
 namespace Rems.Infrastructure.ApsimX.Writers
 {
-    public class MetWriter : IRemsWriter
+    public class MetWriter : IRemsTemplate
     {
+        private readonly IQueryHandler Handler;
+
         private readonly IFileManager manager = FileManager.Instance;
 
-        private readonly DataSet stations;
+        private readonly int[] IDs;
 
-        public MetWriter(DataSet data)
+        public MetWriter(IQueryHandler handler, int[] ids)
         {
-            stations = data;
+            Handler = handler;
+            IDs = ids;
         }
 
         public void Export()
         {
+            var stations = Handler.Query(new MetFileDataQuery { ExperimentIds = IDs }).Result;
+
             foreach (DataTable table in stations.Tables)
                 ExportMetFile(table);
         }

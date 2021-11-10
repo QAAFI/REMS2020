@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Rems.Infrastructure.ApsimX.Writers
 {
-    public class ObservedWriter : IRemsWriter
+    public class ObservedWriter : IRemsTemplate
     {
         private readonly IFileManager manager = FileManager.Instance;
 

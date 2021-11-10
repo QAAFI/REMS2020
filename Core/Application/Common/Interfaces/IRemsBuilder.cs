@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Rems.Application.Common.Interfaces
 {
-    public interface IRemsWriter
+    public interface IRemsBuilder
     {
+        public void Add(IRemsTemplate template);
+
         public void Export();
     }
 }
