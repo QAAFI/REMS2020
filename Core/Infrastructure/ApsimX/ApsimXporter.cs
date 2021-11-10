@@ -71,8 +71,8 @@ namespace Rems.Infrastructure.ApsimX
             var ids = exps.Select(e => e.ID).ToArray();
 
             // Output the observed data
-            string name = Path.GetFileNameWithoutExtension(FilePath);
-            await Handler.Query(new WriteObservedCommand { FileName = name, IDs = ids });
+            string name = Path.GetFileNameWithoutExtension(FilePath);            
+            new ObservedTemplate(Handler, ids, name).Export();
 
             // Add the data store
             var store = new DataStore();
