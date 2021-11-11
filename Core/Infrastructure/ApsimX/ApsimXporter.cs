@@ -101,8 +101,7 @@ namespace Rems.Infrastructure.ApsimX
             simulations.Children.Add(panel);
 
             // Output the met data
-            var query = new WriteMetCommand { ExperimentIds = ids };
-            var mets = await Handler.Query(query);
+            new MetTemplate(Handler, ids).Export();
 
             // Check if replacements is necessary
             if (exps.Any(e => e.Crop == "Sorghum"))
@@ -117,7 +116,7 @@ namespace Rems.Infrastructure.ApsimX
             {
                 OnNextItem("Simulation");
                 Summary.AddSubHeading(Name + ':', 2);
-                var request = new WeatherQuery { ExperimentId = ID, Mets = mets, Report = Summary };
+                var request = new WeatherQuery { ExperimentId = ID, Report = Summary };
                 var weather = await Handler.Query(request);
                 var model = await CreateExperiment(Name, ID, weather);
                 simulations.Children.Add(model);

@@ -25,8 +25,6 @@ namespace Rems.Application.CQRS
         /// </summary>
         public int ExperimentId { get; set; }
 
-        public (string Station, string File, DateTime Start, DateTime End)[] Mets { get; set; }
-
         public Markdown Report { get; set; }
 
         /// <inheritdoc/>
@@ -39,8 +37,9 @@ namespace Rems.Application.CQRS
         protected override Weather Run()
         {
             var exp = _context.Experiments.Find(ExperimentId);
+            var station = exp.MetStation;
 
-            if (!exp.MetStation.MetData.Any())
+            if (!station.MetData.Any())
             {
                 Report.AddLine("No existing met data found. " +
                     "Either import met data and export again, " +
@@ -49,14 +48,17 @@ namespace Rems.Application.CQRS
                 return new();
             }
 
-            var met = Mets.SingleOrDefault(m => m.Start <= exp.BeginDate && exp.EndDate <= m.End);
+            var dates = station.MetData
+                .Where(d => exp.BeginDate <= d.Date && d.Date <= exp.EndDate);
 
-            if (met.Equals(default))
+            var valid = dates.Count() >= (exp.EndDate - exp.BeginDate).Days;
+
+            if (!valid)
                 Report.AddLine("The existing met data does not cover the duration of " +
-                    "the experiment. Either import additional data or provide APSIM NG a " +
+                    "the experiment. Either import additional data or provide APSIM a " +
                     "valid .met file before running the simulation.");
 
-            return new Weather { FileName = met.File };
+            return new Weather { FileName =  "met\\" + station.Name + ".met" };
         }
     }
 

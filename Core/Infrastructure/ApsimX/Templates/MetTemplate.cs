@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Rems.Infrastructure.ApsimX.Writers
+namespace Rems.Infrastructure.ApsimX
 {
     public class MetTemplate : IRemsTemplate
     {
@@ -34,9 +34,7 @@ namespace Rems.Infrastructure.ApsimX.Writers
         {
             var info = Directory.CreateDirectory(manager.ExportPath + "\\met");
 
-            var start = new DateTime(table.Rows[0].Field<int>("Year"), 1, 1).AddDays(table.Rows[0].Field<int>("Day"));
-            var name = table.TableName.Replace('/', '-').Replace(' ', '_') + "_" + start.ToString("MMM-yyyy") + ".met";
-
+            var name = table.TableName.Replace('/', '-').Replace(' ', '_') + ".met";
             using var stream = new FileStream(info.FullName + '\\' + name, FileMode.Create);
             using var writer = new StreamWriter(stream);
 
