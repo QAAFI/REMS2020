@@ -1,6 +1,7 @@
 ﻿using Rems.Application.Common.Interfaces;
 using Rems.Application.CQRS;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -41,10 +42,25 @@ namespace Rems.Infrastructure.ApsimX
 
             // Format and add the data
             foreach (DataRow row in observed.Rows)
-                builder.AppendLine(string.Join(',', row.ItemArray));
+                builder.AppendLine(string.Join(',', Format(row.ItemArray)));
 
             writer.Write(builder.ToString());
             writer.Close();
+        }
+
+        private IEnumerable<string> Format(object[] items)
+        {
+            foreach (var item in items)
+            {
+                if (item is DateTime date)
+                    yield return date.ToString("dd/MM/yyyy");
+
+                else if (item is double value)
+                    yield return value.ToString("F2");
+
+                else
+                    yield return item.ToString();
+            }
         }
     }
 }
