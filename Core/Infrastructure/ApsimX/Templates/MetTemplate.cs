@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Rems.Infrastructure.ApsimX.Writers
 {
-    public class MetWriter : IRemsTemplate
+    public class MetTemplate : IRemsTemplate
     {
         private readonly IQueryHandler Handler;
 
@@ -16,7 +16,7 @@ namespace Rems.Infrastructure.ApsimX.Writers
 
         private readonly int[] IDs;
 
-        public MetWriter(IQueryHandler handler, int[] ids)
+        public MetTemplate(IQueryHandler handler, int[] ids)
         {
             Handler = handler;
             IDs = ids;
