@@ -11,22 +11,31 @@ namespace Rems.Infrastructure.Excel
     /// <summary>
     /// Manages the validation and import process of data from excel spreadsheets
     /// </summary>
-    public class TableInserter : TaskRunner
+    public class TableInserter : ITaskRunner
     {
+        /// <inheritdoc/>
+        public event EventHandler<string> NextItem;
+
+        /// <inheritdoc/>
+        public IQueryHandler Handler { get; set; }
+
+        /// <inheritdoc/>
+        public IProgress<int> Progress { get; set; }
+
         /// <summary>
         /// The set of data tables to import
         /// </summary>
         public IEnumerable<DataTable> Data { get; set; }
 
         /// <inheritdoc/>
-        public override int Items => Data.Count();
+        public int Items => Data.Count();
         /// <inheritdoc/>
-        public override int Steps => Data.Sum(d => d.Rows.Count);        
+        public int Steps => Data.Sum(d => d.Rows.Count);        
  
         /// <summary>
         /// Sequentially insert each table into the database
         /// </summary>
-        public async override Task Run()
+        public async Task Run()
         {            
             if (!FileManager.Connected)
                 throw new Exception("No existing database connection");
@@ -44,7 +53,7 @@ namespace Rems.Infrastructure.Excel
             if (table.ExtendedProperties["Ignore"] is true)
                 return;
 
-            OnNextItem("Importing table");
+            NextItem.Invoke(this, "Importing table");
 
             var type = table.ExtendedProperties["Type"] as Type;
 

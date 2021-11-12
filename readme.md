@@ -17,42 +17,42 @@ Data is contains the results of a set of experiments in the form of explicit mea
 ### ___Importing Templates___
 1. Create a new file to store the data.
 
-![image](Documentation/CreateNew.png)
+![image](docs/Images/CreateNew.png)
 
 2. Click the link to select an Information template to import
 
-![image](Documentation/ClickInformation.png)
+![image](docs/Images/ClickInformation.png)
 
 3. A page displaying the contents of the file will appear. Warning symbols will show if additional action is required before importing.
 
-![image](Documentation/Importer.png)
+![image](docs/Images/Importer.png)
 
 4. Ensure all the spreadsheet contains all the required columns
 
-![image](Documentation/Required.png) ![image](Documentation/NoName.png)
+![image](docs/Images/Required.png) ![image](docs/Images/NoName.png)
 
 changes to
 
-![image](Documentation/HasRequired.png) ![image](Documentation/HasName.png)
+![image](docs/Images/HasRequired.png) ![image](docs/Images/HasName.png)
 
 5. Additional columns will be imported as traits
 
-![image](Documentation/Traits.png)
+![image](docs/Images/Traits.png)
 
 6. When all the data is valid, click the button to begin the import
 
-![image](Documentation/Import.png)
+![image](docs/Images/Import.png)
 
 7. After the Information is imported, repeat the process for Experiments, then Data
 
-![image](Documentation/Experiments.png)
+![image](docs/Images/Experiments.png)
 
 REMS 2020 stores the imported data in the .db format. The data in these files can be viewed through 3rd party software such as [SQLite browser](https://sqlitebrowser.org/). It is recommended to only use such applications for verifying the contents of the file - any changes to the data should be made by editing and re-importing the excel templates.
 
 ### ___Experiment Details___
 REMS 2020 provides tools to easily verify the sensibility of data before creating simulations. After importing experimental data, a detailer will become available to quickly visualise the contents.
 
-![image](Documentation/Detailer.png)
+![image](docs/Images/Detailer.png)
 
 The imported experiments appear on the left, with options to look at crop and soil data, as well as any operations such as fertilization and irrigation that took place over the course of the experiment.
 

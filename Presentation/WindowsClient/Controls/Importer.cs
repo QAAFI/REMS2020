@@ -225,7 +225,6 @@ namespace WindowsClient.Controls
 
             if (task.IsCompletedSuccessfully)
             {
-                inserter.Dispose();
                 excel.Data.Dispose();
 
                 ImportCompleted.Invoke(this, EventArgs.Empty);
